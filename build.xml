@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- ////////////////////////////////////////////////////////////////////// -->
+<!-- Copyright (c) 2002 by Naohide Sano, All rights reserved.               -->
+<!--                                                                        -->
+<!-- Written by Naohide Sano                                                -->
+<!--                                                                        -->
+<!-- vavi-sound-sandbox                                                     -->
+<!--                                                                        -->
+<!-- @author	Naohide Sano                                                -->
+<!-- @version	0.00	021208	nsano	initial version                     -->
+<!--                                                                        -->
+<!-- ////////////////////////////////////////////////////////////////////// -->
+
+<project name="vavi-sound-sandbox" default="run" basedir="."
+         xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <property file="local.properties" />
+
+  <property name="dir.build" value="target/classes" />
+  <property name="dir.lib" value="lib" />
+
+  <!-- クラスパスの定義 -->
+  <path id="project.class.path">
+    <fileset dir="${dir.lib}">
+      <include name="*.jar" />
+    </fileset>
+  </path>
+
+  <!-- ターゲットの定義 -->
+
+  <!-- clean -->
+  <target name="clean" description="ビルド環境のクリア">
+    <delete>
+      <fileset dir="${dir.build}">
+        <include name="**/*" />
+      </fileset>
+      <fileset dir="target/test-classes">
+        <include name="**/*" />
+      </fileset>
+    </delete>
+  </target>
+
+  <!-- prepare -->
+  <target name="prepare" description="ビルド環境の準備">
+    <ivy:settings file="ivy-settings.xml" />
+    <ivy:convertpom pomFile="pom.xml" ivyFile="ivy.xml" />
+    <ivy:retrieve />
+  </target>
+
+  <!-- javac -->
+  <target name="compile" depends="prepare" description="コンパイル">
+    <javac debug="on" destdir="${dir.build}" encoding="MS932">
+      <classpath refid="project.class.path" />
+      <include name="**/*.java" />
+      <src path="src/main/java" />
+    </javac>
+
+    <copy todir="${dir.build}">
+      <fileset dir="src/main/resources">
+        <include name="**/*" />
+      </fileset>
+    </copy>
+  </target>
+
+  <!-- run -->
+  <target name="run" depends="compile" description="unknown でコンバート">
+    <java classname="unknown.sound.MTMMain" fork="yes">
+      <classpath>
+        <path refid="project.class.path" />
+        <pathelement location="${dir.build}" />
+      </classpath>
+    </java>
+  </target>
+
+  <!-- backup -->
+  <target name="backup" description="backup">
+    <tstamp>
+      <format property="today.jp" pattern="yyMMdd"/>
+    </tstamp>
+    <zip zipfile="mld${today.jp}.zip">
+      <fileset dir=".">
+        <include name="src/**/*.java" />
+        <include name="etc/*.MF" />
+        <include name="*.xml" />
+      </fileset>
+    </zip>
+  </target>
+
+</project>
+
+<!-- -->
