@@ -48,20 +48,20 @@ public class Test {
             public void meta(MetaMessage meta) {
 //Debug.println(meta.getType());
                 switch (meta.getType()) {
-                case 1:  // ƒeƒLƒXƒgEƒCƒxƒ“ƒg 127 bytes
+                case 1:  // ãƒ†ã‚­ã‚¹ãƒˆãƒ»ã‚¤ãƒ™ãƒ³ãƒˆ 127 bytes
 //Debug.println(new String(meta.getData()));
                     String text = new String(meta.getData());
                     String parts[] = text.split(":");
 Debug.println(parts[0] + ":" + parts[1] + ":" + meta.getData().length);
                     sb.append(parts[2]);
                     break;
-                case 3:  // ƒgƒ‰ƒbƒN–¼ "Master Track", "Voice1"
+                case 3:  // ãƒˆãƒ©ãƒƒã‚¯å "Master Track", "Voice1"
                     String trackName = new String(meta.getData());
 Debug.println(trackName);
                     break;
-                case 81: // ƒeƒ“ƒ|İ’è
+                case 81: // ãƒ†ãƒ³ãƒè¨­å®š
                     break;
-                case 88: // ”q‹L†
+                case 88: // æ‹å­è¨˜å·
                     break;
                 case 47:
 try {
@@ -88,11 +88,11 @@ Debug.println("NRPN LSB: " + event.getData2());
                 case 99: // NRPN MSB
 Debug.println("NRPN MSB: " + event.getData2());
                     break;
-                case 6: // ƒf[ƒ^ƒGƒ“ƒgƒŠ MSB
-Debug.println("ƒf[ƒ^ƒGƒ“ƒgƒŠ MSB: " + event.getData2());
+                case 6: // ãƒ‡ãƒ¼ã‚¿ã‚¨ãƒ³ãƒˆãƒª MSB
+Debug.println("ãƒ‡ãƒ¼ã‚¿ã‚¨ãƒ³ãƒˆãƒª MSB: " + event.getData2());
                     break;
-                case 38: // ƒf[ƒ^ƒGƒ“ƒgƒŠ LSB
-Debug.println("ƒf[ƒ^ƒGƒ“ƒgƒŠ LSB: " + event.getData2());
+                case 38: // ãƒ‡ãƒ¼ã‚¿ã‚¨ãƒ³ãƒˆãƒª LSB
+Debug.println("ãƒ‡ãƒ¼ã‚¿ã‚¨ãƒ³ãƒˆãƒª LSB: " + event.getData2());
                     break;
                 default:
 Debug.println("unhandled control change: " + event.getData1());

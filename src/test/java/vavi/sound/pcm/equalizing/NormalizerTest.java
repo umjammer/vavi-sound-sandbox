@@ -17,7 +17,7 @@ import javax.sound.sampled.SourceDataLine;
 
 import junit.framework.TestCase;
 
-import vavi.sound.Checksum;
+import vavix.util.Checksum;
 
 
 /**

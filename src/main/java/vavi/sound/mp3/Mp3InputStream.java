@@ -25,9 +25,9 @@ import vavi.util.StringUtil;
 
 /**
  * Mp3InputStream.
- * <li> TODO ¡‚Ì‚Æ‚±‚ë {@link #read()} ‚ğg—p‚µ‚Ä‚Í‚¢‚¯‚Ü‚¹‚ñB
+ * <li> TODO ä»Šã®ã¨ã“ã‚ {@link #read()} ã‚’ä½¿ç”¨ã—ã¦ã¯ã„ã‘ã¾ã›ã‚“ã€‚
  * 
- * @author ¬™ “Äj (Kosugi Atsushi)
+ * @author å°æ‰ ç¯¤å² (Kosugi Atsushi)
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 1.00 original version <br>
  * @version 2.00 030817 nsano java port <br>
@@ -54,7 +54,7 @@ public class Mp3InputStream extends FilterInputStream {
         in.mark(4096);
 
         // read temporary
-        byte[] buf = new byte[4096]; // TODO 4096 byte ‚Ü‚Å‚É firstSync ‚ª‚ ‚é‚Æ‰¼’è‚µ‚Ä‚¢‚é 
+        byte[] buf = new byte[4096]; // TODO 4096 byte ã¾ã§ã« firstSync ãŒã‚ã‚‹ã¨ä»®å®šã—ã¦ã„ã‚‹ 
         int readBytes = 0;
         while (readBytes < buf.length) {
              int l = in.read(buf, readBytes, buf.length - readBytes);

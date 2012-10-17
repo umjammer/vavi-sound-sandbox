@@ -23,8 +23,8 @@ import junit.framework.TestCase;
 
 import vavi.io.LittleEndianDataInputStream;
 import vavi.io.LittleEndianDataOutputStream;
-import vavi.sound.Checksum;
 import vavi.util.StringUtil;
+import vavix.util.Checksum;
 
 
 /**

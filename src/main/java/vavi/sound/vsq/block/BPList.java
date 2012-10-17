@@ -23,12 +23,12 @@ public class BPList implements Block {
 
     /**
      * <pre>
-     * PitchBendBPList          PIT   -8191Å`8191  0
-     * PitchBendSensBPList      PBS     1Å`24    1 
-     * DynamicsBPList           DYN     0Å`127   64
-     * EpRResidualBPList        BRE     0Å`127   0
-     * EpRESlopeBPList          BRI     0Å`127   64
-     * EpRESlopeDepthBPList     CLE     0Å`127   0
+     * PitchBendBPList          PIT   -8191„Äú8191  0
+     * PitchBendSensBPList      PBS     1„Äú24    1 
+     * DynamicsBPList           DYN     0„Äú127   64
+     * EpRResidualBPList        BRE     0„Äú127   0
+     * EpRESlopeBPList          BRI     0„Äú127   64
+     * EpRESlopeDepthBPList     CLE     0„Äú127   0
      * Reso1FreqBPList
      * Reso2FreqBPList
      * Reso3FreqBPList
@@ -41,9 +41,9 @@ public class BPList implements Block {
      * Reso2AmpBPList
      * Reso3AmpBPList
      * Reso4AmpBPList
-     * GenderFactorBPList       GEN     0Å`127   64
-     * PortamentoTimingBPList   POR     0Å`127   64
-     * OpeningBPList            OPE     0Å`127   64
+     * GenderFactorBPList       GEN     0„Äú127   64
+     * PortamentoTimingBPList   POR     0„Äú127   64
+     * OpeningBPList            OPE     0„Äú127   64
      * </pre>
      */
     String id;

@@ -46,14 +46,14 @@ public class VSQ {
     @SuppressWarnings("unchecked")
     public VSQ(Sequence sequence) throws IOException {
         
-        String[] datum = getData(sequence);
+        String[] data = getData(sequence);
 
-        tracks = new List[datum.length];
+        tracks = new List[data.length];
 
-        for (int i = 0; i < datum.length; i++) {
+        for (int i = 0; i < data.length; i++) {
             tracks[i] = new ArrayList<Block>();
-//Debug.println("track:" + i + "\n" + datum[i]);
-            Reader reader = new StringReader(datum[i]);
+//Debug.println("track:" + i + "\n" + data[i]);
+            Reader reader = new StringReader(data[i]);
             readBlocks(i, reader);
 Debug.println("track[" + i + "]: " + tracks[i].size());
             
@@ -180,7 +180,7 @@ Debug.println("events[" + t + "]: " + track.size());
                         MetaMessage meta = MetaMessage.class.cast(message);
 //Debug.println(meta.getType());
                         switch (meta.getType()) {
-                        case 1:  // ƒeƒLƒXƒgEƒCƒxƒ“ƒg 127 bytes
+                        case 1:  // ãƒ†ã‚­ã‚¹ãƒˆãƒ»ã‚¤ãƒ™ãƒ³ãƒˆ 127 bytes
                             byte[] data = meta.getData();
 //Debug.println(new String(data));
                             int p = 0;
@@ -194,7 +194,7 @@ Debug.println("events[" + t + "]: " + track.size());
 //Debug.println(new String(data).substring(p));
                             baos.write(data, p, data.length - p);
                             break;
-                        case 3:  // ƒgƒ‰ƒbƒN–¼ , 
+                        case 3:  // ãƒˆãƒ©ãƒƒã‚¯å , 
                             String trackName = new String(meta.getData());
 Debug.println("trackName[" + t + "]: " + trackName);
                             break;

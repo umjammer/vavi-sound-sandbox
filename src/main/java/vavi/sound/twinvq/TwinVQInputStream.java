@@ -38,7 +38,7 @@ import vavi.util.Debug;
  */
 public class TwinVQInputStream extends FilterInputStream {
 
-    /** このクラスで取得するストリームのバイトオーダー */
+    /** 縺薙�ｮ繧ｯ繝ｩ繧ｹ縺ｧ蜿門ｾ励☆繧九せ繝医Μ繝ｼ繝縺ｮ繝舌う繝医が繝ｼ繝繝ｼ */
     private ByteOrder byteOrder;
 
     /**

@@ -107,7 +107,7 @@ Debug.printStackTrace(e);
 
     /**
      * hack of Track
-     * TODO ƒ}ƒW‚Å“®‚­‚ÌH 
+     * TODO ãƒã‚¸ã§å‹•ãã®ï¼Ÿ 
      */
     private void insert(Track track, MfiEvent event, int index) {
         try {
@@ -239,7 +239,7 @@ Debug.println("here: " + j + ", " + timeOver);
                 MetaMessage metaMessage = (MetaMessage) midiMessage;
                 int metaType = metaMessage.getType();
                 switch (metaType) {
-                case 81: // ƒeƒ“ƒ|İ’è
+                case 81: // ãƒ†ãƒ³ãƒè¨­å®š
                     TempoMessage tempoMessage = new TempoMessage(0, 0xff, context.getMidiResolution(), (metaMessage.getData()[0] << 8) | metaMessage.getData()[1]);
                     mfiTrack.add(new MfiEvent(tempoMessage, presentTime));
                     break;

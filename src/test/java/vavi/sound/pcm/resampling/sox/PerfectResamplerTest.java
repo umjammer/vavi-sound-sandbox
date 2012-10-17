@@ -22,8 +22,8 @@ import javax.sound.sampled.SourceDataLine;
 
 import junit.framework.TestCase;
 
-import vavi.sound.ByteUtil;
 import vavi.util.Debug;
+import vavix.util.ByteUtil;
 
 
 /**

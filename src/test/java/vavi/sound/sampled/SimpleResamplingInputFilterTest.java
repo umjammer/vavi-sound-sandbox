@@ -25,7 +25,7 @@ import junit.framework.TestCase;
  */
 public class SimpleResamplingInputFilterTest extends TestCase {
 
-    String inFile = "C:\\Documents and Settings\\sano-n\\My Documents\\My Music\\1\\‘å’Ë ˆ¤ - ‚³‚­‚ç‚ñ‚Ú.wav";
+    String inFile = "C:\\Documents and Settings\\sano-n\\My Documents\\My Music\\1\\å¤§å¡š æ„› - ã•ãã‚‰ã‚“ã¼.wav";
     String outFile = "out.wav";
 
     /** */

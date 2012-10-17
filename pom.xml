@@ -21,7 +21,7 @@
         <configuration>
           <source>1.5</source>
           <target>1.5</target>
-          <encoding>Windows-31J</encoding>
+          <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
     </plugins>
@@ -32,8 +32,7 @@
   	<dependency>
   		<groupId>vavi</groupId>
   		<artifactId>vavi-sound</artifactId>
-  		<version>1.0.0</version>
-  		<optional>false</optional>
+  		<version>1.0.1</version>
   	</dependency>
   	<dependency>
   		<groupId>javax.media</groupId>
@@ -45,9 +44,7 @@
   	<dependency>
   		<groupId>vavi</groupId>
   		<artifactId>vavi-commons-sandbox</artifactId>
-  		<version>0.3.0</version>
-  		<scope>test</scope>
-  		<optional>false</optional>
+  		<version>0.3.1</version>
   	</dependency>
   	<dependency>
   		<groupId>junit</groupId>
@@ -75,6 +72,18 @@
   		<artifactId>tritonus-cdda</artifactId>
   		<version>0.3.6</version>
   		<scope>test</scope>
+  		<optional>false</optional>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.rococoa</groupId>
+  		<artifactId>rococoa-core</artifactId>
+  		<version>0.5</version>
+  		<optional>false</optional>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.rococoa</groupId>
+  		<artifactId>rococoa-cocoa</artifactId>
+  		<version>0.5</version>
   		<optional>false</optional>
   	</dependency>
   </dependencies>

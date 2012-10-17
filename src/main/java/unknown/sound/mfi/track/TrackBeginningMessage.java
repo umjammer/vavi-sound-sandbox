@@ -2,7 +2,7 @@ package unknown.sound.mfi.track;
 
 
 /**
- * ‰‰‘tˆÊ’uî•ñ (ƒLƒ…[ƒ|ƒCƒ“ƒg)
+ * æ¼”å¥ä½ç½®æƒ…å ± (ã‚­ãƒ¥ãƒ¼ãƒã‚¤ãƒ³ãƒˆ)
  * delta, 0xff, 0xd0,
  */
 public class TrackBeginningMessage extends SystemMessage {

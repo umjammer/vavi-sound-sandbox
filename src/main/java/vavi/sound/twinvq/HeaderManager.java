@@ -13,49 +13,49 @@ import java.util.Map;
  * HeaderManager
  */
 class HeaderManager {
-    /** ’Êíƒ`ƒƒƒ“ƒN‚Ìƒ`ƒƒƒ“ƒNƒoƒ“ƒN */
+    /** é€šå¸¸ãƒãƒ£ãƒ³ã‚¯ã®ãƒãƒ£ãƒ³ã‚¯ãƒãƒ³ã‚¯ */
     private Map<String, Chunk> primaryChunkBank;
 
-    /** •â•ƒ`ƒƒƒ“ƒN‚Ìƒ`ƒƒƒ“ƒNƒoƒ“ƒN */
+    /** è£œåŠ©ãƒãƒ£ãƒ³ã‚¯ã®ãƒãƒ£ãƒ³ã‚¯ãƒãƒ³ã‚¯ */
     private Map<String, Chunk> secondaryChunkBank;
 
-    /** TWIN ƒ`ƒƒƒ“ƒN‚ÌIDA’Êí‚ÌID‚Æˆá‚¢ "TWIN"+<ƒo[ƒWƒ‡ƒ“¯•Êq>‚Å\¬‚³‚ê‚éB */
+    /** TWIN ãƒãƒ£ãƒ³ã‚¯ã®IDã€é€šå¸¸ã®IDã¨é•ã„ "TWIN"+<ãƒãƒ¼ã‚¸ãƒ§ãƒ³è­˜åˆ¥å­>ã§æ§‹æˆã•ã‚Œã‚‹ã€‚ */
     private String chunkID;
 
-    /** ƒ`ƒƒƒ“ƒNƒoƒ“ƒN‚©‚çID‚Åƒ`ƒƒƒ“ƒN‚ğˆø‚«o‚· */
+    /** ãƒãƒ£ãƒ³ã‚¯ãƒãƒ³ã‚¯ã‹ã‚‰IDã§ãƒãƒ£ãƒ³ã‚¯ã‚’å¼•ãå‡ºã™ */
     Chunk getChunk(Map<String, Chunk> chunkBank, String id) {
 
-        // ƒ`ƒƒƒ“ƒN‚Ì‚ ‚é‚È‚µ‚ğ–â‚¢‡‚í‚¹‚éB
+        // ãƒãƒ£ãƒ³ã‚¯ã®ã‚ã‚‹ãªã—ã‚’å•ã„åˆã‚ã›ã‚‹ã€‚
         if (chunkBank.containsKey(id)) {
-            // ‚ ‚ê‚Î
-            // ‚»‚Ìƒ`ƒƒƒ“ƒN‚ğ–ß‚·B
+            // ã‚ã‚Œã°
+            // ãã®ãƒãƒ£ãƒ³ã‚¯ã‚’æˆ»ã™ã€‚
             return chunkBank.get(id);
         }
 
-        // ƒ`ƒƒƒ“ƒN‚ª‚È‚¯‚ê‚Îˆ—‚ğ•úŠü‚·‚éB
+        // ãƒãƒ£ãƒ³ã‚¯ãŒãªã‘ã‚Œã°å‡¦ç†ã‚’æ”¾æ£„ã™ã‚‹ã€‚
         throw new FailGetChunkException();
     }
 
     /**
-     * ƒ`ƒƒƒ“ƒN‚ğ“ü—Í‚µ‚ÄAƒTƒuƒ`ƒƒƒ“ƒN‚ğE‚¢o‚µƒ`ƒƒƒ“ƒNƒoƒ“ƒN‚É—a‚¯‚é
-     * @param chunkBank In/Out ƒ`ƒƒƒ“ƒNƒoƒ“ƒN
-     * @param inputChunk “ü—Íƒ`ƒƒƒ“ƒN
-     * ChunkŒ^‚Ìƒ`ƒƒƒ“ƒN‚©‚çƒTƒuƒ`ƒƒƒ“ƒN‚ğæ‚èo‚µƒ`ƒƒƒ“ƒNƒoƒ“ƒN‚É“o˜^‚·‚é
+     * ãƒãƒ£ãƒ³ã‚¯ã‚’å…¥åŠ›ã—ã¦ã€ã‚µãƒ–ãƒãƒ£ãƒ³ã‚¯ã‚’æ‹¾ã„å‡ºã—ãƒãƒ£ãƒ³ã‚¯ãƒãƒ³ã‚¯ã«é ã‘ã‚‹
+     * @param chunkBank In/Out ãƒãƒ£ãƒ³ã‚¯ãƒãƒ³ã‚¯
+     * @param inputChunk å…¥åŠ›ãƒãƒ£ãƒ³ã‚¯
+     * Chunkå‹ã®ãƒãƒ£ãƒ³ã‚¯ã‹ã‚‰ã‚µãƒ–ãƒãƒ£ãƒ³ã‚¯ã‚’å–ã‚Šå‡ºã—ãƒãƒ£ãƒ³ã‚¯ãƒãƒ³ã‚¯ã«ç™»éŒ²ã™ã‚‹
      */
     private void PickUpSubChunks(Map<String, Chunk> chunkBank, ChunkChunk inputChunk) {
-        // €”õ
-        // ƒ`ƒƒƒ“ƒN ID ‚ÌƒTƒCƒYi‚S•¶šj
+        // æº–å‚™
+        // ãƒãƒ£ãƒ³ã‚¯ ID ã®ã‚µã‚¤ã‚ºï¼ˆï¼”æ–‡å­—ï¼‰
         final int idSize = 4;
 
-        // ƒ`ƒƒƒ“ƒN‚ğ‰ğÍ‚·‚é‘O‚É‚Ü‚«–ß‚µ‚ğs‚¤
+        // ãƒãƒ£ãƒ³ã‚¯ã‚’è§£æã™ã‚‹å‰ã«ã¾ãæˆ»ã—ã‚’è¡Œã†
         inputChunk.rewind();
 
         Chunk subChunk;
         try {
-            // ƒ`ƒƒƒ“ƒN‚©‚çƒTƒuƒ`ƒƒƒ“ƒN‚ğæ‚èo‚·
+            // ãƒãƒ£ãƒ³ã‚¯ã‹ã‚‰ã‚µãƒ–ãƒãƒ£ãƒ³ã‚¯ã‚’å–ã‚Šå‡ºã™
             while ((subChunk = inputChunk.GetNextChunk(idSize)) != null) {
                 String id = subChunk.getID();
-                // æ‚èo‚µ‚½ƒTƒuƒ`ƒƒƒ“ƒN‚ğƒ`ƒƒƒ“ƒNƒoƒ“ƒN‚É“o˜^
+                // å–ã‚Šå‡ºã—ãŸã‚µãƒ–ãƒãƒ£ãƒ³ã‚¯ã‚’ãƒãƒ£ãƒ³ã‚¯ãƒãƒ³ã‚¯ã«ç™»éŒ²
                 chunkBank.put(id, subChunk);
             }
         } catch (ChunkChunk.FailGetChunkException e) {
@@ -65,15 +65,15 @@ class HeaderManager {
     }
 
     /**
-     * ƒwƒbƒ_ƒ}ƒl[ƒWƒƒ‚Ì‰Šú‰»‚ğ‚·‚éBCreate() ‚©‚ç‚Ì‚İŒÄ‚Î‚ê‚éB
-     * ‰Šú‰»‚·‚éBƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Ì‘ã‚í‚è‚Ég‚¤
+     * ãƒ˜ãƒƒãƒ€ãƒãƒãƒ¼ã‚¸ãƒ£ã®åˆæœŸåŒ–ã‚’ã™ã‚‹ã€‚Create() ã‹ã‚‰ã®ã¿å‘¼ã°ã‚Œã‚‹ã€‚
+     * åˆæœŸåŒ–ã™ã‚‹ã€‚ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã®ä»£ã‚ã‚Šã«ä½¿ã†
      */
     void init(ChunkChunk twinChunk) {
         try {
-            // Šî–{ƒ`ƒƒƒ“ƒN‚ğŠî–{ƒ`ƒƒƒ“ƒNƒoƒ“ƒN‚Éû‚ß‚éB
+            // åŸºæœ¬ãƒãƒ£ãƒ³ã‚¯ã‚’åŸºæœ¬ãƒãƒ£ãƒ³ã‚¯ãƒãƒ³ã‚¯ã«åã‚ã‚‹ã€‚
             PickUpSubChunks(primaryChunkBank, twinChunk);
 
-            // •â•ƒ`ƒƒƒ“ƒN‚ª‚ ‚Á‚½‚ç•â•ƒ`ƒƒƒ“ƒNƒoƒ“ƒN‚Éû‚ß‚éB
+            // è£œåŠ©ãƒãƒ£ãƒ³ã‚¯ãŒã‚ã£ãŸã‚‰è£œåŠ©ãƒãƒ£ãƒ³ã‚¯ãƒãƒ³ã‚¯ã«åã‚ã‚‹ã€‚
             ChunkChunk scndChunk = (ChunkChunk) getPrimaryChunk("SCND");
             PickUpSubChunks(secondaryChunkBank, scndChunk);
         } catch (ChunkChunk.FailGetChunkException e) {
@@ -84,22 +84,22 @@ class HeaderManager {
     }
 
     /**
-     * ƒRƒ“ƒXƒgƒ‰ƒNƒ^Bƒ†[ƒU‚ÍŒÄ‚×‚È‚¢B‘ã‚í‚è‚É Create() ‚ğg‚¤B
-     * ‰Šú‰»‚ÌÛ‚ÉƒGƒ‰[‚ªo‚é‰Â”\«‚ª‚ ‚é‚½‚ß‚±‚Ì‚æ‚¤‚Èd—l‚É‚µ‚½B
+     * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€‚ãƒ¦ãƒ¼ã‚¶ã¯å‘¼ã¹ãªã„ã€‚ä»£ã‚ã‚Šã« Create() ã‚’ä½¿ã†ã€‚
+     * åˆæœŸåŒ–ã®éš›ã«ã‚¨ãƒ©ãƒ¼ãŒå‡ºã‚‹å¯èƒ½æ€§ãŒã‚ã‚‹ãŸã‚ã“ã®ã‚ˆã†ãªä»•æ§˜ã«ã—ãŸã€‚
      */
     private HeaderManager() {
     }
 
-    /** ƒ`ƒƒƒ“ƒN‚Ì‘®‚ª³‚µ‚­‚È‚¢ */
+    /** ãƒãƒ£ãƒ³ã‚¯ã®æ›¸å¼ãŒæ­£ã—ããªã„ */
     class WrongChunkFormatException extends RuntimeException {
     }
 
-    /** ’Êíƒ`ƒƒƒ“ƒN‚ğˆø‚«o‚· */
+    /** é€šå¸¸ãƒãƒ£ãƒ³ã‚¯ã‚’å¼•ãå‡ºã™ */
     public Chunk getPrimaryChunk(String id) {
         return getChunk(primaryChunkBank, id);
     }
 
-    /** •â•ƒ`ƒƒƒ“ƒN‚ğˆø‚«o‚· */
+    /** è£œåŠ©ãƒãƒ£ãƒ³ã‚¯ã‚’å¼•ãå‡ºã™ */
     public Chunk getSecondaryChunk(String id) {
         return getChunk(secondaryChunkBank, id);
     }
@@ -110,19 +110,19 @@ class HeaderManager {
     }
 
     /**
-     * ƒwƒbƒ_ƒ}ƒl[ƒWƒƒ‚ğ¶¬‚·‚éB
-     * ƒ`ƒƒƒ“ƒNƒ}ƒl[ƒWƒƒ‚ğì‚èo‚·BƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Ì‘ã‚í‚è
+     * ãƒ˜ãƒƒãƒ€ãƒãƒãƒ¼ã‚¸ãƒ£ã‚’ç”Ÿæˆã™ã‚‹ã€‚
+     * ãƒãƒ£ãƒ³ã‚¯ãƒãƒãƒ¼ã‚¸ãƒ£ã‚’ä½œã‚Šå‡ºã™ã€‚ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã®ä»£ã‚ã‚Š
      * 
-     * @return ¶¬‚µ‚½ƒwƒbƒ_ƒ}ƒl[ƒWƒƒ‚Ö‚Ìƒ|ƒCƒ“ƒ^A¶¬‚É¸”s‚µ‚½ê‡‚Í null
+     * @return ç”Ÿæˆã—ãŸãƒ˜ãƒƒãƒ€ãƒãƒãƒ¼ã‚¸ãƒ£ã¸ã®ãƒã‚¤ãƒ³ã‚¿ã€ç”Ÿæˆã«å¤±æ•—ã—ãŸå ´åˆã¯ null
      */
     static HeaderManager create(ChunkChunk twinChunk) {
         try {
-            // ƒ`ƒƒƒ“ƒNƒ}ƒl[ƒWƒƒ‚ğ¶¬‚·‚éB
+            // ãƒãƒ£ãƒ³ã‚¯ãƒãƒãƒ¼ã‚¸ãƒ£ã‚’ç”Ÿæˆã™ã‚‹ã€‚
             HeaderManager theManager = null;
             theManager = new HeaderManager();
             theManager.init(twinChunk);
 
-            // TWINƒ`ƒƒƒ“ƒN‚Ìƒwƒbƒ_‚ğæ“¾‚·‚é
+            // TWINãƒãƒ£ãƒ³ã‚¯ã®ãƒ˜ãƒƒãƒ€ã‚’å–å¾—ã™ã‚‹
             theManager.chunkID = twinChunk.getID();
             if (theManager.chunkID == "") {
                 return null;
@@ -134,16 +134,16 @@ class HeaderManager {
         }
     }
 
-    /** ƒ`ƒƒƒ“ƒN‚Ìæ“¾‚É¸”s‚µ‚½ */
+    /** ãƒãƒ£ãƒ³ã‚¯ã®å–å¾—ã«å¤±æ•—ã—ãŸ */
     class FailGetChunkException extends RuntimeException {
     }
 }
 
-// ƒwƒbƒ_ƒ}ƒl[ƒWƒƒ‚©‚ç‚Ìƒf[ƒ^“Ç‚İo‚µ‚Ìx‰‡ƒNƒ‰ƒX
+// ãƒ˜ãƒƒãƒ€ãƒãƒãƒ¼ã‚¸ãƒ£ã‹ã‚‰ã®ãƒ‡ãƒ¼ã‚¿èª­ã¿å‡ºã—ã®æ”¯æ´ã‚¯ãƒ©ã‚¹
 
 /**
- * Unified string information, •¶š—ñƒ`ƒƒƒ“ƒN‚Ì‘‡î•ñA
- * ƒwƒbƒ_ƒ}ƒl[ƒWƒƒ‚©‚çæ“¾‚·‚é‚±‚Æ‚ª‚Å‚«‚é
+ * Unified string information, æ–‡å­—åˆ—ãƒãƒ£ãƒ³ã‚¯ã®ç·åˆæƒ…å ±ã€
+ * ãƒ˜ãƒƒãƒ€ãƒãƒãƒ¼ã‚¸ãƒ£ã‹ã‚‰å–å¾—ã™ã‚‹ã“ã¨ãŒã§ãã‚‹
  */
 class UniStringInfo {
     public enum CharCode {
@@ -160,85 +160,85 @@ class UniStringInfo {
         }
     }
 
-    /** ƒ`ƒƒƒ“ƒN ID */
+    /** ãƒãƒ£ãƒ³ã‚¯ ID */
     private String id;
 
-    /** Šî–{•¶š—ñ */
+    /** åŸºæœ¬æ–‡å­—åˆ— */
     private String primary;
 
-    /** •â••¶š—ñ */
+    /** è£œåŠ©æ–‡å­—åˆ— */
     private String secondary;
 
-    /** Šî–{•¶š—ñ‚Ì•¶šƒR[ƒh */
+    /** åŸºæœ¬æ–‡å­—åˆ—ã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ */
     private int primaryCharCode;
 
-    /** •â••¶š—ñ‚Ì•¶šƒR[ƒh */
+    /** è£œåŠ©æ–‡å­—åˆ—ã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ */
     private int secondaryCharCode;
 
     private void putPrimaryInfo(StringChunk theChunk) {
-        // ID ‚ğƒ`ƒFƒbƒN
+        // ID ã‚’ãƒã‚§ãƒƒã‚¯
         if (id == "") {
             id = theChunk.getID();
         } else if (id != theChunk.getID()) {
             throw new IDException();
         }
 
-        // ƒf[ƒ^‚ğ‘‚«‚İ
+        // ãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ãè¾¼ã¿
         primary = theChunk.getString();
     }
 
     private void putSecondaryInfo(StringChunk theChunk) {
-        // ID ‚ğƒ`ƒFƒbƒN
+        // ID ã‚’ãƒã‚§ãƒƒã‚¯
         if (id == "") {
             id = theChunk.getID();
         } else if (id != theChunk.getID()) {
             throw new IDException();
         }
 
-        // ƒf[ƒ^‚ğ‘‚«‚İ
+        // ãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ãè¾¼ã¿
         String secondary = theChunk.getString();
-        // •¶šƒR[ƒhî•ñ‚ª‚ ‚é‚©‚Ç‚¤‚©ƒ`ƒFƒbƒN
+        // æ–‡å­—ã‚³ãƒ¼ãƒ‰æƒ…å ±ãŒã‚ã‚‹ã‹ã©ã†ã‹ãƒã‚§ãƒƒã‚¯
         if (secondary.length() < 2) {
             throw new NoCharCodeException();
         }
 
-        // •¶šƒR[ƒhƒf[ƒ^
+        // æ–‡å­—ã‚³ãƒ¼ãƒ‰ãƒ‡ãƒ¼ã‚¿
         primaryCharCode = secondary.charAt(0) - '0';
         secondaryCharCode = secondary.charAt(1) - '0';
 
         secondary = secondary.substring(2, secondary.length());
     }
 
-    /** ‰Šú‰»‚ÌÛAŠî–{ƒ`ƒƒƒ“ƒN‚Æ•â•ƒ`ƒƒƒ“ƒN‚Ì ID ‚ªH‚¢ˆá‚Á‚Ä‚¢‚é */
+    /** åˆæœŸåŒ–ã®éš›ã€åŸºæœ¬ãƒãƒ£ãƒ³ã‚¯ã¨è£œåŠ©ãƒãƒ£ãƒ³ã‚¯ã® ID ãŒé£Ÿã„é•ã£ã¦ã„ã‚‹ */
     class IDException extends RuntimeException {
     }
 
-    /** •â•ƒ`ƒƒƒ“ƒN‚É•¶šƒR[ƒhî•ñ‚ª‚È‚¢ */
+    /** è£œåŠ©ãƒãƒ£ãƒ³ã‚¯ã«æ–‡å­—ã‚³ãƒ¼ãƒ‰æƒ…å ±ãŒãªã„ */
     class NoCharCodeException extends RuntimeException {
     }
 
-    /** Šî–{•¶š—ñ‚ğ•Ô‚· */
+    /** åŸºæœ¬æ–‡å­—åˆ—ã‚’è¿”ã™ */
     public final String getPrimaryInfo() {
         return primary;
     }
 
-    /** •â••¶š—ñ‚ğ•Ô‚· */
+    /** è£œåŠ©æ–‡å­—åˆ—ã‚’è¿”ã™ */
     public final String getSecondaryInfo() {
         return secondary;
     }
 
-    /** Šî–{•¶š—ñ‚Ì•¶šƒR[ƒh‚ğ•Ô‚· */
+    /** åŸºæœ¬æ–‡å­—åˆ—ã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‚’è¿”ã™ */
     public final int getPrimaryCharCode() {
         return primaryCharCode;
     }
 
-    /** •â••¶š—ñ‚Ì•¶šƒR[ƒh‚ğ•Ô‚· */
+    /** è£œåŠ©æ–‡å­—åˆ—ã®æ–‡å­—ã‚³ãƒ¼ãƒ‰ã‚’è¿”ã™ */
     public final int getSecondaryCharCode() {
         return secondaryCharCode;
     }
 
     /**
-     * ƒRƒ“ƒXƒgƒ‰ƒNƒ^A•K—v‚Èî•ñ‚ğ‘S‚Ä—^‚¦‚é
+     * ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€å¿…è¦ãªæƒ…å ±ã‚’å…¨ã¦ä¸ãˆã‚‹
      * 
      * @param secondary deault = ""
      * @param primCode default = unknown_code
@@ -252,15 +252,15 @@ class UniStringInfo {
         this.secondaryCharCode = scndCode;
     }
 
-    /** ƒRƒ“ƒXƒgƒ‰ƒNƒ^Aƒwƒbƒ_ƒ}ƒl[ƒWƒƒ‚©‚ç“Ç‚İo‚· */
+    /** ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã€ãƒ˜ãƒƒãƒ€ãƒãƒãƒ¼ã‚¸ãƒ£ã‹ã‚‰èª­ã¿å‡ºã™ */
     UniStringInfo(String id, HeaderManager theManager) {
-        // ID ‚ğİ’è‚·‚é
+        // ID ã‚’è¨­å®šã™ã‚‹
         this.id = id;
         primaryCharCode = -1;
         secondaryCharCode = -1;
 
         int flag = 0;
-        // Šî–{ƒ`ƒƒƒ“ƒNî•ñ‚ğƒRƒs[‚·‚é
+        // åŸºæœ¬ãƒãƒ£ãƒ³ã‚¯æƒ…å ±ã‚’ã‚³ãƒ”ãƒ¼ã™ã‚‹
         try {
             StringChunk primChunk = new StringChunk(theManager.getPrimaryChunk(id));
             putPrimaryInfo(primChunk);
@@ -272,7 +272,7 @@ class UniStringInfo {
             throw new FailConstructionException();
         }
 
-        // •â•ƒ`ƒƒƒ“ƒNî•ñ‚ğƒRƒs[‚·‚é
+        // è£œåŠ©ãƒãƒ£ãƒ³ã‚¯æƒ…å ±ã‚’ã‚³ãƒ”ãƒ¼ã™ã‚‹
         try {
             StringChunk scndChunk = new StringChunk(theManager.getSecondaryChunk(id));
             putSecondaryInfo(scndChunk);
@@ -282,7 +282,7 @@ class UniStringInfo {
         }
     }
 
-    /** ƒRƒ“ƒXƒgƒ‰ƒNƒg‚Ì¸”s */
+    /** ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ãƒˆã®å¤±æ•— */
     class FailConstructionException extends RuntimeException {
     }
 }

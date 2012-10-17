@@ -15,18 +15,18 @@ package vavi.sound.pcm.resampling.rohm;
  */
 public class Resampler {
 
-    /** 1 ƒTƒ“ƒvƒ‹“–‚½‚è‚Ì bit ” */
+    /** 1 ã‚µãƒ³ãƒ—ãƒ«å½“ãŸã‚Šã® bit æ•° */
     private int nBitPerSample = 16;
 
-    /** ü”g”. */
+    /** å‘¨æ³¢æ•°. */
     private float nFreq;
     /** */
     private float nSampleFreq;
 
     /**
      * 
-     * @param nAdpcmFreq ƒGƒ“ƒR[ƒhŒã‚Ì ADPCM ƒf[ƒ^‚ÌƒTƒ“ƒvƒŠƒ“ƒOü”g”.
-     * @param nSampleFreq PCM ƒf[ƒ^ƒTƒ“ƒvƒŠƒ“ƒOü”g”.
+     * @param nAdpcmFreq ã‚¨ãƒ³ã‚³ãƒ¼ãƒ‰å¾Œã® ADPCM ãƒ‡ãƒ¼ã‚¿ã®ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°å‘¨æ³¢æ•°.
+     * @param nSampleFreq PCM ãƒ‡ãƒ¼ã‚¿ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°å‘¨æ³¢æ•°.
      */
     Resampler(float nAdpcmFreq, float nSampleFreq) {
         this.nFreq = nAdpcmFreq;
@@ -37,35 +37,35 @@ public class Resampler {
      */
     int[] resample(int[] pbyPcmData) {
 
-        // 1ƒTƒ“ƒvƒ‹‚ÌƒoƒCƒg”.
+        // 1ã‚µãƒ³ãƒ—ãƒ«ã®ãƒã‚¤ãƒˆæ•°.
         int nBytes = nBitPerSample / 8;
 
-        // ü”g”•ÏŠ·Œã‚ÌƒTƒ“ƒvƒ‹”.
+        // å‘¨æ³¢æ•°å¤‰æ›å¾Œã®ã‚µãƒ³ãƒ—ãƒ«æ•°.
         int nNewSampleNum = (int) (pbyPcmData.length * nFreq / nSampleFreq);
 
-        // —ÌˆæŠm•Û.
+        // é ˜åŸŸç¢ºä¿.
         int[] pbyNewPcm = new int[nNewSampleNum * nBytes];
 
-        // ü”g”•ÏŠ·.
+        // å‘¨æ³¢æ•°å¤‰æ›.
         for (int i = 0; i < nNewSampleNum; i++) {
 
-            // ƒCƒ“ƒfƒbƒNƒX’l.
+            // ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹å€¤.
             double dIndex = (double) i * pbyPcmData.length / nNewSampleNum;
             int nIndex1 = (int) dIndex;
             int nIndex2 = ((nIndex1 + 1) > pbyPcmData.length) ? pbyPcmData.length : (nIndex1 + 1);
 
-            // æ’lZo.
+            // ä¹—å€¤ç®—å‡º.
             double dRat1 = dIndex - nIndex1;
             double dRat2 = 1.0 - dRat1;
 
             // 8bit.
             if (nBitPerSample == 8) {
 
-                // ƒCƒ“ƒfƒbƒNƒX1‚Æ2‚Ì’l.
+                // ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹1ã¨2ã®å€¤.
                 int c1 = pbyPcmData[nIndex1] - 128;
                 int c2 = pbyPcmData[nIndex2] - 128;
 
-                // ’lZo.
+                // å€¤ç®—å‡º.
                 double dRes = dRat1 * c2 + dRat2 * c1;
                 if (dRes < -128) {
                     dRes = -128;
@@ -74,7 +74,7 @@ public class Resampler {
                     dRes = 127;
                 }
 
-                // ’l‘ã“ü.
+                // å€¤ä»£å…¥.
                 short n = (short) dRes;
                 n += 128;
 
@@ -84,11 +84,11 @@ public class Resampler {
             // 16bit.
             else {
 
-                // ƒCƒ“ƒfƒbƒNƒX1‚Æ2‚Ì’l.
+                // ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹1ã¨2ã®å€¤.
                 int n1 = pbyPcmData[nIndex1];
                 int n2 = pbyPcmData[nIndex2];
 
-                // ’lZo.
+                // å€¤ç®—å‡º.
                 double dRes = dRat1 * n2 + dRat2 * n1;
                 if (dRes < -32768) {
                     dRes = -32768;
@@ -97,7 +97,7 @@ public class Resampler {
                     dRes = 32767;
                 }
 
-                // ’l‘ã“ü.
+                // å€¤ä»£å…¥.
                 short n = (short) dRes;
 
                 System.arraycopy(n, 0, pbyNewPcm, i * nBytes, nBytes);

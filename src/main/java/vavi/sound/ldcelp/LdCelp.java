@@ -1,7 +1,4 @@
 /*
- * Copyright (c) 2003 by Naohide Sano, All rights reserved.
- *
- * Programmed by Naohide Sano
  */
 
 package vavi.sound.ldcelp;
@@ -981,7 +978,7 @@ public class LdCelp {
 //Debug.println("ix: " + ix);
         if (ix < 0) {
 Debug.println("decoder_done");
-            decoder_done = true; // TODO eof ‚È‚Ì‚Éƒtƒ‰ƒO—§‚Ä‚é‚¾‚¯H
+            decoder_done = true; // TODO eof ãªã®ã«ãƒ•ãƒ©ã‚°ç«‹ã¦ã‚‹ã ã‘ï¼Ÿ
         }
 
         UPDATE(sf_coeff, SF_COEFF);

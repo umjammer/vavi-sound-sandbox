@@ -22,7 +22,8 @@ import vavi.util.win32.WAVE;
  * 
  * @author <a href="mike@naken.cc">Michael Kohn</a> (nsano)
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
- * @version 0.00 060207 nsano initial version <br>
+ * @version 0.00 060207 nsano port to Java <br>
+ * @see "http://www.mikekohn.net/stuff/audio.php"
  */
 class Normalizer {
 

@@ -10,7 +10,7 @@ import java.util.List;
 
 
 /**
- * ƒ`ƒƒƒ“ƒN‚ÌŠî–{\‘¢‚ğ’ñ‹Ÿ‚·‚éB¶‚Ìƒf[ƒ^‚ğ“üo—Í‚·‚é
+ * ãƒãƒ£ãƒ³ã‚¯ã®åŸºæœ¬æ§‹é€ ã‚’æä¾›ã™ã‚‹ã€‚ç”Ÿã®ãƒ‡ãƒ¼ã‚¿ã‚’å…¥å‡ºåŠ›ã™ã‚‹
  */
 class Chunk {
 
@@ -21,8 +21,8 @@ class Chunk {
     private int pos;
 
     /**
-     * Œ»İˆÊ’u‚©‚ç size ƒoƒCƒg®”‚ğæ“¾
-     * @param size ƒfƒtƒHƒ‹ƒgFlong®”
+     * ç¾åœ¨ä½ç½®ã‹ã‚‰ size ãƒã‚¤ãƒˆæ•´æ•°ã‚’å–å¾—
+     * @param size ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆï¼šlongæ•´æ•°
      */
     protected long getNInt(int size/* =sizeof(long) */) {
         final int mask = 0xff;
@@ -39,8 +39,8 @@ class Chunk {
     }
 
     /**
-     * Œ»İˆÊ’u‚©‚ç size ƒoƒCƒg•ª‚ÌƒxƒNƒgƒ‹‚ğæ“¾
-     * @param size ƒfƒtƒHƒ‹ƒgFc‚è‘S•”
+     * ç¾åœ¨ä½ç½®ã‹ã‚‰ size ãƒã‚¤ãƒˆåˆ†ã®ãƒ™ã‚¯ãƒˆãƒ«ã‚’å–å¾—
+     * @param size ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆï¼šæ®‹ã‚Šå…¨éƒ¨
      */
     protected byte[] getVector(int size/* = 0 */) {
 
@@ -61,8 +61,8 @@ class Chunk {
     }
 
     /**
-     * Œ»İˆÊ’u‚©‚ç length ‚¾‚¯‚Ì•¶š—ñ‚ğæ“¾
-     * @param length ƒfƒtƒHƒ‹ƒgFc‚è‘S•”
+     * ç¾åœ¨ä½ç½®ã‹ã‚‰ length ã ã‘ã®æ–‡å­—åˆ—ã‚’å–å¾—
+     * @param length ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆï¼šæ®‹ã‚Šå…¨éƒ¨
      */
     protected String getRndString(int length/* = 0 */) {
         if (length == 0) {
@@ -82,9 +82,9 @@ class Chunk {
     }
 
     /**
-     * Œ»İˆÊ’u‚©‚ç size ƒoƒCƒg®”‚ğ‘‚«‚İ
+     * ç¾åœ¨ä½ç½®ã‹ã‚‰ size ãƒã‚¤ãƒˆæ•´æ•°ã‚’æ›¸ãè¾¼ã¿
      * 
-     * @param size ƒfƒtƒHƒ‹ƒgFlong®”
+     * @param size ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆï¼šlongæ•´æ•°
      */
     protected void putNInt(int inputData, int size/* =sizeof(long) */) {
         final int mask = 0xff;
@@ -101,44 +101,44 @@ class Chunk {
         }
     }
 
-    /** Œ»İˆÊ’u‚ğæ“ª‚É–ß‚· */
+    /** ç¾åœ¨ä½ç½®ã‚’å…ˆé ­ã«æˆ»ã™ */
     protected void rewindChunk() {
         pos = 0;
     }
 
-    /** ƒf[ƒ^‚ğÁ‹‚·‚é */
+    /** ãƒ‡ãƒ¼ã‚¿ã‚’æ¶ˆå»ã™ã‚‹ */
     protected void deleteChunk() {
         data.clear();
         rewindChunk();
     }
 
-    /** Œ»İˆÊ’u‚ğæ“¾‚·‚é */
+    /** ç¾åœ¨ä½ç½®ã‚’å–å¾—ã™ã‚‹ */
     protected final int getCurrentPosition() {
         return pos;
     }
 
-    /** —áŠO */
+    /** ä¾‹å¤– */
     protected class FailPutException extends RuntimeException {
     }
 
-    /** ƒRƒ“ƒXƒgƒ‰ƒNƒ^ */
+    /** ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ */
     public Chunk(Chunk parent) {
         id = parent.id;
         pos = 0;
     }
 
-    /** ƒRƒ“ƒXƒgƒ‰ƒNƒ^ */
+    /** ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ */
     public Chunk(String ID) {
         id = ID;
         pos = 0;
     }
 
-    /** ID ‚Ìæ“¾ */
+    /** ID ã®å–å¾— */
     public final String getID() {
         return id;
     }
 
-    /** ƒ`ƒƒƒ“ƒNƒTƒCƒY‚Ìæ“¾ */
+    /** ãƒãƒ£ãƒ³ã‚¯ã‚µã‚¤ã‚ºã®å–å¾— */
     public final int getSize() {
         return data.size();
     }
@@ -151,7 +151,7 @@ class Chunk {
         return retval;
     }
 
-    /** ƒf[ƒ^‚ğ’Ç‰ÁAƒLƒƒƒ‰ƒNƒ^”z—ñŒ^ */
+    /** ãƒ‡ãƒ¼ã‚¿ã‚’è¿½åŠ ã€ã‚­ãƒ£ãƒ©ã‚¯ã‚¿é…åˆ—å‹ */
     public int putData(int size, byte[] inputData) {
         for (int ii = 0; ii < size; ii++) {
             data.add(inputData[ii]);
@@ -160,7 +160,7 @@ class Chunk {
         return 0;
     }
 
-    /** ƒf[ƒ^‚ğ’Ç‰ÁAƒxƒNƒgƒ‹Œ^ */
+    /** ãƒ‡ãƒ¼ã‚¿ã‚’è¿½åŠ ã€ãƒ™ã‚¯ãƒˆãƒ«å‹ */
     public int putData(byte[] inputData) {
         for (int ii = 0; ii < inputData.length; ii++) {
             data.add(inputData[ii]);
@@ -168,7 +168,7 @@ class Chunk {
         return 0;
     }
 
-    /** ƒf[ƒ^‚ğ’Ç‰ÁA•¶š—ñŒ^ */
+    /** ãƒ‡ãƒ¼ã‚¿ã‚’è¿½åŠ ã€æ–‡å­—åˆ—å‹ */
     public int putData(String theString) {
 
         for (byte it : theString.getBytes()) {
@@ -184,7 +184,7 @@ class Chunk {
 }
 
 /**
- * •¶š—ñ‚Ì‚İ‚ğŠi”[‚·‚éƒ`ƒƒƒ“ƒNA”Ä—pƒ`ƒƒƒ“ƒNŒ^
+ * æ–‡å­—åˆ—ã®ã¿ã‚’æ ¼ç´ã™ã‚‹ãƒãƒ£ãƒ³ã‚¯ã€æ±ç”¨ãƒãƒ£ãƒ³ã‚¯å‹
  */
 class StringChunk extends Chunk {
     public String getString() {
@@ -208,12 +208,12 @@ class StringChunk extends Chunk {
 }
 
 /**
- * ®”‚ğ‚P‚Â‚¾‚¯Ši”[‚·‚éƒ`ƒƒƒ“ƒNŒ^‚Ìƒeƒ“ƒvƒŒ[ƒgA”Ä—pƒ`ƒƒƒ“ƒNŒ^
+ * æ•´æ•°ã‚’ï¼‘ã¤ã ã‘æ ¼ç´ã™ã‚‹ãƒãƒ£ãƒ³ã‚¯å‹ã®ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã€æ±ç”¨ãƒãƒ£ãƒ³ã‚¯å‹
  */
 class IntChunk extends Chunk {
     int m_dataSize;
 
-    // ®”ƒf[ƒ^‚ğæ“¾‚·‚é
+    // æ•´æ•°ãƒ‡ãƒ¼ã‚¿ã‚’å–å¾—ã™ã‚‹
     public final long getInt() {
         rewindChunk();
         return getNInt(m_dataSize);
@@ -241,10 +241,10 @@ class IntChunk extends Chunk {
 }
 
 /**
- * ƒ`ƒƒƒ“ƒN‚ğŠi”[‚·‚éƒ`ƒƒƒ“ƒNA”Ä—pƒ`ƒƒƒ“ƒNŒ^
+ * ãƒãƒ£ãƒ³ã‚¯ã‚’æ ¼ç´ã™ã‚‹ãƒãƒ£ãƒ³ã‚¯ã€æ±ç”¨ãƒãƒ£ãƒ³ã‚¯å‹
  */
 class ChunkChunk extends Chunk {
-    /** Ÿ‚Ìƒ`ƒƒƒ“ƒN‚ğ•Ô‚· */
+    /** æ¬¡ã®ãƒãƒ£ãƒ³ã‚¯ã‚’è¿”ã™ */
     public Chunk GetNextChunk(int idSize/* = 4 */) {
         String id;
         if ((id = this.getRndString(idSize)) != "") {
@@ -264,7 +264,7 @@ class ChunkChunk extends Chunk {
         return null;
     }
 
-    /** Šª‚«–ß‚µ */
+    /** å·»ãæˆ»ã— */
     public void rewind() {
         rewindChunk();
     }
@@ -279,23 +279,23 @@ class ChunkChunk extends Chunk {
         putData(data);
     }
 
-    /** ƒIƒuƒWƒFƒNƒg‚ğí‚É‚·‚é */
+    /** ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ç¨®ã«ã™ã‚‹ */
     public ChunkChunk(final Chunk parent) {
         super(parent);
     }
 
     /**
-     * ID ‚¾‚¯—^‚¦‹ó‚Ìƒ`ƒƒƒ“ƒN‚ğì¬‚·‚é
+     * ID ã ã‘ä¸ãˆç©ºã®ãƒãƒ£ãƒ³ã‚¯ã‚’ä½œæˆã™ã‚‹
      */
     public ChunkChunk(String id) {
         super(id);
     }
 
-    /** ƒ`ƒƒƒ“ƒNæ“¾‚É¸”s */
+    /** ãƒãƒ£ãƒ³ã‚¯å–å¾—ã«å¤±æ•— */
     public class FailGetChunkException extends RuntimeException {
     }
 
-    /** ƒ`ƒƒƒ“ƒN‘‚«‚İ‚É¸”s */
+    /** ãƒãƒ£ãƒ³ã‚¯æ›¸ãè¾¼ã¿ã«å¤±æ•— */
     public class FailPutChunkException extends Exception {
     }
 
@@ -352,22 +352,22 @@ class CommChunk extends Chunk {
 
     }
 
-    /** ƒ`ƒƒƒlƒ‹ƒ‚[ƒh‚ğæ“¾ */
+    /** ãƒãƒ£ãƒãƒ«ãƒ¢ãƒ¼ãƒ‰ã‚’å–å¾— */
     public int getChannelMode() {
         return channelMode;
     }
 
-    /** ƒrƒbƒgƒŒ[ƒg‚ğæ“¾ */
+    /** ãƒ“ãƒƒãƒˆãƒ¬ãƒ¼ãƒˆã‚’å–å¾— */
     public int getBitRate() {
         return bitRate;
     }
 
-    /** ƒTƒ“ƒvƒŠƒ“ƒOü”g”‚ğæ“¾ */
+    /** ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°å‘¨æ³¢æ•°ã‚’å–å¾— */
     public int getSamplingRate() {
         return samplingRate;
     }
 
-    /** ’Ç‰Áî•ñ‚ğæ“¾ */
+    /** è¿½åŠ æƒ…å ±ã‚’å–å¾— */
     public int getSecurityLevel() {
         return securityLevel;
     }
@@ -377,7 +377,7 @@ class CommChunk extends Chunk {
         return version;
     }
 
-    /** ƒRƒ“ƒXƒgƒ‰ƒNƒVƒ‡ƒ“‚É¸”s */
+    /** ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚·ãƒ§ãƒ³ã«å¤±æ•— */
     class FailConstructionException extends Exception {
     }
 
@@ -496,13 +496,13 @@ class EncdChunk extends Chunk {
 }
 
 // ///////////////////////////////////////////////////////
-// ”Ä—pƒ`ƒƒƒ“ƒNŒ^‚ğ—˜—p‚·‚éƒTƒuƒ`ƒƒƒ“ƒNŒ^‚ÌéŒ¾
+// æ±ç”¨ãƒãƒ£ãƒ³ã‚¯å‹ã‚’åˆ©ç”¨ã™ã‚‹ã‚µãƒ–ãƒãƒ£ãƒ³ã‚¯å‹ã®å®£è¨€
 // ///////////////////////////////////////////////////////
-// TWIN ƒ`ƒƒƒ“ƒN
+// TWIN ãƒãƒ£ãƒ³ã‚¯
 // typedef CChunkChunk CTwinChunk; // TWIN
 //
-// // •W€ƒ`ƒƒƒ“ƒN
-// // COMM ‚Í”Ä—pƒ`ƒƒƒ“ƒN‚Å‚Í‚È‚¢
+// // æ¨™æº–ãƒãƒ£ãƒ³ã‚¯
+// // COMM ã¯æ±ç”¨ãƒãƒ£ãƒ³ã‚¯ã§ã¯ãªã„
 // typedef CStringChunk CNameChunk; // NAME
 // typedef CStringChunk CComtChunk; // COMT
 // typedef CStringChunk CAuthChunk; // AUTH
@@ -511,10 +511,10 @@ class EncdChunk extends Chunk {
 // typedef CIntChunk<unsigned long> CDsizChunk; // DSIZ
 // typedef CChunk CExtrChunk; // EXTR
 //
-// // Šg’£ƒ`ƒƒƒ“ƒNE’Êí
+// // æ‹¡å¼µãƒãƒ£ãƒ³ã‚¯ãƒ»é€šå¸¸
 // typedef CStringChunk CAlbmChunk; // ALBM
-// // YEAR ‚Í”Ä—pƒ`ƒƒƒ“ƒN‚Å‚Í‚È‚¢
-// // ENCD ‚Í”Ä—pƒ`ƒƒƒ“ƒN‚Å‚Í‚È‚¢
+// // YEAR ã¯æ±ç”¨ãƒãƒ£ãƒ³ã‚¯ã§ã¯ãªã„
+// // ENCD ã¯æ±ç”¨ãƒãƒ£ãƒ³ã‚¯ã§ã¯ãªã„
 // typedef CIntChunk<short> CTracChunk; // TRAC
 // typedef CStringChunk CLyrcChunk; // LYRC
 // typedef CChunk CGuidChunk; // GUID
@@ -531,10 +531,10 @@ class EncdChunk extends Chunk {
 // typedef CStringChunk CLablChunk; // LABL
 // typedef CStringChunk CNoteChunk; // NOTE
 //
-// // Šg’£ƒ`ƒƒƒ“ƒNE•â•
+// // æ‹¡å¼µãƒãƒ£ãƒ³ã‚¯ãƒ»è£œåŠ©
 // typedef CChunkChunk CScndChunk; // SCND
 //
-// // —\–ñƒ`ƒƒƒ“ƒN
+// // äºˆç´„ãƒãƒ£ãƒ³ã‚¯
 // typedef CChunk C_Id3Chunk; // _ID3
 // typedef CChunk C_YmhChunk; // _YMH
 // typedef CChunk C_NttChunk; // _NTT

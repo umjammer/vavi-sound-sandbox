@@ -31,7 +31,7 @@ public interface SampleRateConverter {
 
     /** */
     class Factory {
-        /** TODO properties ‚Æ‚©‚©‚çw’è‚Å‚«‚é */
+        /** TODO properties ã¨ã‹ã‹ã‚‰æŒ‡å®šã§ãã‚‹ */
         public static SampleRateConverter getInstance() {
             return new vavi.sound.pcm.resampling.tritonus.LinearInterpolationSampleRateConverter();
         }

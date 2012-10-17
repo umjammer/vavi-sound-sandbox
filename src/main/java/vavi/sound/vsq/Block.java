@@ -66,7 +66,7 @@ Debug.println(Level.SEVERE, "error block: " + label);
         }
 
         /**
-         * {@link Block} ƒIƒuƒWƒFƒNƒg‚Ìƒtƒ@ƒNƒgƒŠƒƒ\ƒbƒhWB
+         * {@link Block} ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ãƒ•ã‚¡ã‚¯ãƒˆãƒªãƒ¡ã‚½ãƒƒãƒ‰é›†ã€‚
          */
         private static Map<String, Method> methods = new HashMap<String, Method>();
     

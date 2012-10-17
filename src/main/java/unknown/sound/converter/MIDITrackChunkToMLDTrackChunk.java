@@ -205,7 +205,7 @@ public class MIDITrackChunkToMLDTrackChunk {
                 } else if (message instanceof TextMessage) {
                     if (inputStream.getPreferences().fullChorus) {
                         TextMessage text = (TextMessage) message;
-                        if (text.getText().equals("MIDIToMLDフルコーラス")) {
+                        if (text.getText().equals("MIDIToMLD繝輔Ν繧ｳ繝ｼ繝ｩ繧ｹ")) {
                             TrackBeginningMessage beginning = new TrackBeginningMessage(0,
                                                                                         1);
                             beginning.setAbsoluteTime(presentTime);

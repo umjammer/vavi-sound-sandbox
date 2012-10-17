@@ -37,9 +37,9 @@ public class MIDIToMLDInputStream {
             } while (true);
         } catch (EOFException e) {
         } catch (IOException e) {
-            System.out.println("IOException ”­¶");
+            System.out.println("IOException ç™ºç”Ÿ");
         } catch (InvalidMidiDataException e) {
-            System.out.println("MIDIFormat—áŠO”­¶ ");
+            System.out.println("MIDIFormatä¾‹å¤–ç™ºç”Ÿ ");
         }
         createHeaderChunk();
     }

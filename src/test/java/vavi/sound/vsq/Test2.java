@@ -37,7 +37,7 @@ public class Test2 {
         sequencer.addMetaEventListener(new MetaEventListener() {
             public void meta(javax.sound.midi.MetaMessage message) {
                 switch (message.getType()) {
-                case MidiConstants.META_MACHINE_DEPEND: // ƒV[ƒPƒ“ƒTŒÅ—L‚Ìƒƒ^ƒCƒxƒ“ƒg
+                case MidiConstants.META_MACHINE_DEPEND: // ã‚·ãƒ¼ã‚±ãƒ³ã‚µå›ºæœ‰ã®ãƒ¡ã‚¿ã‚¤ãƒ™ãƒ³ãƒˆ
 Debug.println(MidiUtil.getDecodedMessage(message.getData()));
                     break;
                 default:

@@ -598,15 +598,15 @@ public class SSRC2 {
 
         {
             int n2b2 = n2b / 2;
-            // inbuf‚Ìfs1‚Å‚ÌŽŸ‚É“Ç‚ÞƒTƒ“ƒvƒ‹‚ÌêŠ‚ð•ÛŽ
+            // inbufã®fs1ã§ã®æ¬¡ã«èª­ã‚€ã‚µãƒ³ãƒ—ãƒ«ã®å ´æ‰€ã‚’ä¿æŒ
             int rp;
-            // ŽŸ‚Édispose‚·‚ésfrq‚Å‚ÌƒTƒ“ƒvƒ‹”
+            // æ¬¡ã«disposeã™ã‚‹sfrqã§ã®ã‚µãƒ³ãƒ—ãƒ«æ•°
             int ds;
-            // ŽÀÛ‚Éƒtƒ@ƒCƒ‹‚©‚çinbuf‚É“Ç‚Ýž‚Ü‚ê‚½’l‚©‚çŒvŽZ‚µ‚½ stage2 filter‚É“n‚³‚ê‚éƒTƒ“ƒvƒ‹”
+            // å®Ÿéš›ã«ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰inbufã«èª­ã¿è¾¼ã¾ã‚ŒãŸå€¤ã‹ã‚‰è¨ˆç®—ã—ãŸ stage2 filterã«æ¸¡ã•ã‚Œã‚‹ã‚µãƒ³ãƒ—ãƒ«æ•°
             int nsmplwrt1;
-            // ŽÀÛ‚Éƒtƒ@ƒCƒ‹‚©‚çinbuf‚É“Ç‚Ýž‚Ü‚ê‚½’l‚©‚çŒvŽZ‚µ‚½ stage2 filter‚É“n‚³‚ê‚éƒTƒ“ƒvƒ‹”
+            // å®Ÿéš›ã«ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰inbufã«èª­ã¿è¾¼ã¾ã‚ŒãŸå€¤ã‹ã‚‰è¨ˆç®—ã—ãŸ stage2 filterã«æ¸¡ã•ã‚Œã‚‹ã‚µãƒ³ãƒ—ãƒ«æ•°
             int nsmplwrt2 = 0;
-            // stage1 filter‚©‚ço—Í‚³‚ê‚½ƒTƒ“ƒvƒ‹‚Ì”‚ðn1y*osf‚ÅŠ„‚Á‚½—]‚è
+            // stage1 filterã‹ã‚‰å‡ºåŠ›ã•ã‚ŒãŸã‚µãƒ³ãƒ—ãƒ«ã®æ•°ã‚’n1y*osfã§å‰²ã£ãŸä½™ã‚Š
             int s1p;
             boolean init;
             boolean ending;
@@ -974,7 +974,7 @@ public class SSRC2 {
                         if (ending) {
                             if ((double) sumread * dfrq / sfrq + 2 > sumwrite + nsmplwrt2 - delay) {
                                 rawoutbuf.position(dbps * nch * delay);
-                                rawoutbuf.limit(dbps * nch * (nsmplwrt2 - delay));
+                                rawoutbuf.limit(dbps * nch * nsmplwrt2);
                                 fpo.write(rawoutbuf);
                                 sumwrite += nsmplwrt2 - delay;
                             } else {
@@ -1153,7 +1153,7 @@ public class SSRC2 {
             iza = I0Bessel.value(alp);
 //System.err.printf("iza %f, alp: %f\n", iza, alp); // OK
 
-            n2y = fs2 / fs1; // 0‚Å‚È‚¢ƒTƒ“ƒvƒ‹‚ªfs2‚Å‰½ƒTƒ“ƒvƒ‹‚¨‚«‚É‚ ‚é‚©H
+            n2y = fs2 / fs1; // 0ã§ãªã„ã‚µãƒ³ãƒ—ãƒ«ãŒfs2ã§ä½•ã‚µãƒ³ãƒ—ãƒ«ãŠãã«ã‚ã‚‹ã‹ï¼Ÿ
             n2x = n2 / n2y + 1;
 
             f2order = new int[n2y];
@@ -1187,18 +1187,18 @@ public class SSRC2 {
 
         {
             int n1b2 = n1b / 2;
-            int rp; // inbuf‚Ìfs1‚Å‚ÌŽŸ‚É“Ç‚ÞƒTƒ“ƒvƒ‹‚ÌêŠ‚ð•ÛŽ
-            int rps; // rp‚ð(fs1/sfrq=osf)‚ÅŠ„‚Á‚½—]‚è
-            int rp2; // buf2‚Ìfs2‚Å‚ÌŽŸ‚É“Ç‚ÞƒTƒ“ƒvƒ‹‚ÌêŠ‚ð•ÛŽ
-            int ds; // ŽŸ‚Édispose‚·‚ésfrq‚Å‚ÌƒTƒ“ƒvƒ‹”
-            // ŽÀÛ‚Éƒtƒ@ƒCƒ‹‚©‚çinbuf‚É“Ç‚Ýž‚Ü‚ê‚½’l‚©‚çŒvŽZ‚µ‚½ stage2 filter‚É“n‚³‚ê‚éƒTƒ“ƒvƒ‹”
+            int rp; // inbufã®fs1ã§ã®æ¬¡ã«èª­ã‚€ã‚µãƒ³ãƒ—ãƒ«ã®å ´æ‰€ã‚’ä¿æŒ
+            int rps; // rpã‚’(fs1/sfrq=osf)ã§å‰²ã£ãŸä½™ã‚Š
+            int rp2; // buf2ã®fs2ã§ã®æ¬¡ã«èª­ã‚€ã‚µãƒ³ãƒ—ãƒ«ã®å ´æ‰€ã‚’ä¿æŒ
+            int ds; // æ¬¡ã«disposeã™ã‚‹sfrqã§ã®ã‚µãƒ³ãƒ—ãƒ«æ•°
+            // å®Ÿéš›ã«ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰inbufã«èª­ã¿è¾¼ã¾ã‚ŒãŸå€¤ã‹ã‚‰è¨ˆç®—ã—ãŸ stage2 filterã«æ¸¡ã•ã‚Œã‚‹ã‚µãƒ³ãƒ—ãƒ«æ•°
 //          int nsmplwrt1;
-            // ŽÀÛ‚Éƒtƒ@ƒCƒ‹‚©‚çinbuf‚É“Ç‚Ýž‚Ü‚ê‚½’l‚©‚çŒvŽZ‚µ‚½ stage2 filter‚É“n‚³‚ê‚éƒTƒ“ƒvƒ‹”
+            // å®Ÿéš›ã«ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰inbufã«èª­ã¿è¾¼ã¾ã‚ŒãŸå€¤ã‹ã‚‰è¨ˆç®—ã—ãŸ stage2 filterã«æ¸¡ã•ã‚Œã‚‹ã‚µãƒ³ãƒ—ãƒ«æ•°
             int nsmplwrt2 = 0;
-            int s2p; // stage1 filter‚©‚ço—Í‚³‚ê‚½ƒTƒ“ƒvƒ‹‚Ì”‚ðn1y*osf‚ÅŠ„‚Á‚½—]‚è
+            int s2p; // stage1 filterã‹ã‚‰å‡ºåŠ›ã•ã‚ŒãŸã‚µãƒ³ãƒ—ãƒ«ã®æ•°ã‚’n1y*osfã§å‰²ã£ãŸä½™ã‚Š
             boolean init, ending;
 //          int osc;
-            int bp; // rp2‚©‚çŒvŽZ‚³‚ê‚éDbuf2‚ÌŽŸ‚É“Ç‚ÞƒTƒ“ƒvƒ‹‚ÌˆÊ’u
+            int bp; // rp2ã‹ã‚‰è¨ˆç®—ã•ã‚Œã‚‹ï¼Žbuf2ã®æ¬¡ã«èª­ã‚€ã‚µãƒ³ãƒ—ãƒ«ã®ä½ç½®
             int rps_backup, s2p_backup;
             int k, ch, p;
             int inbuflen = 0;
@@ -1209,13 +1209,13 @@ public class SSRC2 {
             // |....B....|....C....| buf1 n1b2+n1b2
             // |.A.|....D....| buf2 n2x+n1b2
             //
-            // ‚Ü‚¸inbuf‚©‚çB‚Éosf”{ƒTƒ“ƒvƒŠƒ“ƒO‚µ‚È‚ª‚çƒRƒs[
-            // C‚ÍƒNƒŠƒA
-            // BC‚Éstage 1 filter‚ð‚©‚¯‚é
-            // D‚ÉB‚ð‘«‚·
-            // AD‚Éstage 2 filter‚ð‚©‚¯‚é
-            // D‚ÌŒã‚ë‚ðA‚ÉˆÚ“®
-            // C‚ðD‚ÉƒRƒs[
+            // ã¾ãšinbufã‹ã‚‰Bã«osfå€ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ã—ãªãŒã‚‰ã‚³ãƒ”ãƒ¼
+            // Cã¯ã‚¯ãƒªã‚¢
+            // BCã«stage 1 filterã‚’ã‹ã‘ã‚‹
+            // Dã«Bã‚’è¶³ã™
+            // ADã«stage 2 filterã‚’ã‹ã‘ã‚‹
+            // Dã®å¾Œã‚ã‚’Aã«ç§»å‹•
+            // Cã‚’Dã«ã‚³ãƒ”ãƒ¼
 
             buf1 = new double[nch][n1b];
 
@@ -1537,7 +1537,7 @@ public class SSRC2 {
                         if (ending) {
                             if ((double) sumread * dfrq / sfrq + 2 > sumwrite + nsmplwrt2 - delay) {
                                 rawoutbuf.position(dbps * nch * delay);
-                                rawoutbuf.limit(dbps * nch * (nsmplwrt2 - delay));
+                                rawoutbuf.limit(dbps * nch * nsmplwrt2);
                                 fpo.write(rawoutbuf); 
                                 sumwrite += nsmplwrt2 - delay;
                             } else {

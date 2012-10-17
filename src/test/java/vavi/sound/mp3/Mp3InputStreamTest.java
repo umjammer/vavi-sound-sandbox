@@ -11,7 +11,7 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import vavi.sound.Checksum;
+import vavix.util.Checksum;
 
 
 /**

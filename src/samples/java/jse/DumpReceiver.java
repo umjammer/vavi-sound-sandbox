@@ -244,7 +244,7 @@ public class DumpReceiver implements Receiver {
             if (lTimeStamp == -1L) {
                 strTimeStamp = "timestamp [unknown]: ";
             } else {
-                strTimeStamp = "timestamp " + lTimeStamp + " µs: ";
+                strTimeStamp = "timestamp " + lTimeStamp + " æŒ™: ";
             }
         }
         m_printStream.println(strTimeStamp + strMessage);
@@ -456,7 +456,7 @@ public class DumpReceiver implements Receiver {
             // int nTempo = signedByteToUnsigned(abData[0]) * 65536 +
             // signedByteToUnsigned(abData[1]) * 256 +
             // signedByteToUnsigned(abData[2]);
-            // strMessage = "Set Tempo (µs/quarter note): " + nTempo;
+            // strMessage = "Set Tempo (ã‚ªs/quarter note): " + nTempo;
             int nTempo = ((abData[0] & 0xFF) << 16) | ((abData[1] & 0xFF) << 8) | (abData[2] & 0xFF); // tempo
                                                                                                         // in
                                                                                                         // microseconds

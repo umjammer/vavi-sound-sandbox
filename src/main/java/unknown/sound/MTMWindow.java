@@ -111,7 +111,7 @@ public class MTMWindow extends Frame {
     class MTMFileButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent actionevent) {
             FileDialog filedialog = new FileDialog(MTMWindow.this,
-                                                   "MIDIƒtƒ@ƒCƒ‹‚ğ‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢", 0);
+                                                   "MIDIãƒ•ã‚¡ã‚¤ãƒ«ã‚’é¸æŠã—ã¦ãã ã•ã„", 0);
             if (midiFile == null) {
                 filedialog.setDirectory(System.getProperty("user.dir"));
             } else {
@@ -321,7 +321,7 @@ public class MTMWindow extends Frame {
                         } catch (EOFException _ex) {
                         }
                     } catch (IOException _ex) {
-                        System.out.println("IOException‚ª”­¶");
+                        System.out.println("IOExceptionãŒç™ºç”Ÿ");
                     }
                 }
             }
@@ -408,15 +408,15 @@ public class MTMWindow extends Frame {
                 }
             });
         bar = new MenuBar();
-        fileMenu = new Menu("ƒtƒ@ƒCƒ‹");
-        file_Open = new MenuItem("MIDIƒtƒ@ƒCƒ‹‚ğ‘I‘ğ...");
+        fileMenu = new Menu("ãƒ•ã‚¡ã‚¤ãƒ«");
+        file_Open = new MenuItem("MIDIãƒ•ã‚¡ã‚¤ãƒ«ã‚’é¸æŠ...");
         file_Open.addActionListener(new MTMFileButtonListener());
         fileMenu.add(file_Open);
-        file_Exchange = new MenuItem("MLDƒtƒ@ƒCƒ‹‚É•ÏŠ·");
+        file_Exchange = new MenuItem("MLDãƒ•ã‚¡ã‚¤ãƒ«ã«å¤‰æ›");
         file_Exchange.setEnabled(false);
         file_Exchange.addActionListener(new MTMMLDButtonListener());
         fileMenu.add(file_Exchange);
-        file_Pref_Open = new MenuItem("Ú×İ’è‚ğ•\¦");
+        file_Pref_Open = new MenuItem("è©³ç´°è¨­å®šã‚’è¡¨ç¤º");
         file_Pref_Open.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionevent) {
                     setSize(510, 470);
@@ -425,7 +425,7 @@ public class MTMWindow extends Frame {
                 }
             });
         fileMenu.add(file_Pref_Open);
-        file_Pref_Close = new MenuItem("Ú×İ’è‚ğ‰B‚·");
+        file_Pref_Close = new MenuItem("è©³ç´°è¨­å®šã‚’éš ã™");
         file_Pref_Close.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent actionevent) {
                     setSize(270, 470);
@@ -434,12 +434,12 @@ public class MTMWindow extends Frame {
                 }
             });
         fileMenu.addSeparator();
-        file_Quit = new MenuItem("I—¹");
+        file_Quit = new MenuItem("çµ‚äº†");
         fileMenu.add(file_Quit);
         bar.add(fileMenu);
         setSize(510, 470);
         setResizable(false);
-        titleCheckbox = new Checkbox("‹È‚Éƒ^ƒCƒgƒ‹‚ğ“ü‚ê‚é", true);
+        titleCheckbox = new Checkbox("æ›²ã«ã‚¿ã‚¤ãƒˆãƒ«ã‚’å…¥ã‚Œã‚‹", true);
         titleCheckbox.setBounds(35, 20, 120, 20);
         titleCheckbox.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent itemevent) {
@@ -464,7 +464,7 @@ public class MTMWindow extends Frame {
             });
         add(titleCheckbox);
         titleGroup = new CheckboxGroup();
-        titleFileCheckbox = new Checkbox("ƒtƒ@ƒCƒ‹–¼‚ğƒ^ƒCƒgƒ‹‚É‚·‚é", true, titleGroup);
+        titleFileCheckbox = new Checkbox("ãƒ•ã‚¡ã‚¤ãƒ«åã‚’ã‚¿ã‚¤ãƒˆãƒ«ã«ã™ã‚‹", true, titleGroup);
         titleFileCheckbox.setBounds(55, 40, 150, 20);
         titleFileCheckbox.addItemListener(new ItemListener() {
                 public void itemStateChanged(ItemEvent itemevent) {
@@ -496,7 +496,7 @@ public class MTMWindow extends Frame {
                 }
             });
         add(titleUserCheckbox);
-        titleUserText = new TextField("‹È–¼‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢");
+        titleUserText = new TextField("æ›²åã‚’å…¥åŠ›ã—ã¦ãã ã•ã„");
         titleUserText.setBounds(75, 60, 150, 20);
         titleUserText.setEnabled(false);
         titleUserText.setEditable(false);
@@ -504,21 +504,21 @@ public class MTMWindow extends Frame {
         add(titleUserText);
 
         MTMVolumeListener mtmvolumelistener = new MTMVolumeListener();
-        volumeCheckbox = new Checkbox("‰¹—Ê‚ğİ’è‚·‚é", true);
+        volumeCheckbox = new Checkbox("éŸ³é‡ã‚’è¨­å®šã™ã‚‹", true);
         volumeCheckbox.setBounds(35, 100, 90, 20);
         volumeCheckbox.addItemListener(mtmvolumelistener);
         add(volumeCheckbox);
         volumeGroup = new CheckboxGroup();
-        volumeVelocityCheckbox = new Checkbox("‰¹—Ê‚ÉƒxƒƒVƒeƒB‚ğ—˜—p‚·‚é", false,
+        volumeVelocityCheckbox = new Checkbox("éŸ³é‡ã«ãƒ™ãƒ­ã‚·ãƒ†ã‚£ã‚’åˆ©ç”¨ã™ã‚‹", false,
                                               volumeGroup);
         volumeVelocityCheckbox.setBounds(55, 120, 150, 20);
         volumeVelocityCheckbox.addItemListener(mtmvolumelistener);
         add(volumeVelocityCheckbox);
-        volumeConstCheckbox = new Checkbox("ŒÅ’è’l‚ğ—˜—p‚·‚é(0-63)", true, volumeGroup);
+        volumeConstCheckbox = new Checkbox("å›ºå®šå€¤ã‚’åˆ©ç”¨ã™ã‚‹(0-63)", true, volumeGroup);
         volumeConstCheckbox.setBounds(55, 140, 140, 20);
         volumeConstCheckbox.addItemListener(mtmvolumelistener);
         add(volumeConstCheckbox);
-        volumeCh1Checkbox = new Checkbox("ƒ`ƒƒƒ“ƒlƒ‹‚P", true);
+        volumeCh1Checkbox = new Checkbox("ãƒãƒ£ãƒ³ãƒãƒ«ï¼‘", true);
         volumeCh1Checkbox.setBounds(75, 160, 80, 20);
         volumeCh1Checkbox.addItemListener(mtmvolumelistener);
         add(volumeCh1Checkbox);
@@ -526,7 +526,7 @@ public class MTMWindow extends Frame {
         volumeCh1Text.setBounds(155, 160, 40, 20);
         volumeCh1Text.addTextListener(mtmvolumelistener);
         add(volumeCh1Text);
-        volumeCh2Checkbox = new Checkbox("ƒ`ƒƒƒ“ƒlƒ‹‚Q", true);
+        volumeCh2Checkbox = new Checkbox("ãƒãƒ£ãƒ³ãƒãƒ«ï¼’", true);
         volumeCh2Checkbox.setBounds(75, 180, 80, 20);
         volumeCh2Checkbox.addItemListener(mtmvolumelistener);
         add(volumeCh2Checkbox);
@@ -534,7 +534,7 @@ public class MTMWindow extends Frame {
         volumeCh2Text.setBounds(155, 180, 40, 20);
         volumeCh2Text.addTextListener(mtmvolumelistener);
         add(volumeCh2Text);
-        volumeCh3Checkbox = new Checkbox("ƒ`ƒƒƒ“ƒlƒ‹‚R", true);
+        volumeCh3Checkbox = new Checkbox("ãƒãƒ£ãƒ³ãƒãƒ«ï¼“", true);
         volumeCh3Checkbox.setBounds(75, 200, 80, 20);
         volumeCh3Checkbox.addItemListener(mtmvolumelistener);
         add(volumeCh3Checkbox);
@@ -542,7 +542,7 @@ public class MTMWindow extends Frame {
         volumeCh3Text.setBounds(155, 200, 40, 20);
         volumeCh3Text.addTextListener(mtmvolumelistener);
         add(volumeCh3Text);
-        volumeCh4Checkbox = new Checkbox("ƒ`ƒƒƒ“ƒlƒ‹‚S", true);
+        volumeCh4Checkbox = new Checkbox("ãƒãƒ£ãƒ³ãƒãƒ«ï¼”", true);
         volumeCh4Checkbox.setBounds(75, 220, 80, 20);
         volumeCh4Checkbox.addItemListener(mtmvolumelistener);
         add(volumeCh4Checkbox);
@@ -550,7 +550,7 @@ public class MTMWindow extends Frame {
         volumeCh4Text.setBounds(155, 220, 40, 20);
         volumeCh4Text.addTextListener(mtmvolumelistener);
         add(volumeCh4Text);
-        fileLabel = new Label("MIDIƒtƒ@ƒCƒ‹");
+        fileLabel = new Label("MIDIãƒ•ã‚¡ã‚¤ãƒ«");
         fileLabel.setBounds(35, 330, 70, 20);
         add(fileLabel);
         filePathText = new TextArea("", 20, 2, 1);
@@ -558,22 +558,22 @@ public class MTMWindow extends Frame {
         filePathText.setEditable(false);
         filePathText.setCursor(new Cursor(0));
         add(filePathText);
-        fileButton = new Button("‘I‘ğ");
+        fileButton = new Button("é¸æŠ");
         fileButton.setBounds(35, 350, 40, 20);
         fileButton.addActionListener(new MTMFileButtonListener());
         add(fileButton);
-        fileCheckbox = new Checkbox("ƒfƒBƒŒƒNƒgƒŠ‚ğ‘I‘ğ‚·‚é", false);
+        fileCheckbox = new Checkbox("ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‚’é¸æŠã™ã‚‹", false);
         fileCheckbox.setBounds(95, 350, 130, 20);
         add(fileCheckbox);
-        mldButton = new Button("MLDƒtƒ@ƒCƒ‹‚ğì¬‚·‚é");
+        mldButton = new Button("MLDãƒ•ã‚¡ã‚¤ãƒ«ã‚’ä½œæˆã™ã‚‹");
         mldButton.setBounds(55, 440, 160, 20);
         mldButton.setEnabled(false);
         mldButton.addActionListener(new MTMMLDButtonListener());
         add(mldButton);
-        prefLabel = new Label("Ú×İ’è");
+        prefLabel = new Label("è©³ç´°è¨­å®š");
         prefLabel.setBounds(280, 20, 40, 20);
         add(prefLabel);
-        resolutionLabel = new Label("‚S•ª‰¹•„‚Ì•ª‰ğ”\");
+        resolutionLabel = new Label("ï¼”åˆ†éŸ³ç¬¦ã®åˆ†è§£èƒ½");
         resolutionLabel.setBounds(35, 270, 80, 20);
         add(resolutionLabel);
         resolutionChoice = new Choice();
@@ -589,17 +589,17 @@ public class MTMWindow extends Frame {
         resolutionChoice.add("1536");
         resolutionChoice.select("48");
         add(resolutionChoice);
-        dateCheckbox = new Checkbox("ì¬“ú", false);
+        dateCheckbox = new Checkbox("ä½œæˆæ—¥", false);
         dateCheckbox.setBounds(300, 40, 50, 20);
         dateCheckbox.addItemListener(new MTMDateListener());
         add(dateCheckbox);
         dateGroup = new CheckboxGroup();
-        dateTodayCheckbox = new Checkbox("¡“ú‚Ì“ú•t", true, dateGroup);
+        dateTodayCheckbox = new Checkbox("ä»Šæ—¥ã®æ—¥ä»˜", true, dateGroup);
         dateTodayCheckbox.setBounds(320, 60, 70, 20);
         dateTodayCheckbox.setEnabled(false);
         dateTodayCheckbox.addItemListener(new MTMDateListener());
         add(dateTodayCheckbox);
-        dateFileCheckbox = new Checkbox("ƒtƒ@ƒCƒ‹‚ÌC³“ú", false, dateGroup);
+        dateFileCheckbox = new Checkbox("ãƒ•ã‚¡ã‚¤ãƒ«ã®ä¿®æ­£æ—¥", false, dateGroup);
         dateFileCheckbox.setBounds(320, 80, 100, 20);
         dateFileCheckbox.setEnabled(false);
         dateFileCheckbox.addItemListener(new MTMDateListener());
@@ -614,16 +614,16 @@ public class MTMWindow extends Frame {
         dateUserText.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         dateUserText.setEnabled(false);
         add(dateUserText);
-        rightCheckbox = new Checkbox("’˜ìŒ ‚Ì—L–³", true);
+        rightCheckbox = new Checkbox("è‘—ä½œæ¨©ã®æœ‰ç„¡", true);
         rightCheckbox.setBounds(300, 140, 80, 20);
         rightCheckbox.addItemListener(new MTMRightListener());
         add(rightCheckbox);
         rightGroup = new CheckboxGroup();
-        rightNoneCheckbox = new Checkbox("’˜ìŒ ‚È‚µ ( 00 )", true, rightGroup);
+        rightNoneCheckbox = new Checkbox("è‘—ä½œæ¨©ãªã— ( 00 )", true, rightGroup);
         rightNoneCheckbox.setBounds(320, 160, 110, 20);
         rightNoneCheckbox.addItemListener(new MTMRightListener());
         add(rightNoneCheckbox);
-        rightIsCheckbox = new Checkbox("’˜ìŒ ‚ ‚è ( 01 ) ", false, rightGroup);
+        rightIsCheckbox = new Checkbox("è‘—ä½œæ¨©ã‚ã‚Š ( 01 ) ", false, rightGroup);
         rightIsCheckbox.setBounds(320, 180, 110, 20);
         rightIsCheckbox.addItemListener(new MTMRightListener());
         add(rightIsCheckbox);
@@ -640,12 +640,12 @@ public class MTMWindow extends Frame {
         Label label = new Label("(0 - 255)");
         label.setBounds(380, 200, 50, 20);
         add(label);
-        informationCheckbox = new Checkbox("’˜ìŒ î•ñ", false);
+        informationCheckbox = new Checkbox("è‘—ä½œæ¨©æƒ…å ±", false);
         informationCheckbox.setBounds(300, 240, 70, 20);
         informationCheckbox.addItemListener(new MTMInformationListener());
         add(informationCheckbox);
         informationGroup = new CheckboxGroup();
-        informationFileCheckbox = new Checkbox("ƒtƒ@ƒCƒ‹‚©‚çæ‚è‚Ş", true,
+        informationFileCheckbox = new Checkbox("ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰å–ã‚Šè¾¼ã‚€", true,
                                               informationGroup);
         informationFileCheckbox.setBounds(320, 260, 120, 20);
         informationFileCheckbox.setEnabled(false);
@@ -662,12 +662,12 @@ public class MTMWindow extends Frame {
         informationUserText.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         informationUserText.setBounds(340, 280, 110, 60);
         add(informationUserText);
-        versionCheckbox = new Checkbox("ƒo[ƒWƒ‡ƒ“", true);
+        versionCheckbox = new Checkbox("ãƒãƒ¼ã‚¸ãƒ§ãƒ³", true);
         versionCheckbox.setBounds(300, 360, 70, 20);
         versionCheckbox.addItemListener(new MTMVersionListener());
         add(versionCheckbox);
         versionGroup = new CheckboxGroup();
-        versionDefaultCheckbox = new Checkbox("•W€ \"0100\"", true, versionGroup);
+        versionDefaultCheckbox = new Checkbox("æ¨™æº– \"0100\"", true, versionGroup);
         versionDefaultCheckbox.setBounds(320, 380, 80, 20);
         versionDefaultCheckbox.addItemListener(new MTMVersionListener());
         add(versionDefaultCheckbox);
@@ -681,7 +681,7 @@ public class MTMWindow extends Frame {
         versionUserText.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         versionUserText.setBounds(340, 400, 100, 20);
         add(versionUserText);
-        fullCheckbox = new Checkbox("ƒtƒ‹ƒR[ƒ‰ƒX", false);
+        fullCheckbox = new Checkbox("ãƒ•ãƒ«ã‚³ãƒ¼ãƒ©ã‚¹", false);
         fullCheckbox.setBounds(300, 435, 80, 20);
         add(fullCheckbox);
         setVisible(true);

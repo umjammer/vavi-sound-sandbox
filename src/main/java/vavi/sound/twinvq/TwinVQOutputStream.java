@@ -53,7 +53,7 @@ Debug.println("byteOrder: " + this.byteOrder);
     }
 
     /**
-     * �K���Ă�łˁB
+     * 必ず呼んでね。
      */
     public void close() throws IOException {
 

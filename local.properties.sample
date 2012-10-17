@@ -1,0 +1,13 @@
+#
+# Copyright (c) 2003 by Naohide Sano, All rights reserved.
+#
+# Written by Naohide Sano
+#
+# ant properties for vavi-sound-sandbox
+#
+# @author	Naohide Sano
+# @version	0.00	031213	nsano	initial version
+#
+
+##
+encoding=utf-8

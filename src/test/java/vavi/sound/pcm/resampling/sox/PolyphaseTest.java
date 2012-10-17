@@ -21,8 +21,8 @@ import javax.sound.sampled.SourceDataLine;
 
 import junit.framework.TestCase;
 
-import vavi.sound.ByteUtil;
 import vavi.util.Debug;
+import vavix.util.ByteUtil;
 
 
 /**
@@ -33,7 +33,7 @@ import vavi.util.Debug;
  */
 public class PolyphaseTest extends TestCase {
 
-//  String inFile = "C:\\Documents and Settings\\sano-n\\My Documents\\My Music\\1\\‘å’Ë ˆ¤ - ‚³‚­‚ç‚ñ‚Ú.wav";
+//  String inFile = "C:\\Documents and Settings\\sano-n\\My Documents\\My Music\\1\\å¤§å¡š æ„› - ã•ãã‚‰ã‚“ã¼.wav";
     String inFile = "C:\\WINDOWS\\Media\\BATTVLOW.WAV";
     String outFile = "out.wav";
 
@@ -111,7 +111,7 @@ Debug.println("result: " + r);
         //----
 
         AudioInputStream resultAis = AudioSystem.getAudioInputStream(new File(outFile));
-        // TODO ­”ˆÈ‰º‚ªØ‚èÌ‚Ä‚ç‚ê‚éA‚Ç‚±‚ÅH ƒ drain() ‚â‚ë
+        // TODO å°‘æ•°ä»¥ä¸‹ãŒåˆ‡ã‚Šæ¨ã¦ã‚‰ã‚Œã‚‹ã€ã©ã“ã§ï¼Ÿ ï¼œ drain() ã‚„ã‚
         assertEquals((int) resamplingRate, (int) resultAis.getFormat().getSampleRate());
     }
 }

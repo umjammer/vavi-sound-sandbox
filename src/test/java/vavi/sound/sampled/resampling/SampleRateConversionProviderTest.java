@@ -33,14 +33,14 @@ import junit.framework.TestCase;
  */
 public class SampleRateConversionProviderTest extends TestCase {
 
-    String inFile = "C:\\Documents and Settings\\sano-n\\My Documents\\My Music\\0\\‘å’Ë ˆ¤ - ‚³‚­‚ç‚ñ‚Ú.wav";
+    String inFile = "C:\\Documents and Settings\\sano-n\\My Documents\\My Music\\0\\å¤§å¡š æ„› - ã•ãã‚‰ã‚“ã¼.wav";
     String outFile = "out.wav";
 
     /**
      *  
      * <ul>
-     *  <li>¨ mono ‚É tritonus_remaining_###.jar ‚ª•K—v 
-     *  <li>eclipse ‚Å‚Í jar ‚Ì‡ˆÊ‚ª‚µ‚½‚Ì•û‚©‚ç plugin ‚ª‹@”\‚µ‚Ä‚¢‚éHHH
+     *  <li>â†’ mono ã« tritonus_remaining_###.jar ãŒå¿…è¦ 
+     *  <li>eclipse ã§ã¯ jar ã®é †ä½ãŒã—ãŸã®æ–¹ã‹ã‚‰ plugin ãŒæ©Ÿèƒ½ã—ã¦ã„ã‚‹ï¼Ÿï¼Ÿï¼Ÿ
      * </ul>
      *  
      */

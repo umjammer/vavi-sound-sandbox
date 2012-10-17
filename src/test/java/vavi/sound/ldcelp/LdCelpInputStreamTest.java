@@ -10,7 +10,7 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
-import vavi.sound.Checksum;
+import vavix.util.Checksum;
 
 
 /**

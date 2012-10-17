@@ -13,7 +13,7 @@ import vavi.util.StringUtil;
 /**
  * MPEG Audio Layer III Decorder.
  * 
- * @author ¬™ “Äj (Kosugi Atsushi)
+ * @author å°æ‰ ç¯¤å² (Kosugi Atsushi)
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 1.00 original version <br>
  * @version 2.00 030817 nsano java port <br>
@@ -48,19 +48,19 @@ class Mp3Decoder {
     /** */
     static class MpegDecodeInfo {
         MpegHeader header;
-        /** o—Íƒ`ƒƒƒlƒ‹ */
+        /** å‡ºåŠ›ãƒãƒ£ãƒãƒ« */
         int channels;
-        /** ƒTƒ“ƒvƒŠƒ“ƒOƒŒ[ƒg[Hz] */
+        /** ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ãƒ¬ãƒ¼ãƒˆ[Hz] */
         int frequency;
-        /** ƒrƒbƒgƒŒ[ƒg[bit/s] */
+        /** ãƒ“ãƒƒãƒˆãƒ¬ãƒ¼ãƒˆ[bit/s] */
         int bitRate;
-        /** 1ƒtƒŒ[ƒ€‚Ì“ü—ÍƒTƒCƒY */
+        /** 1ãƒ•ãƒ¬ãƒ¼ãƒ ã®å…¥åŠ›ã‚µã‚¤ã‚º */
         int inputSize;
-        /** 1ƒtƒŒ[ƒ€‚Ìo—ÍƒTƒCƒY */
+        /** 1ãƒ•ãƒ¬ãƒ¼ãƒ ã®å‡ºåŠ›ã‚µã‚¤ã‚º */
         int outputSize;
     }
 
-    /** ƒwƒbƒ_î•ñ 4 byte */
+    /** ãƒ˜ãƒƒãƒ€æƒ…å ± 4 byte */
     static class MpegHeader {
         static final int[][] m_bitrate = {
             // layer1
@@ -108,7 +108,7 @@ class Mp3Decoder {
          * </ol>
          */
         int mode;
-        /** ƒwƒbƒ_î•ñ‚Ìæ“¾ */
+        /** ãƒ˜ãƒƒãƒ€æƒ…å ±ã®å–å¾— */
         public MpegHeader(byte[] buf, int offset) {
 Debug.println("offset: " + offset);
             this.version   = (buf[offset + 1] & 0x18) >> 3;
@@ -140,8 +140,8 @@ Debug.println(StringUtil.paramString(this));
     private int m_pcm_size;
 
     /**
-     * ’¼‹ß‚Ì“¯ŠúƒAƒhƒŒƒX‚ğŒŸõ‚µ‚Ü‚·B
-     * @return offset ‚©‚ç‚Ì‘Š‘ÎƒAƒhƒŒƒX
+     * ç›´è¿‘ã®åŒæœŸã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’æ¤œç´¢ã—ã¾ã™ã€‚
+     * @return offset ã‹ã‚‰ã®ç›¸å¯¾ã‚¢ãƒ‰ãƒ¬ã‚¹
      */
     public int findSync(byte[] buf, int offset, int size) {
         size -= 3;
@@ -264,7 +264,7 @@ Debug.println(StringUtil.paramString(this));
             for (int ch = 0; ch < channels; ch++) {
                 GrInfo gr_info = info[gr][ch];
 
-                // ƒrƒbƒgƒXƒgƒŠ[ƒ€•ª‰ğ
+                // ãƒ“ãƒƒãƒˆã‚¹ãƒˆãƒªãƒ¼ãƒ åˆ†è§£
                 bitget_init(inBuf, inBuf_pointer + (main_pos_bit >> 3));
                 int bit0 = (main_pos_bit & 7);
 
@@ -275,16 +275,16 @@ Debug.println(StringUtil.paramString(this));
                 main_pos_bit += gr_info.length;
                 bitget_init_end(inBuf_pointer + ((main_pos_bit + 39) >> 3));
 
-                // ƒnƒtƒ}ƒ“•œ†‰»
+                // ãƒãƒ•ãƒãƒ³å¾©å·åŒ–
                 l3huff_decode(dec, gr_info);
 
-                // ‹t—Êq‰»
+                // é€†é‡å­åŒ–
                 l3dequantum(dec, spec, gr_info);
 
-                // ƒnƒCƒuƒŠƒbƒhƒtƒBƒ‹ƒ^ƒoƒ“ƒN
+                // ãƒã‚¤ãƒ–ãƒªãƒƒãƒ‰ãƒ•ã‚£ãƒ«ã‚¿ãƒãƒ³ã‚¯
                 l3dhybrid(sample, spec, ch);
 
-                // o—Íƒoƒbƒtƒ@‚Ö‚Ì‘‚«‚±‚İ
+                // å‡ºåŠ›ãƒãƒƒãƒ•ã‚¡ã¸ã®æ›¸ãã“ã¿
                 for (int i = 0; i < GR_SIZE; i++) {
                     if (sample[i] > 1.0) {
                         sample[i] = (float) (1.0 - 1.0e-5);
@@ -301,7 +301,7 @@ Debug.println(StringUtil.paramString(this));
     }
 
     /**
-     * ‹t—Êq‰»
+     * é€†é‡å­åŒ–
      */
     private void l3dequantum(int[] samp, float[] spec, GrInfo gr_info) {
         float xs = (float) Math.pow(2.0, (gr_info.gain - 210.0) / 4);
@@ -312,7 +312,7 @@ Debug.println(StringUtil.paramString(this));
     }
 
     /**
-     * ƒnƒtƒ}ƒ“•œ†‰»
+     * ãƒãƒ•ãƒãƒ³å¾©å·åŒ–
      */
     private void l3huff_decode(int[] dec, GrInfo gr_info) {
         int big_values = gr_info.bigValues * 2;
@@ -325,7 +325,7 @@ Debug.println(StringUtil.paramString(this));
     }
 
     /**
-     * ƒrƒbƒgƒXƒgƒŠ[ƒ€‚Ì•ª‰ğ
+     * ãƒ“ãƒƒãƒˆã‚¹ãƒˆãƒªãƒ¼ãƒ ã®åˆ†è§£
      */
     private int l3dstream_sideinfo(GrInfo[][] info, int channels) {
         int size;
@@ -365,7 +365,7 @@ Debug.println(info[gr][ch]);
     }
 
     /**
-     * ƒnƒtƒ}ƒ“•œ†‰»
+     * ãƒãƒ•ãƒãƒ³å¾©å·åŒ–
      */
     private static final int[] huff_tbl_16 = {
             0xff000001, 0x00000003, 0x01000000,
@@ -533,7 +533,7 @@ Debug.println(info[gr][ch]);
     }
 
     /**
-     * ƒnƒtƒ}ƒ“•œ†‰»
+     * ãƒãƒ•ãƒãƒ³å¾©å·åŒ–
      */
     private void huff_decodebits(int[] xy, int n) {
         int code;
@@ -620,7 +620,7 @@ Debug.println(info[gr][ch]);
     }
 
     /**
-     * ƒrƒbƒgƒXƒgƒŠ[ƒ€‚Ì•ª‰ğ
+     * ãƒ“ãƒƒãƒˆã‚¹ãƒˆãƒªãƒ¼ãƒ ã®åˆ†è§£
      */
     private void bitget_init_end(int buf_end) {
         m_bs_ptr_end = buf_end;
@@ -701,18 +701,18 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
     }
 
     /**
-     * ƒnƒCƒuƒŠƒbƒhƒtƒBƒ‹ƒ^ƒoƒ“ƒN
+     * ãƒã‚¤ãƒ–ãƒªãƒƒãƒ‰ãƒ•ã‚£ãƒ«ã‚¿ãƒãƒ³ã‚¯
      */
     private void l3dhybrid(float[] sample, float[] spec, int ch) {
         float[][] sbsamp = new float[SS_SIZE][SB_SIZE];
 
-        // ƒoƒ^ƒtƒ‰ƒC‰‰Z
+        // ãƒã‚¿ãƒ•ãƒ©ã‚¤æ¼”ç®—
         l3dalias(spec);
 
         // MDCT
         l3imdct(sbsamp, m_dsbsampprv[ch], spec);
 
-        // ƒTƒuƒoƒ“ƒhƒtƒBƒ‹ƒ^
+        // ã‚µãƒ–ãƒãƒ³ãƒ‰ãƒ•ã‚£ãƒ«ã‚¿
         for (int ss = 0; ss < SS_SIZE; ss++) {
             l3dsubband(sample, ss * SB_SIZE, sbsamp[ss], ch);
         }
@@ -775,7 +775,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
     }
 
     /**
-     * IMDCT (‹t•ÏŒ`—£U—]Œ·•ÏŠ·)
+     * IMDCT (é€†å¤‰å½¢é›¢æ•£ä½™å¼¦å¤‰æ›)
      */
     private void imdct(float[] in, int in_p, float[] out) {
         for (int m = 0; m < SCALE_BLOCK; m++) {
@@ -803,7 +803,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
         }
     }
 
-    /** ƒoƒ^ƒtƒ‰ƒC‰‰Z‚ÌŒW” */
+    /** ãƒã‚¿ãƒ•ãƒ©ã‚¤æ¼”ç®—ã®ä¿‚æ•° */
     private static final double[] m_dcn = {
         -0.6000, -0.5350, -0.3300, -0.1850,
         -0.0950, -0.0410, -0.0142, -0.0037
@@ -824,7 +824,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
     }
 
     /**
-     * Ü‚è•Ô‚µ˜c‚İíŒ¸ƒoƒ^ƒtƒ‰ƒC
+     * æŠ˜ã‚Šè¿”ã—æ­ªã¿å‰Šæ¸›ãƒã‚¿ãƒ•ãƒ©ã‚¤
      */
     private void l3dalias(float[] x) {
         int n = SB_SIZE - 1;
@@ -978,13 +978,13 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
     private float[][] m_dxbuf = new float[CH_MAX][HAN_SIZE * 2];
 
     /**
-     * ƒTƒuƒoƒ“ƒh‡¬ƒtƒBƒ‹ƒ^
+     * ã‚µãƒ–ãƒãƒ³ãƒ‰åˆæˆãƒ•ã‚£ãƒ«ã‚¿
      */
     private void l3dsubband(float[] sample, int sample_p, float[] s, int ch) {
         float coef = -1.0f;
         float[] w = new float[512];
 
-        // ü”g”‘ÑˆæM†‚ÌŒvZ(IDCT,32~64)
+        // å‘¨æ³¢æ•°å¸¯åŸŸä¿¡å·ã®è¨ˆç®—(IDCT,32Ã—64)
         for (int i = 0; i < SCALE_RANGE; i++) {
             float sum = 0.0f;
 
@@ -995,7 +995,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
             m_dxbuf[ch][m_dxoff[ch] + i] = sum;
         }
 
-        // ƒtƒBƒ‹ƒ^‡¬
+        // ãƒ•ã‚£ãƒ«ã‚¿åˆæˆ
         for (int i = 0; i < SB_SIZE; i++) {
             for (int j = 0; j < 8; j++) {
                 int l = i + (j * 64);
@@ -1009,7 +1009,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
             }
         }
 
-        // üŠú‰ÁZM†‚ÌŒvZ
+        // å‘¨æœŸåŠ ç®—ä¿¡å·ã®è¨ˆç®—
         for (int i = 0; i < SB_SIZE; i++) {
             float sum = 0.0f;
 

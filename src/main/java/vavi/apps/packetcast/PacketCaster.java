@@ -219,7 +219,7 @@ System.err.print("X");
         }
     };
 
-    /** Œ»İ‚Ì•b‚É‘Î‰‚·‚éƒtƒ@ƒCƒ‹‚ğæ“¾ {@link #interval} [mesc] ‚¨‚« */
+    /** ç¾åœ¨ã®ç§’ã«å¯¾å¿œã™ã‚‹ãƒ•ã‚¡ã‚¤ãƒ«ã‚’å–å¾— {@link #interval} [mesc] ãŠã */
     class MyUrlMaker implements UrlMaker {
         /** */
         Calendar calendar = Calendar.getInstance();
@@ -227,7 +227,7 @@ System.err.print("X");
         MyUrlMaker() {
             calendar.roll(Calendar.SECOND, 10);
         }
-        /** Œ»İg—p’†‚ÌŠÔ */
+        /** ç¾åœ¨ä½¿ç”¨ä¸­ã®æ™‚é–“ */
         int currentNo = 0;
 
         /** */

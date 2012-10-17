@@ -14,7 +14,7 @@ import javax.sound.sampled.TargetDataLine;
 
 
 /**
- * RtpTransmitter RTPƒpƒPƒbƒg‚Ì‘—M‹@ƒNƒ‰ƒX
+ * RtpTransmitter RTPãƒ‘ã‚±ãƒƒãƒˆã®é€ä¿¡æ©Ÿã‚¯ãƒ©ã‚¹
  * 
  * @author fukugawa
  */
@@ -22,22 +22,22 @@ public class RtpTransmitter {
     // Socket
     private DatagramSocket socket;
 
-    // ˆ¶æIPƒAƒhƒŒƒX
+    // å®›å…ˆIPã‚¢ãƒ‰ãƒ¬ã‚¹
     private String destIP;
 
-    // ˆ¶æUDPƒ|[ƒg”Ô†
+    // å®›å…ˆUDPãƒãƒ¼ãƒˆç•ªå·
     private String destPort;
 
-    // ‘—MƒXƒŒƒbƒh
+    // é€ä¿¡ã‚¹ãƒ¬ãƒƒãƒ‰
     private TransmitThread transmitThread;
 
     /**
-     * ƒ}ƒCƒN‚©‚ç“ü—Í‚³‚ê‚½‰¹ºƒf[ƒ^‚ğARTPƒpƒPƒbƒg‚É‰ÁH‚µA w’è‚µ‚½ƒ\ƒPƒbƒg‚ğg—p‚µ‚ÄAw’è‚µ‚½ˆ¶æIPƒAƒhƒŒƒXAw’è‚µ‚½ˆ¶æUDPƒ|[ƒg”Ô†
-     * ‚Ö‘—M‚·‚éRTPƒpƒPƒbƒg‘—M‹@‚ğ¶¬‚µ‚Ü‚· ƒfƒBƒtƒHƒ‹ƒg‚ÌƒƒfƒBƒAƒ^ƒCƒv‚ÍAG.711 u-law(0)‚ğg—p‚µ‚Ü‚·
+     * ãƒã‚¤ã‚¯ã‹ã‚‰å…¥åŠ›ã•ã‚ŒãŸéŸ³å£°ãƒ‡ãƒ¼ã‚¿ã‚’ã€RTPãƒ‘ã‚±ãƒƒãƒˆã«åŠ å·¥ã—ã€ æŒ‡å®šã—ãŸã‚½ã‚±ãƒƒãƒˆã‚’ä½¿ç”¨ã—ã¦ã€æŒ‡å®šã—ãŸå®›å…ˆIPã‚¢ãƒ‰ãƒ¬ã‚¹ã€æŒ‡å®šã—ãŸå®›å…ˆUDPãƒãƒ¼ãƒˆç•ªå·
+     * ã¸é€ä¿¡ã™ã‚‹RTPãƒ‘ã‚±ãƒƒãƒˆé€ä¿¡æ©Ÿã‚’ç”Ÿæˆã—ã¾ã™ ãƒ‡ã‚£ãƒ•ã‚©ãƒ«ãƒˆã®ãƒ¡ãƒ‡ã‚£ã‚¢ã‚¿ã‚¤ãƒ—ã¯ã€G.711 u-law(0)ã‚’ä½¿ç”¨ã—ã¾ã™
      * 
-     * @param socket g—p‚·‚éSocket
-     * @param destIP ˆ¶æIPƒAƒhƒŒƒX
-     * @param destPort ˆ¶æUDPƒ|[ƒg”Ô†
+     * @param socket ä½¿ç”¨ã™ã‚‹Socket
+     * @param destIP å®›å…ˆIPã‚¢ãƒ‰ãƒ¬ã‚¹
+     * @param destPort å®›å…ˆUDPãƒãƒ¼ãƒˆç•ªå·
      */
     public RtpTransmitter(DatagramSocket socket, String destIP, String destPort) {
         this.socket = socket;
@@ -46,8 +46,8 @@ public class RtpTransmitter {
     }
 
     /**
-     * ƒ}ƒCƒN‚©‚çƒLƒƒƒvƒ`ƒƒ[‚ğŠJn‚µA‘Šè‚ÖRTPƒpƒPƒbƒg‚ğ‘—M‚µn‚ß‚Ü‚· ‚±‚Ìƒƒ\ƒbƒh‚ÌƒXƒŒƒbƒh‚ÍƒuƒƒbƒN‚¹‚¸‚É‚·‚®‚É§Œä‚ğ•Ô‚µ‚Ü‚·
-     * ƒLƒƒƒvƒ`ƒƒ[E‘—M‚Ístop()ƒƒ\ƒbƒh‚ªŒÄ‚Î‚ê‚é‚Æ’â~‚µ‚Ü‚·
+     * ãƒã‚¤ã‚¯ã‹ã‚‰ã‚­ãƒ£ãƒ—ãƒãƒ£ãƒ¼ã‚’é–‹å§‹ã—ã€ç›¸æ‰‹ã¸RTPãƒ‘ã‚±ãƒƒãƒˆã‚’é€ä¿¡ã—å§‹ã‚ã¾ã™ ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã®ã‚¹ãƒ¬ãƒƒãƒ‰ã¯ãƒ–ãƒ­ãƒƒã‚¯ã›ãšã«ã™ãã«åˆ¶å¾¡ã‚’è¿”ã—ã¾ã™
+     * ã‚­ãƒ£ãƒ—ãƒãƒ£ãƒ¼ãƒ»é€ä¿¡ã¯stop()ãƒ¡ã‚½ãƒƒãƒ‰ãŒå‘¼ã°ã‚Œã‚‹ã¨åœæ­¢ã—ã¾ã™
      */
     public void start() {
         this.transmitThread = new TransmitThread(this.socket, this.destIP, this.destPort);
@@ -55,14 +55,14 @@ public class RtpTransmitter {
     }
 
     /**
-     * ƒ}ƒCƒN‚©‚ç‚ÌƒLƒƒƒvƒ`ƒƒ[‚ğ’â~‚µA‘Šè‚Ö‚ÌRTPƒpƒPƒbƒg‚Ì‘—M‚ğI‚¦‚Ü‚·
+     * ãƒã‚¤ã‚¯ã‹ã‚‰ã®ã‚­ãƒ£ãƒ—ãƒãƒ£ãƒ¼ã‚’åœæ­¢ã—ã€ç›¸æ‰‹ã¸ã®RTPãƒ‘ã‚±ãƒƒãƒˆã®é€ä¿¡ã‚’çµ‚ãˆã¾ã™
      */
     public void stop() {
         this.transmitThread.transmitStop();
     }
 
     /**
-     * g—p‚·‚éƒƒfƒBƒAƒ^ƒCƒv‚ğ•ÏX‚µ‚Ü‚· ¦‚±‚Ìƒƒ\ƒbƒh‚Í‚Ü‚¾À‘•‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ
+     * ä½¿ç”¨ã™ã‚‹ãƒ¡ãƒ‡ã‚£ã‚¢ã‚¿ã‚¤ãƒ—ã‚’å¤‰æ›´ã—ã¾ã™ â€»ã“ã®ãƒ¡ã‚½ãƒƒãƒ‰ã¯ã¾ã å®Ÿè£…ã•ã‚Œã¦ã„ã¾ã›ã‚“
      */
     public void setMediaType(int mediaType) {
 
@@ -70,7 +70,7 @@ public class RtpTransmitter {
 }
 
 /**
- * ƒLƒƒƒvƒ`ƒƒ[ -> ‘—MƒXƒŒƒbƒh
+ * ã‚­ãƒ£ãƒ—ãƒãƒ£ãƒ¼ -> é€ä¿¡ã‚¹ãƒ¬ãƒƒãƒ‰
  */
 class TransmitThread extends Thread {
 
@@ -82,7 +82,7 @@ class TransmitThread extends Thread {
 
     private boolean isStop;
 
-    // ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+    // ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
     public TransmitThread(DatagramSocket socket, String destIP, String destPort) {
         this.socket = socket;
         this.destIP = destIP;
@@ -91,7 +91,7 @@ class TransmitThread extends Thread {
 
     }
 
-    // ƒ}ƒCƒNƒLƒƒƒvƒ`ƒƒ[ -> ‘—M ƒXƒŒƒbƒhŠJn
+    // ãƒã‚¤ã‚¯ã‚­ãƒ£ãƒ—ãƒãƒ£ãƒ¼ -> é€ä¿¡ ã‚¹ãƒ¬ãƒƒãƒ‰é–‹å§‹
     public void run() {
         try {
             byte[] voicePacket = new byte[160];
@@ -108,20 +108,20 @@ class TransmitThread extends Thread {
             targetDataLine.start();
 
             AudioInputStream linearStream = new AudioInputStream(targetDataLine);
-            // ƒŠƒjƒAPCM 16bit 8000Hz ‚©‚ç G.711 u-law‚Ö•ÏŠ·
+            // ãƒªãƒ‹ã‚¢PCM 16bit 8000Hz ã‹ã‚‰ G.711 u-lawã¸å¤‰æ›
             AudioInputStream ulawStream = AudioSystem.getAudioInputStream(ulawFormat, linearStream);
 
             while (!isStop) {
                 try {
-                    // G.711 u-law 20ms•ª‚ğæ“¾‚·‚é
+                    // G.711 u-law 20msåˆ†ã‚’å–å¾—ã™ã‚‹
                     ulawStream.read(voicePacket, 0, voicePacket.length);
-                    // RTPƒwƒbƒ_[‚ğ•t‚¯‚é
+                    // RTPãƒ˜ãƒƒãƒ€ãƒ¼ã‚’ä»˜ã‘ã‚‹
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     new RtpHeader().writeTo(baos);
                     System.arraycopy(voicePacket, 0, baos.toByteArray(), 0, 12);
                     System.arraycopy(voicePacket, 0, rtpPacket, 12, 160);
                     packet = new DatagramPacket(rtpPacket, rtpPacket.length, address);
-                    // ‘Šè‚Ö‘—M
+                    // ç›¸æ‰‹ã¸é€ä¿¡
                     this.socket.send(packet);
                 } catch (Exception ee) {
                     ee.printStackTrace();
@@ -134,7 +134,7 @@ class TransmitThread extends Thread {
         }
     }
 
-    // ƒ}ƒCƒNƒLƒƒƒvƒ`ƒƒ[ -> ‘—MŠJn ƒXƒŒƒbƒh’â~
+    // ãƒã‚¤ã‚¯ã‚­ãƒ£ãƒ—ãƒãƒ£ãƒ¼ -> é€ä¿¡é–‹å§‹ ã‚¹ãƒ¬ãƒƒãƒ‰åœæ­¢
     public void transmitStop() {
         this.isStop = true;
     }
@@ -149,31 +149,31 @@ class TransmitThread extends Thread {
             this.marker = -128;
         }
 
-        // ƒV[ƒPƒ“ƒX”Ô†
+        // ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ç•ªå·
         private short sequenceNum;
-        // ƒ^ƒCƒ€ƒXƒ^ƒ“ƒv
+        // ã‚¿ã‚¤ãƒ ã‚¹ã‚¿ãƒ³ãƒ—
         private int timeStamp;
-        // “¯Šúƒ\[ƒXID
+        // åŒæœŸã‚½ãƒ¼ã‚¹ID
         private int syncSourceId;
-        // ƒ}[ƒJ[ƒrƒbƒg
+        // ãƒãƒ¼ã‚«ãƒ¼ãƒ“ãƒƒãƒˆ
         private byte marker;
 
-        // ƒo[ƒWƒ‡ƒ“”Ô†10000000
+        // ãƒãƒ¼ã‚¸ãƒ§ãƒ³ç•ªå·10000000
         byte version = -128;
-        // ƒpƒfƒBƒ“ƒO
+        // ãƒ‘ãƒ‡ã‚£ãƒ³ã‚°
         byte padding = 0;
-        // Šg’£ƒrƒbƒg
+        // æ‹¡å¼µãƒ“ãƒƒãƒˆ
         byte extention = 0;
-        // ƒRƒ“ƒgƒŠƒrƒ…[ƒgƒJƒEƒ“ƒg
+        // ã‚³ãƒ³ãƒˆãƒªãƒ“ãƒ¥ãƒ¼ãƒˆã‚«ã‚¦ãƒ³ãƒˆ
         byte contribute = 0;
-        // ƒyƒCƒ[ƒhƒ^ƒCƒv
+        // ãƒšã‚¤ãƒ­ãƒ¼ãƒ‰ã‚¿ã‚¤ãƒ—
         byte payload = 0;
 
         void writeTo(OutputStream os) throws IOException {
-            // RTPƒwƒbƒ_
+            // RTPãƒ˜ãƒƒãƒ€
             byte[] rtpHeader = new byte[12];
             
-            // RTPƒwƒbƒ_[‚Ì¶¬
+            // RTPãƒ˜ãƒƒãƒ€ãƒ¼ã®ç”Ÿæˆ
             rtpHeader[0] = (byte) (version | padding | extention | contribute);
             rtpHeader[1] = (byte) (marker | payload);
             rtpHeader[2] = (byte) (this.sequenceNum >> 8);
@@ -187,14 +187,14 @@ class TransmitThread extends Thread {
             rtpHeader[10] = (byte) (this.syncSourceId >> 8);
             rtpHeader[11] = (byte) (this.syncSourceId >> 0);
 
-            // ƒV[ƒPƒ“ƒX”Ô†Aƒ^ƒCƒ€ƒXƒ^ƒ“ƒvAƒ}[ƒJ[ƒrƒbƒgˆÚs
+            // ã‚·ãƒ¼ã‚±ãƒ³ã‚¹ç•ªå·ã€ã‚¿ã‚¤ãƒ ã‚¹ã‚¿ãƒ³ãƒ—ã€ãƒãƒ¼ã‚«ãƒ¼ãƒ“ãƒƒãƒˆç§»è¡Œ
             this.sequenceNum++;
             this.timeStamp += 160;
             if (this.marker == -128) {
                 this.marker = 0;
             }
 
-            // RTPƒwƒbƒ_[{‰¹ºƒf[ƒ^ = RTPƒpƒPƒbƒg
+            // RTPãƒ˜ãƒƒãƒ€ãƒ¼ï¼‹éŸ³å£°ãƒ‡ãƒ¼ã‚¿ = RTPãƒ‘ã‚±ãƒƒãƒˆ
             ByteArrayOutputStream baos = new ByteArrayOutputStream(172);
             baos.write(rtpHeader, 0, 12);
             baos.writeTo(os);
