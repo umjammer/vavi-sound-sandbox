@@ -13,60 +13,86 @@
 <!-- ////////////////////////////////////////////////////////////////////// -->
 
 <project name="vavi-sound-sandbox" default="run" basedir="."
-         xmlns:ivy="antlib:org.apache.ivy.ant">
+         xmlns:artifact="urn:maven-artifact-ant">
 
-  <property file="local.properties" />
-
-  <property name="dir.build" value="target/classes" />
-  <property name="dir.lib" value="lib" />
-
-  <!-- クラスパスの定義 -->
-  <path id="project.class.path">
-    <fileset dir="${dir.lib}">
+  <path id="maven-ant-tasks.classpath">
+    <fileset dir="${user.home}/lib/java/maven-ant-tasks">
       <include name="*.jar" />
     </fileset>
   </path>
+  <typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="urn:maven-artifact-ant"
+           classpathref="maven-ant-tasks.classpath" /> 
 
-  <!-- ターゲットの定義 -->
+  <property environment="env"/>
+  <property file="local.properties" />
+
+  <xmlproperty file="pom.xml" />
+
+  <!-- Path Definitions -->
+  <path id="project.class.path">
+    <fileset refid="maven-ant-tasks.dependency.fileset"/>
+  </path>
 
   <!-- clean -->
-  <target name="clean" description="ビルド環境のクリア">
+  <target name="clean" description="Cleaning">
     <delete>
-      <fileset dir="${dir.build}">
+      <fileset dir="${javac.dest}">
         <include name="**/*" />
       </fileset>
-      <fileset dir="target/test-classes">
+      <fileset dir="${javac.dest.test}">
         <include name="**/*" />
       </fileset>
     </delete>
   </target>
 
   <!-- prepare -->
-  <target name="prepare" description="ビルド環境の準備">
-    <ivy:settings file="ivy-settings.xml" />
-    <ivy:convertpom pomFile="pom.xml" ivyFile="ivy.xml" />
-    <ivy:retrieve />
+  <target name="prepare" description="Preparing">
+    <artifact:pom file="pom.xml" id="maven.project"/>
+    <artifact:dependencies fileSetId="maven-ant-tasks.dependency.fileset">
+      <pom refid="maven.project"/>
+    </artifact:dependencies>
   </target>
 
-  <!-- javac -->
-  <target name="compile" depends="prepare" description="コンパイル">
-    <javac debug="on" destdir="${dir.build}" encoding="${encoding}">
+  <!-- javac all vavi -->
+  <target name="compile" depends="prepare" description="Compiling">
+    <javac debug="on" destdir="${javac.dest}"
+           source="${project.build.plugins.plugin.configuration.source}"
+           target="${project.build.plugins.plugin.configuration.target}"
+           encoding="${project.build.plugins.plugin.configuration.encoding}">
       <classpath refid="project.class.path" />
       <include name="**/*.java" />
-      <src path="src/main/java" />
+      <src path="${javac.source}" />
     </javac>
 
-    <copy todir="${dir.build}">
-      <fileset dir="src/main/resources">
+    <copy todir="${javac.dest}">
+      <fileset dir="${javac.resource}">
+        <include name="**/*" />
+      </fileset>
+    </copy>
+
+    <javac debug="on" destdir="${javac.dest.test}"
+           source="${project.build.plugins.plugin.configuration.source}"
+           target="${project.build.plugins.plugin.configuration.target}"
+           encoding="${project.build.plugins.plugin.configuration.encoding}">
+      <classpath>
+        <path refid="project.class.path" />
+        <pathelement location="${javac.dest}" />
+      </classpath>
+      <include name="**/*.java" />
+      <src path="${javac.source.test}" />
+    </javac>
+
+    <copy todir="${javac.dest.test}">
+      <fileset dir="${javac.resource.test}">
         <include name="**/*" />
       </fileset>
     </copy>
   </target>
 
   <!-- jar -->
-  <target name="packaging" depends="compile" description="パッケージング">
-    <jar jarfile="target/vavi-sound.jar">
-      <fileset dir="${dir.build}">
+  <target name="package" depends="compile" description="Packaging">
+    <jar jarfile="target/${project.artifactId}-${project.version}.jar">
+      <fileset dir="${javac.dest}">
         <include name="**/*" />
       </fileset>
     </jar>
@@ -77,7 +103,7 @@
     <java classname="unknown.sound.MTMMain" fork="yes">
       <classpath>
         <path refid="project.class.path" />
-        <pathelement location="${dir.build}" />
+        <pathelement location="${javac.dest}" />
       </classpath>
     </java>
   </target>
@@ -176,7 +202,7 @@
   </target>
 
   <!-- wave -->
-  <target name="wave" depends="packaging" description="wave data の抽出">
+  <target name="wave" depends="package" description="wave data の抽出">
     <java classname="wave" fork="yes">
       <classpath refid="project.class.path" />
       <arg value="${test.150.wave.in}" />       <!-- input ファイル -->
@@ -185,7 +211,7 @@
   </target>
 
   <!-- tc2 -->
-  <target name="tc2" depends="packaging" description="フォーマットの変換 Test">
+  <target name="tc2" depends="package" description="フォーマットの変換 Test">
     <java classname="Transcoder" fork="yes">
       <classpath refid="project.class.path" />
       <arg value="-o out2.wav" />               <!-- output ファイル -->
@@ -195,7 +221,7 @@
   </target>
 
   <!-- play wave -->
-  <target name="play.wave" depends="packaging" description="play wave">
+  <target name="play.wave" depends="package" description="play wave">
     <java classname="t150_1" fork="yes">
       <classpath refid="project.class.path" />
       <arg value="out.wav" />
@@ -206,7 +232,7 @@
   </target>
 
   <!-- play g721 -->
-  <target name="play.adpcm" depends="packaging" description="play adpcm">
+  <target name="play.adpcm" depends="package" description="play adpcm">
     <java classname="t150_2" fork="yes">
       <classpath refid="project.class.path" />
       <arg line="g721_lenear_16k.adpcm" />
@@ -214,7 +240,7 @@
   </target>
 
   <!-- play pcm -->
-  <target name="play.pcm" depends="packaging" description="play adpcm">
+  <target name="play.pcm" depends="package" description="play adpcm">
     <java classname="t150_3" fork="yes">
       <!-- jvmarg value="-Xprof" / -->
       <classpath refid="project.class.path" />
@@ -224,10 +250,21 @@
   </target>
 
   <!-- play dir -->
-  <target name="play.dir" depends="packaging" description="play dir">
+  <target name="play.dir" depends="package" description="play dir">
     <java classname="t150_1" fork="yes" dir="${test.150.play.dir}">
       <classpath refid="project.class.path" />
       <arg value="*.mp3" />
+    </java>
+  </target>
+
+  <!-- play alac -->
+  <target name="alac" depends="package" description="play dir">
+    <java classname="Test3" fork="yes">
+      <classpath>
+        <path refid="project.class.path" />
+        <pathelement location="${javac.dest.test}" />
+      </classpath>
+      <arg value="${test.alac}" />
     </java>
   </target>
 
@@ -249,7 +286,7 @@
   </path>
 
   <!-- analyze -->
-  <target name="analyze" depends="packaging" description="play dir">
+  <target name="analyze" depends="package" description="play dir">
     <java classname="t150_4" fork="yes">
       <classpath refid="libmfi.class.path" />
       <arg value="${test.150.analyze.dir}" />
@@ -264,7 +301,7 @@
   </path>
 
   <!-- split -->
-  <target name="split" depends="packaging" description="split">
+  <target name="split" depends="package" description="split">
     <java classname="Split" fork="yes">
       <jvmarg value="-Xmx256m" />
       <classpath refid="jmf.class.path" />
@@ -275,7 +312,7 @@
   </target>
 
   <!-- dsr -->
-  <target name="dsr" depends="packaging" description="data source reader">
+  <target name="dsr" depends="package" description="data source reader">
     <java classname="DataSourceReader" fork="yes">
       <jvmarg value="-Xmx256m" />
       <classpath refid="jmf.class.path" />
