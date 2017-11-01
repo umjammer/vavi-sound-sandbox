@@ -6,4 +6,4 @@
 # 0.00	111022	nsano	initial version
 #
 
-#vavi.sound.sampled.alac.AlacFormatConversionProvider
+vavi.sound.sampled.alac.AlacFormatConversionProvider

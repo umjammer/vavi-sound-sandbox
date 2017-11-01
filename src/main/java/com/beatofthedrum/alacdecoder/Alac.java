@@ -83,6 +83,10 @@ public class Alac {
         ac.alac = alac;
     }
 
+    public InputStream getInputStream() {
+        return ac.input_stream;
+    }
+
     // Heres where we extract the actual music data
     public int decode(int[] pDestBuffer, byte[] pcmBuffer) {
         int bytes_unpacked = unpackSamples(pDestBuffer);
