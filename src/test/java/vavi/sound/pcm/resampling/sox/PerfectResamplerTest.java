@@ -20,7 +20,9 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 import vavi.util.Debug;
 import vavix.util.ByteUtil;
@@ -32,7 +34,7 @@ import vavix.util.ByteUtil;
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 081029 nsano initial version <br>
  */
-public class PerfectResamplerTest extends TestCase {
+public class PerfectResamplerTest {
 
     String inFile;
     String outFile;
@@ -52,6 +54,7 @@ public class PerfectResamplerTest extends TestCase {
     ByteUtil byteUtil = new ByteUtil();
 
     /** */
+    @Test
     public void test1() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
         AudioFormat format = sourceAis.getFormat();

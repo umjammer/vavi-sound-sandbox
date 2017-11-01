@@ -1,5 +1,5 @@
 /*
- * @(#)DataSource.java	1.2 01/03/13
+ * @(#)DataSource.java    1.2 01/03/13
  *
  * Copyright (c) 1999-2001 Sun Microsystems, Inc. All Rights Reserved.
  *

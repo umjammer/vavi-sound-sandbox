@@ -19,10 +19,12 @@ import javax.sound.sampled.LineListener;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.AudioFileFormat.Type;
 
+import org.junit.Test;
+
 import vavi.sound.sampled.MonauralInputFilter;
 import vavi.util.Debug;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
 
 /**
@@ -31,7 +33,7 @@ import junit.framework.TestCase;
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060726 nsano initial version <br>
  */
-public class SampleRateConversionProviderTest extends TestCase {
+public class SampleRateConversionProviderTest {
 
     String inFile = "C:\\Documents and Settings\\sano-n\\My Documents\\My Music\\0\\大塚 愛 - さくらんぼ.wav";
     String outFile = "out.wav";
@@ -44,6 +46,7 @@ public class SampleRateConversionProviderTest extends TestCase {
      * </ul>
      *  
      */
+    @Test
     public void test1() throws Exception {
 
 for (Type type : AudioSystem.getAudioFileTypes()) {

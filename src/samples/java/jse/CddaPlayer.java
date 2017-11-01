@@ -61,7 +61,7 @@ public class CddaPlayer {
         boolean bTocOnly = true;
         int nTrack = 0;
 
-        // File		outputFile = new File("output.wav");
+        // File        outputFile = new File("output.wav");
         if (args.length < 1) {
             bTocOnly = true;
         } else if (args.length == 1) {

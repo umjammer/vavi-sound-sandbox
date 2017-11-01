@@ -310,16 +310,17 @@ public class MTMWindow extends Frame {
                         k2++;
                     } while (true);
                     try {
-                        MIDIInputStream midiinputstream = new MIDIInputStream(new FileInputStream(file));
-                        MIDIToMLDInputStream miditomldinputstream = new MIDIToMLDInputStream(midiinputstream,
+                        MIDIInputStream mis = new MIDIInputStream(new FileInputStream(file));
+                        MIDIToMLDInputStream m2mis = new MIDIToMLDInputStream(mis,
                                                                                              preferences);
-                        FileOutputStream fileoutputstream = new FileOutputStream(file1);
+                        FileOutputStream fos = new FileOutputStream(file1);
                         try {
                             do {
-                                fileoutputstream.write(miditomldinputstream.readMessageAsBytes());
+                                fos.write(m2mis.readMessageAsBytes());
                             } while (true);
                         } catch (EOFException _ex) {
                         }
+                        fos.close();
                     } catch (IOException _ex) {
                         System.out.println("IOExceptionが発生");
                     }

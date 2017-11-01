@@ -38,7 +38,7 @@ public class SimpleAudioStream extends BaseAudioStream {
      */
     private static boolean DEBUG = true;
 
-    // private static final int	EXTERNAL_BUFFER_SIZE = 16384;
+    // private static final int    EXTERNAL_BUFFER_SIZE = 16384;
 
     /**
      *        This variable is used to distinguish stopped state from

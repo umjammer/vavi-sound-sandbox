@@ -1,5 +1,5 @@
 /*
- * @(#)DataSourceReader.java	1.2 01/03/13
+ * @(#)DataSourceReader.java    1.2 01/03/13
  *
  * Copyright (c) 1999-2001 Sun Microsystems, Inc. All Rights Reserved.
  *
@@ -277,7 +277,7 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
         PushBufferStream pushStrms[] = null;
 
         // Data sink listeners.
-        private Vector<DataSinkListener> listeners = new Vector<DataSinkListener>(1);
+        private Vector<DataSinkListener> listeners = new Vector<>(1);
 
         // Stored all the streams that are not yet finished (i.e. EOM
         // has not been received.

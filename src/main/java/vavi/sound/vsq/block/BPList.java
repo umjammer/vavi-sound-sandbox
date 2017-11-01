@@ -59,7 +59,7 @@ public class BPList implements Block {
     }
 
     /** */
-    protected List<Pair> bps = new ArrayList<Pair>();
+    protected List<Pair> bps = new ArrayList<>();
 
     /** */
     public static Block newInstance(String label, List<String> params) {

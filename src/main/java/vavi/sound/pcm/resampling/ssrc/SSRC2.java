@@ -670,11 +670,11 @@ public class SSRC2 {
                 case 3:
                     for (i = 0; i < nsmplread * nch; i++) {
                         inbuf[nch * inbuflen + i] = (1 / (double) 0x7fffff) *
-                		((rawinbuf.get(i * 3    ) <<  0) |
-                		 (rawinbuf.get(i * 3 + 1) <<  8) |
-                		 (rawinbuf.get(i * 3 + 2) << 16));
-            	    }
-            	    break;
+                        ((rawinbuf.get(i * 3    ) <<  0) |
+                         (rawinbuf.get(i * 3 + 1) <<  8) |
+                         (rawinbuf.get(i * 3 + 2) << 16));
+                    }
+                    break;
 
                 case 4:
                     for (i = 0; i < nsmplread * nch; i++) {
@@ -719,16 +719,16 @@ public class SSRC2 {
                         for (p = 0; p < nsmplwrt1; p++) {
                             int s1o = f1order[s1p];
 
-                		    buf2[ch][p] =
-                		        stage1[s1o][0] * inbuf[ip + 0 * nch] +
-                		        stage1[s1o][1] * inbuf[ip + 1 * nch] +
-                		        stage1[s1o][2] * inbuf[ip + 2 * nch] +
-                		        stage1[s1o][3] * inbuf[ip + 3 * nch] +
-                		        stage1[s1o][4] * inbuf[ip + 4 * nch] +
-                		        stage1[s1o][5] * inbuf[ip + 5 * nch]+
-                		        stage1[s1o][6] * inbuf[ip + 6 * nch];
-		    
-                		    ip += f1inc[s1p];
+                            buf2[ch][p] =
+                                stage1[s1o][0] * inbuf[ip + 0 * nch] +
+                                stage1[s1o][1] * inbuf[ip + 1 * nch] +
+                                stage1[s1o][2] * inbuf[ip + 2 * nch] +
+                                stage1[s1o][3] * inbuf[ip + 3 * nch] +
+                                stage1[s1o][4] * inbuf[ip + 4 * nch] +
+                                stage1[s1o][5] * inbuf[ip + 5 * nch]+
+                                stage1[s1o][6] * inbuf[ip + 6 * nch];
+            
+                            ip += f1inc[s1p];
 
                             s1p++;
                             if (s1p == no) {
@@ -741,18 +741,18 @@ public class SSRC2 {
                         for (p = 0; p < nsmplwrt1; p++) {
                             int s1o = f1order[s1p];
 
-                		    buf2[ch][p] =
-                		        stage1[s1o][0] * inbuf[ip + 0 * nch] +
-                		        stage1[s1o][1] * inbuf[ip + 1 * nch] +
-              		            stage1[s1o][2] * inbuf[ip + 2 * nch] +
-              		            stage1[s1o][3] * inbuf[ip + 3 * nch] +
-              		            stage1[s1o][4] * inbuf[ip + 4 * nch] +
-              		            stage1[s1o][5] * inbuf[ip + 5 * nch] +
-              		            stage1[s1o][6] * inbuf[ip + 6 * nch] +
-              		            stage1[s1o][7] * inbuf[ip + 7 * nch] +
-              		            stage1[s1o][8] * inbuf[ip + 8 * nch];
-		    
-                		    ip += f1inc[s1p];
+                            buf2[ch][p] =
+                                stage1[s1o][0] * inbuf[ip + 0 * nch] +
+                                stage1[s1o][1] * inbuf[ip + 1 * nch] +
+                                  stage1[s1o][2] * inbuf[ip + 2 * nch] +
+                                  stage1[s1o][3] * inbuf[ip + 3 * nch] +
+                                  stage1[s1o][4] * inbuf[ip + 4 * nch] +
+                                  stage1[s1o][5] * inbuf[ip + 5 * nch] +
+                                  stage1[s1o][6] * inbuf[ip + 6 * nch] +
+                                  stage1[s1o][7] * inbuf[ip + 7 * nch] +
+                                  stage1[s1o][8] * inbuf[ip + 8 * nch];
+            
+                            ip += f1inc[s1p];
 
                             s1p++;
                             if (s1p == no) {
@@ -1626,18 +1626,18 @@ public class SSRC2 {
                 fpi.read(buf);
                 buf.flip();
                 f = (1 / (double) 0x7fffff) * 
-            	      (((buf.get(0) & 0xff) <<  0) |
-            	       ((buf.get(1) & 0xff) <<  8) |
-            	       ((buf.get(2) & 0xff) << 16));
-            	break;
+                      (((buf.get(0) & 0xff) <<  0) |
+                       ((buf.get(1) & 0xff) <<  8) |
+                       ((buf.get(2) & 0xff) << 16));
+                break;
             case 4:
                 buf.position(0);
                 buf.limit(4);
                 fpi.read(buf);
                 buf.flip();
                 s = buf.order(byteOrder).asIntBuffer().get(0);
-            	f = (1 / (double) 0x7fffffff) * s;
-            	break;
+                f = (1 / (double) 0x7fffffff) * s;
+                break;
             };
 
             if (fpi.position() == fpi.size()) {

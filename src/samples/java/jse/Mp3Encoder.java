@@ -361,7 +361,7 @@ public class Mp3Encoder {
 
     public static void main(String[] args) {
         //try {
-        //	System.out.println("Librarypath=" + System.getProperty("java.library.path", ""));
+        //    System.out.println("Librarypath=" + System.getProperty("java.library.path", ""));
         //} catch (Throwable t) {}
         int firstFileIndex = parseArgs(args);
         int inputFiles = 0;

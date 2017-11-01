@@ -1,9 +1,3 @@
-package jse;
-/*
- *        AudioRecorder.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999 - 2001 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -23,6 +17,7 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+package jse;
 
 // IDEA: example 'recording and playback with byte arrays' (using ByteArrayIn/OutputStream)
 import gnu.getopt.Getopt;
@@ -98,6 +93,11 @@ import javax.sound.sampled.TargetDataLine;
 
 -DocBookXML
 */
+/*
+ * AudioRecorder.java
+ *
+ * This file is part of the Java Sound Examples.
+ */
 public class AudioRecorder {
     private static boolean DEBUG = false;
     private static final int DEFAULT_EXTERNAL_BUFFER_SIZE = 128000;
@@ -161,9 +161,9 @@ public class AudioRecorder {
                                                                };
 
     /*
-     *        This set of types is used if AudioSystem.getAudioFileTypes()
-     *        returns an array of length 0. This is necessary because the
-     *        Sun jdk1.3.0 does so (Yes, it is a bug).
+     * This set of types is used if AudioSystem.getAudioFileTypes()
+     * returns an array of length 0. This is necessary because the
+     * Sun jdk1.3.0 does so (Yes, it is a bug).
      */
     private static final AudioFileFormat.Type[] DEFAULT_TYPES = {
                                                                     AudioFileFormat.Type.WAVE,
@@ -178,11 +178,11 @@ public class AudioRecorder {
             printUsageAndExit();
         }
 
-        // int	nQuality = QUALITY_DEFAULT;
+        // int nQuality = QUALITY_DEFAULT;
         String strExtension = null;
 
         /*
-         *        Parsing of command-line options takes place...
+         * Parsing of command-line options takes place...
          */
         String strMixerName = null;
         int nExternalBufferSize = DEFAULT_EXTERNAL_BUFFER_SIZE;
@@ -192,7 +192,7 @@ public class AudioRecorder {
         float fRate = 44100.0F;
 
         /*
-         *        Parsing of command-line options takes place...
+         * Parsing of command-line options takes place...
          */
         Getopt g = new Getopt("AudioRecorder", args, "hlLM:e:i:f:c:r:t:D");
         int c;

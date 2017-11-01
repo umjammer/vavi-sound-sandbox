@@ -127,8 +127,8 @@ public class AudioConcat {
         AudioFormat audioFormat = null;
         List<AudioInputStream> audioInputStreamList = new ArrayList<AudioInputStream>();
 
-//      int	nExternalBufferSize = DEFAULT_EXTERNAL_BUFFER_SIZE;
-//      int	nInternalBufferSize = AudioSystem.NOT_SPECIFIED;
+//      int nExternalBufferSize = DEFAULT_EXTERNAL_BUFFER_SIZE;
+//      int nInternalBufferSize = AudioSystem.NOT_SPECIFIED;
 
         // Parsing of command-line options takes place...
         Getopt g = new Getopt("AudioConcat", args, "hcmo:");

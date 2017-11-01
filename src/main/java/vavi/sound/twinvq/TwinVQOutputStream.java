@@ -68,6 +68,8 @@ Debug.println("length: " + length);
             for (int i = 0; i < pcm.length; i++) {
                 pcm[i] = ledis.readShort();
             }
+            ledis.close();
+
             TwinVQ.Index i = new TwinVQ.Index();
             encoder.TvqEncodeFrame(null, i);
 

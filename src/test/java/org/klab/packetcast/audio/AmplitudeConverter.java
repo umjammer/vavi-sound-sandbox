@@ -38,85 +38,85 @@ import javax.sound.sampled.AudioSystem;
 
 /**
  * <titleabbrev>AmplitudeConverter</titleabbrev>
-	<title>Change the amplitude (volume) of an audio file</title>
+    <title>Change the amplitude (volume) of an audio file</title>
 
-	<formalpara><title>Purpose</title>
-	<para>Change the amplitude (volume) of an audio file.</para>
-	</formalpara>
+    <formalpara><title>Purpose</title>
+    <para>Change the amplitude (volume) of an audio file.</para>
+    </formalpara>
 
-	<formalpara><title>Usage</title>
-	<para>
-	<cmdsynopsis>
-	<command>java AmplitudeConverter</command>
-	<arg choice="plain"><option>-h</option></arg>
-	</cmdsynopsis>
-	<cmdsynopsis>
-	<command>java AmplitudeConverter</command>
-	<group>
-	<arg><option>--lin</option></arg>
-	<arg><option>--log</option></arg>
-	</group>
-	<arg choice="plain">
-	<replaceable class="parameter">amplitude</replaceable>
-	</arg>
-	<arg choice="plain">
-	<replaceable class="parameter">sourcefile</replaceable>
-	</arg>
-	<arg choice="plain">
-	<replaceable class="parameter">targetfile</replaceable>
-	</arg>
-	</cmdsynopsis>
-	</para></formalpara>
+    <formalpara><title>Usage</title>
+    <para>
+    <cmdsynopsis>
+    <command>java AmplitudeConverter</command>
+    <arg choice="plain"><option>-h</option></arg>
+    </cmdsynopsis>
+    <cmdsynopsis>
+    <command>java AmplitudeConverter</command>
+    <group>
+    <arg><option>--lin</option></arg>
+    <arg><option>--log</option></arg>
+    </group>
+    <arg choice="plain">
+    <replaceable class="parameter">amplitude</replaceable>
+    </arg>
+    <arg choice="plain">
+    <replaceable class="parameter">sourcefile</replaceable>
+    </arg>
+    <arg choice="plain">
+    <replaceable class="parameter">targetfile</replaceable>
+    </arg>
+    </cmdsynopsis>
+    </para></formalpara>
 
-	<formalpara><title>Parameters</title>
-	<variablelist>
-	<varlistentry>
-	<term><option>-h</option></term>
-	<listitem><para>displays help message</para></listitem>
-	</varlistentry>
-	<varlistentry>
-	<term><option>--lin</option></term>
-	<listitem><para>the amplitude will be given in a linear scale</para></listitem>
-	</varlistentry>
-	<varlistentry>
-	<term><option>--log</option></term>
-	<listitem><para>the amplitude will be given in a logarithmic scale</para></listitem>
-	</varlistentry>
-	<varlistentry>
-	<term><option><replaceable class="parameter">amplitude</replaceable></option></term>
-	<listitem><para>the amplitude to apply to the audio data. If <option>--lin</option> is chosen, this is a simple factor, e.g. 2.0 to double te amplitude. If <option>--log</option> is chosen, this is a value in dB, e.g. 6.0 to double the amplitude.</para></listitem>
-	</varlistentry>
-	<varlistentry>
-	<term><replaceable class="parameter">sourcefile</replaceable></term>
-	<listitem><para>the file name of the audio file that should be
-	read</para></listitem>
-	</varlistentry>
-	<varlistentry>
-	<term><replaceable class="parameter">targetfile</replaceable></term>
-	<listitem><para>the file name of the audio file that should be
-	written</para></listitem>
-	</varlistentry>
-	</variablelist>
-	</formalpara>
+    <formalpara><title>Parameters</title>
+    <variablelist>
+    <varlistentry>
+    <term><option>-h</option></term>
+    <listitem><para>displays help message</para></listitem>
+    </varlistentry>
+    <varlistentry>
+    <term><option>--lin</option></term>
+    <listitem><para>the amplitude will be given in a linear scale</para></listitem>
+    </varlistentry>
+    <varlistentry>
+    <term><option>--log</option></term>
+    <listitem><para>the amplitude will be given in a logarithmic scale</para></listitem>
+    </varlistentry>
+    <varlistentry>
+    <term><option><replaceable class="parameter">amplitude</replaceable></option></term>
+    <listitem><para>the amplitude to apply to the audio data. If <option>--lin</option> is chosen, this is a simple factor, e.g. 2.0 to double te amplitude. If <option>--log</option> is chosen, this is a value in dB, e.g. 6.0 to double the amplitude.</para></listitem>
+    </varlistentry>
+    <varlistentry>
+    <term><replaceable class="parameter">sourcefile</replaceable></term>
+    <listitem><para>the file name of the audio file that should be
+    read</para></listitem>
+    </varlistentry>
+    <varlistentry>
+    <term><replaceable class="parameter">targetfile</replaceable></term>
+    <listitem><para>the file name of the audio file that should be
+    written</para></listitem>
+    </varlistentry>
+    </variablelist>
+    </formalpara>
 
-	<formalpara><title>Bugs, limitations</title>
-	<para>You need the DSP package from Tritonus to compile and run this example.</para>
-	</formalpara>
+    <formalpara><title>Bugs, limitations</title>
+    <para>You need the DSP package from Tritonus to compile and run this example.</para>
+    </formalpara>
 
-	<formalpara><title>Source code</title>
-	<para>
-	<ulink url="AmplitudeConverter.java.html">AmplitudeConverter.java</ulink>,
-	<ulink url="http://www.tritonus.org/plugins.html">Tritonus DSP package</ulink>
-	</para>
-	</formalpara>
+    <formalpara><title>Source code</title>
+    <para>
+    <ulink url="AmplitudeConverter.java.html">AmplitudeConverter.java</ulink>,
+    <ulink url="http://www.tritonus.org/plugins.html">Tritonus DSP package</ulink>
+    </para>
+    </formalpara>
 */
 public class AmplitudeConverter {
-	/**
-	 * Flag for debugging messages.
-	 * If true, some messages are dumped to the console
-	 * during operation.	
-	 */
-//	private static final boolean DEBUG = false;
+    /**
+     * Flag for debugging messages.
+     * If true, some messages are dumped to the console
+     * during operation.    
+     */
+//    private static final boolean DEBUG = false;
 
     public static void main(String[] args) throws Exception {
         boolean bAmplitudeIsLog = false;

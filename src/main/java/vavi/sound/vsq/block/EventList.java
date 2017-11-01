@@ -31,7 +31,7 @@ public class EventList implements Block {
     }
 
     /** */
-    private List<Pair> events = new ArrayList<Pair>(); // 0=ID#0000
+    private List<Pair> events = new ArrayList<>(); // 0=ID#0000
 
     /** */
     public List<Pair> getEvents() {

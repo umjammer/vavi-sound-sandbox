@@ -68,7 +68,7 @@ Debug.println(Level.SEVERE, "error block: " + label);
         /**
          * {@link Block} オブジェクトのファクトリメソッド集。
          */
-        private static Map<String, Method> methods = new HashMap<String, Method>();
+        private static Map<String, Method> methods = new HashMap<>();
     
         static {
             try {
@@ -90,7 +90,7 @@ Debug.println("block class: " + StringUtil.getClassName(clazz));
                 }
             } catch (Exception e) {
 Debug.printStackTrace(e);
-                throw (RuntimeException) new IllegalStateException().initCause(e);
+                throw new IllegalStateException(e);
             }
         }
     }

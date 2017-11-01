@@ -12,7 +12,9 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 
 /**
@@ -21,8 +23,9 @@ import junit.framework.TestCase;
  * @author <a href="mailto:sano-n@klab.jp">Naohide Sano</a> (nsano)
  * @version 0.00 2009/09/08 nsano initial version <br>
  */
-public class AmplitudeAudioInputStreamTest extends TestCase {
+public class AmplitudeAudioInputStreamTest {
 
+    @Test
     public void test00() throws Exception {
         boolean bAmplitudeIsLog = true;
         float   fAmplitude = 4f;

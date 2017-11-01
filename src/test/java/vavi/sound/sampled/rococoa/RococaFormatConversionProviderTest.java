@@ -21,10 +21,14 @@ import javax.sound.sampled.SourceDataLine;
 import javax.swing.JFrame;
 
 import org.junit.Test;
+import org.rococoa.Rococoa;
+import org.rococoa.cocoa.foundation.NSArray;
 import org.rococoa.cocoa.qtkit.MovieComponent;
 import org.rococoa.cocoa.qtkit.QTKit;
+import org.rococoa.cocoa.qtkit.QTMedia;
 import org.rococoa.cocoa.qtkit.QTMovie;
 import org.rococoa.cocoa.qtkit.QTMovieView;
+import org.rococoa.cocoa.qtkit.QTTrack;
 
 import vavi.sound.sampled.MonauralInputFilter;
 import vavi.util.Debug;
@@ -38,6 +42,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060726 nsano initial version <br>
+ * @see https://github.com/iterate-ch/rococoa
  */
 public class RococaFormatConversionProviderTest {
 
@@ -53,10 +58,15 @@ public class RococaFormatConversionProviderTest {
 
     public static void main(String[] args) throws Exception {
         QTMovie movie = QTMovie.movieWithFile_error(inFile, null);
-        movie.play();
-        while (true) {
-            Thread.sleep(1000);
+        NSArray soundTracks = movie.tracksOfMediaType(QTMedia.QTMediaTypeSound);
+        for (int i = 0; i < soundTracks.count(); i++) {
+            QTTrack track = Rococoa.cast(soundTracks.objectAtIndex(i), QTTrack.class);
+            track.setVolume(0.2f);
         }
+        movie.play();
+        long duration = movie.duration().timeValue * 1000;
+System.err.println("duration: " + duration);
+        Thread.sleep(duration);
     }
     
     public static void test1(String[] args) throws Exception {
@@ -135,7 +145,7 @@ Debug.println(ev.getType());
         line.start();
 
 FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
-double gain = .2d; // number between 0 and 1 (loudest)
+double gain = .1d; // number between 0 and 1 (loudest)
 float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
 gainControl.setValue(dB);
 

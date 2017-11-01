@@ -16,7 +16,10 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 import vavix.util.Checksum;
 
@@ -27,22 +30,21 @@ import vavix.util.Checksum;
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060417 nsano initial version <br>
  */
-public class EqualizerTest extends TestCase {
+public class EqualizerTest {
 
     String inFile;
     String outFile = "out.vavi.wav";
     String correctFile = "out.wav";
 
-    /** @see junit.framework.TestCase#setUp() */
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    @Before
+    public void setUp() throws Exception {
         Properties props = new Properties();
         props.load(EqualizerTest.class.getResourceAsStream("local.properties"));
         inFile = props.getProperty("equalizer.in.wav");
     }
 
     /** */
+    @Test
     public void test1() throws Exception {
         Equalizer.main(new String[] { inFile, outFile });
 

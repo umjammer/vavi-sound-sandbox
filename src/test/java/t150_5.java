@@ -6,8 +6,6 @@
 
 import java.io.File;
 
-import vavi.sound.smaf.MetaEventListener;
-import vavi.sound.smaf.MetaMessage;
 import vavi.sound.smaf.Sequence;
 import vavi.sound.smaf.Sequencer;
 import vavi.sound.smaf.SmafSystem;
@@ -33,11 +31,9 @@ Debug.println("START: " + args[i]);
             Sequence sequence = SmafSystem.getSequence(new File(args[i]));
             sequencer.setSequence(sequence);
             if (i == args.length - 1) {
-                sequencer.addMetaEventListener(new MetaEventListener() {
-                    public void meta(MetaMessage meta) {
+                sequencer.addMetaEventListener(meta -> {
 Debug.println(meta.getType());
-                        if (meta.getType() == 47) {
-                        }
+                    if (meta.getType() == 47) {
                     }
                 });
             }

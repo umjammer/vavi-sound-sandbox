@@ -19,7 +19,9 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 import vavi.util.Debug;
 import vavix.util.ByteUtil;
@@ -31,7 +33,7 @@ import vavix.util.ByteUtil;
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060203 nsano initial version <br>
  */
-public class PolyphaseTest extends TestCase {
+public class PolyphaseTest {
 
 //  String inFile = "C:\\Documents and Settings\\sano-n\\My Documents\\My Music\\1\\大塚 愛 - さくらんぼ.wav";
     String inFile = "C:\\WINDOWS\\Media\\BATTVLOW.WAV";
@@ -41,6 +43,7 @@ public class PolyphaseTest extends TestCase {
     ByteUtil byteUtil = new ByteUtil();
 
     /** */
+    @Test
     public void test1() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
         AudioFormat format = sourceAis.getFormat();
@@ -111,7 +114,7 @@ Debug.println("result: " + r);
         //----
 
         AudioInputStream resultAis = AudioSystem.getAudioInputStream(new File(outFile));
-        // TODO 少数以下が切り捨てられる、どこで？ ＜ drain() やろ
+        // TODO 少数以下が切り捨てられる、どこで？ < drain() やろ
         assertEquals((int) resamplingRate, (int) resultAis.getFormat().getSampleRate());
     }
 }

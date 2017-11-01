@@ -44,9 +44,9 @@ public class LdCelp {
         float[] lpcoeff = new float[Constants.LPCW + 1];
         float[] temp = new float[Constants.LPCW + 1];
 
-        hybwin(Constants.LPCW,	// lpsize
-               Constants.NFRSZ,	// framesize
-               Constants.NONRW,	// nrsize -- nonrecursive size
+        hybwin(Constants.LPCW,    // lpsize
+               Constants.NFRSZ,    // framesize
+               Constants.NONRW,    // nrsize -- nonrecursive size
                pwf_old_input,
                input,
                acorr,
@@ -96,9 +96,9 @@ public class LdCelp {
         float[] lpcoeff = new float[Constants.LPC + 1];
         float[] temp = new float[Constants.LPC + 1];
 
-        hybwin(Constants.LPC,	// lpsize
-               Constants.NFRSZ,	// framesize
-               Constants.NONR,	// nrsize -- nonrecursive size
+        hybwin(Constants.LPC,    // lpsize
+               Constants.NFRSZ,    // framesize
+               Constants.NONR,    // nrsize -- nonrecursive size
                old_input,
                input,
                acorr,
@@ -374,8 +374,8 @@ public class LdCelp {
                 for (int j = 2; j <= halfm; j++) {
                     t4 = t2 + x; x = coeff[float_pointer_p++];
                     t3 = t1 + y; y = coeff[float_pointer_q--];
-                    t1 = K * x;	coeff[float_pointer_pp++] = t4;
-                    t2 = K * y;	coeff[float_pointer_qq--] = t3;
+                    t1 = K * x;    coeff[float_pointer_pp++] = t4;
+                    t2 = K * y;    coeff[float_pointer_qq--] = t3;
                 }
                 t3 = t1 + y;
                 t4 = t2 + x;
@@ -421,8 +421,8 @@ public class LdCelp {
                             int order,
                             float[] p_vec) {
 
-    	for (int i = 1; i <= order; i++) {
-    	    p_out[i] = p_vec[i] * input[i];
+        for (int i = 1; i <= order; i++) {
+            p_out[i] = p_vec[i] * input[i];
         }
     }
 
@@ -547,7 +547,7 @@ public class LdCelp {
             float_pointer_vector += QSIZE;
         }
         vx = float_pointer_vector;
-        UPDATE(pwf_z_coeff, PWF_Z_COEFF);	// Copy new coeff if flag set
+        UPDATE(pwf_z_coeff, PWF_Z_COEFF);    // Copy new coeff if flag set
         UPDATE(pwf_p_coeff, PWF_P_COEFF);
         pwfilter2(thequeue, float_pointer_vector, weighted_speech);
         UPDATE(sf_coeff, SF_COEFF);
@@ -572,7 +572,7 @@ public class LdCelp {
             dec_end -= QSIZE;
         }
         // declare array and its copy together with a semafor
-        ffase = (ffase == 4 ? 1 : ffase + 1);	// Update vector counter
+        ffase = (ffase == 4 ? 1 : ffase + 1);    // Update vector counter
     }
 
     /**

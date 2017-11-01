@@ -341,7 +341,7 @@ public class BaseAudioStream implements Runnable {
 
         byte[] abData = new byte[EXTERNAL_BUFFER_SIZE];
 
-        // int	nFrameSize = m_line.getFormat().getFrameSize();
+        // int    nFrameSize = m_line.getFormat().getFrameSize();
         while ((nBytesRead != -1) && m_bRunning) {
             try {
                 nBytesRead = m_audioInputStream.read(abData, 0, abData.length);
@@ -349,7 +349,7 @@ public class BaseAudioStream implements Runnable {
                 e.printStackTrace();
             }
             if (nBytesRead >= 0) {
-                //int	nFramesToWrite = nBytesRead / nFrameSize;
+                //int    nFramesToWrite = nBytesRead / nFrameSize;
                 if (DEBUG) {
                     System.out.println("Trying to write: " + nBytesRead);
                 }

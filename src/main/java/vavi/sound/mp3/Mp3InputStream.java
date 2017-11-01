@@ -6,18 +6,10 @@
 
 package vavi.sound.mp3;
 
-import java.io.BufferedInputStream;
 import java.io.EOFException;
-import java.io.FileInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteOrder;
-
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.SourceDataLine;
 
 import vavi.util.Debug;
 import vavi.util.StringUtil;
@@ -45,7 +37,7 @@ public class Mp3InputStream extends FilterInputStream {
      */
     public Mp3InputStream(InputStream in) throws IOException {
         super(in);
-        
+
         // check stream
         if (!in.markSupported()) {
             throw new IllegalArgumentException("mark not supported");
@@ -68,13 +60,13 @@ public class Mp3InputStream extends FilterInputStream {
         int firstSyncAddress = decoder.findSync(buf, 0, readBytes);
 System.err.println("firstSyncAddress: " + StringUtil.toHex8(firstSyncAddress));
         decodeInfo = decoder.getInfo(buf, firstSyncAddress, readBytes - firstSyncAddress);
-System.err.println(StringUtil.paramStringDeep(decodeInfo));
-        
+System.err.println(StringUtil.paramStringDeep(decodeInfo, 2));
+
         //
         in.reset();
 System.err.println("mp3 in.available(): " + in.available());
         int length = firstSyncAddress;
-//  	int length = firstSyncAddress + 4 + (decodeInfo.header.mode != 3 ? 32 : 17);
+//      int length = firstSyncAddress + 4 + (decodeInfo.header.mode != 3 ? 32 : 17);
 System.err.println("skip length: " + length);
         int skipBytes = 0;
         while (skipBytes < length) {
@@ -84,7 +76,7 @@ System.err.println("skip length: " + length);
             }
             skipBytes += l;
         }
-        
+
         // collect data
         int dataSize = size - firstSyncAddress;
         int frames = dataSize / decodeInfo.inputSize;
@@ -257,47 +249,6 @@ exit:
                 }
             }
         }
-    }
-    
-    //----
-    
-    /**
-     * The program entry point.
-     */
-    public static void main(String[] args) throws Exception {
-
-        int sampleRate = 41100;
-        ByteOrder byteOrder = ByteOrder.BIG_ENDIAN;
-
-        AudioFormat format = new AudioFormat(
-            AudioFormat.Encoding.PCM_SIGNED,
-            sampleRate,
-            16,
-            1,
-            2,
-            sampleRate,
-            byteOrder.equals(ByteOrder.BIG_ENDIAN));
-Debug.println(format);
-
-        InputStream is = new Mp3InputStream(new BufferedInputStream(new FileInputStream(args[0])));
-Debug.println("available: " + is.available());
-
-        DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
-        SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
-        line.open(format);
-        line.start();
-        byte[] buf = new byte[4608];
-        int l = 0;
-
-        while (is.available() > 0) {
-            l = is.read(buf, 0, buf.length);
-            line.write(buf, 0, l);
-        }
-        line.drain();
-        line.stop();
-        line.close();
-
-        System.exit(0);
     }
 }
 

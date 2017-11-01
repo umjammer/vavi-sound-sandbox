@@ -19,7 +19,10 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 import vavi.io.LittleEndianDataInputStream;
 import vavi.io.LittleEndianDataOutputStream;
@@ -33,16 +36,14 @@ import vavix.util.Checksum;
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060127 nsano initial version <br>
  */
-public class SSRCTest extends TestCase {
+public class SSRCTest {
 
     String inFile;
     String outFile = "out.vavi.wav";
     String correctFile = "out.wav";
 
-    /** @see junit.framework.TestCase#setUp() */
+    @Before
     protected void setUp() throws Exception {
-        super.setUp();
-
         Properties props = new Properties();
         props.load(SSRCTest.class.getResourceAsStream("local.properties"));
         inFile = props.getProperty("ssrc.in.wav");
@@ -50,6 +51,7 @@ System.err.println(inFile);
     }
 
     /** down sample */
+    //@Test
     public void $test1() throws Exception {
         SSRC.main(new String[] { "--rate", "8000", "--twopass", "--normalize", inFile, outFile });
 
@@ -78,6 +80,7 @@ gainControl.setValue(dB);
     }
 
     /** up sample */
+    //@Test
     public void $test3() throws Exception {
         SSRC.main(new String[] { "--rate", "48000", "--twopass", "--normalize", inFile, outFile });
 
@@ -106,6 +109,7 @@ gainControl.setValue(dB);
     }
 
     /** down sample (nio) */
+    //@Test
     public void $test4() throws Exception {
         SSRC2.main(new String[] { "--rate", "8000", "--twopass", "--normalize", inFile, outFile });
 
@@ -134,6 +138,7 @@ gainControl.setValue(dB);
     }
 
     /** up sample (nio) */
+    @Test
     public void test5() throws Exception {
         SSRC2.main(new String[] { "--rate", "44100", "--twopass", "--normalize", inFile, outFile });
 
@@ -162,10 +167,12 @@ gainControl.setValue(dB);
     }
 
     /** */
+    //@Test
     public void $test2() throws Exception {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         LittleEndianDataOutputStream leos = new LittleEndianDataOutputStream(baos);
         leos.writeDouble(0.123456789);
+        leos.close();
 System.err.println("1:\n" + StringUtil.getDump(baos.toByteArray()));
         //
         byte[] buf = new byte[8];
@@ -175,6 +182,7 @@ System.err.println("2:\n" + StringUtil.getDump(buf));
         //
         LittleEndianDataInputStream leis = new LittleEndianDataInputStream(new ByteArrayInputStream(buf));
         double d = leis.readDouble();
+        leis.close();
 System.err.printf("3: %f\n", d);
         assertEquals(0.123456789, d);
     }

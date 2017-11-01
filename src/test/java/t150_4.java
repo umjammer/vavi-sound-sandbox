@@ -5,16 +5,14 @@
  */
 
 import java.io.File;
-import java.io.IOException;
 import java.util.regex.Pattern;
 
 import vavi.sound.mfi.InvalidMfiDataException;
-import vavi.sound.mfi.MetaEventListener;
-import vavi.sound.mfi.MetaMessage;
 import vavi.sound.mfi.MfiSystem;
 import vavi.sound.mfi.Sequence;
 import vavi.sound.mfi.Sequencer;
 import vavi.util.Debug;
+
 import vavix.util.grep.FileDigger;
 import vavix.util.grep.RegexFileDigger;
 
@@ -33,24 +31,20 @@ public class t150_4 {
     public static void main(String[] args) throws Exception {
         final Sequencer sequencer = MfiSystem.getSequencer();
         sequencer.open();
-        FileDigger fileDigger = new RegexFileDigger(new FileDigger.FileDredger() {
-            public void dredge(File file) throws IOException {
+        FileDigger fileDigger = new RegexFileDigger(file -> {
 Debug.println("************ START ************* : " + file);
-                try {
-                    Sequence sequence = MfiSystem.getSequence(file);
-                    sequencer.setSequence(sequence);
-                    sequencer.addMetaEventListener(new MetaEventListener() {
-                        public void meta(MetaMessage meta) {
+            try {
+                Sequence sequence = MfiSystem.getSequence(file);
+                sequencer.setSequence(sequence);
+                sequencer.addMetaEventListener(meta -> {
 Debug.println(meta.getType());
-                            if (meta.getType() == 47) {
-                            }
-                        }
-                    });
-                    sequencer.start();
+                    if (meta.getType() == 47) {
+                    }
+                });
+                sequencer.start();
 Debug.println("************ END *************");
-                } catch (InvalidMfiDataException e) {
-                    e.printStackTrace();
-                }
+            } catch (InvalidMfiDataException e) {
+                e.printStackTrace();
             }
         }, Pattern.compile(".+\\.mld"));
         fileDigger.dig(new File(args[0]));

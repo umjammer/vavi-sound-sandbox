@@ -87,7 +87,7 @@ public class MidiRouter {
      */
     private static boolean DEBUG = true;
 
-    // private static Sequencer	sm_sequencer = null;
+    // private static Sequencer    sm_sequencer = null;
     public static void main(String[] args) {
         /*
          *        We check if there is no command-line argument at all

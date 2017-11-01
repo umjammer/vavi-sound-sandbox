@@ -12,7 +12,9 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 
 /**
@@ -23,12 +25,13 @@ import junit.framework.TestCase;
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060202 nsano initial version <br>
  */
-public class SimpleResamplingInputFilterTest extends TestCase {
+public class SimpleResamplingInputFilterTest {
 
     String inFile = "C:\\Documents and Settings\\sano-n\\My Documents\\My Music\\1\\大塚 愛 - さくらんぼ.wav";
     String outFile = "out.wav";
 
     /** */
+    @Test
     public void test1() throws Exception {
         // source: any any Hz, any bit, any, any bytes/frame, any
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));

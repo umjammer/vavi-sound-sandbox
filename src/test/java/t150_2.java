@@ -82,6 +82,7 @@ gainControl.setValue(dB);
         line.stop();
         line.close();
 // os.close();
+        is.close();
     }
 }
 

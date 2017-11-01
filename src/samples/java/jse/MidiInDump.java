@@ -168,8 +168,8 @@ public class MidiInDump {
             }
             inputDevice.close();
 
-// 			out("Received "+((DumpReceiver) r).seCount+" sysex messages with a total of "+((DumpReceiver) r).seByteCount+" bytes");
-// 			out("Received "+((DumpReceiver) r).smCount+" short messages.");
+//             out("Received "+((DumpReceiver) r).seCount+" sysex messages with a total of "+((DumpReceiver) r).seByteCount+" bytes");
+//             out("Received "+((DumpReceiver) r).smCount+" short messages.");
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {

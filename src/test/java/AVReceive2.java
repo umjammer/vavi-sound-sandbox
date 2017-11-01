@@ -1,5 +1,5 @@
 /*
- * @(#)AVReceive2.java	1.3 01/03/13
+ * @(#)AVReceive2.java    1.3 01/03/13
  *
  * Copyright (c) 1999-2001 Sun Microsystems, Inc. All Rights Reserved.
  *
@@ -86,7 +86,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
             SessionAddress destAddr;
 
             mgrs = new RTPManager[sessions.length];
-            playerWindows = new ArrayList<PlayerWindow>();
+            playerWindows = new ArrayList<>();
 
             SessionLabel session;
 

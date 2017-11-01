@@ -73,8 +73,8 @@ public class SampleRateConversionProvider extends FormatConversionProvider {
      */
     public SampleRateConversionProvider() {
 //Debug.println("here 0");
-        sourceEncodings = new ArrayList<AudioFormat.Encoding>();
-        targetEncodings = new ArrayList<AudioFormat.Encoding>();
+        sourceEncodings = new ArrayList<>();
+        targetEncodings = new ArrayList<>();
         sourceFormats = Arrays.asList(OUTPUT_FORMATS);
         targetFormats = Arrays.asList(OUTPUT_FORMATS);
         collectEncodings(sourceFormats, sourceEncodings);
@@ -179,7 +179,7 @@ Debug.println("to  : " + targetEncoding);
         // we want to convert that !
         sourceFormat = replaceSampleRate(sourceFormat, NOT_SPECIFIED);
         if (isConversionSupported(targetEncoding, sourceFormat)) {
-            List<AudioFormat> result = new ArrayList<AudioFormat>();
+            List<AudioFormat> result = new ArrayList<>();
             for (AudioFormat targetFormat : targetFormats) {
                 targetFormat = replaceNotSpecified(sourceFormat, targetFormat);
                 if (isConversionSupported(targetFormat, sourceFormat)) {

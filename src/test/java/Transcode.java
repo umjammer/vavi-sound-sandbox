@@ -1,5 +1,5 @@
 /*
- * @(#)Transcode.java	1.6 01/03/13
+ * @(#)Transcode.java    1.6 01/03/13
  *
  * Copyright (c) 1999-2001 Sun Microsystems, Inc. All Rights Reserved.
  *
@@ -447,7 +447,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
 
         String inputURL = null, outputURL = null;
         int mediaStart = -1, mediaEnd = -1;
-        Vector<String> audFmt = new Vector<String>(), vidFmt = new Vector<String>();
+        Vector<String> audFmt = new Vector<>(), vidFmt = new Vector<>();
 
         if (args.length == 0)
             prUsage();

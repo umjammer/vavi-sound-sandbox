@@ -68,7 +68,7 @@ public class MIDITrackChunkToMLDTrackChunk {
                                          unknown.sound.midi.track.TrackChunkInputStream stream) {
         this.inputStream = inputStream;
 
-        mldVec = new ArrayList<TrackMessage>();
+        mldVec = new ArrayList<>();
         MLDResolution = 6L << inputStream.getPreferences().resolution;
 
         int headerIndex = inputStream.getMessageCount();

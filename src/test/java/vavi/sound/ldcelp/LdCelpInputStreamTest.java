@@ -8,7 +8,9 @@ package vavi.sound.ldcelp;
 
 import java.io.File;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 import vavix.util.Checksum;
 
@@ -19,13 +21,14 @@ import vavix.util.Checksum;
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060219 nsano initial version <br>
  */
-public class LdCelpInputStreamTest extends TestCase {
+public class LdCelpInputStreamTest {
 
     String inFile = "f17.bit";
     String outFile = "f17.vavi.outnpf";
     String correctFile = "f17.outnpf";
 
     /** */
+    @Test
     public void test1() throws Exception {
         LdCelp.main(new String[] { "-d", inFile, outFile });
 
@@ -36,6 +39,7 @@ public class LdCelpInputStreamTest extends TestCase {
     String correctFile2 = "f17.outpf";
 
     /** */
+    @Test
     public void test2() throws Exception {
         LdCelp.main(new String[] { "-dp", inFile, outFile2 });
 

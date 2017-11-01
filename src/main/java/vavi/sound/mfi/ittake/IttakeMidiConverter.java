@@ -115,7 +115,7 @@ Debug.printStackTrace(e);
             List<MfiEvent> events = (List<MfiEvent>) track.getClass().getDeclaredField("events").get(track);
             events.add(index, event);
         } catch (Exception e) {
-            throw (RuntimeException) new IllegalStateException().initCause(e);
+            throw new IllegalStateException(e);
         }
     }
 

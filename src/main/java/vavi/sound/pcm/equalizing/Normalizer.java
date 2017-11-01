@@ -32,6 +32,7 @@ class Normalizer {
         int length;
         byte[] riff_type = new byte[4];
 
+        @SuppressWarnings("resource")
         LittleEndianDataInputStream leis = new LittleEndianDataInputStream(in); 
         length = leis.readInt();
         leis.read(riff_type, 0, 4);
@@ -45,6 +46,7 @@ class Normalizer {
         // Write RIFF Header
 
         if (out != null) {
+            @SuppressWarnings("resource")
             LittleEndianDataOutputStream leos = new LittleEndianDataOutputStream(out); 
             leos.writeBytes("RIFF");
             leos.writeInt(4);
@@ -58,6 +60,7 @@ class Normalizer {
     int parse_fmt(InputStream in, WAVE.fmt fmt_chunk, OutputStream out) throws IOException {
         int length;
 
+        @SuppressWarnings("resource")
         LittleEndianDataInputStream leis = new LittleEndianDataInputStream(in); 
         length = leis.readInt();
         fmt_chunk.setFormatId(leis.readShort());
@@ -97,6 +100,7 @@ class Normalizer {
         // Write FMT Chunk
 
         if (out != null) {
+            @SuppressWarnings("resource")
             LittleEndianDataOutputStream leos = new LittleEndianDataOutputStream(out); 
             leos.writeBytes("fmt ");
             leos.writeInt(16);
@@ -122,6 +126,7 @@ class Normalizer {
 
         deepest = 0;
 
+        @SuppressWarnings("resource")
         LittleEndianDataInputStream leis = new LittleEndianDataInputStream(in); 
         length = leis.readInt();
         in.mark(length); // TODO OutOfMemoryError
@@ -162,6 +167,7 @@ class Normalizer {
 
         // Write Data Chunk
 
+        @SuppressWarnings("resource")
         LittleEndianDataOutputStream leos = new LittleEndianDataOutputStream(out); 
         leos.writeBytes("data");
         leos.writeInt(length);
@@ -204,6 +210,7 @@ class Normalizer {
             try {
                 out = new BufferedOutputStream(new FileOutputStream(outname));
             } catch (IOException e) {
+                in.close();
                 System.out.printf("Could not open file for writing: %s\n", outname);
                 return 0;
             }

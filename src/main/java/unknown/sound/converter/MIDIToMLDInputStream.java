@@ -26,7 +26,7 @@ public class MIDIToMLDInputStream {
         mldTracksLength = 0;
         mldTitleName = null;
         mldRightInformation = null;
-        messages = new Vector<Message>();
+        messages = new Vector<>();
         mldReadIndex = 0;
         setStream(stream);
         setPreferences(pref);

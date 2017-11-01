@@ -85,15 +85,15 @@ public class CddaRipper {
             output(tocInputStream);
         }
 
-// 		System.out.println("First track: " + anValues[0]);
-// 		System.out.println("last track: " + anValues[1]);
-// 		int	nTracks = anValues[1] - anValues[0] + 1;
-// 		for (int i = 0; i < nTracks; i++)
-// 		{
-// 			System.out.println("Track " + (i + anValues[0]) + " start: " + anStart[i]);
-// 			System.out.println("Track " + (i + anValues[0]) + " type: " + anType[i]);
-// 			System.out.println("Track " + (i + anValues[0]) + " length (s): " + (anStart[i + 1] - anStart[i])/75);
-// 		}
+//         System.out.println("First track: " + anValues[0]);
+//         System.out.println("last track: " + anValues[1]);
+//         int    nTracks = anValues[1] - anValues[0] + 1;
+//         for (int i = 0; i < nTracks; i++)
+//         {
+//             System.out.println("Track " + (i + anValues[0]) + " start: " + anStart[i]);
+//             System.out.println("Track " + (i + anValues[0]) + " type: " + anType[i]);
+//             System.out.println("Track " + (i + anValues[0]) + " length (s): " + (anStart[i + 1] - anStart[i])/75);
+//         }
         if (!bTocOnly) {
             URL trackURL = null;
             try {

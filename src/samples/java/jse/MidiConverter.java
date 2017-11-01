@@ -115,9 +115,9 @@ public class MidiConverter {
         } else if (args[0].equals("-s")) {
             bUseMultiMode = false;
 //      } else {
-// 			System.out.println("You have to specify either single mode (-s) or multi mode (-m).");
-// 			System.exit(1);
- 		}
+//             System.out.println("You have to specify either single mode (-s) or multi mode (-m).");
+//             System.exit(1);
+         }
         String strFilename = args[1];
         Sequence sequence = null;
         try {

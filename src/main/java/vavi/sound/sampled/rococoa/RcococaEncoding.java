@@ -6,8 +6,8 @@
 
 package vavi.sound.sampled.rococoa;
 
-
 import javax.sound.sampled.AudioFormat;
+
 
 /**
  * Encodings used by the ROCOCOA audio decoder.

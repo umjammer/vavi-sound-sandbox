@@ -127,7 +127,7 @@ class Equalizer {
             Properties props = new Properties();
             props.load(Equalizer.class.getResourceAsStream("/vavi/sound/pcm/equalizing/sse/Equalizer.properties"));
             int c = 0;
-            List<Double> bandList = new ArrayList<Double>();
+            List<Double> bandList = new ArrayList<>();
             while (true) {
                 String bandString = props.getProperty("band." + c);
                 if (bandString == null) {
@@ -425,7 +425,7 @@ for (Parameter pp : param2) {
 
         // L
 
-        List<Parameter> param2 = new ArrayList<Parameter>();
+        List<Parameter> param2 = new ArrayList<>();
 
         process_param(lbc, param, param2, fs, 0);
 
@@ -856,7 +856,7 @@ System.setOut(new PrintStream("NUL")); // fuckin' j-ogg
         double[] rbands = new double[19];
         lbands[18] = Math.pow(10, 0 / -20.0);
         rbands[18] = Math.pow(10, 0 / -20.0);
-        List<Parameter> params = new ArrayList<Parameter>();
+        List<Parameter> params = new ArrayList<>();
 
         double lpreamp = lslpos[0] == 96 ? 0 : Math.pow(10, lslpos[0] / -20.0);
         double rpreamp = rslpos[0] == 96 ? 0 : Math.pow(10, rslpos[0] / -20.0);
@@ -970,6 +970,7 @@ System.err.println("---- init ----");
             dword = len - 44;
             leos.writeInt(dword);
         }
+        leos.close();
 
         if (equ.maxamp != 0) {
             System.err.printf("maxamp = %d\n", equ.maxamp);

@@ -51,7 +51,7 @@ public class VSQ {
         tracks = new List[data.length];
 
         for (int i = 0; i < data.length; i++) {
-            tracks[i] = new ArrayList<Block>();
+            tracks[i] = new ArrayList<>();
 //Debug.println("track:" + i + "\n" + data[i]);
             Reader reader = new StringReader(data[i]);
             readBlocks(i, reader);
@@ -104,9 +104,10 @@ Debug.println("track[" + i + "]: " + tracks[i].size());
 
     /** */
     private void readBlocks(int trackNumber, Reader reader) {
+        @SuppressWarnings("resource")
         Scanner scanner = new Scanner(reader);
         String label = null;
-        List<String> params = new ArrayList<String>();
+        List<String> params = new ArrayList<>();
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             if (line.startsWith("[")) {

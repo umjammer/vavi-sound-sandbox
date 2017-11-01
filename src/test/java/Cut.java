@@ -1,5 +1,5 @@
 /*
- * @(#)Cut.java	1.3 01/03/13
+ * @(#)Cut.java    1.3 01/03/13
  *
  * Copyright (c) 1999-2001 Sun Microsystems, Inc. All Rights Reserved.
  *
@@ -82,8 +82,8 @@ public class Cut implements ControllerListener, DataSinkListener {
         String inputURL = null;
         String outputURL = null;
         long start[], end[];
-        Vector<Long> startV = new Vector<Long>();
-        Vector<Long> endV = new Vector<Long>();
+        Vector<Long> startV = new Vector<>();
+        Vector<Long> endV = new Vector<>();
         boolean frameMode = false;
 
         if (args.length == 0)

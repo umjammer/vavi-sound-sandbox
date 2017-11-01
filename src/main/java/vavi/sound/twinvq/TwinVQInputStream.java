@@ -85,6 +85,7 @@ Debug.println("byteOrder: " + this.byteOrder);
 
         //
 
+        @SuppressWarnings("resource")
         final PipedOutputStream pos =
             new PipedOutputStream((PipedInputStream) this.in);
 
@@ -234,11 +235,11 @@ OutputStream os =
         line.addLineListener(new LineListener() {
             public void update(LineEvent ev) {
 Debug.println(ev.getType());
-        		if (LineEvent.Type.STOP == ev.getType()) {
+                if (LineEvent.Type.STOP == ev.getType()) {
                     if (!isTest) {
                         System.exit(0);
                     }
-        		}
+                }
             }
         });
         line.start();
@@ -258,6 +259,7 @@ os.write(buf, 0, l);
         line.stop();
         line.close();
 os.close();
+        is.close();
     }
 }
 

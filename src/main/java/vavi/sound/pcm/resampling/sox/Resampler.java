@@ -126,13 +126,13 @@ public class Resampler {
     /**
      * Prepare processing.
      * <pre>
-     * -qs	quadr = 1
-     * -q	rolloff = 0.875
-     *		quadr = 1
-     *		nMult = 75
-     * -ql	rolloff = 0.94
-     *		quadr = 1
-     *		nMult = 149
+     * -qs    quadr = 1
+     * -q    rolloff = 0.875
+     *        quadr = 1
+     *        nMult = 75
+     * -ql    rolloff = 0.94
+     *        quadr = 1
+     *        nMult = 149
      * </pre>
      *
      * @param inRate input rate
@@ -624,15 +624,15 @@ Debug.println("DRAIN: " + work.xOff);
      * where N = window length
      * </p>
      * <pre>
-     *	       BETA    D       PB RIP   SB RIP
-     *	       2.120   1.50  +-0.27      -30
-     *	       3.384   2.23    0.0864    -40
-     *	       4.538   2.93    0.0274    -50
-     *	       5.658   3.62    0.00868   -60
-     *	       6.764   4.32    0.00275   -70
-     *	       7.865   5.0     0.000868  -80
-     *	       8.960   5.7     0.000275  -90
-     *	       10.056  6.4     0.000087  -100
+     *           BETA    D       PB RIP   SB RIP
+     *           2.120   1.50  +-0.27      -30
+     *           3.384   2.23    0.0864    -40
+     *           4.538   2.93    0.0274    -50
+     *           5.658   3.62    0.00868   -60
+     *           6.764   4.32    0.00275   -70
+     *           7.865   5.0     0.000868  -80
+     *           8.960   5.7     0.000275  -90
+     *           10.056  6.4     0.000087  -100
      * </pre>
      *
      * @param mWing half the window length in number of coeffs

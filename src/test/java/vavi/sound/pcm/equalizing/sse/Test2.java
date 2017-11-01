@@ -76,7 +76,7 @@ System.setOut(new PrintStream("NUL")); // shut fuckin' j-ogg's mouth
         double[] rbands = new double[19];
         lbands[18] = Math.pow(10, 0 / -20.0);
         rbands[18] = Math.pow(10, 0 / -20.0);
-        List<Parameter> params = new ArrayList<Parameter>();
+        List<Parameter> params = new ArrayList<>();
 
         double lpreamp = lslpos[0] == 96 ? 0 : Math.pow(10, lslpos[0] / -20.0);
         double rpreamp = rslpos[0] == 96 ? 0 : Math.pow(10, rslpos[0] / -20.0);
@@ -267,7 +267,7 @@ System.err.println(name + ": " + value);
 
         void doEqualize() {
             //
-            List<Parameter> params = new ArrayList<Parameter>();
+            List<Parameter> params = new ArrayList<>();
     
             Parameter param = new Parameter();
             model.lpremain = (lpremain.getMaximum() - lpremain.getValue()) == 96 ? 0 : Math.pow(10, model.lpremain / -20.0);

@@ -1,5 +1,5 @@
 /*
- * @(#)RTPExport.java	1.1 01/04/10
+ * @(#)RTPExport.java    1.1 01/04/10
  *
  * Copyright (c) 1996-2001 Sun Microsystems, Inc. All Rights Reserved.
  *

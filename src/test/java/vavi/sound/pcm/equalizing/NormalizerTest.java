@@ -15,7 +15,10 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 import vavix.util.Checksum;
 
@@ -26,22 +29,21 @@ import vavix.util.Checksum;
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060623 nsano initial version <br>
  */
-public class NormalizerTest extends TestCase {
+public class NormalizerTest {
 
     String inFile;
     String outFile = "out.vavi.wav";
     String correctFile = "out.wav";
 
-    /** @see junit.framework.TestCase#setUp() */
-    protected void setUp() throws Exception {
-        super.setUp();
-
+    @Before
+    public void setUp() throws Exception {
         Properties props = new Properties();
         props.load(NormalizerTest.class.getResourceAsStream("local.properties"));
         inFile = props.getProperty("normalizer.in.wav");
     }
 
     /** */
+    @Test
     public void test1() throws Exception {
         Normalizer.main(new String[] { inFile, outFile });
 

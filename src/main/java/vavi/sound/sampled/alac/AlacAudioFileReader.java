@@ -19,6 +19,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 
+import com.beatofthedrum.alacdecoder.Alac;
+
 
 /**
  * Provider for ALAC audio file reading services. This implementation can parse
@@ -71,6 +73,8 @@ public class AlacAudioFileReader extends AudioFileReader {
         }
     }
 
+    private Alac alac;
+
     /**
      * Obtains an audio input stream from the input stream provided.
      * 
@@ -83,7 +87,8 @@ public class AlacAudioFileReader extends AudioFileReader {
      * @exception IOException if an I/O exception occurs.
      */
     public AudioFileFormat getAudioFileFormat(InputStream stream) throws UnsupportedAudioFileException, IOException {
-        return getAudioFileFormat(stream, AudioSystem.NOT_SPECIFIED);
+        alac = new Alac(stream);
+        return getAudioFileFormat(alac.getInputStream(), AudioSystem.NOT_SPECIFIED);
     }
 
     /**
@@ -111,6 +116,7 @@ public class AlacAudioFileReader extends AudioFileReader {
      * @exception IOException if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
+        System.err.println("here");
         // TODO sampling rate, bits per sample, channels
         AudioFormat format = new AudioFormat(AlacEncoding.ALAC, AudioSystem.NOT_SPECIFIED, 16, 1, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true);
         return new AudioFileFormat(AlacFileFormatType.ALAC, format, AudioSystem.NOT_SPECIFIED);
