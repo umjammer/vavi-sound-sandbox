@@ -12,7 +12,7 @@
     <name></name>
   </organization>
   <version>1.0.0</version>
-  <url>http://www.vavisoft.com/</url>
+  <url>https://github.com/umjammer/vavi-sound-sandbox</url>
   <description></description>
   <build>
     <plugins>
