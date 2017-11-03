@@ -1,15 +1,3 @@
-#
-# Copyright (c) 2003 by Naohide Sano, All rights reserved.
-#
-# Written by Naohide Sano
-#
-# ant properties for vavi-sound-sandbox
-#
-# @author	Naohide Sano
-# @version	0.00	031213	nsano	initial version
-#
-
-##
 jvm=${env.JAVA_HOME}/bin/java
 javac.source=src/main/java
 javac.source.test=src/test/java

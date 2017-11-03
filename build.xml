@@ -7,8 +7,8 @@
 <!--                                                                        -->
 <!-- vavi-sound-sandbox                                                     -->
 <!--                                                                        -->
-<!-- @author	Naohide Sano                                                -->
-<!-- @version	0.00	021208	nsano	initial version                     -->
+<!-- @author Naohide Sano                                                   -->
+<!-- @version 0.00 021208 nsano initial version                             -->
 <!--                                                                        -->
 <!-- ////////////////////////////////////////////////////////////////////// -->
 
@@ -30,20 +30,10 @@
 
   <!-- Path Definitions -->
   <path id="project.class.path">
+    <pathelement location="${javac.dest.test}" />
+    <pathelement location="${javac.dest}" />
     <fileset refid="maven-ant-tasks.dependency.fileset"/>
   </path>
-
-  <!-- clean -->
-  <target name="clean" description="Cleaning">
-    <delete>
-      <fileset dir="${javac.dest}">
-        <include name="**/*" />
-      </fileset>
-      <fileset dir="${javac.dest.test}">
-        <include name="**/*" />
-      </fileset>
-    </delete>
-  </target>
 
   <!-- prepare -->
   <target name="prepare" description="Preparing">
@@ -51,55 +41,16 @@
     <artifact:dependencies fileSetId="maven-ant-tasks.dependency.fileset">
       <pom refid="maven.project"/>
     </artifact:dependencies>
+    <artifact:mvn pom="pom.xml">
+      <arg value="package"/>
+      <arg value="-Dmaven.test.skip=true"/>
+    </artifact:mvn>
   </target>
 
-  <!-- javac all vavi -->
-  <target name="compile" depends="prepare" description="Compiling">
-    <javac debug="on" destdir="${javac.dest}"
-           source="${project.build.plugins.plugin.configuration.source}"
-           target="${project.build.plugins.plugin.configuration.target}"
-           encoding="${project.build.plugins.plugin.configuration.encoding}">
-      <classpath refid="project.class.path" />
-      <include name="**/*.java" />
-      <src path="${javac.source}" />
-    </javac>
-
-    <copy todir="${javac.dest}">
-      <fileset dir="${javac.resource}">
-        <include name="**/*" />
-      </fileset>
-    </copy>
-
-    <javac debug="on" destdir="${javac.dest.test}"
-           source="${project.build.plugins.plugin.configuration.source}"
-           target="${project.build.plugins.plugin.configuration.target}"
-           encoding="${project.build.plugins.plugin.configuration.encoding}">
-      <classpath>
-        <path refid="project.class.path" />
-        <pathelement location="${javac.dest}" />
-      </classpath>
-      <include name="**/*.java" />
-      <src path="${javac.source.test}" />
-    </javac>
-
-    <copy todir="${javac.dest.test}">
-      <fileset dir="${javac.resource.test}">
-        <include name="**/*" />
-      </fileset>
-    </copy>
-  </target>
-
-  <!-- jar -->
-  <target name="package" depends="compile" description="Packaging">
-    <jar jarfile="target/${project.artifactId}-${project.version}.jar">
-      <fileset dir="${javac.dest}">
-        <include name="**/*" />
-      </fileset>
-    </jar>
-  </target>
+  <!-- ______________________________________________________________________ -->
 
   <!-- run -->
-  <target name="run" depends="compile" description="unknown でコンバート">
+  <target name="run" depends="prepare" description="unknown でコンバート">
     <java classname="unknown.sound.MTMMain" fork="yes">
       <classpath>
         <path refid="project.class.path" />
@@ -108,24 +59,8 @@
     </java>
   </target>
 
-  <!-- backup -->
-  <target name="backup" description="backup">
-    <tstamp>
-      <format property="today.jp" pattern="yyMMdd"/>
-    </tstamp>
-    <zip zipfile="mld${today.jp}.zip">
-      <fileset dir=".">
-        <include name="src/**/*.java" />
-        <include name="etc/*.MF" />
-        <include name="*.xml" />
-      </fileset>
-    </zip>
-  </target>
-
-  <!-- ______________________________________________________________________ -->
-
   <!-- iLBC -->
-  <target name="ilbc" depends="compile" description="iLBC">
+  <target name="ilbc" depends="prepare" description="iLBC">
     <java classname="vavi.sound.ilbc.Ilbc" fork="yes">
       <classpath refid="project.class.path" />
       <arg value="20" />
@@ -135,10 +70,8 @@
     </java>
   </target>
 
-<!-- ______________________________________________________________________ -->
-
   <!-- vsq -->
-  <target name="vsq" depends="compile" description="vsq test">
+  <target name="vsq" depends="prepare" description="vsq test">
     <java classname="vavi.sound.vsq.Test" fork="yes">
       <jvmarg value="-Djavax.sound.midi.Sequencer=${test.150.midi.sequencer}"/>
       <classpath refid="project.class.path" />
@@ -148,7 +81,7 @@
   </target>
 
   <!-- vsq2 -->
-  <target name="vsq2" depends="compile" description="vsq test">
+  <target name="vsq2" depends="prepare" description="vsq test">
     <java classname="vavi.sound.vsq.Test2" fork="yes">
       <jvmarg value="-Djavax.sound.midi.Sequencer=${test.150.midi.sequencer}"/>
       <jvmarg value="-Djavax.sound.midi.Synthesizer=${test.150.midi.synthesizer}"/>
@@ -159,19 +92,8 @@
     </java>
   </target>
 
-<!-- ______________________________________________________________________ -->
-
-  <!-- compile.jse -->
-  <target name="compile.jse" description="compile java sound examples">
-    <javac debug="on">
-      <classpath refid="project.class.path" />
-      <include name="jse/Midi*.java" />
-      <src path="src" />
-    </javac>
-  </target>
-
   <!-- midi -->
-  <target name="midi" depends="compile.jse" description="pure java midi">
+  <target name="midi" depends="prepare" description="pure java midi">
     <java classname="jse.MidiPlayer" fork="yes">
       <classpath refid="project.class.path"/>
       <arg line="-d ${test.150.midi.device}" />
@@ -182,17 +104,15 @@
   </target>
 
   <!-- list -->
-  <target name="list" depends="compile.jse" description="list midi devices">
+  <target name="list" depends="prepare" description="list midi devices">
     <java classname="jse.MidiPlayer" fork="yes">
       <classpath refid="project.class.path"/>
       <arg value="-l" />
     </java>
   </target>
 
-<!-- ______________________________________________________________________ -->
-
   <!-- tc -->
-  <target name="tc" depends="compile" description="フォーマットの変換">
+  <target name="tc" depends="prepare" description="フォーマットの変換">
     <java classname="Transcode" fork="yes">
       <classpath refid="project.class.path" />
       <arg line="-o out.wav" />                 <!-- output ファイル -->
@@ -202,7 +122,7 @@
   </target>
 
   <!-- wave -->
-  <target name="wave" depends="package" description="wave data の抽出">
+  <target name="wave" depends="prepare" description="wave data の抽出">
     <java classname="wave" fork="yes">
       <classpath refid="project.class.path" />
       <arg value="${test.150.wave.in}" />       <!-- input ファイル -->
@@ -211,7 +131,7 @@
   </target>
 
   <!-- tc2 -->
-  <target name="tc2" depends="package" description="フォーマットの変換 Test">
+  <target name="tc2" depends="prepare" description="フォーマットの変換 Test">
     <java classname="Transcoder" fork="yes">
       <classpath refid="project.class.path" />
       <arg value="-o out2.wav" />               <!-- output ファイル -->
@@ -221,7 +141,7 @@
   </target>
 
   <!-- play wave -->
-  <target name="play.wave" depends="package" description="play wave">
+  <target name="play.wave" depends="prepare" description="play wave">
     <java classname="t150_1" fork="yes">
       <classpath refid="project.class.path" />
       <arg value="out.wav" />
@@ -232,7 +152,7 @@
   </target>
 
   <!-- play g721 -->
-  <target name="play.adpcm" depends="package" description="play adpcm">
+  <target name="play.adpcm" depends="prepare" description="play adpcm">
     <java classname="t150_2" fork="yes">
       <classpath refid="project.class.path" />
       <arg line="g721_lenear_16k.adpcm" />
@@ -240,7 +160,7 @@
   </target>
 
   <!-- play pcm -->
-  <target name="play.pcm" depends="package" description="play adpcm">
+  <target name="play.pcm" depends="prepare" description="play adpcm">
     <java classname="t150_3" fork="yes">
       <!-- jvmarg value="-Xprof" / -->
       <classpath refid="project.class.path" />
@@ -250,7 +170,7 @@
   </target>
 
   <!-- play dir -->
-  <target name="play.dir" depends="package" description="play dir">
+  <target name="play.dir" depends="prepare" description="play dir">
     <java classname="t150_1" fork="yes" dir="${test.150.play.dir}">
       <classpath refid="project.class.path" />
       <arg value="*.mp3" />
@@ -258,7 +178,7 @@
   </target>
 
   <!-- play alac -->
-  <target name="alac" depends="package" description="play dir">
+  <target name="alac" depends="prepare" description="play dir">
     <java classname="Test3" fork="yes">
       <classpath>
         <path refid="project.class.path" />
@@ -268,43 +188,19 @@
     </java>
   </target>
 
-<!-- ______________________________________________________________________ -->
-
-  <!-- クラスパスの定義 -->
-  <path id="libmfi.class.path">
-    <fileset dir="/home/nsano/work/libmfi/lib">
-      <include name="*.jar" />
-    </fileset>
-    <pathelement location="/home/nsano/work/libmfi/build" />
-    <fileset dir="../../../lib">
-      <include name="tritonus_*.jar" />
-      <include name="javalayer.jar" />
-      <include name="jo*.jar" />
-    </fileset>
-    <pathelement location="../.." />
-    <pathelement location="src" />
-  </path>
-
   <!-- analyze -->
-  <target name="analyze" depends="package" description="play dir">
+  <target name="analyze" depends="prepare" description="play dir">
     <java classname="t150_4" fork="yes">
       <classpath refid="libmfi.class.path" />
       <arg value="${test.150.analyze.dir}" />
     </java>
   </target>
 
-<!-- ______________________________________________________________________ -->
-
-  <path id="jmf.class.path">
-    <pathelement location="C:/Program Files/JMF2.1.1e/lib" />
-    <path refid="project.class.path" />
-  </path>
-
   <!-- split -->
-  <target name="split" depends="package" description="split">
+  <target name="split" depends="prepare" description="split">
     <java classname="Split" fork="yes">
       <jvmarg value="-Xmx256m" />
-      <classpath refid="jmf.class.path" />
+      <classpath refid="project.class.path" />
       <arg value="${test.150.split.in}" />     <!-- input ファイル -->
       <arg line="-a ${test.150.split.audio}" />
       <arg line="-v ${test.150.split.video}" />
@@ -312,10 +208,10 @@
   </target>
 
   <!-- dsr -->
-  <target name="dsr" depends="package" description="data source reader">
+  <target name="dsr" depends="prepare" description="data source reader">
     <java classname="DataSourceReader" fork="yes">
       <jvmarg value="-Xmx256m" />
-      <classpath refid="jmf.class.path" />
+      <classpath refid="project.class.path" />
       <arg value="-monitor" />
       <arg value="${test.150.dsr.in}" />     <!-- input ファイル -->
     </java>
