@@ -50,15 +50,15 @@ import javax.sound.midi.Transmitter;
 
 /*
  * +DocBookXML <title>Plays a single MIDI or RMF file</title>
- * 
+ *
  * <formalpara><title>Purpose</title> <para>Plays a single MIDI or RMF file.</para></formalpara>
- * 
+ *
  * <formalpara><title>Level</title> <para>Command-line program</para></formalpara>
- * 
+ *
  * <formalpara><title>Usage</title> <para> <synopsis>java MidiRecorder -l</synopsis>
  * <synopsis>java MidiRecorder [-s] [-m] [-d &lt;devicename&gt;] [-c] [-S
  * &lt;sequencername&gt;] &lt;midifile&gt;</synopsis> </para></formalpara>
- * 
+ *
  * <formalpara><title>Parameters</title> <variablelist> <varlistentry> <term><option>-l</option></term>
  * <listitem><para>list the availabe MIDI devices</para></listitem>
  * </varlistentry> <varlistentry> <term><option>-m</option></term> <listitem><para>play
@@ -66,28 +66,28 @@ import javax.sound.midi.Transmitter;
  * &lt;devicename&gt;</option></term> <listitem><para>play on the named MIDI
  * device</para></listitem> </varlistentry> <varlistentry> <term><option>-c</option></term>
  * <listitem><para>dump on the console</para></listitem>
- * 
+ *
  * All options may be used together. No option is equal to giving <option>-s</option>.
- * 
+ *
  * </varlistentry> <varlistentry> <term><option>-S &lt;sequencername&gt;</option></term>
  * <listitem><para>play using the named Sequencer</para></listitem>
  * </varlistentry> <varlistentry> <term><option>&lt;midifile&gt;</option></term>
  * <listitem><para>the file name of the MIDI or RMF file that should be played</para></listitem>
  * </varlistentry> </variablelist> </formalpara>
- * 
+ *
  * <formalpara><title>Bugs, limitations</title> <para> For the Sun jdk1.3,
  * playing to the MIDI port and dumping to the console do not work. You can make
  * it work by installing the <ulink url
  * ="http://www.tritonus.org/plugins.html">MidiShare plug-in</ulink>. For
  * Tritonus, playing RMF files does not work (and will not work until the specs
  * are published). </para></formalpara>
- * 
+ *
  * <formalpara><title>Source code</title> <para> <ulink
  * url="MidiRecorder.java.html">MidiRecorder.java</ulink>, <ulink
  * url="DumpReceiver.java.html">DumpReceiver.java</ulink>, <ulink
  * url="http://www.urbanophile.com/arenn/hacking/download.html">gnu.getopt.Getopt</ulink>
  * </para></formalpara>
- * 
+ *
  * -DocBookXML
  */
 public class MidiRecorder {
@@ -218,7 +218,7 @@ public class MidiRecorder {
          * We create an (File)InputStream and decorate it with a buffered
          * stream. This is set later at the Sequencer as the source of a
          * sequence.
-         * 
+         *
          * There is another programming technique: Creating a Sequence object
          * from the file and set this at the Sequencer. While this technique
          * seems more natural, it in fact is less efficient on Sun's
@@ -272,7 +272,7 @@ public class MidiRecorder {
          * the VM. So we have to exit ourselves. To accomplish this, we register
          * a Listener to the Sequencer. It is called when there are "meta"
          * events. Meta event 47 is end of track.
-         * 
+         *
          * Thanks to Espen Riskedal for finding this trick.
          */
         sm_sequencer.addMetaEventListener(new MetaEventListener() {
@@ -347,7 +347,7 @@ public class MidiRecorder {
         /*
          * Now, we set up the destinations the Sequence should be played on.
          */
-        sm_openedMidiDeviceList = new ArrayList<MidiDevice>();
+        sm_openedMidiDeviceList = new ArrayList<>();
         if (bUseSynthesizer) {
             /*
              * We try to get the default synthesizer, open() it and chain it to

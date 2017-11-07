@@ -28,7 +28,7 @@ import vavix.util.ByteUtil;
 
 
 /**
- * ResamplerTest. 
+ * ResamplerTest.
  *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060125 nsano initial version <br>
@@ -107,7 +107,7 @@ System.err.println(audioFormat);
 
         InputStream in = new ByteArrayInputStream(dest);
         AudioInputStream ais = new AudioInputStream(in, audioFormat, dest.length / 2);
-        
+
         int r = AudioSystem.write(ais, AudioFileFormat.Type.WAVE, new File(outFile));
 Debug.println("result: " + r);
 

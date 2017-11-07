@@ -23,7 +23,7 @@ import vavi.util.Debug;
 
 
 /**
- * Test. 
+ * Test.
  *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 080526 nsano initial version <br>
@@ -98,7 +98,7 @@ Debug.println("データエントリ LSB: " + event.getData2());
 Debug.println("unhandled control change: " + event.getData1());
                     break;
                 }
-                
+
             }
         }, null);
         sequencer.start();

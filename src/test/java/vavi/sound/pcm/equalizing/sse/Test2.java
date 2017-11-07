@@ -37,7 +37,7 @@ import vavi.sound.pcm.equalizing.sse.Equalizer.Parameter;
 
 
 /**
- * Graphical GUI Test. 
+ * Graphical GUI Test.
  *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060419 nsano initial version <br>
@@ -153,23 +153,23 @@ System.err.println("bands: " + model.bands);
         View(Model model) {
             this.model = model;
 
-            lgains = new JSlider[model.bands]; 
-            rgains = new JSlider[model.bands]; 
-    
+            lgains = new JSlider[model.bands];
+            rgains = new JSlider[model.bands];
+
             JFrame frame = new JFrame();
             frame.setTitle("Equalizer");
             frame.setLayout(new BorderLayout());
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    
+
             JPanel bpanel = new JPanel();
-            JButton playButton = new JButton(); 
+            JButton playButton = new JButton();
             playButton.addActionListener(actionListener);
             playButton.setText("Play");
-//          JButton stopButton = new JButton(); 
+//          JButton stopButton = new JButton();
 //          stopButton.setText("Stop");
             bpanel.add(playButton);
 //          bpanel.add(stopButton);
-    
+
             JPanel lpanel = new JPanel();
 //          JPanel cpanel = new JPanel();
             JPanel rpanel = new JPanel();
@@ -268,7 +268,7 @@ System.err.println(name + ": " + value);
         void doEqualize() {
             //
             List<Parameter> params = new ArrayList<>();
-    
+
             Parameter param = new Parameter();
             model.lpremain = (lpremain.getMaximum() - lpremain.getValue()) == 96 ? 0 : Math.pow(10, model.lpremain / -20.0);
             param.gain = model.lpremain;
@@ -277,7 +277,7 @@ System.err.println(name + ": " + value);
 //            model.rpremain = (rpremain.getMaximum() - rpremain.getValue()) == 96 ? 0 : Math.pow(10, model.rpremain / -20.0);
 //            param.gain = model.rpremain;
 //            params.add(param);
-    
+
             for (int i = 0; i < model.bands; i++) {
                 param = new Parameter();
                 model.lgains[i] = (lgains[i].getMaximum() - lgains[i].getValue()) == 96 ? 0 : Math.pow(10, model.lgains[i] / -20.0);
@@ -291,7 +291,7 @@ System.err.println(name + ": " + value);
 //                param.gain = model.rgains[i];
 //                params.add(param);
             }
-    
+
             equalizer.equ_makeTable(model.lgains, model.rgains, params, 44100);
         }
     }

@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 
 /**
  * SimpleResamplingInputFilterTest.
- * 
+ *
  * @require tritonus_remaining-XXX.jar
  *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)

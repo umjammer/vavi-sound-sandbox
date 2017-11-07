@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2011 Peter McQuillan All Rights Reserved.
- *                       
- * Distributed under the BSD Software License (see license.txt)  
+ *
+ * Distributed under the BSD Software License (see license.txt)
  */
 
 package com.beatofthedrum.alacdecoder;
@@ -16,7 +16,7 @@ public class Alac {
     private AlacContext ac;
 
     /**
-     * 
+     *
      * @param is must be {@link FileInputStream}
      */
     public Alac(InputStream is) throws IOException {
@@ -225,7 +225,7 @@ public class Alac {
     }
 
     /**
-     * 
+     *
      * sets position in pcm samples
      * @param ac alac context
      * @param position position in pcm samples to go to

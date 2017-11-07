@@ -89,8 +89,8 @@ Debug.println("end: " + end);
     /**
      * Given a source media locator, destination media locator and a start and
      * end point, this program cuts the pieces out.
-     * @throws IOException 
-     * @throws MediaException 
+     * @throws IOException
+     * @throws MediaException
      */
     public void doIt(MediaLocator inML, MediaLocator outML, long start[], long end[]) throws MediaException, IOException {
 
@@ -162,7 +162,7 @@ System.err.println("  ...done cutting.");
      */
     ControllerListener controllerListener = new ControllerListener() {
         public void controllerUpdate(ControllerEvent evt) {
-    
+
             if (evt instanceof ControllerErrorEvent) {
                 System.err.println("Failed to cut the file.");
                 System.exit(-1);
@@ -201,7 +201,7 @@ System.err.println("  ...done cutting.");
      */
     DataSinkListener dataSinkListener = new DataSinkListener() {
         public void dataSinkUpdate(DataSinkEvent evt) {
-    
+
             if (evt instanceof EndOfStreamEvent) {
                 synchronized (waitFileSync) {
                     fileDone = true;
@@ -232,7 +232,7 @@ System.err.print("X");
 
         /** */
         public String getUrl() {
-            // 
+            //
             if (currentNo == 0) {
                 currentNo = (calendar.get(Calendar.SECOND)) / (interval / 1000) + 1;
             } else {

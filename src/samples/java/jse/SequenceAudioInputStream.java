@@ -45,7 +45,7 @@ public class SequenceAudioInputStream extends AudioInputStream {
 
     public SequenceAudioInputStream(AudioFormat audioFormat, Collection<AudioInputStream> audioInputStreams) {
         super(new ByteArrayInputStream(new byte[0]), audioFormat, AudioSystem.NOT_SPECIFIED);
-        m_audioInputStreamList = new ArrayList<AudioInputStream>(audioInputStreams);
+        m_audioInputStreamList = new ArrayList<>(audioInputStreams);
         m_nCurrentStream = 0;
     }
 

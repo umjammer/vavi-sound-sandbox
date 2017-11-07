@@ -529,7 +529,7 @@ public class LdCelp {
         int vx;
         // Logarithmic Gain Index
         int lgx;
-        
+
         // recently read vector in the queue
         int float_pointer_vector;
 
@@ -1179,19 +1179,19 @@ Debug.println("decoder_done");
         1.031250f,  1.8046875f, 3.158203126f,  5.526855468f,
         -1.031250f, -1.8046875f, -3.158203126f, -5.526855468f
     };
-    
+
     /** Midpoints: */
     static final float cb_gain_mid[] = {
         0.708984375f,  1.240722656f,  2.171264649f, 0f,
         -0.708984375f, -1.240722656f, -2.171264649f, 0f
     };
-    
+
     /** Squared Gains: */
     static final float cb_gain_sq[] = {
         0.26586914f, 0.814224243f, 2.493561746f, 7.636532841f,
         0.26586914f, 0.814224243f, 2.493561746f, 7.636532841f
     };
-    
+
     /** */
     static final float hw_gain[] = {
         0.583953857f, 0.605346680f, 0.627502441f, 0.650482178f, 0.674316406f,
@@ -1218,7 +1218,7 @@ Debug.println("decoder_done");
         0.562774658f, 0.512390137f, 0.460174561f, 0.406311035f, 0.351013184f,
         0.294433594f, 0.236816406f, 0.178375244f, 0.119262695f, 0.059722900f
     };
-    
+
     /** */
     static final float hw_synth[] = {
         0.602020264f, 0.606384277f, 0.610748291f, 0.615142822f, 0.619598389f,
@@ -1465,7 +1465,7 @@ Debug.println("decoder_done");
 
     /** */
     void pwf_zresp(float[] input, float[] output) {
-        
+
         // Un-pipelined version, kept for reference
         for (int k = 0; k < Constants.IDIM; k++) {
             float tmp = input[k];
@@ -1490,7 +1490,7 @@ Debug.println("decoder_done");
         sf_zresp(temp);
         pwf_zresp(temp, output);
     }
-    
+
     void mem_update(float[] input, int inofs, float[] output, int outofs) {
         float[] temp = new float[Constants.IDIM];
         int float_pointer_t2 = 0; // zirwfir
@@ -1509,7 +1509,7 @@ Debug.println("decoder_done");
             zirwfir[float_pointer_t2] = a0;
             temp[0] = a0 + a1 + a2;
         }
-        
+
         for (int k = 0; k < Constants.IDIM; k++) {
             statelpc[k] += zirwfir[float_pointer_t2 + k];
             if (statelpc[k] > Constants.MAX) {
@@ -1545,12 +1545,12 @@ Debug.println("decoder_done");
         etrms = 10.0f * (float) (Math.log(etrms) / Math.log(10));
         return etrms;
     }
-    
+
     /** */
     float predict_gain() {
         float new_gain = Constants.GOFF;
         float temp;
-        
+
         for (int i = 1; i <= Constants.LPCLG; i++) {
             temp = gp_coeff[i] * gain_input[Constants.LPCLG - i];
             new_gain -= temp;
@@ -1564,23 +1564,23 @@ Debug.println("decoder_done");
         new_gain = (float) Math.pow(10, 0.05f * new_gain);
         return new_gain;
     }
-    
+
     /** */
     void update_gain(float[] input,
                      int offset,
                      float[] lgp,
                      int float_pointer_lgp) {
-        
+
         lgp[float_pointer_lgp] = log_rms(input, offset) - Constants.GOFF;
         for (int i = 0; i < Constants.LPCLG - 1; i++) {
             gain_input[i] = gain_input[i + 1];
         }
         gain_input[Constants.LPCLG - 1] = lgp[float_pointer_lgp];
     }
-    
+
     /** */
     void init_gain_buf() {
-        
+
         for (int i = 0; i < Constants.LPCLG; i++) {
             gain_input[i] = -Constants.GOFF;
         }
@@ -1588,9 +1588,9 @@ Debug.println("decoder_done");
             log_gains[i] = -Constants.GOFF;
         }
     }
-    
+
     // Global ----
-    
+
     float[] sf_coeff = new float[Constants.LPC + 1];
     float[] gp_coeff = new float[Constants.LPCLG + 1];
     float[] pwf_z_coeff = new float[Constants.LPCW + 1];

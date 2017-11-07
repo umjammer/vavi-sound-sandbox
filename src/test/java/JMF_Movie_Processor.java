@@ -193,9 +193,9 @@ public class JMF_Movie_Processor {
     KeyListener keyListener = new KeyAdapter() {
         public void keyPressed(KeyEvent e) {
             int keyCode = e.getKeyCode();
-    
+
             // IJ.write("Key Pressed!");
-    
+
             switch (keyCode) {
             case KeyEvent.VK_PAGE_UP:
                 MP.getFrame(-skip);
@@ -207,7 +207,7 @@ public class JMF_Movie_Processor {
 //                new JMF_Movie_Acquisitor(this, MP);
                 break;
             }
-    
+
             switch (e.getKeyChar()) {
             case '1':
                 skip = 1;
@@ -224,9 +224,9 @@ public class JMF_Movie_Processor {
             case '5':
                 skip = 5;
                 break;
-    
+
             }
-    
+
             frm.setTitle("Movie Player - frame: " + MP.getPosition(1) + "/" + MP.getPosition(0));
             p0.requestFocus();
         }
@@ -235,9 +235,9 @@ public class JMF_Movie_Processor {
     /** Action Listener (Buttons) */
     ActionListener actionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-    
+
             Object b = e.getSource();
-    
+
             if (b == playF) {
                 playing = true;
                 orientation = +1;
@@ -261,7 +261,7 @@ public class JMF_Movie_Processor {
                 playing = false;
 //                new JMF_Movie_Acquisitor(this, MP);
             }
-    
+
             frm.setTitle("Movie Player - frame: " + MP.getPosition(1) + "/" + MP.getPosition(0));
             p0.requestFocus();
         }
@@ -287,7 +287,7 @@ public class JMF_Movie_Processor {
             frm.setVisible(false);
             frm.dispose();
         }
-    
+
         public void windowClosed(java.awt.event.WindowEvent evt) {
             p0.removeKeyListener(keyListener);
             MP.kill();

@@ -15,7 +15,7 @@ package vavi.sound.ldcelp;
  * Code edited by Michael Concannon.<br>
  * Based on code written by Alex Zatsman, Analog Devices 1993
  * <p>
- * 
+ *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 040621 nsano initial version <br>
  */

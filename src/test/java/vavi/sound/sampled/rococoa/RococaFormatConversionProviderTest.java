@@ -38,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 
 
 /**
- * RococaFormatConversionProviderTest. 
+ * RococaFormatConversionProviderTest.
  *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060726 nsano initial version <br>
@@ -68,7 +68,7 @@ public class RococaFormatConversionProviderTest {
 System.err.println("duration: " + duration);
         Thread.sleep(duration);
     }
-    
+
     public static void test1(String[] args) throws Exception {
         QTMovieView movieView = QTMovieView.CLASS.create();
         movieView.setControllerVisible(true);
@@ -83,14 +83,14 @@ System.err.println("duration: " + duration);
         frame.pack();
         frame.setVisible(true);
     }
-    
+
     /**
-     *  
+     *
      * <ul>
-     *  <li>→ mono に tritonus_remaining_###.jar が必要 
+     *  <li>→ mono に tritonus_remaining_###.jar が必要
      *  <li>eclipse では jar の順位がしたの方から plugin が機能している？？？
      * </ul>
-     *  
+     *
      */
     @Test
     public void test1() throws Exception {

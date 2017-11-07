@@ -40,13 +40,13 @@ public class TrackChunkInputStream extends MIDIChunkInputStream {
 
             int upperStatus = (statusByte >> 4) & 0xf;
             TrackMessage message;
-label0: 
+label0:
             switch (upperStatus) {
-            case 8: // 
+            case 8: //
                 message = new NoteOffMessage(deltaTime, statusByte,
                                              readMessageBytes(2));
                 break;
-            case 9: // 
+            case 9: //
                 message = new NoteOnMessage(deltaTime, statusByte,
                                             readMessageBytes(2));
                 break;
@@ -55,7 +55,7 @@ label0:
                                                            statusByte,
                                                            readMessageBytes(2));
                 break;
-            case 11: // 
+            case 11: //
                 if ((statusByte & 0xf) < 120) {
                     message = new ControlChangeMessage(deltaTime, statusByte,
                                                        readMessageBytes(2));
@@ -64,36 +64,36 @@ label0:
                                               readMessageBytes(2));
                 }
                 break;
-            case 12: // 
+            case 12: //
                 message = new ProgramChangeMessage(deltaTime, statusByte,
                                                    readMessageBytes(1));
                 break;
-            case 13: // 
+            case 13: //
                 message = new ChannelPressureMessage(deltaTime, statusByte,
                                                      readMessageBytes(1));
                 break;
-            case 14: // 
+            case 14: //
                 message = new PitchBendChangeMessage(deltaTime, statusByte,
                                                      readMessageBytes(2));
                 break;
-            case 15: // 
+            case 15: //
                 switch (statusByte & 0xf) {
-                case 0: // 
-                case 7: // 
+                case 0: //
+                case 7: //
 
                     int dataLength = readDeltaTime();
                     message = new SystemExclusiveMessage(deltaTime,
                                                          readMessageBytes(dataLength));
                     break label0;
-                case 1: // 
+                case 1: //
                     message = new QuaterFrameMessage(deltaTime,
                                                      readMessageBytes(1));
                     break label0;
-                case 2: // 
+                case 2: //
                     message = new SongPointerMessage(deltaTime,
                                                      readMessageBytes(2));
                     break label0;
-                case 3: // 
+                case 3: //
                     message = new SongSelectMessage(deltaTime,
                                                     readMessageBytes(1));
                     break label0;
@@ -102,19 +102,19 @@ label0:
                     int dataType = read();
                     int dataLength2 = readDeltaTime();
                     switch (dataType) {
-                    case 0: // 
+                    case 0: //
                         message = new SequenceNoMessage(deltaTime, dataType,
                                                         readMessageBytes(dataLength2));
                         break;
-                    case 1: // 
+                    case 1: //
                         message = new TextMessage(deltaTime, dataType,
                                                   readMessageBytes(dataLength2));
                         break;
-                    case 2: // 
+                    case 2: //
                         message = new RightMessage(deltaTime, dataType,
                                                    readMessageBytes(dataLength2));
                         break;
-                    case 3: // 
+                    case 3: //
                         message = new SequenceTrackNameMessage(deltaTime,
                                                                dataType,
                                                                readMessageBytes(dataLength2));
@@ -123,7 +123,7 @@ label0:
                         message = new EndOfTrackMessage(deltaTime, dataType,
                                                         readMessageBytes(dataLength2));
                         break;
-                    case 81: // 
+                    case 81: //
                         message = new SetTempoMessage(deltaTime, dataType,
                                                       readMessageBytes(dataLength2));
                         break;
@@ -133,16 +133,16 @@ label0:
                         break;
                     }
                     break;
-                case 4: // 
-                case 5: // 
-                case 6: // 
-                case 8: // 
-                case 9: // 
-                case 10: // 
-                case 11: // 
-                case 12: // 
-                case 13: // 
-                case 14: // 
+                case 4: //
+                case 5: //
+                case 6: //
+                case 8: //
+                case 9: //
+                case 10: //
+                case 11: //
+                case 12: //
+                case 13: //
+                case 14: //
                 default:
                     message = new OneByteSystemMessage(deltaTime, statusByte);
                     break;

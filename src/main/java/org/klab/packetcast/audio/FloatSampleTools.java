@@ -45,7 +45,7 @@ import javax.sound.sampled.*;
  * </ul>
  * 8-bit data can be unsigned or signed. All other data is only supported in
  * signed encoding.
- * 
+ *
  * @see FloatSampleBuffer
  * @author Florian Bomers
  */
@@ -92,7 +92,7 @@ public class FloatSampleTools {
       /**
        * only allow "packed" samples -- currently no support for 18, 20 bits --
        * except 24 bits stored in 4 bytes.
-       * 
+       *
        * @throws IllegalArgumentException
        */
       static void checkSupportedSampleSize(int ssib, int channels, int frameSize) {
@@ -109,7 +109,7 @@ public class FloatSampleTools {
 
       /**
        * Get the formatType code from the given format.
-       * 
+       *
        * @throws IllegalArgumentException
        */
       static int getFormatType(AudioFormat format) {
@@ -307,7 +307,7 @@ public class FloatSampleTools {
        * <code>input[inByteOffset + (frameCount * format.getFrameSize()) - 1]</code>
        * to floats from <code>output(n)[outOffset]</code> to
        * <code>output(n)[outOffset + frameCount - 1]</code>
-       * 
+       *
        * @param input the audio data in an byte array
        * @param inByteOffset index in input where to start the conversion
        * @param output list of float[] arrays which receive the converted audio
@@ -363,7 +363,7 @@ public class FloatSampleTools {
        * <code>input[inByteOffset + (frameCount * format.getFrameSize()) - 1]</code>
        * to floats from <code>output[outOffset]</code> to
        * <code>output[outOffset + (frameCount * format.getChannels()) - 1]</code>
-       * 
+       *
        * @param input the audio data in an byte array
        * @param inByteOffset index in input where to start the conversion
        * @param output the float array that receives the converted audio data
@@ -398,7 +398,7 @@ public class FloatSampleTools {
        * For converting interleaved input data, multiply <code>sampleCount</code>
        * by the number of channels and set inByteStep to
        * <code>format.getFrameSize() / format.getChannels()</code>.
-       * 
+       *
        * @param sampleCount number of samples to be written to output
        * @param inByteStep how many bytes advance for each output sample in
        *            <code>output</code>.
@@ -575,7 +575,7 @@ public class FloatSampleTools {
        * data was in e.g. 8-bit and the resulting output data has a higher
        * resolution. If dithering is used, a sensitive value is
        * DEFAULT_DITHER_BITS.
-       * 
+       *
        * @param input a List of float arrays with the input audio data
        * @param inOffset index in the input arrays where to start the conversion
        * @param output the byte array that receives the converted audio data
@@ -660,7 +660,7 @@ public class FloatSampleTools {
        * data was in e.g. 8-bit and the resulting output data has a higher
        * resolution. If dithering is used, a sensitive value is
        * DEFAULT_DITHER_BITS.
-       * 
+       *
        * @param input the audio data in normalized samples
        * @param inOffset index in input where to start the conversion
        * @param output the byte array that receives the converted audio data
@@ -698,7 +698,7 @@ public class FloatSampleTools {
        * For converting interleaved input data, multiply <code>sampleCount</code>
        * by the number of channels and set outByteStep to
        * <code>format.getFrameSize() / format.getChannels()</code>.
-       * 
+       *
        * @param sampleCount number of samples in input to be converted.
        * @param outByteStep how many bytes advance for each input sample in
        *            <code>input</code>.

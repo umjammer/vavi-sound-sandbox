@@ -19,7 +19,7 @@ import vavi.util.StringUtil;
 
 
 /**
- * Block. 
+ * Block.
  *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 080628 nsano initial version <br>
@@ -30,7 +30,7 @@ public interface Block {
     class Factory {
 
         /**
-         * @throws IllegalStateException 
+         * @throws IllegalStateException
          */
         public static Block getBlock(String label, List<String> params) {
             if (methods.containsKey(label)) {
@@ -69,14 +69,14 @@ Debug.println(Level.SEVERE, "error block: " + label);
          * {@link Block} オブジェクトのファクトリメソッド集。
          */
         private static Map<String, Method> methods = new HashMap<>();
-    
+
         static {
             try {
                 // props
                 Properties props = new Properties();
                 props.load(Factory.class.getResourceAsStream("/vavi/sound/vsq/vsq.properties"));
-                
-                // 
+
+                //
                 Iterator<?> i = props.keySet().iterator();
                 while (i.hasNext()) {
                     String key = (String) i.next();

@@ -55,7 +55,7 @@ public class SimpleAudioStream extends BaseAudioStream {
     }
 
     public SimpleAudioStream(File file)
-        throws UnsupportedAudioFileException, LineUnavailableException, 
+        throws UnsupportedAudioFileException, LineUnavailableException,
                    IOException {
         this();
         setDataSource(file);
@@ -63,7 +63,7 @@ public class SimpleAudioStream extends BaseAudioStream {
     }
 
     public SimpleAudioStream(URL url)
-        throws UnsupportedAudioFileException, LineUnavailableException, 
+        throws UnsupportedAudioFileException, LineUnavailableException,
                    IOException {
         this();
         setDataSource(url);

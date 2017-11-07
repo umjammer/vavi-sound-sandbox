@@ -19,7 +19,7 @@ import vavi.util.Debug;
 
 
 /**
- * Test2. 
+ * Test2.
  *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 080526 nsano initial version <br>

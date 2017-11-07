@@ -139,21 +139,21 @@ public class AudioUtils
       }
 
       /**
-      * Conversion bytes -> milliseconds 
+      * Conversion bytes -> milliseconds
       */
       public static long bytes2Millis(long bytes, AudioFormat format) {
             return (long) (bytes/format.getFrameRate()*1000/format.getFrameSize());
       }
 
       /**
-      * Conversion frames -> milliseconds 
+      * Conversion frames -> milliseconds
       */
       public static long frames2Millis(long frames, AudioFormat format) {
             return (long) (frames/format.getFrameRate()*1000);
       }
-      
+
       /**
-       * 
+       *
        * @param sr1 the first sample rate to compare
        * @param sr2 the second sample rate to compare
        * @return true if the sample rates are (almost) identical
@@ -161,7 +161,7 @@ public class AudioUtils
       public static boolean sampleRateEquals(float sr1, float sr2) {
             return Math.abs(sr1-sr2)<0.0000001;
       }
-      
+
       /**
        * @param format the audio format to test
        * @return true if the format is either PCM_SIGNED or PCM_UNSIGNED
@@ -170,7 +170,7 @@ public class AudioUtils
             return format.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)
                   || format.getEncoding().equals(AudioFormat.Encoding.PCM_UNSIGNED);
       }
-      
+
       /**
        * Return if the passed mixer info is the Java Sound Audio Engine.
        * @param mixerInfo the mixer info to query
@@ -179,7 +179,7 @@ public class AudioUtils
       public static boolean isJavaSoundAudioEngine(Mixer.Info mixerInfo) {
             return mixerInfo.getName().equals("Java Sound Audio Engine");
       }
-      
+
       /**
        * tries to guess if this program is running on a big endian platform
        * @return
@@ -197,7 +197,7 @@ public class AudioUtils
             return (number==AudioSystem.NOT_SPECIFIED)?"NOT_SPECIFIED":String.valueOf(number);
     }
 
-    /** 
+    /**
      * For debugging purposes.
      */
     public static String format2ShortStr(AudioFormat format) {
@@ -206,7 +206,7 @@ public class AudioUtils
             NS_or_number(format.getSampleSizeInBits()) + "bit-" +
             NS_or_number(((int)format.getSampleRate())) + "Hz-"+
             (format.isBigEndian() ? "be" : "le");
-    } 
+    }
 
 }
 

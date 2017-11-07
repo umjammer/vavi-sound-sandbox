@@ -58,7 +58,7 @@ public class MixingAudioInputStream extends AudioInputStream {
         if (DEBUG) {
             System.out.println("MixingAudioInputStream.<init>(): begin");
         }
-        m_audioInputStreamList = new ArrayList<AudioInputStream>(audioInputStreams);
+        m_audioInputStreamList = new ArrayList<>(audioInputStreams);
         if (DEBUG) {
             System.out.println("MixingAudioInputStream.<init>(): stream list:");
             for (int i = 0; i < m_audioInputStreamList.size(); i++) {

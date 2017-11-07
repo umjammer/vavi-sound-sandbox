@@ -79,7 +79,7 @@ public class FloatSampleTools {
 
     /**
      * Get the formatType code from the given format.
-     * 
+     *
      * @throws IllegalArgumentException
      */
     static int getFormatType(AudioFormat format) {

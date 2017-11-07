@@ -42,7 +42,7 @@ import vavi.util.Debug;
 
 /**
  * IttakeMidiConverter.
- * 
+ *
  * @see "http://tokyo.cool.ne.jp/ittake/java/MIDIToMLDv013/MIDIToMLD.html"
  *
  * @author ittake
@@ -59,7 +59,7 @@ public class IttakeMidiConverter implements MidiConverter {
                            "Ittake",
                            "MIDItoMLD",
                            "Version 1.01") {};
-        
+
     /** */
     public MfiDevice.Info getDeviceInfo() {
         return info;
@@ -93,7 +93,7 @@ public class IttakeMidiConverter implements MidiConverter {
     /** Converts midi sequence to mfi sequence. */
     public vavi.sound.mfi.Sequence toMfiSequence(Sequence midiSequence, int fileType)
         throws InvalidMidiDataException {
-        
+
         try {
             return convert(midiSequence, fileType);
         } catch (IOException e) {
@@ -107,7 +107,7 @@ Debug.printStackTrace(e);
 
     /**
      * hack of Track
-     * TODO マジで動くの？ 
+     * TODO マジで動くの？
      */
     private void insert(Track track, MfiEvent event, int index) {
         try {

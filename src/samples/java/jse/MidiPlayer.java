@@ -44,13 +44,13 @@ import javax.sound.midi.Transmitter;
 
 /*
  * +DocBookXML <title>Playing a MIDI file (advanced)</title>
- * 
+ *
  * <formalpara><title>Purpose</title> <para>Plays a single MIDI file. Allows
  * to select the sequencer, the synthesizer or MIDI port or dumping to the
  * console.</para> </formalpara>
- * 
+ *
  * <formalpara><title>Level</title> <para>advanced</para></formalpara>
- * 
+ *
  * <formalpara><title>Usage</title> <para> <cmdsynopsis> <command>java
  * MidiPlayer</command> <arg choice="plain"><option>-l</option></arg>
  * </cmdsynopsis> <cmdsynopsis> <command>java MidiPlayer</command> <arg><option>-s</option></arg>
@@ -58,7 +58,7 @@ import javax.sound.midi.Transmitter;
  * <arg><option>-c</option></arg> <arg><option>-S <replaceable>sequencername</replaceable></option></arg>
  * <arg choice="plain"><replaceable>midifile</replaceable></arg>
  * </cmdsynopsis> </para></formalpara>
- * 
+ *
  * <formalpara><title>Parameters</title> <variablelist> <varlistentry> <term><option>-l</option></term>
  * <listitem><para>list the availabe MIDI devices, including sequencers</para></listitem>
  * </varlistentry> <varlistentry> <term><option>-m</option></term> <listitem><para>play
@@ -67,36 +67,36 @@ import javax.sound.midi.Transmitter;
  * on the named MIDI device</para></listitem> </varlistentry> <varlistentry>
  * <term><option>-c</option></term> <listitem><para>dump on the console</para></listitem>
  * </varlistentry> <varlistentry>
- * 
+ *
  * <term><option>-S <replaceable>sequencername</replaceable></option></term>
  * <listitem><para>play using the named Sequencer</para></listitem>
  * </varlistentry> <varlistentry> <term><option><replaceable>midifile</replaceable></option></term>
  * <listitem><para>the name of the MIDI file that should be played</para></listitem>
  * </varlistentry> </variablelist>
- * 
+ *
  * <para>All options may be used together. No option is equal to giving
  * <option>-s</option>.</para>
- * 
+ *
  * </formalpara>
- * 
+ *
  * <formalpara><title>Bugs, limitations</title> <para> For the Sun jdk1.3,
  * playing to the MIDI port and dumping to the console do not work. You can make
  * it work by installing the JavaSequencer plug-in from<ulink url
  * ="http://www.tritonus.org/plugins.html">Tritonus Plug-ins</ulink>.</para>
- * 
+ *
  * <para>For Tritonus, playing RMF files does not work (and will not work until
  * the specs are published). </para> </formalpara>
- * 
+ *
  * <formalpara><title>Source code</title> <para> <ulink
  * url="MidiPlayer.java.html">MidiPlayer.java</ulink>, <ulink
  * url="DumpReceiver.java.html">DumpReceiver.java</ulink>, <ulink
  * url="http://www.urbanophile.com/arenn/hacking/download.html">gnu.getopt.Getopt</ulink>
  * </para> </formalpara>
- * 
+ *
  * -DocBookXML
- * 
+ *
  * MidiPlayer
- * 
+ *
  * This file is part of the Java Sound Examples.
  */
 public class MidiPlayer {
@@ -226,7 +226,7 @@ public class MidiPlayer {
          * We create an (File)InputStream and decorate it with a buffered
          * stream. This is set later at the Sequencer as the source of a
          * sequence.
-         * 
+         *
          * There is another programming technique: Creating a Sequence object
          * from the file and set this at the Sequencer. While this technique
          * seems more natural, it in fact is less efficient on Sun's
@@ -280,7 +280,7 @@ public class MidiPlayer {
          * the VM. So we have to exit ourselves. To accomplish this, we register
          * a Listener to the Sequencer. It is called when there are "meta"
          * events. Meta event 47 is end of track.
-         * 
+         *
          * Thanks to Espen Riskedal for finding this trick.
          */
         sm_sequencer.addMetaEventListener(new MetaEventListener() {
@@ -352,7 +352,7 @@ public class MidiPlayer {
 
         // Now, we set up the destinations the Sequence should be
         // played on.
-        sm_openedMidiDeviceList = new ArrayList<MidiDevice>();
+        sm_openedMidiDeviceList = new ArrayList<>();
         if (bUseSynthesizer) {
             // We try to get the default synthesizer, open()
             // it and chain it to the sequencer with a

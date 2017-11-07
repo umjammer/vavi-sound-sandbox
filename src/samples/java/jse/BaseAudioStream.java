@@ -77,21 +77,21 @@ public class BaseAudioStream implements Runnable {
     }
 
     protected void setDataSource(File file)
-        throws UnsupportedAudioFileException, LineUnavailableException, 
+        throws UnsupportedAudioFileException, LineUnavailableException,
                    IOException {
         m_dataSource = file;
         initAudioInputStream();
     }
 
     protected void setDataSource(URL url)
-        throws UnsupportedAudioFileException, LineUnavailableException, 
+        throws UnsupportedAudioFileException, LineUnavailableException,
                    IOException {
         m_dataSource = url;
         initAudioInputStream();
     }
 
     private void initAudioInputStream()
-        throws UnsupportedAudioFileException, LineUnavailableException, 
+        throws UnsupportedAudioFileException, LineUnavailableException,
                    IOException {
         if (m_dataSource instanceof URL) {
             initAudioInputStream((URL) m_dataSource);

@@ -12,7 +12,7 @@ import java.io.RandomAccessFile;
 
 /**
  * definitions related to the bitstream file operating tools
- * 
+ *
  * @version 1.1 added function bseek() by N.Iwakami on 1999/2/24
  * @version 1.2 added a member "readable" to structure BFILE to improve bseek
  *          reliability, by NI, 1999/6/18

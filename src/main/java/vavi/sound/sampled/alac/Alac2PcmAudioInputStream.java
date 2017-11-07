@@ -16,7 +16,7 @@ import com.beatofthedrum.alacdecoder.AlacInputStream;
 
 /**
  * Converts an ALAC bitstream into a PCM 16bits/sample audio stream.
- * 
+ *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 111022 nsano initial version <br>
  */
@@ -24,7 +24,7 @@ class Alac2PcmAudioInputStream extends AudioInputStream {
 
     /**
      * Constructor.
-     * 
+     *
      * @param in the underlying input stream.
      * @param format the target format of this stream's audio data.
      * @param length the length in sample frames of the data in this stream.

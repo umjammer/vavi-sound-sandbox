@@ -38,24 +38,24 @@ import javax.sound.midi.Track;
 
 /**
  * +DocBookXML <title>Displaying the content of a MIDI file</title>
- * 
+ *
  * <formalpara><title>Purpose</title> <para>Dumps the decoded content of a MIDI file to the console.</para> </formalpara>
- * 
+ *
  * <formalpara><title>Level</title> <para>advanced</para></formalpara>
- * 
+ *
  * <formalpara><title>Usage</title> <para> <cmdsynopsis><command>java DumpSequence</command> <arg choice="plain"><replaceable
  * class="parameter">midifile</replaceable></arg> </cmdsynopsis> </para></formalpara>
- * 
+ *
  * <formalpara><title>Parameters</title> <variablelist> <varlistentry> <term><replaceable class="parameter">midifile</replaceable></term>
  * <listitem><para>the filename of the MIDI file that should be displayed</para></listitem> </varlistentry> </variablelist>
  * </formalpara>
- * 
+ *
  * <formalpara><title>Bugs, limitations</title> <para>Meta and system common events are not displayed in detail.</para>
  * </formalpara>
- * 
+ *
  * <formalpara><title>Source code</title> <para> <ulink url="DumpSequence.java.html">DumpSequence.java</ulink>, <ulink
  * url="DumpReceiver.java.html">DumpReceiver.java</ulink> </para> </formalpara>
- * 
+ *
  * -DocBookXML
  */
 public class DumpSequence {

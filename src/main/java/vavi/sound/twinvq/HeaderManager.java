@@ -112,7 +112,7 @@ class HeaderManager {
     /**
      * ヘッダマネージャを生成する。
      * チャンクマネージャを作り出す。コンストラクタの代わり
-     * 
+     *
      * @return 生成したヘッダマネージャへのポインタ、生成に失敗した場合は null
      */
     static HeaderManager create(ChunkChunk twinChunk) {
@@ -239,7 +239,7 @@ class UniStringInfo {
 
     /**
      * コンストラクタ、必要な情報を全て与える
-     * 
+     *
      * @param secondary deault = ""
      * @param primCode default = unknown_code
      * @param scndCode default = unknown_code

@@ -12,7 +12,7 @@ import vavi.sound.mfi.spi.MfiDeviceProvider;
 
 /**
  * MfiDeviceProvider implemented by Ittake.
- * 
+ *
  * @author ittake
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 041212 nsano initial version <br>

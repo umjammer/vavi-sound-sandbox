@@ -15,7 +15,7 @@ import javax.sound.sampled.TargetDataLine;
 
 /**
  * RtpTransmitter RTPパケットの送信機クラス
- * 
+ *
  * @author fukugawa
  */
 public class RtpTransmitter {
@@ -34,7 +34,7 @@ public class RtpTransmitter {
     /**
      * マイクから入力された音声データを、RTPパケットに加工し、 指定したソケットを使用して、指定した宛先IPアドレス、指定した宛先UDPポート番号
      * へ送信するRTPパケット送信機を生成します ディフォルトのメディアタイプは、G.711 u-law(0)を使用します
-     * 
+     *
      * @param socket 使用するSocket
      * @param destIP 宛先IPアドレス
      * @param destPort 宛先UDPポート番号
@@ -172,7 +172,7 @@ class TransmitThread extends Thread {
         void writeTo(OutputStream os) throws IOException {
             // RTPヘッダ
             byte[] rtpHeader = new byte[12];
-            
+
             // RTPヘッダーの生成
             rtpHeader[0] = (byte) (version | padding | extention | contribute);
             rtpHeader[1] = (byte) (marker | payload);

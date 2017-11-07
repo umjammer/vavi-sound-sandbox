@@ -52,7 +52,7 @@ import vavi.util.Debug;
 public class Transcoder {
 
     /**
-     * 
+     *
      * @param inML
      * @param outML
      * @param fmts
@@ -171,17 +171,17 @@ Debug.println("- set track format to: " + fmts[i]);
      * determine the content type.
      */
     private ContentDescriptor fileExtToCD(String name) {
-    
+
         String ext;
         int p;
-    
+
         // Extract the file extension.
         if ((p = name.lastIndexOf('.')) < 0) {
             return null;
         }
-    
+
         ext = (name.substring(p + 1)).toLowerCase();
-    
+
         String type;
         // Use the MimeManager to get the mime type from the file extension.
         if (ext.equals("mp3")) {
@@ -192,7 +192,7 @@ Debug.println("- set track format to: " + fmts[i]);
             }
             type = ContentDescriptor.mimeTypeToPackageName(type);
         }
-    
+
         return new FileTypeDescriptor(type);
     }
 
@@ -245,8 +245,8 @@ Debug.println("- set track format to: " + fmts[i]);
 
     /**
      * Create the DataSink.
-     * @throws IOException 
-     * @throws NoDataSinkException 
+     * @throws IOException
+     * @throws NoDataSinkException
      */
     private DataSink createDataSink(Processor p, MediaLocator outML) throws IOException, NoDataSinkException {
 
@@ -290,7 +290,7 @@ System.err.println("- create DataSink for: " + outML);
      */
     private ControllerListener controllerListener = new ControllerListener() {
         public void controllerUpdate(ControllerEvent event) {
-    
+
             if (event instanceof ConfigureCompleteEvent ||
                 event instanceof RealizeCompleteEvent ||
                 event instanceof PrefetchCompleteEvent) {
@@ -346,7 +346,7 @@ System.err.println("");
      */
     private DataSinkListener dataSinkListener = new DataSinkListener() {
         public void dataSinkUpdate(DataSinkEvent event) {
-    
+
             if (event instanceof EndOfStreamEvent) {
                 synchronized (waitFileSync) {
                     fileDone = true;
@@ -363,7 +363,7 @@ System.err.println("");
     };
 
     /**
-     * @param args [options] 
+     * @param args [options]
      */
     @SuppressWarnings("static-access")
     public static void main(String[] args) throws Exception {
@@ -404,13 +404,13 @@ Debug.println("channels: " + channels);
             encoding = cl.getOptionValue("e");
 Debug.println("encoding: " + encoding);
         }
-        
-        Format fmt = new AudioFormat(encoding,                      // encoding 
-                                     samplingRate,                  // sampleRate 
-                                     AudioFormat.NOT_SPECIFIED,     // sampleSizeInBits 
-                                     channels,                      // channels 
-                                     AudioFormat.NOT_SPECIFIED,     // endian 
-                                     AudioFormat.NOT_SPECIFIED);    // signed 
+
+        Format fmt = new AudioFormat(encoding,                      // encoding
+                                     samplingRate,                  // sampleRate
+                                     AudioFormat.NOT_SPECIFIED,     // sampleSizeInBits
+                                     channels,                      // channels
+                                     AudioFormat.NOT_SPECIFIED,     // endian
+                                     AudioFormat.NOT_SPECIFIED);    // signed
 
         // Generate the input and output media locators.
         MediaLocator iml, oml;

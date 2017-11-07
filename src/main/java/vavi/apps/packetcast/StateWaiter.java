@@ -13,7 +13,7 @@ import javax.media.Processor;
 
 /**
  * Utility class to block until a certain state had reached.
- * 
+ *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 2006/03/27 nsano initial version <br>
  */

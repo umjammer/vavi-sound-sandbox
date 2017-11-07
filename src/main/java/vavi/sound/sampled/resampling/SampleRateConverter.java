@@ -8,7 +8,7 @@ package vavi.sound.sampled.resampling;
 
 
 /**
- * SampleRateConverter. 
+ * SampleRateConverter.
  *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060206 nsano initial version <br>
@@ -16,7 +16,7 @@ package vavi.sound.sampled.resampling;
 public interface SampleRateConverter {
 
     /**
-     * 
+     *
      * @param inSamples
      * @param inSampleOffset
      * @param inSampleCount

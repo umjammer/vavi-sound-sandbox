@@ -11,7 +11,7 @@ import javax.sound.sampled.AudioFormat;
 
 /**
  * Encodings used by the ROCOCOA audio decoder.
- * 
+ *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 050722 nsano initial version <br>
  */
@@ -22,7 +22,7 @@ public class RcococaEncoding extends AudioFormat.Encoding {
 
     /**
      * Constructs a new encoding.
-     * 
+     *
      * @param name Name of the ROCOCOA encoding.
      */
     public RcococaEncoding(String name) {

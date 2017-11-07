@@ -31,7 +31,7 @@ import vavi.util.Debug;
 
 /**
  * RtpReceiver RTPパケットの受信機クラス
- * 
+ *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 0510156 nsano initial version <br>
  */
@@ -117,14 +117,14 @@ Debug.println("out: " + url);
                                 dest.open();
                                 dest.addDataSinkListener(dataSinkListener);
                                 fileDone = false;
-                            
+
                                 outProcessor.start();
                                 // now start the filewriter and processor
                                 dest.start();
-    
+
                                 // Wait for EndOfStream event.
                                 waitForFileDone();
-    
+
                                 // Wait for an EndOfStream from the DataSink and close it...
                                 dest.close();
 Debug.println("fileSuccess: " + fileSuccess);
@@ -184,7 +184,7 @@ System.err.println();
      */
     private DataSinkListener dataSinkListener = new DataSinkListener() {
         public void dataSinkUpdate(DataSinkEvent event) {
-    
+
             if (event instanceof EndOfStreamEvent) {
                 synchronized (waitFileSync) {
                     fileDone = true;
@@ -255,7 +255,7 @@ System.err.print("X");
 
         /** */
         public String getUrl() {
-            // 
+            //
             if (currentNo == 0) {
                 currentNo = (calendar.get(Calendar.SECOND)) / (interval / 1000) + 1;
             } else {

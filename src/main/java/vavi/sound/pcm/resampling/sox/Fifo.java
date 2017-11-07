@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2007 robs@users.sourceforge.net
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -20,7 +20,7 @@ package vavi.sound.pcm.resampling.sox;
 
 
 /**
- * Addressable FIFO buffer. 
+ * Addressable FIFO buffer.
  *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 081028 nsano initial version <br>

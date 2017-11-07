@@ -156,7 +156,7 @@ import javax.sound.sampled.AudioFormat;
  * href="http://www.iqsoft.com/IQSMagazine/BobsSoapbox/Dithering.htm"> here</a>
  * and <a href="http://www.iqsoft.com/IQSMagazine/BobsSoapbox/Dithering2.htm">
  * here</a>.
- * 
+ *
  * @author Florian Bomers
  */
 
@@ -220,7 +220,7 @@ public class FloatSampleBuffer {
        * Initialize this sample buffer to have the specified channels, sample
        * count, and sample rate. If LAZY_DEFAULT is true, as much as possible will
        * existing arrays be reused. Otherwise, any hidden channels are freed.
-       * 
+       *
        * @param newChannelCount
        * @param newSampleCount
        * @param newSampleRate
@@ -236,7 +236,7 @@ public class FloatSampleBuffer {
        * Initialize this sample buffer to have the specified channels, sample
        * count, and sample rate. If lazy is true, as much as possible will
        * existing arrays be reused. Otherwise, any hidden channels are freed.
-       * 
+       *
        * @param newChannelCount
        * @param newSampleCount
        * @param newSampleRate
@@ -256,7 +256,7 @@ public class FloatSampleBuffer {
                   createChannels(newChannelCount, newSampleCount, lazy);
             }
       }
-      
+
       /**
        * Verify that the specified AudioFormat can be converted to and from.
        * If the format is not supported, an IllegalArgumentException is thrown.
@@ -270,7 +270,7 @@ public class FloatSampleBuffer {
        * Grow the channels array to allow at least channelCount elements. If
        * !lazy, then channels will be resized to be exactly channelCount elements.
        * The new elements will be null.
-       * 
+       *
        * @param newChannelCount
        * @param lazy
        */
@@ -310,7 +310,7 @@ public class FloatSampleBuffer {
        * FloatSampleBuffer's sample count will be set to
        * <code>byteCount / format.getFrameSize()</code>. If LAZY_DEFAULT is
        * true, it will use lazy deletion.
-       * 
+       *
        * @throws IllegalArgumentException
        */
       public void initFromByteArray(byte[] buffer, int offset, int byteCount,
@@ -322,7 +322,7 @@ public class FloatSampleBuffer {
        * Resets this buffer with the audio data specified in the arguments. This
        * FloatSampleBuffer's sample count will be set to
        * <code>byteCount / format.getFrameSize()</code>.
-       * 
+       *
        * @param lazy if true, then existing channels will be tried to be re-used
        *            to minimize garbage collection.
        * @throws IllegalArgumentException
@@ -398,7 +398,7 @@ public class FloatSampleBuffer {
        * Writes this sample buffer's audio data to <code>buffer</code> as an
        * interleaved byte array. <code>buffer</code> must be large enough to
        * hold all data.
-       * 
+       *
        * @throws IllegalArgumentException when buffer is too small or
        *             <code>format</code> doesn't match
        * @return number of bytes written to <code>buffer</code>
@@ -415,7 +415,7 @@ public class FloatSampleBuffer {
        * Writes this sample buffer's audio data to <code>buffer</code> as an
        * interleaved byte array. <code>buffer</code> must be large enough to
        * hold all data.
-       * 
+       *
        * @param readOffset the sample offset from where samples are read from this
        *            FloatSampleBuffer
        * @param lenInSamples how many samples are converted
@@ -455,7 +455,7 @@ public class FloatSampleBuffer {
       /**
        * Creates a new byte[] buffer, fills it with the audio data, and returns
        * it.
-       * 
+       *
        * @throws IllegalArgumentException when sample rate or channels do not
        *             match
        * @see #convertToByteArray(byte[], int, AudioFormat)
@@ -722,7 +722,7 @@ public class FloatSampleBuffer {
       /**
        * Mix up of 1 channel to n channels.<br>
        * It copies the first channel to all newly created channels.
-       * 
+       *
        * @param targetChannelCount the number of channels that this sample buffer
        *            will have after expanding. NOT the number of channels to add !
        * @exception IllegalArgumentException if this buffer does not have one
@@ -764,7 +764,7 @@ public class FloatSampleBuffer {
        * mixed. None of the sample count, channel count or sample rate of either
        * buffer are changed. In particular, the caller needs to assure that the
        * sample rate of the buffers match.
-       * 
+       *
        * @param source the buffer to be mixed to this buffer
        */
       public void mix(FloatSampleBuffer source) {
@@ -791,7 +791,7 @@ public class FloatSampleBuffer {
        * channels are copied. None of the sample count, channel count or sample
        * rate of either buffer are changed. In particular, the caller needs to
        * assure that the sample rate of the buffers match.
-       * 
+       *
        * @param dest the buffer to write to
        * @param destOffset the position in <code>dest</code> where to start
        *            writing the samples of this buffer
@@ -884,7 +884,7 @@ public class FloatSampleBuffer {
 
       /**
        * Alias for changeSampleCount
-       * 
+       *
        * @param newSampleCount the new number of samples for this buffer
        * @param keepOldSamples if true, the new buffer will keep the current
        *            samples in the arrays

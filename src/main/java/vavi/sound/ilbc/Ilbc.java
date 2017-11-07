@@ -1,6 +1,6 @@
 /*
  * iLBC Speech Coder ANSI-C Source Code
- * 
+ *
  * Copyright (C) The Internet Society (2004). All Rights Reserved.
  */
 
@@ -15,7 +15,7 @@ import java.io.OutputStream;
 
 /**
  * iLBC Speech Coder ANSI-C Source Code
- * 
+ *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060701 nsano initial version <br>
  */
@@ -779,7 +779,7 @@ public class Ilbc {
 
     /**
      * Encoder interface function.
-     * 
+     *
      * @return Number of bytes encoded
      * @param encoder (i/o) Encoder instance
      * @param encoded_data (o) The encoded bytes
@@ -803,7 +803,7 @@ public class Ilbc {
 
     /**
      * Decoder interface function
-     * 
+     *
      * @return Number of decoded samples
      * @param decoder (i/o) Decoder instance
      * @param decoded_data (o) Decoded signal block
@@ -843,10 +843,10 @@ public class Ilbc {
 
     /**
      * Main program to test iLBC encoding and decoding
-     * 
+     *
      * <pre>
      *  Usage: exefile_name.exe &lt;infile&gt; &lt;bytefile&gt; &lt;outfile&gt; &lt;channel&gt;
-     *  
+     *
      *  &lt;infile&gt; : Input file, speech for encoder (16-bit pcm file)
      *  &lt;bytefile&gt; : Bit stream output from the encoder
      *  &lt;outfile&gt; : Output file, decoded speech (16-bit pcm file)
@@ -1455,7 +1455,7 @@ public class Ilbc {
 
     /**
      * frame residual decoder function (subrutine to iLBC_decode)
-     * 
+     *
      * @param decoder (i/o) the decoder state structure
      * @param decresidual (o) decoded residual frame
      * @param start (i) location of start state
@@ -1607,7 +1607,7 @@ public class Ilbc {
 
     /**
      * main decoder function.
-     * 
+     *
      * @param decblock (o) decoded signal block
      * @param bytes (i) encoded signal bits
      * @param decoder (i/o) the decoder state structure
@@ -1856,7 +1856,7 @@ public class Ilbc {
 
     /**
      * LP analysis filter.
-     * 
+     *
      * @param In (i) Signal to be filtered
      * @param a (i) LP parameters
      * @param len (i) Length of signal
@@ -1909,7 +1909,7 @@ public class Ilbc {
      * Construct an additional codebook vector by filtering the initial codebook
      * buffer. This vector is then used to expand the codebook with an
      * additional section.
-     * 
+     *
      * @param cbvectors (o) Codebook vectors for the higher section
      * @param mem (i) Buffer to create codebook vector from
      * @param lMem (i) Length of buffer
@@ -1946,7 +1946,7 @@ public class Ilbc {
 
     /**
      * Search the augmented part of the codebook to find the best measure.
-     * 
+     *
      * @param low (i) Start index for the search
      * @param high (i) End index for the search
      * @param stage (i) Current stage
@@ -2046,7 +2046,7 @@ public class Ilbc {
 
     /**
      * Recreate a specific codebook vector from the augmented part.
-     * 
+     *
      * @param index (i) Index for the augmented vector to be created
      * @param buffer (i) Pointer to the end of the buffer for augmented codebook
      *            construction
@@ -2087,7 +2087,7 @@ public class Ilbc {
     /**
      * Compute cross correlation and pitch gain for pitch prediction of last
      * subframe at given lag.
-     * 
+     *
      * @param cc (o) cross correlation coefficient
      * @param gc (o) gain
      * @param pm
@@ -2126,7 +2126,7 @@ public class Ilbc {
     /**
      * Packet loss concealment routine. Conceals a residual signal and LP
      * parameters. If no packet loss, update state.
-     * 
+     *
      * @param PLCresidual (o) concealed residual
      * @param PLClpc (o) concealed LP parameters
      * @param PLI (i) packet loss indicator 0 - no PL, 1 = PL
@@ -2282,7 +2282,7 @@ public class Ilbc {
      * Find index in array such that the array element with said index is the
      * element of said array closest to "value" according to the squared-error
      * criterion.
-     * 
+     *
      * @param index (o) index of array element closest to value
      * @param array (i) data array
      * @param value (i) value
@@ -2306,7 +2306,7 @@ public class Ilbc {
 
     /**
      * compute cross correlation between sequences.
-     * 
+     *
      * @param corr (o) correlation of seq1 and seq2
      * @param seq1 (i) first sequence
      * @param dim1 (i) dimension first seq1
@@ -2325,7 +2325,7 @@ public class Ilbc {
 
     /**
      * upsample finite array assuming zeros outside bounds.
-     * 
+     *
      * @param useq1 (o) upsampled output sequence
      * @param seq1 (i) unupsampled sequence
      * @param dim1 (i) dimension seq1
@@ -2404,7 +2404,7 @@ public class Ilbc {
      * with idata+centerStartPos through idata+centerStartPos+ENH_BLOCKL-1
      * segment is found at a resolution of ENH_UPSO times the original of the
      * original sampling rate
-     * 
+     *
      * @param seg (o) segment array
      * @param updStartPos (o) updated start point
      * @param idata (i) original data buffer
@@ -2485,7 +2485,7 @@ public class Ilbc {
 
     /**
      * find the smoothed output data
-     * 
+     *
      * @param odata (o) smoothed output
      * @param sseq (i) said second sequence of waveforms
      * @param hl (i) 2*hl+1 is sseq dimension
@@ -2576,7 +2576,7 @@ public class Ilbc {
 
     /**
      * get the pitch-synchronous sample sequence
-     * 
+     *
      * @param sseq (o) the pitch-synchronous sequence
      * @param idata (i) original data
      * @param idatal (i) dimension of data
@@ -2643,7 +2643,7 @@ public class Ilbc {
     /**
      * perform enhancement on idata+centerStartPos through
      * idata+centerStartPos+ENH_BLOCKL-1
-     * 
+     *
      * @param odata (o) smoothed block, dimension blockl
      * @param idata (i) data buffer used for enhancing
      * @param idatal (i) dimension idata
@@ -2667,7 +2667,7 @@ public class Ilbc {
 
     /**
      * cross correlation
-     * 
+     *
      * @param target (i) first array
      * @param regressor (i) second array
      * @param subl (i) dimension arrays
@@ -2690,7 +2690,7 @@ public class Ilbc {
 
     /**
      * interface for enhancer
-     * 
+     *
      * @param out (o) enhanced signal
      * @param in (i) unenhanced signal
      * @param iLBCdec_inst (i) buffers etc
@@ -2846,7 +2846,7 @@ public class Ilbc {
 
     /**
      * all-pole filter
-     * 
+     *
      * @param InOut (i/o) on entrance InOut[-orderCoef] to InOut[-1] contain the
      *            state of the filter (delayed samples). InOut[0] to
      *            InOut[lengthInOut-1] contain the filter input, on en exit
@@ -2868,7 +2868,7 @@ public class Ilbc {
 
     /**
      * all-zero filter.
-     * 
+     *
      * @param In (i) In[0] to In[lengthInOut-1] contain filter input samples
      * @param Coef (i) filter coefficients (Coef[0] is assumed to be 1.0)
      * @param lengthInOut (i) number of input/output samples
@@ -2890,7 +2890,7 @@ public class Ilbc {
 
     /**
      * pole-zero filter
-     * 
+     *
      * @param In (i) In[0] to In[lengthInOut-1] contain filter input samples
      *            In[-orderCoef] to In[-1] contain state of all-zero section
      * @param ZeroCoef (i) filter coefficients for all-zero section (ZeroCoef[0]
@@ -2911,7 +2911,7 @@ public class Ilbc {
 
     /**
      * downsample (LP filter and decimation)
-     * 
+     *
      * @param In (i) input samples
      * @param Coef (i) filter coefficients
      * @param lengthIn (i) number of input samples
@@ -2971,7 +2971,7 @@ public class Ilbc {
 
     /**
      * Classification of subframes to localize start state
-     * 
+     *
      * @return index to the max-energy sub-frame
      * @param iLBCenc_inst (i/o) the encoder state structure
      * @param residual (i) lpc residual signal
@@ -3068,7 +3068,7 @@ public class Ilbc {
 
     /**
      * quantizer for the gain in the gain-shape coding of residual
-     * 
+     *
      * @return quantized gain value
      * @param in (i) gain value
      * @param maxIn (i) maximum of gain value
@@ -3118,7 +3118,7 @@ public class Ilbc {
 
     /**
      * decoder for quantized gains in the gain-shape coding of residual
-     * 
+     *
      * @return quantized gain value
      * @param index (i) quantization index
      * @param maxIn (i) maximum of unquantized gain
@@ -3151,7 +3151,7 @@ public class Ilbc {
 
     /**
      * Construct codebook vector for given index.
-     * 
+     *
      * @param cbvec (o) Constructed codebook vector
      * @param mem (i) Codebook buffer
      * @param index (i) Codebook index
@@ -3302,7 +3302,7 @@ public class Ilbc {
 
     /**
      * calculation of auto correlation
-     * 
+     *
      * @param r (o) autocorrelation vector
      * @param x (i) data vector
      * @param N (i) length of data vector
@@ -3321,7 +3321,7 @@ public class Ilbc {
 
     /**
      * window multiplication
-     * 
+     *
      * @param z (o) the windowed data
      * @param x (i) the original data vector
      * @param y (i) the window
@@ -3336,7 +3336,7 @@ public class Ilbc {
 
     /**
      * levinson-durbin solution for lpc coefficients
-     * 
+     *
      * @param a (o) lpc coefficient vector starting with 1.0
      * @param k (o) reflection coefficients
      * @param r (i) autocorrelation vector
@@ -3377,7 +3377,7 @@ public class Ilbc {
 
     /**
      * interpolation between vectors
-     * 
+     *
      * @param out (o) the interpolated vector
      * @param in1 (i) the first vector for the interpolation
      * @param in2 (i) the second vector for the interpolation
@@ -3394,7 +3394,7 @@ public class Ilbc {
 
     /**
      * lpc bandwidth expansion
-     * 
+     *
      * @param out (o) the bandwidth expanded lpc coefficients
      * @param in (i) the lpc coefficients before bandwidth expansion
      * @param coef (i) the bandwidth expansion factor
@@ -3413,7 +3413,7 @@ public class Ilbc {
 
     /**
      * vector quantization
-     * 
+     *
      * @param Xq (o) the quantized vector
      * @param index (o) the quantization index
      * @param CB (i) the vector quantization codebook
@@ -3449,7 +3449,7 @@ public class Ilbc {
 
     /**
      * split vector quantization
-     * 
+     *
      * @param qX (o) the quantized vector
      * @param index (o) a vector of indexes for all vector codebooks in the
      *            split
@@ -3472,7 +3472,7 @@ public class Ilbc {
 
     /**
      * scalar quantization
-     * 
+     *
      * @param xq (o) the quantized value
      * @param index (o) the quantization index
      * @param x (i) the value to quantize
@@ -3502,7 +3502,7 @@ public class Ilbc {
 
     /**
      * check for stability of lsf coefficients
-     * 
+     *
      * @return (o) 1 for stable lsf vectors and 0 for nonstable ones
      * @param lsf (i) a table of lsf vectors
      * @param dim (i) the dimension of each lsf vector
@@ -3556,7 +3556,7 @@ public class Ilbc {
 
     /**
      * Input high-pass filter
-     * 
+     *
      * @param In (i) vector to filter
      * @param len (i) length of vector to filter
      * @param Out (o) the resulting filtered vector
@@ -3597,7 +3597,7 @@ public class Ilbc {
 
     /**
      * Output high-pass filter
-     * 
+     *
      * @param In (i) vector to filter
      * @param len (i) length of vector to filter
      * @param Out (o) the resulting filtered vector
@@ -3638,7 +3638,7 @@ public class Ilbc {
 
     /**
      * Convert the codebook indexes to make the search easier
-     * 
+     *
      * @param index (i/o) Codebook indexes
      */
     private void index_conv_enc(int[] index) {
@@ -3674,7 +3674,7 @@ public class Ilbc {
 
     /**
      * Construct decoded vector from codebook and gains.
-     * 
+     *
      * @param decvector (o) Decoded vector
      * @param index (i) Codebook indices
      * @param gain_index (i) Gain quantization indices
@@ -3718,7 +3718,7 @@ public class Ilbc {
 
     /**
      * Search routine for codebook encoding and gain quantization.
-     * 
+     *
      * @param encoder (i) the encoder state structure
      * @param index (o) Codebook indices
      * @param gain_index (o) Gain quantization indices
@@ -4123,7 +4123,7 @@ public class Ilbc {
 
             gains[stage] = gain[0];
 
-        } // end of Main Loop. for (stage=0;... 
+        } // end of Main Loop. for (stage=0;...
 
         // Gain adjustment for energy matching
         cene = 0.0;
@@ -4146,7 +4146,7 @@ public class Ilbc {
 
     /**
      * interpolation of lsf coefficients for the decoder
-     * 
+     *
      * @param a (o) lpc coefficients for a sub-frame
      * @param lsf1 (i) first lsf coefficient vector
      * @param lsf2 (i) second lsf coefficient vector
@@ -4162,7 +4162,7 @@ public class Ilbc {
 
     /**
      * obtain dequantized lsf coefficients from quantization index
-     * 
+     *
      * @param lsfdeq (o) dequantized lsf coefficients
      * @param index (i) quantization index
      * @param lpc_n (i) number of LPCs
@@ -4199,7 +4199,7 @@ public class Ilbc {
 
     /**
      * obtain synthesis and weighting filters form lsf coefficients
-     * 
+     *
      * @param syntdenum (o) synthesis filter coefficients
      * @param weightdenum (o) weighting denumerator coefficients
      * @param lsfdeq (i) dequantized lsf coefficients
@@ -4254,7 +4254,7 @@ public class Ilbc {
 
     /**
      * lpc analysis (subrutine to LPCencode)
-     * 
+     *
      * @param lsf (o) lsf coefficients
      * @param data (i) new data vector
      * @param iLBCenc_inst (i/o) the encoder state structure
@@ -4294,7 +4294,7 @@ public class Ilbc {
     /**
      * lsf interpolator and conversion from lsf to a coefficients (subrutine to
      * SimpleInterpolateLSF)
-     * 
+     *
      * @param a (o) lpc coefficients
      * @param lsf1 (i) first set of lsf coefficients
      * @param lsf2 (i) second set of lsf coefficients
@@ -4310,7 +4310,7 @@ public class Ilbc {
 
     /**
      * lsf interpolator (subrutine to LPCencode)
-     * 
+     *
      * @param syntdenum (o) the synthesis filter denominator resulting from the
      *            quantized interpolated lsf
      * @param weightdenum (o) the weighting filter denominator resulting from
@@ -4378,7 +4378,7 @@ public class Ilbc {
 
     /**
      * lsf quantizer (subrutine to LPCencode)
-     * 
+     *
      * @param lsfdeq (o) dequantized lsf coefficients (dimension FILTERORDER)
      * @param index (o) quantization index
      * @param lsf (i) the lsf coefficient vector to be quantized (dimension
@@ -4397,7 +4397,7 @@ public class Ilbc {
 
     /**
      * lpc encoder
-     * 
+     *
      * @param syntdenum (i/o) synthesis filter coefficients before/after
      *            encoding
      * @param weightdenum (i/o) weighting denumerator coefficients before/after
@@ -4421,7 +4421,7 @@ public class Ilbc {
 
     /**
      * conversion from lpc coefficients to lsf coefficients
-     * 
+     *
      * @param freq (o) lsf coefficients
      * @param a (i) lpc coefficients
      */
@@ -4548,7 +4548,7 @@ public class Ilbc {
 
     /**
      * conversion from lsf coefficients to lpc coefficients
-     * 
+     *
      * @param a_coef (o) lpc coefficients
      * @param freq (i) lsf coefficients
      */
@@ -4655,7 +4655,7 @@ public class Ilbc {
     /**
      * splitting an integer into first most significant bits and remaining least
      * significant bits
-     * 
+     *
      * @param index (i) the value to split
      * @param firstpart (o) the value specified by most significant bits
      * @param rest (o) the value specified by least significant bits
@@ -4672,7 +4672,7 @@ public class Ilbc {
     /**
      * combining a value corresponding to msb's with a value corresponding to
      * lsb's
-     * 
+     *
      * @param index (i/o) the msb value in the combined value out
      * @param rest (i) the lsb value
      * @param bitno_rest (i) the number of bits in the lsb part
@@ -4684,7 +4684,7 @@ public class Ilbc {
 
     /**
      * packing of bits into bitstream, i.e., vector of bytes
-     * 
+     *
      * @param bitstream (i/o) on entrance pointer to place in bitstream to pack
      *            new data, on exit pointer to place in bitstream to pack future
      *            data
@@ -4731,7 +4731,7 @@ public class Ilbc {
 
     /**
      * unpacking of bits from bitstream, i.e., vector of bytes
-     * 
+     *
      * @param bitstream (i/o) on entrance pointer to place in bitstream to
      *            unpack new data from, on exit pointer to place in bitstream to
      *            unpack future data from
@@ -4779,7 +4779,7 @@ public class Ilbc {
 
     /**
      * decoding of the start state
-     * 
+     *
      * @param idxForMax (i) 6-bit index for the quantization of max amplitude
      * @param idxVec (i) vector of quantization indexes
      * @param syntDenum (i) synthesis filter denumerator
@@ -4838,7 +4838,7 @@ public class Ilbc {
     /**
      * predictive noise shaping encoding of scaled start state (subrutine for
      * StateSearchW)
-     * 
+     *
      * @param iLBCenc_inst (i) Encoder instance
      * @param in (i) vector to encode
      * @param syntDenum (i) denominator of synthesis filter
@@ -4914,7 +4914,7 @@ public class Ilbc {
 
     /**
      * encoding of start state
-     * 
+     *
      * @param iLBCenc_inst (i) Encoder instance
      * @param residual (i) target residual vector
      * @param syntDenum (i) lpc synthesis filter
@@ -4999,7 +4999,7 @@ public class Ilbc {
 
     /**
      * LP synthesis filter.
-     * 
+     *
      * @param Out (i/o) Signal to be filtered
      * @param a (i) LP parameters
      * @param len (i) Length of signal

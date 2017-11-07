@@ -25,7 +25,7 @@ import vavix.util.Checksum;
 
 
 /**
- * EqualizerTest. 
+ * EqualizerTest.
  *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060417 nsano initial version <br>

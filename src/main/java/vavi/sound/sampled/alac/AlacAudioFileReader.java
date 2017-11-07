@@ -26,7 +26,7 @@ import com.beatofthedrum.alacdecoder.Alac;
  * Provider for ALAC audio file reading services. This implementation can parse
  * the format information from ALAC audio file, and can produce audio input
  * streams from files of this type.
- * 
+ *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 111022 nsano initial version <br>
  */
@@ -35,7 +35,7 @@ public class AlacAudioFileReader extends AudioFileReader {
     /**
      * Obtains the audio file format of the File provided. The File must point
      * to valid audio file data.
-     * 
+     *
      * @param file the File from which file format information should be
      *            extracted.
      * @return an AudioFileFormat object describing the audio file format.
@@ -56,7 +56,7 @@ public class AlacAudioFileReader extends AudioFileReader {
     /**
      * Obtains an audio input stream from the URL provided. The URL must point
      * to valid audio file data.
-     * 
+     *
      * @param url the URL for which the AudioInputStream should be constructed.
      * @return an AudioInputStream object based on the audio file data pointed
      *         to by the URL.
@@ -77,7 +77,7 @@ public class AlacAudioFileReader extends AudioFileReader {
 
     /**
      * Obtains an audio input stream from the input stream provided.
-     * 
+     *
      * @param stream the input stream from which the AudioInputStream should be
      *            constructed.
      * @return an AudioInputStream object based on the audio file data contained
@@ -93,7 +93,7 @@ public class AlacAudioFileReader extends AudioFileReader {
 
     /**
      * Return the AudioFileFormat from the given InputStream.
-     * 
+     *
      * @param stream the input stream from which the AudioInputStream should be
      *            constructed.
      * @param medialength
@@ -106,7 +106,7 @@ public class AlacAudioFileReader extends AudioFileReader {
 
     /**
      * Return the AudioFileFormat from the given InputStream. Implementation.
-     * 
+     *
      * @param bitStream
      * @param mediaLength
      * @return an AudioInputStream object based on the audio file data contained
@@ -125,7 +125,7 @@ public class AlacAudioFileReader extends AudioFileReader {
     /**
      * Obtains an audio input stream from the File provided. The File must point
      * to valid audio file data.
-     * 
+     *
      * @param file the File for which the AudioInputStream should be
      *            constructed.
      * @return an AudioInputStream object based on the audio file data pointed
@@ -150,7 +150,7 @@ public class AlacAudioFileReader extends AudioFileReader {
     /**
      * Obtains an audio input stream from the URL provided. The URL must point
      * to valid audio file data.
-     * 
+     *
      * @param url the URL for which the AudioInputStream should be constructed.
      * @return an AudioInputStream object based on the audio file data pointed
      *         to by the URL.
@@ -174,7 +174,7 @@ public class AlacAudioFileReader extends AudioFileReader {
     /**
      * Obtains an audio input stream from the input stream provided. The stream
      * must point to valid audio file data.
-     * 
+     *
      * @param stream the input stream from which the AudioInputStream should be
      *            constructed.
      * @return an AudioInputStream object based on the audio file data contained
@@ -190,7 +190,7 @@ public class AlacAudioFileReader extends AudioFileReader {
     /**
      * Obtains an audio input stream from the input stream provided. The stream
      * must point to valid audio file data.
-     * 
+     *
      * @param inputStream the input stream from which the AudioInputStream
      *            should be constructed.
      * @param medialength

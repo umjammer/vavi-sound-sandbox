@@ -39,7 +39,7 @@ class BStream {
 
     /**
      * get string from the bitstream file
-     * 
+     *
      * @return none
      */
     private int getString(byte[] buf, int nbytes, BFile bfp) throws IOException {
@@ -60,7 +60,7 @@ class BStream {
 
     /**
      * load the TWIN chunk from a bitstream file
-     * 
+     *
      * @return the TWIN chunk
      */
     ChunkChunk loadTwinChunk(BFile bfp) throws IOException {
@@ -93,7 +93,7 @@ class BStream {
 
     /**
      * read bitstream header and create the header chunk data
-     * 
+     *
      * @param bfp bitstream file pointer
      * @return returns 1 when error or 0
      */
@@ -137,7 +137,7 @@ class BStream {
 
     /**
      * get VQ information
-     * 
+     *
      * @return number of bits read
      */
     private int getVqInfo(ConfInfoSubBlock cfg, int bits0[], int bits1[], int variableBits, Index index, BFile bfp) throws IOException {
@@ -159,7 +159,7 @@ class BStream {
 
     /**
      * get BSE information
-     * 
+     *
      * @return number of bits read
      */
     private int getBseInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
@@ -185,7 +185,7 @@ class BStream {
 
     /**
      * get gain information
-     * 
+     *
      * @return number of bits read
      */
     private int getGainInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
@@ -205,7 +205,7 @@ class BStream {
 
     /**
      * get LSP information
-     * 
+     *
      * @return number of bits read
      */
     private int getLspInfo(ConfInfo cf, Index index, BFile bfp) throws IOException {
@@ -228,7 +228,7 @@ class BStream {
 
     /**
      * get PPC information
-     * 
+     *
      * @return number of bits read
      */
     private int getPpcInfo(ConfInfo cf, Index index, BFile bfp) throws IOException {
@@ -249,7 +249,7 @@ class BStream {
 
     /**
      * get EBC information
-     * 
+     *
      * @return number of bits read
      */
     private int getEbcInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
@@ -270,7 +270,7 @@ class BStream {
 
     /**
      * read bitstream frame
-     * 
+     *
      * @param index Output: quantization indexes
      * @pram bitstream file pointer
      * @return 1: successful reading, 0: imcompleted reading
@@ -326,7 +326,7 @@ class BStream {
 
     /**
      * skip frame
-     * 
+     *
      * @return skiped frames
      */
     long skipFrame(BFile bfp, long step) throws IOException {
@@ -339,7 +339,7 @@ class BStream {
 
     /**
      * returns current frame point
-     * 
+     *
      * @return current frame point
      */
     int getBsFramePoint() {

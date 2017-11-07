@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 
 
 /**
- * AmplitudeAudioInputStreamTest. 
+ * AmplitudeAudioInputStreamTest.
  *
  * @author <a href="mailto:sano-n@klab.jp">Naohide Sano</a> (nsano)
  * @version 0.00 2009/09/08 nsano initial version <br>

@@ -125,7 +125,7 @@ public class AudioConcat {
         int nMode = MODE_NONE;
         String strOutputFilename = null;
         AudioFormat audioFormat = null;
-        List<AudioInputStream> audioInputStreamList = new ArrayList<AudioInputStream>();
+        List<AudioInputStream> audioInputStreamList = new ArrayList<>();
 
 //      int nExternalBufferSize = DEFAULT_EXTERNAL_BUFFER_SIZE;
 //      int nInternalBufferSize = AudioSystem.NOT_SPECIFIED;

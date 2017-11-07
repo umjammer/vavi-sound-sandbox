@@ -56,7 +56,7 @@ public class AudioChannel extends Thread {
         // TODO: check if priority makes sense
         setPriority(9);
         m_line = line;
-        m_audioStreamQueue = new ArrayList<AudioInputStream>();
+        m_audioStreamQueue = new ArrayList<>();
 
         // TODO: make size configurable
         int nBufSizeInFrames = 0;

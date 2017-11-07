@@ -35,30 +35,30 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 /*
  * +DocBookXML <title>Playing multiple audio files concurrently</title>
- * 
+ *
  * <formalpara><title>Purpose</title> <para>This program plays multiple audio
  * files concurrently. It opens each file given on the command line and starts
  * it. The program uses the class <classname>AudioStream</classname>.</para>
  * </formalpara>
- * 
+ *
  * <formalpara><title>Level</title> <para>experienced</para></formalpara>
- * 
+ *
  * <formalpara><title>Usage</title> <para> <cmdsynopsis> <command>java
  * MultiAudioStreamPlayer</command> <arg choice="plain" rep="repeat"><replaceable>audiofile</replaceable></arg>
  * </cmdsynopsis> </para></formalpara>
- * 
+ *
  * <formalpara><title>Parameters</title> <variablelist> <varlistentry> <term><replaceable>audiofile</replaceable></term>
  * <listitem><para>the name(s) of the audio file(s) to play</para></listitem>
  * </varlistentry> </variablelist> </formalpara>
- * 
+ *
  * <formalpara><title>Bugs, limitations</title> <para>Not well-tested</para></formalpara>
- * 
+ *
  * <formalpara><title>Source code</title> <para> <ulink
  * url="MultiAudioStreamPlayer.java.html">MultiAudioStreamPlayer.java</ulink>,
  * <ulink url="SimpleAudioStream.java.html">SimpleAudioStream.java</ulink>,
  * <ulink url="BaseAudioStream.java.html">BaseAudioStream.java</ulink> </para>
  * </formalpara>
- * 
+ *
  * -DocBookXML
  */
 public class MultiAudioStreamPlayer {

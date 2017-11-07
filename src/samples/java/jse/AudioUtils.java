@@ -52,7 +52,7 @@ public class AudioUtils {
     }
 
     private static Iterator<AudioFormat> getSupportedSourceDataLineFormatsImpl(Line.Info[] aLineInfos) {
-        List<AudioFormat> formats = new ArrayList<AudioFormat>();
+        List<AudioFormat> formats = new ArrayList<>();
         for (int i = 0; i < aLineInfos.length; i++) {
             if (aLineInfos[i] instanceof DataLine.Info) {
                 AudioFormat[] aFormats = ((DataLine.Info) aLineInfos[i]).getFormats();

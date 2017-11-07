@@ -33,14 +33,14 @@ import org.tritonus.share.sampled.file.TDataOutputStream;
 /**
  * +DocBookXML <title>Saving waveform data to a file (<classname>AudioOutputStream</classname>
  * version)</title>
- * 
+ *
  * <formalpara><title>Purpose</title> <para>Generates waveform data (sine,
  * square, ...) and saves them to a file. This program uses Tritonus'
  * <classname>AudioOutputStream</classname> architecture to write the file.</para>
  * </formalpara>
- * 
+ *
  * <formalpara><title>Level</title> <para>experienced</para></formalpara>
- * 
+ *
  * <formalpara><title>Usage</title> <para> <cmdsynopsis> <command>java
  * OscillatorFileAOS</command> <arg><option>-t <replaceable>waveformtype</replaceable></option></arg>
  * <arg><option>-f <replaceable>signalfrequency</replaceable></option></arg>
@@ -48,7 +48,7 @@ import org.tritonus.share.sampled.file.TDataOutputStream;
  * <arg><option>-a <replaceable>amplitude</replaceable></option></arg> <arg
  * choice="plain"><replaceable>audiofile</replaceable></arg> </cmdsynopsis>
  * </para> </formalpara>
- * 
+ *
  * <formalpara><title>Parameters</title> <variablelist> <varlistentry> <term><option>-t
  * <replaceable>waveformtype</replaceable></option></term> <listitem><para>the
  * waveform to play. One of sine, sqaure, triangle and sawtooth. Default: sine.</para></listitem>
@@ -62,18 +62,18 @@ import org.tritonus.share.sampled.file.TDataOutputStream;
  * </varlistentry> <varlistentry> <term><replaceable>audiofile</replaceable></term>
  * <listitem><para>the name of the audio file to store the resulting waveform
  * in.</para></listitem> </varlistentry> </variablelist> </formalpara>
- * 
+ *
  * <formalpara><title>Bugs, limitations</title> <para> Using
  * <classname>AudioOutputStream</classname>s from Tritons makes this program
  * not portable. Full-scale waves can lead to clipping. It currently not known
  * which component is responsible for this. </para></formalpara>
- * 
+ *
  * <formalpara><title>Source code</title> <para> <ulink
  * url="OscillatorFileAOS.java.html">OscillatorFileAOS.java</ulink>, <ulink
  * url="Oscillator.java.html">Oscillator.java</ulink>, <ulink
  * url="http://www.urbanophile.com/arenn/hacking/download.html">gnu.getopt.Getopt</ulink>,
  * <ulink url="http://www.tritonus.org/">Tritonus</ulink> </para> </formalpara>
- * 
+ *
  * -DocBookXML
  */
 public class OscillatorFileAOS {

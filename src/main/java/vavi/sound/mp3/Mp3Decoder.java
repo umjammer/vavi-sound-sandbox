@@ -12,7 +12,7 @@ import vavi.util.StringUtil;
 
 /**
  * MPEG Audio Layer III Decorder.
- * 
+ *
  * @author 小杉 篤史 (Kosugi Atsushi)
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 1.00 original version <br>
@@ -100,7 +100,7 @@ class Mp3Decoder {
         /** */
         int frequency;
         /**
-         * <ol> 
+         * <ol>
          * <li> stereo
          * <li> joint stereo
          * <li> dual channel
@@ -256,7 +256,7 @@ Debug.println(StringUtil.paramString(this));
         int inBuf_pointer = 0;
 
         bitget_init(inBuf, 4);
-        
+
         int side_size = l3dstream_sideinfo(info, channels);
         inBuf_pointer += (4 + side_size);
 
@@ -506,7 +506,7 @@ Debug.println(info[gr][ch]);
             0xff000001, 0x01070900, 0x01080800,
             0xff000001, 0x010c0e00, 0x010d0d00
     };
-    
+
     /** */
     private static final int getPtr(int i) {
         return huff_tbl_16[i];

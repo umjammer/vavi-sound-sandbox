@@ -31,7 +31,7 @@ import vavix.util.Checksum;
 
 
 /**
- * Mp3InputStreamTest. 
+ * Mp3InputStreamTest.
  *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060219 nsano initial version <br>
@@ -61,7 +61,7 @@ public class Mp3InputStreamTest {
     }
 
     //----
-    
+
     /**
      * The program entry point.
      */
@@ -99,7 +99,7 @@ Debug.println("available: " + is.available());
         line.close();
 
         is.close();
-        
+
         System.exit(0);
     }
 }

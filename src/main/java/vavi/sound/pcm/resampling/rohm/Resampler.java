@@ -8,7 +8,7 @@ package vavi.sound.pcm.resampling.rohm;
 
 
 /**
- * Resampler. 
+ * Resampler.
  *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 060131 nsano initial version <br>
@@ -24,7 +24,7 @@ public class Resampler {
     private float nSampleFreq;
 
     /**
-     * 
+     *
      * @param nAdpcmFreq エンコード後の ADPCM データのサンプリング周波数.
      * @param nSampleFreq PCM データサンプリング周波数.
      */

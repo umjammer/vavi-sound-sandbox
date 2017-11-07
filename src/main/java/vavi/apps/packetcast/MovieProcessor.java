@@ -33,7 +33,7 @@ import javax.media.util.BufferToImage;
 
 
 /**
- * MovieProcessor. 
+ * MovieProcessor.
  *
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
  * @version 0.00 2006/04/12 nsano initial version <br>
@@ -176,7 +176,7 @@ System.err.println("Could not skip as desired!");
         if (image == null) {
 System.err.println("frameConverter.createImage FAILED!");
         }
-    
+
         return image;
     }
 

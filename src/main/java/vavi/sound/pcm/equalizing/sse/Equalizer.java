@@ -25,7 +25,7 @@ import vavi.util.SplitRadixFft;
 
 
 /**
- * Shibatch Super Equalizer. 
+ * Shibatch Super Equalizer.
  *
  * @author <a href="shibatch@users.sourceforge.net">Naoki Shibata</a>
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
@@ -177,7 +177,7 @@ System.err.println("property band." + c + " not found, break");
     }
 
     /**
-     * 
+     *
      * @param wb window length bits ???
      */
     Equalizer(int wb) {
@@ -239,7 +239,7 @@ System.err.println("property band." + c + " not found, break");
     }
 
     /**
-     * @param param2 TODO index 0 に何か意味あり？？？ 
+     * @param param2 TODO index 0 に何か意味あり？？？
      */
     private final double hn(int n, List<Parameter> param2, double fs) {
         double ret, lhn;
@@ -264,7 +264,7 @@ System.err.println("property band." + c + " not found, break");
     }
 
     /**
-     * 
+     *
      * @param bc
      * @param param input
      * @param param2 output
@@ -297,7 +297,7 @@ System.err.println("ch " + ch + ": lower >= upper: " + e.lower + ", " + e.upper)
                 continue;
             }
 
-            Iterator<Parameter> pi = param2.iterator(); 
+            Iterator<Parameter> pi = param2.iterator();
             while (pi.hasNext()) {
                 p = pi.next();
                 if (p.upper > e.lower) {
@@ -374,7 +374,7 @@ for (Parameter pp : param2) {
     }
 
     /**
-     * 
+     *
      * @param bc
      * @param param input
      * @param param2 output
@@ -409,7 +409,7 @@ for (Parameter pp : param2) {
     }
 
     /**
-     * 
+     *
      * @param lbc left
      * @param rbc right
      * @param param
@@ -773,7 +773,7 @@ for (Parameter pp : param2) {
     }
 
     /**
-     * 
+     *
      * @param n table size
      * @param isign
      * @param x
@@ -809,7 +809,7 @@ for (Parameter pp : param2) {
 
         fft.rdft(n, isign, x, ip, w);
     }
-    
+
     /** when bps = 16 */
     private final void writeShort(byte[] buffer, int offset, int value) {
         // assume little endian
@@ -834,7 +834,7 @@ for (Parameter pp : param2) {
     }
 
     /**
-     * @param argv 0: in, 1: out, 2: preamp 
+     * @param argv 0: in, 1: out, 2: preamp
      */
     public static void main(String[] argv) throws Exception {
 System.setOut(new PrintStream("NUL")); // fuckin' j-ogg
