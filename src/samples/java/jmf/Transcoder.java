@@ -74,7 +74,7 @@ public class Transcoder {
         // Set the output content descriptor based on the media locator.
         setContentDescriptor(processor, outML);
 
-        // OpasTest the tracks to the given output formats.
+        // OpusTest the tracks to the given output formats.
         setTrackFormats(processor, fmts);
 
         // We are done with programming the processor. Let's just

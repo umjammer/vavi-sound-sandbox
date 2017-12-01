@@ -104,7 +104,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
         // Set the output content descriptor based on the media locator.
         setContentDescriptor(p, outML);
 
-        // OpasTest the tracks to the given output formats.
+        // OpusTest the tracks to the given output formats.
         if (!setTrackFormats(p, fmts))
             return false;
 

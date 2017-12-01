@@ -103,7 +103,7 @@ public class RTPExport implements ControllerListener, DataSinkListener {
         // Set the output content descriptor based on the media locator.
         setContentDescriptor(p, outML);
 
-        // OpasTest the tracks.
+        // OpusTest the tracks.
         if (!setTrackFormats(p))
             return false;
 
