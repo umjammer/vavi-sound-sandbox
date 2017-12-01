@@ -14,6 +14,8 @@ import javax.sound.sampled.AudioSystem;
 
 import org.junit.Test;
 
+import vavi.sound.pcm.resampling.tritonus.AmplitudeAudioInputStream;
+
 import static org.junit.Assert.*;
 
 

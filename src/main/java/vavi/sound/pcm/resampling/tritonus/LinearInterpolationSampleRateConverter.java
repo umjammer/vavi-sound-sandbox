@@ -6,7 +6,6 @@
 
 package vavi.sound.pcm.resampling.tritonus;
 
-import vavi.sound.sampled.resampling.SampleRateConverter;
 import vavi.util.Debug;
 
 
