@@ -119,7 +119,7 @@ System.err.println(audioFormat);
         gainControl.setValue(dB);
 
         byte[] pcmBuffer = null;
-        int[] pDestBuffer = new int[1024 * 24 * 3]; // 24kb buffer = 4096 frames = 1 alac sample (we support max 24bps)
+        int[] pDestBuffer = new int[1024 * 24 * 3]; // 24kb buffer = 4096 frames = 1 opus sample (we support max 24bps)
         int bps = AlacUtils.AlacGetBytesPerSample(ac);
         while (true) {
             int bytes_unpacked = AlacUtils.AlacUnpackSamples(ac, pDestBuffer);
@@ -188,7 +188,7 @@ System.err.println(audioFormat);
         gainControl.setValue(dB);
 
         byte[] pcmBuffer = new byte[0xffff];
-        int[] pDestBuffer = new int[1024 * 24 * 3]; // 24kb buffer = 4096 frames = 1 alac sample (we support max 24bps)
+        int[] pDestBuffer = new int[1024 * 24 * 3]; // 24kb buffer = 4096 frames = 1 opus sample (we support max 24bps)
         while (true) {
             int bytes_unpacked = decoder.decode(pDestBuffer, pcmBuffer);
             if (bytes_unpacked == 0) {

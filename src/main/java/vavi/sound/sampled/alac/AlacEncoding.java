@@ -9,6 +9,7 @@ package vavi.sound.sampled.alac;
 
 import javax.sound.sampled.AudioFormat;
 
+
 /**
  * Encodings used by the ALAC audio decoder.
  * 

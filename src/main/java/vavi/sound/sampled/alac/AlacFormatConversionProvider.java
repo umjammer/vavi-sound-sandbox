@@ -6,9 +6,13 @@
 
 package vavi.sound.sampled.alac;
 
+import java.io.IOException;
+
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.spi.FormatConversionProvider;
+
+import com.beatofthedrum.alacdecoder.Alac;
 
 
 /**
@@ -110,25 +114,30 @@ public class AlacFormatConversionProvider extends FormatConversionProvider {
      *         encoding may be read.
      */
     public AudioInputStream getAudioInputStream(AudioFormat.Encoding targetEncoding, AudioInputStream sourceStream) {
-        if (isConversionSupported(targetEncoding, sourceStream.getFormat())) {
-            AudioFormat[] formats = getTargetFormats(targetEncoding, sourceStream.getFormat());
-            if (formats != null && formats.length > 0) {
-                AudioFormat sourceFormat = sourceStream.getFormat();
-                AudioFormat targetFormat = formats[0];
-                if (sourceFormat.equals(targetFormat)) {
-                    return sourceStream;
-                } else if (sourceFormat.getEncoding() instanceof AlacEncoding && targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
-                    return new Alac2PcmAudioInputStream(sourceStream, targetFormat, -1);
-                } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof AlacEncoding) {
-                    throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+        try {
+            if (isConversionSupported(targetEncoding, sourceStream.getFormat())) {
+                AudioFormat[] formats = getTargetFormats(targetEncoding, sourceStream.getFormat());
+                if (formats != null && formats.length > 0) {
+                    AudioFormat sourceFormat = sourceStream.getFormat();
+                    AudioFormat targetFormat = formats[0];
+                    if (sourceFormat.equals(targetFormat)) {
+                        return sourceStream;
+                    } else if (sourceFormat.getEncoding() instanceof AlacEncoding && targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
+                        Alac alac = Alac.class.cast(sourceFormat.getProperty("alac"));
+                        return new Alac2PcmAudioInputStream(sourceStream, targetFormat, -1, alac);
+                    } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof AlacEncoding) {
+                        throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+                    } else {
+                        throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+                    }
                 } else {
-                    throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+                    throw new IllegalArgumentException("target format not found");
                 }
             } else {
-                throw new IllegalArgumentException("target format not found");
+                throw new IllegalArgumentException("conversion not supported");
             }
-        } else {
-            throw new IllegalArgumentException("conversion not supported");
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -143,25 +152,30 @@ public class AlacFormatConversionProvider extends FormatConversionProvider {
      *         read.
      */
     public AudioInputStream getAudioInputStream(AudioFormat targetFormat, AudioInputStream sourceStream) {
-        if (isConversionSupported(targetFormat, sourceStream.getFormat())) {
-            AudioFormat[] formats = getTargetFormats(targetFormat.getEncoding(), sourceStream.getFormat());
-            if (formats != null && formats.length > 0) {
-                AudioFormat sourceFormat = sourceStream.getFormat();
-                if (sourceFormat.equals(targetFormat)) {
-                    return sourceStream;
-                } else if (sourceFormat.getEncoding() instanceof AlacEncoding &&
-                           targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
-                    return new Alac2PcmAudioInputStream(sourceStream, targetFormat, -1);
-                } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof AlacEncoding) {
-                    throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+        try {
+            if (isConversionSupported(targetFormat, sourceStream.getFormat())) {
+                AudioFormat[] formats = getTargetFormats(targetFormat.getEncoding(), sourceStream.getFormat());
+                if (formats != null && formats.length > 0) {
+                    AudioFormat sourceFormat = sourceStream.getFormat();
+                    if (sourceFormat.equals(targetFormat)) {
+                        return sourceStream;
+                    } else if (sourceFormat.getEncoding() instanceof AlacEncoding &&
+                               targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
+                        Alac alac = Alac.class.cast(sourceFormat.getProperty("alac"));
+                        return new Alac2PcmAudioInputStream(sourceStream, targetFormat, -1, alac);
+                    } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof AlacEncoding) {
+                        throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+                    } else {
+                        throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+                    }
                 } else {
-                    throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+                    throw new IllegalArgumentException("target format not found");
                 }
             } else {
-                throw new IllegalArgumentException("target format not found");
+                throw new IllegalArgumentException("conversion not supported");
             }
-        } else {
-            throw new IllegalArgumentException("conversion not supported");
+        } catch (IOException e) {
+            throw new IllegalArgumentException(e);
         }
     }
 }

@@ -11,13 +11,16 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
+import org.junit.Ignore;
+
 
 /**
- * line.
+ * line. (mic -> speaker)
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2012/06/11 umjammer initial version <br>
  */
+@Ignore
 public class Test2 {
 
     /**
@@ -27,6 +30,7 @@ public class Test2 {
         // speaker
         AudioFormat targetFormat = new AudioFormat(44100, 16, 2, true, false);
         DataLine.Info targetInfo = new DataLine.Info(TargetDataLine.class, targetFormat);
+System.err.println(targetInfo);
         TargetDataLine target = (TargetDataLine) AudioSystem.getLine(targetInfo);
         target.open(targetFormat);
         target.start();
@@ -35,6 +39,7 @@ public class Test2 {
         // microphone
         AudioFormat sourceFormat = new AudioFormat(44100, 16, 2, true, false);
         DataLine.Info sourceInfo = new DataLine.Info(SourceDataLine.class, sourceFormat);
+System.err.println(sourceInfo);
         SourceDataLine source = (SourceDataLine) AudioSystem.getLine(sourceInfo);
         source.open(sourceFormat);
         source.start();

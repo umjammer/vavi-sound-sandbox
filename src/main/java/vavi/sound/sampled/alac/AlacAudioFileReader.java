@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -20,6 +21,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 
 import com.beatofthedrum.alacdecoder.Alac;
+
+import vavi.util.Debug;
 
 
 /**
@@ -73,8 +76,6 @@ public class AlacAudioFileReader extends AudioFileReader {
         }
     }
 
-    private Alac alac;
-
     /**
      * Obtains an audio input stream from the input stream provided.
      *
@@ -87,8 +88,7 @@ public class AlacAudioFileReader extends AudioFileReader {
      * @exception IOException if an I/O exception occurs.
      */
     public AudioFileFormat getAudioFileFormat(InputStream stream) throws UnsupportedAudioFileException, IOException {
-        alac = new Alac(stream);
-        return getAudioFileFormat(alac.getInputStream(), AudioSystem.NOT_SPECIFIED);
+        return getAudioFileFormat(stream, AudioSystem.NOT_SPECIFIED);
     }
 
     /**
@@ -116,9 +116,15 @@ public class AlacAudioFileReader extends AudioFileReader {
      * @exception IOException if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
-        System.err.println("here");
-        // TODO sampling rate, bits per sample, channels
-        AudioFormat format = new AudioFormat(AlacEncoding.ALAC, AudioSystem.NOT_SPECIFIED, 16, 1, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true);
+//Debug.println("here: " + bitStream.markSupported());
+        Alac alac;
+        try {
+            alac = new Alac(bitStream);
+        } catch (IOException e) {
+Debug.println(e.getMessage());
+            throw (UnsupportedAudioFileException) new UnsupportedAudioFileException(e.getMessage()).initCause(e);
+        }
+        AudioFormat format = new AudioFormat(AlacEncoding.ALAC, alac.getSampleRate(), alac.getBitsPerSample(), alac.getNumChannels(), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true, new HashMap<String, Object>() {{ put("alac", alac); }});
         return new AudioFileFormat(AlacFileFormatType.ALAC, format, AudioSystem.NOT_SPECIFIED);
     }
 
@@ -202,6 +208,7 @@ public class AlacAudioFileReader extends AudioFileReader {
      */
     protected AudioInputStream getAudioInputStream(InputStream inputStream, int medialength) throws UnsupportedAudioFileException, IOException {
         AudioFileFormat audioFileFormat = getAudioFileFormat(inputStream, medialength);
-        return new Alac2PcmAudioInputStream(inputStream, audioFileFormat.getFormat(), audioFileFormat.getFrameLength());
+        Alac alac = Alac.class.cast(audioFileFormat.getFormat().getProperty("alac"));
+        return new Alac2PcmAudioInputStream(inputStream, audioFileFormat.getFormat(), audioFileFormat.getFrameLength(), alac);
     }
 }
