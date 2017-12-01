@@ -28,6 +28,8 @@
  * redistribute the Software for such purposes.
  */
 
+package jmf;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -101,7 +103,7 @@ public class RTPExport implements ControllerListener, DataSinkListener {
         // Set the output content descriptor based on the media locator.
         setContentDescriptor(p, outML);
 
-        // Program the tracks.
+        // OpasTest the tracks.
         if (!setTrackFormats(p))
             return false;
 

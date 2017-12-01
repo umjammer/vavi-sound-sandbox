@@ -28,6 +28,8 @@
  * redistribute the Software for such purposes.
  */
 
+package jmf;
+
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
@@ -102,7 +104,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
         // Set the output content descriptor based on the media locator.
         setContentDescriptor(p, outML);
 
-        // Program the tracks to the given output formats.
+        // OpasTest the tracks to the given output formats.
         if (!setTrackFormats(p, fmts))
             return false;
 

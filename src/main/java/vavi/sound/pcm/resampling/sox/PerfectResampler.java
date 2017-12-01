@@ -58,7 +58,7 @@ class PerfectResampler {
                 double f0 = fm1, b = 0, c = 0, d = 0; // = 0 to kill compiler warning
                 int pos = i * num_phases + j - 1;
 System.err.printf("coefs:%d, index:%d\n", coefs.length, pos - 1);
-                fm1 = (pos != 0 ? coefs[pos - 1] : 0) * multiplier;
+                fm1 = (pos > 0 ? coefs[pos - 1] : 0) * multiplier;
                 switch (interp_order) {
                 case 1:
                     b = f1 - f0;
@@ -106,7 +106,7 @@ System.err.printf("coefs:%d, index:%d\n", coefs.length, pos - 1);
     class RateShared {
         double[] poly_fir_coefs;
         /** [0]: halve; [1]: down/up: halve/double */
-        HalfBand[] half_band = new HalfBand[2];
+        HalfBand[] half_band = { new HalfBand(), new HalfBand() };
         /** For Ooura fft */
         double[] sin_cos_table;
         /** ditto */
@@ -201,6 +201,11 @@ System.err.printf("coefs:%d, index:%d\n", coefs.length, pos - 1);
             final HalfBand f = s.half_band[stage.which];
             final int overlap = f.num_taps - 1;
 
+System.err.printf("%d, %s\n", f.dft_length, s.bit_rev_table);
+if (s.bit_rev_table == null) {
+    s.bit_rev_table = new int[2 * f.dft_length];
+    s.sin_cos_table = new double[2 * f.dft_length];
+}
             while (num_in >= f.dft_length) {
                 final int inputP = stage.fifo.read_ptr();
                 stage.fifo.read(f.dft_length - overlap, null);
@@ -488,7 +493,7 @@ System.err.printf("coefs:%d, index:%d\n", coefs.length, pos - 1);
         assert (num_taps[0] & 1) != 0;
         f.num_taps = num_taps[0];
         f.dft_length = dft_length;
-System.err.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps, dft_length, Fp, atten, multiplier);
+System.err.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], dft_length, Fp, atten, multiplier);
         if (rateShared.bit_rev_table == null) {
             rateShared.bit_rev_table = new int[dft_br_len(dft_length)];
             rateShared.sin_cos_table = new double[dft_sc_len(dft_length)];
@@ -1012,6 +1017,9 @@ System.err.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps,
             }
         }
         rate.stages = new Stage[rate.level + 4];
+for (int x = 0; x < rate.level + 4; x++) {
+    rate.stages[x] = new Stage();
+}
         for (i = 0; i <= rate.level + 1 + 1; ++i) {
             rate.stages[i] = new Stage();
             rate.stages[i].shared = shared;
@@ -1079,6 +1087,7 @@ System.err.printf("fir_len=%d phases=%d coef_interp=%d mult=%d size=%d\n", f.num
             double bw = bandwidth != 0 ? 1 - (1 - bandwidth / 100) / TO_3dB : f.bw;
             double min = 1 - (allow_aliasing ? MAX_TBW0A : MAX_TBW0) / 100;
             assert (quality.value - Quality.Low.value < filters.length);
+shared = new RateShared();
             half_band_filter_init(shared, rate.upsample ? 1 : 0, f.len, f.h, bw, att, mult, phase, allow_aliasing);
             if (rate.upsample) {
                 rate.stages[-1].fn = double_sample; // Finish off setting up pre-stage
@@ -1226,7 +1235,7 @@ System.err.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, 
         int[] odone = { osamp[0] };
 
         int sP = rate_output(priv.rate, null, odone);
-        final double s[] = priv.rate.stages[priv.rate.output_stage_num + 1].fifo.data;
+        final double[] s = priv.rate.stages[priv.rate.output_stage_num + 1].fifo.data;
         int obufP = 0;
         for (i = 0; i < odone[0]; ++i) {
             obuf[obufP++] = (int) Math.round(s[sP++]);

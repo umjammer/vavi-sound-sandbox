@@ -243,30 +243,6 @@ class Normalizer {
 
         return 0;
     }
-
-    /** */
-    public static void main(String[] argv) throws Exception {
-        String inname;
-        String outname;
-
-        System.out.printf("\nnormalize - Copyright 2002 Michael Kohn (mike@naken.cc)\n");
-
-        int argc = argv.length;
-        if (argc != 1 && argc != 2) {
-            System.out.printf("Usage: normalize <input filename.wav> <output filename.wav>\n");
-            System.out.printf("-- If you exclude the output filename normalize will only analyze\n\n");
-            System.exit(1);
-        }
-
-        inname = argv[0];
-        if (argc == 2) {
-            outname = argv[1];
-        } else {
-            outname = null;
-        }
-
-        new Normalizer().normalize(inname, outname);
-    }
 }
 
 /* */

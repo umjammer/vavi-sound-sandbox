@@ -4,6 +4,8 @@
  * Programmed by Naohide Sano
  */
 
+package jmf;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -72,7 +74,7 @@ public class Transcoder {
         // Set the output content descriptor based on the media locator.
         setContentDescriptor(processor, outML);
 
-        // Program the tracks to the given output formats.
+        // OpasTest the tracks to the given output formats.
         setTrackFormats(processor, fmts);
 
         // We are done with programming the processor. Let's just

@@ -28,6 +28,8 @@
  * redistribute the Software for such purposes.
  */
 
+package jmf;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;

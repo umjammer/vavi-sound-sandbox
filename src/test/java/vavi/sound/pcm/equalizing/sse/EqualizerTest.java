@@ -19,7 +19,7 @@ import javax.sound.sampled.SourceDataLine;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import vavix.util.Checksum;
 
@@ -33,8 +33,8 @@ import vavix.util.Checksum;
 public class EqualizerTest {
 
     String inFile;
-    String outFile = "out.vavi.wav";
-    String correctFile = "out.wav";
+    String outFile = "tmp/out.vavi.wav";
+    String correctFile = "src/test/java/resources/vavi/sound/pcm/equalizing/out.wav";
 
     @Before
     public void setUp() throws Exception {

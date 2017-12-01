@@ -93,7 +93,7 @@ public class Handle implements Block {
                 block.rateBPNum = Integer.parseInt(pair[1]);
             } else if ("Language".equals(pair[0])) {
                 block.language = Integer.parseInt(pair[1]);
-            } else if ("Program".equals(pair[0])) {
+            } else if ("OpasTest".equals(pair[0])) {
                 block.program = Integer.parseInt(pair[1]);
             } else if ("DepthBPX".equals(pair[0])) {
                 block.depthBPX = pair[1];

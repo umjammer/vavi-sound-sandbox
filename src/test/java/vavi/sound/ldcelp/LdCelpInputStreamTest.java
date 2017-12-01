@@ -23,9 +23,9 @@ import vavix.util.Checksum;
  */
 public class LdCelpInputStreamTest {
 
-    String inFile = "f17.bit";
-    String outFile = "f17.vavi.outnpf";
-    String correctFile = "f17.outnpf";
+    String inFile = "src/test/resources/vavi/sound/ldcelp/f17.bit";
+    String outFile = "tmp/f17.vavi.outnpf";
+    String correctFile = "src/test/resources/vavi/sound/ldcelp/f17.outnpf";
 
     /** */
     @Test

@@ -28,6 +28,8 @@
  * redistribute the Software for such purposes.
  */
 
+package jmf;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Frame;

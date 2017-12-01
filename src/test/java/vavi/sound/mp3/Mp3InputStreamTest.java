@@ -21,11 +21,11 @@ import javax.sound.sampled.SourceDataLine;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
+
+import static org.junit.Assert.assertEquals;
 
 import vavix.util.Checksum;
 

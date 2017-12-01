@@ -17,13 +17,15 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 import vavi.util.Debug;
+
+import static org.junit.Assert.assertEquals;
+
 import vavix.util.ByteUtil;
 
 
@@ -35,9 +37,14 @@ import vavix.util.ByteUtil;
  */
 public class PolyphaseTest {
 
-//  String inFile = "C:\\Documents and Settings\\sano-n\\My Documents\\My Music\\1\\大塚 愛 - さくらんぼ.wav";
-    String inFile = "C:\\WINDOWS\\Media\\BATTVLOW.WAV";
-    String outFile = "out.wav";
+    static String inFile = "/Users/nsano/Music/0/wyolica - 星.wav";
+    static String outFile = "tmp/out.vavi.wav";
+
+    static boolean isGui;
+
+    static {
+        isGui = Boolean.valueOf(System.getProperty("eclipse.editor", "false"));
+    }
 
     /** */
     ByteUtil byteUtil = new ByteUtil();
@@ -72,6 +79,8 @@ Debug.println("factor: " + sampleRate / resamplingRate);
 long time = System.currentTimeMillis();
         Polyphase resampler = new Polyphase(sampleRate, resamplingRate);
         int[] results = resampler.resample(samples);
+        int[] results2 = resampler.drain();
+Debug.println("drain: " + results2.length);
 Debug.println("done: " + (System.currentTimeMillis() - time) + " ms");
 
         byte[] dest = new byte[results.length * 2];
@@ -98,7 +107,8 @@ System.err.println(audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(audioFormat);
         line.start();
-        line.write(dest, 0, dest.length);
+        if (isGui)
+            line.write(dest, 0, dest.length);
         line.drain();
         line.stop();
         line.close();
@@ -116,6 +126,44 @@ Debug.println("result: " + r);
         AudioInputStream resultAis = AudioSystem.getAudioInputStream(new File(outFile));
         // TODO 少数以下が切り捨てられる、どこで？ < drain() やろ
         assertEquals((int) resamplingRate, (int) resultAis.getFormat().getSampleRate());
+    }
+
+    @Test
+    public void test2() throws Exception {
+        AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
+        AudioFormat format = sourceAis.getFormat();
+        AudioFormat outFormat = new AudioFormat(
+            format.getEncoding(),
+            8000,
+            format.getSampleSizeInBits(),
+            format.getChannels(),
+            format.getFrameSize(),
+            format.getFrameRate(),
+            format.isBigEndian());
+
+        InputStream in = new PolyphaseInputStream(sourceAis, format.getSampleRate(), outFormat.getSampleRate());
+
+        DataLine.Info info = new DataLine.Info(SourceDataLine.class, outFormat);
+        SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
+        line.open(outFormat);
+FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
+double gain = .2d; // number between 0 and 1 (loudest)
+float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
+gainControl.setValue(dB);
+        line.start();
+        byte[] buf = new byte[8192];
+        int l;
+        while (true) {
+            l = in.read(buf, 0, buf.length);
+            if (l < 0)
+                break;
+            if (isGui)
+                line.write(buf, 0, l);
+        }
+        in.close();
+        line.drain();
+        line.stop();
+        line.close();
     }
 }
 

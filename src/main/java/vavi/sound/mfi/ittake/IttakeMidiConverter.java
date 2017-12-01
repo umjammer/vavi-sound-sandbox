@@ -1,7 +1,5 @@
 /*
- * Copyright (c) 2003 by Naohide Sano, All rights reserved.
- *
- * Programmed by Naohide Sano
+ * "http://tokyo.cool.ne.jp/ittake/java/MIDIToMLDv013/MIDIToMLD.html"
  */
 
 package vavi.sound.mfi.ittake;
@@ -42,8 +40,6 @@ import vavi.util.Debug;
 
 /**
  * IttakeMidiConverter.
- *
- * @see "http://tokyo.cool.ne.jp/ittake/java/MIDIToMLDv013/MIDIToMLD.html"
  *
  * @author ittake
  * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)

@@ -21,9 +21,10 @@ import javax.sound.sampled.SourceDataLine;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 import vavi.util.Debug;
+
+import static org.junit.Assert.assertEquals;
+
 import vavix.util.ByteUtil;
 
 
@@ -35,9 +36,8 @@ import vavix.util.ByteUtil;
  */
 public class ResamplerTest {
 
-//  String inFile = "C:\\Documents and Settings\\sano-n\\My Documents\\My Music\\1\\大塚 愛 - さくらんぼ.wav";
-    String inFile = "C:\\WINDOWS\\Media\\BATTVLOW.WAV";
-    String outFile = "out.wav";
+    static String inFile = "/Users/nsano/Music/0/wyolica - 星.wav";
+    static String outFile = "tmp/out.vavi.wav";
 
     /** */
     ByteUtil byteUtil = new ByteUtil();
