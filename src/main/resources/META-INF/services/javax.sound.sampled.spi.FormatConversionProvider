@@ -3,7 +3,10 @@
 #
 # FormatConversionProvider
 #
-# 0.00	111022	nsano	initial version
+# 0.00 111022 nsano initial version
 #
 
+#vavi.sound.pcm.resampling.tritonus.SampleRateConversionProvider
 vavi.sound.sampled.alac.AlacFormatConversionProvider
+vavi.sound.sampled.opus.OpusFormatConversionProvider
+#vavi.sound.sampled.rococoa.RococoaFormatConversionProvider

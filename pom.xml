@@ -11,11 +11,23 @@
   <organization>
     <name></name>
   </organization>
-  <version>1.0.1</version>
+  <version>1.0.2-SNAPSHOT</version>
   <url>https://github.com/umjammer/vavi-sound-sandbox</url>
-  <description>1.0.1
+  <description>1.0.2
 
-    maintenance version</description>
+    alac spi
+    opus spi
+
+1.0.1
+
+    maintenance version
+
+TODO
+
+    jni in maven
+    resampling spi
+    rococoa
+</description>
   <build>
     <plugins>
       <plugin>
@@ -43,6 +55,14 @@
       <url>http://jcenter.bintray.com</url>
     </repository>
     <repository>
+      <id>umjammer-mvn-repo</id>
+      <url>https://raw.github.com/umjammer/umjammer/mvn-repo/</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
+    <repository>
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
     </repository>
@@ -54,14 +74,26 @@
       <version>1.0.3</version>
     </dependency>
     <dependency>
-      <groupId>javax.media</groupId>
-      <artifactId>jmf</artifactId>
-      <version>2.1.1e</version>
+      <groupId>com.github.umjammer</groupId>
+      <artifactId>Java-Apple-Lossless-decoder</artifactId>
+      <version>0.2.9</version>
+    </dependency>
+    <dependency>
+      <groupId>org.rococoa</groupId>
+      <artifactId>rococoa-cocoa</artifactId>
+      <version>0.5</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons-sandbox</artifactId>
       <version>0.3.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.media</groupId>
+      <artifactId>jmf</artifactId>
+      <version>2.1.1e</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>junit</groupId>
@@ -88,28 +120,62 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.rococoa</groupId>
-      <artifactId>rococoa-core</artifactId>
-      <version>0.5</version>
+      <groupId>org.tritonus</groupId>
+      <artifactId>tritonus-remaining</artifactId>
+      <version>0.3.6</version>
+      <scope>test</scope>
+    </dependency>
+     <dependency>
+      <groupId>com.github.Tobi29</groupId>
+      <artifactId>Concentus</artifactId>
+      <version>1.0.0</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.rococoa</groupId>
-      <artifactId>rococoa-cocoa</artifactId>
-      <version>0.5</version>
-      <optional>false</optional>
+      <groupId>com.github.Gagravarr</groupId>
+      <artifactId>VorbisJava</artifactId>
+      <version>vorbis-java-0.8</version>
+      <scope>test</scope>
     </dependency>
-<!--
     <dependency>
-      <groupId>net.sourceforge.jaadec</groupId>
-      <artifactId>jaad</artifactId>
-      <version>0.8.5</version>
+      <groupId>com.github.locurasoft</groupId>
+      <artifactId>osxmidi4j</artifactId>
+      <version>osxmidi4j-1.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>net.java.dev.jna</groupId>
+          <artifactId>jna</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
--->
     <dependency>
-      <groupId>com.github.umjammer</groupId>
-      <artifactId>Java-Apple-Lossless-decoder</artifactId>
-      <version>0.2.9</version>
+      <groupId>com.github.SourceUtils</groupId>
+      <artifactId>jspeex</artifactId>
+      <version>master-SNAPSHOT</version>
+      <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.jflac</groupId>
+      <artifactId>jflac-codec</artifactId>
+      <version>1.5.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <!-- this has a problem about AudioSystem version ???, so we need to order jdk before maven dependencies -->
+      <groupId>com.googlecode.soundlibs</groupId>
+      <artifactId>vorbisspi</artifactId>
+      <version>1.0.3-1</version>
+      <scope>test</scope>
+    </dependency>
+<!-- this has a problem about resetting mark in the spi
+    <dependency>
+      <groupId>com.github.DV8FromTheWorld</groupId>
+      <artifactId>JAADec</artifactId>
+      <version>master-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+ -->
   </dependencies>
   <scm>
     <url>https://github.com/umjammer/vavi-sound-sandbox</url>

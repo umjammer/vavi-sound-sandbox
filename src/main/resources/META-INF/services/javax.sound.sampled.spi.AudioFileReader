@@ -3,7 +3,9 @@
 #
 # AudioFileReader
 #
-# 0.00	111022	nsano	initial version
+# 0.00 111022 nsano initial version
 #
 
 vavi.sound.sampled.alac.AlacAudioFileReader
+vavi.sound.sampled.opus.OpusAudioFileReader
+#vavi.sound.sampled.rococoa.RococoaAudioFileReader
