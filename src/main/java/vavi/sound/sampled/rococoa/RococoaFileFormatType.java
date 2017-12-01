@@ -20,12 +20,12 @@ public class RococoaFileFormatType extends AudioFileFormat.Type {
     /**
      * Specifies an ROCOCOA file.
      */
-    public static final AudioFileFormat.Type ROCOCOA = new RococoaFileFormatType("ROCOCOA", "pcm");
+    public static final AudioFileFormat.Type ROCOCOA = new RococoaFileFormatType("ROCOCOA", "caf");
 
     /**
      * Constructs a file type.
      *
-     * @param name the name of the Flac File Format.
+     * @param name the name of the Rococoa File Format.
      * @param extension the file extension for this Flac File Format.
      */
     public RococoaFileFormatType(String name, String extension) {
