@@ -33,7 +33,7 @@ import vavix.util.Checksum;
 /**
  * Mp3InputStreamTest.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060219 nsano initial version <br>
  */
 @PropsEntity(url = "file://${user.dir}/local.properties")

@@ -28,7 +28,7 @@ import vavi.util.Debug;
  *
  * @author K. Bradley, Carnegie Mellon University
  * @author Stan Brooks
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version July 14, 1998 K. Bradley <br>
  *          October 29, 1999 Stan Brooks Various changes, bugfixes, speedups. <br>
  *          2006 nsano ported to java. <br>

@@ -11,7 +11,7 @@ package vavi.sound.mfi.ittake;
  * midi context for the converter.
  *
  * @author ittake
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 030915 nsano initial version <br>
  */
 public class MfiContext {

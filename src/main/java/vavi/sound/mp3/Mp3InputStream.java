@@ -20,7 +20,7 @@ import vavi.util.StringUtil;
  * <li> TODO 今のところ {@link #read()} を使用してはいけません。
  * 
  * @author 小杉 篤史 (Kosugi Atsushi)
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 1.00 original version <br>
  * @version 2.00 030817 nsano java port <br>
  */

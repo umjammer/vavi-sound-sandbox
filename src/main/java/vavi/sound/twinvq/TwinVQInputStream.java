@@ -33,7 +33,7 @@ import vavi.util.Debug;
 /**
  * TwinVQInputStream.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 070202 initial version <br>
  */
 public class TwinVQInputStream extends FilterInputStream {

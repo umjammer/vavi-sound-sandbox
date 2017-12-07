@@ -42,7 +42,7 @@ import vavi.util.Debug;
  * IttakeMidiConverter.
  *
  * @author ittake
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 initial version <br>
  *          1.00 030913 nsano port to my system <br>
  *          1.01 030914 nsano extends VaviMidiConverter <br>

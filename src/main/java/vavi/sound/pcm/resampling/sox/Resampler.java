@@ -41,7 +41,7 @@ import vavi.util.Debug;
  * </p>
  * @author <a href="mailto:andreas@eakaw2.et.tu-dresden.de">Andreas Wilde</a>
  * @author Stan Brooks
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 12. Feb. 1999, Andreas Wilde Various changes, bugfixes(?), increased precision <br>
  *          October 29, 1999 Stan Brooks Fixed bug roll off frequency was wrong, too high by 2 when upsampling,
  *          too low by 2 when downsampling. <br>

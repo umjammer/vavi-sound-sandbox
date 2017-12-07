@@ -12,7 +12,7 @@ import org.junit.Ignore;
 /**
  * Test1.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060419 nsano initial version <br>
  */
 @Ignore

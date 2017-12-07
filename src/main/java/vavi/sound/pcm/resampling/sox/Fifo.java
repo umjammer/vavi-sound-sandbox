@@ -22,7 +22,7 @@ package vavi.sound.pcm.resampling.sox;
 /**
  * Addressable FIFO buffer.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 081028 nsano initial version <br>
  */
 class Fifo {

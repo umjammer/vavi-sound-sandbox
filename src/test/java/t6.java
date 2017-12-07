@@ -20,7 +20,7 @@ import javax.sound.midi.Synthesizer;
 /**
  * MIDI test.
  * 
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (vavi)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (vavi)
  * @version 0.00 020703 nsano initial version <br>
  */
 public class t6 {
