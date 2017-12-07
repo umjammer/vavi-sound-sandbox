@@ -26,7 +26,7 @@ import javax.sound.sampled.spi.AudioFileReader;
  * the format information from Opus audio file, and can produce audio input
  * streams from files of this type.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 111022 nsano initial version <br>
  */
 public class OpusAudioFileReader extends AudioFileReader {

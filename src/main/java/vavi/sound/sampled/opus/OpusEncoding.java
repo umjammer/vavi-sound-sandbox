@@ -13,7 +13,7 @@ import javax.sound.sampled.AudioFormat;
 /**
  * Encodings used by the Opus audio decoder.
  * 
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 111022 nsano initial version <br>
  */
 public class OpusEncoding extends AudioFormat.Encoding {

@@ -29,9 +29,10 @@ public class Test3 {
 //    static final String inFile = "/Users/nsano/Music/0/Mists of Time - 4T.ogg";
 //    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.flac";
 //    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.m4a"; // ALAC
-    static final String inFile = "/Users/nsano/Music/0/rc.wav";
+//    static final String inFile = "/Users/nsano/Music/0/rc.wav";
 //    static final String inFile = "/Users/nsano/Music/0/Cyndi Lauper-Time After Time.m4a"; // AAC
-//    static final String inFile = "tmp/hoshiF.opus";
+    static final String inFile = "tmp/hoshiF.opus";
+//    static final String inFile = "/Users/nsano/Music/iTunes/iTunes Music/NAMCO/Ace Combat 04 Shattered Skies Original Sound Tracks/1-11 Blockade.mp3";
 
     /**
      * @param args
