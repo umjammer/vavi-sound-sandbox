@@ -18,7 +18,7 @@ import com.beatofthedrum.alacdecoder.Alac;
 /**
  * AlacFormatConversionProvider.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 111022 nsano initial version <br>
  */
 public class AlacFormatConversionProvider extends FormatConversionProvider {
