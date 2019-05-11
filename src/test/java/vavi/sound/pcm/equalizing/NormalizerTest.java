@@ -15,10 +15,10 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import vavix.util.Checksum;
 
@@ -35,7 +35,7 @@ public class NormalizerTest {
     String outFile = "tmp/out.vavi.wav";
     String correctFile = "src/test/resources/vavi/sound/sampled/out.wav";
 
-    @Before
+    @BeforeAll
     public void setUp() throws Exception {
         Properties props = new Properties();
         props.load(NormalizerTest.class.getResourceAsStream("local.properties"));

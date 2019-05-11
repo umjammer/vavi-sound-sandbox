@@ -57,12 +57,16 @@ class Alac2PcmAudioInputStream extends AudioInputStream {
         }
 
         /** */
+        private byte[] pcmBuffer = new byte[0xffff];
+
+        /** 24kb buffer = 4096 frames = 1 opus sample (we support max 24bps) */
+        private int[] pDestBuffer = new int[1024 * 24 * 3];
+
+        /** */
         public void execute() throws IOException {
             if (out == null) {
                 throw new IOException("Not yet initialized");
             } else {
-                byte[] pcmBuffer = new byte[0xffff];
-                int[] pDestBuffer = new int[1024 * 24 * 3]; // 24kb buffer = 4096 frames = 1 opus sample (we support max 24bps)
                 int bytesUnpacked = alac.decode(pDestBuffer, pcmBuffer);
                 if (bytesUnpacked == 0) {
                     out.close();

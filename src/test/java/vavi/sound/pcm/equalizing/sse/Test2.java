@@ -33,7 +33,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
 
-import org.junit.Ignore;
+import org.junit.jupiter.api.Disabled;
 
 import vavi.sound.pcm.equalizing.sse.Equalizer.Parameter;
 
@@ -44,7 +44,7 @@ import vavi.sound.pcm.equalizing.sse.Equalizer.Parameter;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060419 nsano initial version <br>
  */
-@Ignore
+@Disabled
 public class Test2 {
 
     String inFile;

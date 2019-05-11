@@ -1,9 +1,10 @@
-package vavi.sound.sampled.opus;
 /*
  * Copyright (c) 2017 by Naohide Sano, All rights reserved.
  *
  * Programmed by Naohide Sano
  */
+
+package vavi.sound.sampled.opus;
 
 import java.io.IOException;
 import java.io.InputStream;

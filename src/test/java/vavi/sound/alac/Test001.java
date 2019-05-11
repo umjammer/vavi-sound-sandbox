@@ -17,7 +17,7 @@ import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.beatofthedrum.alacdecoder.Alac;
 import com.beatofthedrum.alacdecoder.AlacContext;

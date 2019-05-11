@@ -4,16 +4,13 @@
 
 package vavi.sound.mfi.ittake;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiFileFormat;
 import javax.sound.midi.MidiMessage;
-import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 
@@ -21,11 +18,9 @@ import vavi.sound.mfi.InvalidMfiDataException;
 import vavi.sound.mfi.MfiDevice;
 import vavi.sound.mfi.MfiEvent;
 import vavi.sound.mfi.MfiMessage;
-import vavi.sound.mfi.MfiSystem;
 import vavi.sound.mfi.MidiConverter;
 import vavi.sound.mfi.NoteMessage;
 import vavi.sound.mfi.Track;
-import vavi.sound.mfi.vavi.VaviMfiFileFormat;
 import vavi.sound.mfi.vavi.header.CopyMessage;
 import vavi.sound.mfi.vavi.header.ProtMessage;
 import vavi.sound.mfi.vavi.header.TitlMessage;
@@ -307,35 +302,6 @@ Debug.printStackTrace(e);
 
         throw new UnsupportedOperationException("not implemented");
     }
-
-    //-------------------------------------------------------------------------
-
-    /**
-     * Converts the midi file to a mfi file.
-     * <pre>
-     * usage:
-     *  % java MfiContext in_midi_file out_mld_file
-     * </pre>
-     */
-    public static void main(String[] args) throws Exception {
-
-Debug.println("midi in: " + args[0]);
-Debug.println("mfi out: " + args[1]);
-
-        File file = new File(args[0]);
-        javax.sound.midi.Sequence midiSequence = MidiSystem.getSequence(file);
-        MidiFileFormat midiFileFormat = MidiSystem.getMidiFileFormat(file);
-        int type = midiFileFormat.getType();
-Debug.println("type: " + type);
-        vavi.sound.mfi.Sequence mfiSequence = new IttakeMidiConverter().toMfiSequence(midiSequence, type);
-
-        file = new File(args[1]);
-        int r = MfiSystem.write(mfiSequence, VaviMfiFileFormat.FILE_TYPE, file);
-Debug.println("write: " + r);
-
-        System.exit(0);
-    }
-
 }
 
 /* */

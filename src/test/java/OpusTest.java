@@ -16,7 +16,7 @@ import org.gagravarr.opus.OpusAudioData;
 import org.gagravarr.opus.OpusFile;
 import org.gagravarr.opus.OpusInfo;
 import org.gagravarr.opus.OpusTags;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 
 /**

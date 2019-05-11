@@ -32,20 +32,24 @@ import javax.sound.midi.SysexMessage;
 import javax.sound.midi.Transmitter;
 
 import org.apache.log4j.Logger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.github.osxmidi4j.CoreMidiDestination;
 import com.github.osxmidi4j.CoreMidiDeviceInfo;
 import com.github.osxmidi4j.CoreMidiSource;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 
 public class SendMidiMacOsXTest {
 
     private final Logger logger = Logger.getLogger(getClass());
     public static final int NUM_PORTS = 4;
+
+    static {
+        com.sun.jna.NativeLibrary.addSearchPath("rococoa", System.getProperty("java.library.path"));
+    }
 
     // TODO doesn't work
     @Test
@@ -54,7 +58,7 @@ public class SendMidiMacOsXTest {
         Info[] midiDeviceInfos = MidiSystem.getMidiDeviceInfo();
         int portCount = 0;
         for (Info info : midiDeviceInfos) {
-            System.err.println(info);
+            System.err.println("INFO1: " + info);
             if (info instanceof CoreMidiDeviceInfo) {
                 MidiDevice midiDevice = MidiSystem.getMidiDevice(info);
                 if (midiDevice.getMaxReceivers() == -1) {
@@ -104,6 +108,7 @@ public class SendMidiMacOsXTest {
 
         Info[] midiDeviceInfos = MidiSystem.getMidiDeviceInfo();
         for (Info info : midiDeviceInfos) {
+            System.err.println("INFO2: " + info);
             if (info instanceof CoreMidiDeviceInfo) {
                 MidiDevice midiDevice = MidiSystem.getMidiDevice(info);
                 if (midiDevice.getMaxTransmitters() == -1) {

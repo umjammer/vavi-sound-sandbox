@@ -19,13 +19,13 @@ import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import vavi.sound.sampled.MonauralInputFilter;
 import vavi.util.Debug;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**

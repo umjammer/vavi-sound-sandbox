@@ -21,7 +21,7 @@ import javax.sound.sampled.LineListener;
 import javax.sound.sampled.SourceDataLine;
 import javax.swing.JFrame;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.rococoa.ObjCObjectByReference;
 import org.rococoa.Rococoa;
 import org.rococoa.cocoa.foundation.NSArray;
@@ -35,8 +35,8 @@ import org.rococoa.cocoa.qtkit.QTTrack;
 import vavi.sound.sampled.MonauralInputFilter;
 import vavi.util.Debug;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**

@@ -25,7 +25,7 @@
 | sampled | opus | [concentus](https://github.com/lostromb/concentus) | o | x | o | |
 | midi | midi | [osxmidi4j](https://github.com/locurasoft/osxmidi4j) | x | - | x | |
 | sampled | speex | [jspeex](http://jspeex.sourceforge.net/) | o | - | o | sample rate is limited to convert |
-| sampled | flac | [jFLAC](http://jflac.sourceforge.net/) | o | - | o | see also JustFLAC |
+| sampled | flac | [jFLAC](http://jflac.sourceforge.net/) | o | - | o | see also [JustFLAC](https://github.com/drogatkin/JustFLAC) |
 | sampled | aac | [JAADec](https://github.com/DV8FromTheWorld/JAADec) | - | - | x | mark/reset error? (not for all files) |
 | sampled | vorbis | [vorbisspi](http://www.javazoom.net/vorbisspi/vorbisspi.html) | - | - | o | AudioSystem version conflict? |
 

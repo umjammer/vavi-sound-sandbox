@@ -12,11 +12,11 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import vavi.sound.pcm.resampling.tritonus.AmplitudeAudioInputStream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
