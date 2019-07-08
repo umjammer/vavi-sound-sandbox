@@ -5,13 +5,15 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>vavi</groupId>
   <artifactId>vavi-sound-sandbox</artifactId>
+  <version>1.0.2-SNAPSHOT</version>
+
   <name>Vavi Sound Sandbox API</name>
   <organization>
     <name></name>
   </organization>
-  <version>1.0.2-SNAPSHOT</version>
   <url>https://github.com/umjammer/vavi-sound-sandbox</url>
   <description>1.0.2
 
@@ -27,7 +29,14 @@ TODO
     jni in maven
     resampling spi
     rococoa
-</description>
+  </description>
+  <scm>
+    <url>https://github.com/umjammer/vavi-sound-sandbox</url>
+  </scm>
+  <issueManagement>
+    <url>https://github.com/umjammer/vavi-sound-sandbox/issues</url>
+  </issueManagement>
+
   <build>
     <plugins>
       <plugin>
@@ -40,6 +49,7 @@ TODO
       </plugin>
     </plugins>
   </build>
+
   <repositories>
     <repository>
       <id>umjammer-mvn-repo</id>
@@ -67,11 +77,12 @@ TODO
       <url>https://jitpack.io</url>
     </repository>
   </repositories>
+
   <dependencies>
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.3</version>
+      <version>1.0.7</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
@@ -89,10 +100,23 @@ TODO
       <version>0.3.3</version>
     </dependency>
     <dependency>
+      <groupId>org.tritonus</groupId>
+      <artifactId>tritonus-remaining</artifactId>
+      <version>0.3.6</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.lostromb</groupId>
+      <artifactId>concentus</artifactId>
+      <version>fdf276e</version>
+      <type>pom</type>
+    </dependency>
+
+    <dependency>
       <groupId>javax.media</groupId>
       <artifactId>jmf</artifactId>
       <version>2.1.1e</version>
     </dependency>
+
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
@@ -124,29 +148,6 @@ TODO
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.tritonus</groupId>
-      <artifactId>tritonus-remaining</artifactId>
-      <version>0.3.6</version>
-    </dependency>
-     <dependency>
-      <groupId>com.github.lostromb</groupId>
-      <artifactId>concentus</artifactId>
-      <version>fdf276e</version>
-      <type>pom</type>
-    </dependency>
-    <dependency>
-      <groupId>com.github.locurasoft</groupId>
-      <artifactId>osxmidi4j</artifactId>
-      <version>osxmidi4j-1.0</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>net.java.dev.jna</groupId>
-          <artifactId>jna</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
       <groupId>com.github.SourceUtils</groupId>
       <artifactId>jspeex</artifactId>
       <version>master-SNAPSHOT</version>
@@ -159,6 +160,18 @@ TODO
       <scope>test</scope>
     </dependency>
 <!--
+    <dependency>
+      <groupId>com.github.locurasoft</groupId>
+      <artifactId>osxmidi4j</artifactId>
+      <version>osxmidi4j-1.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>net.java.dev.jna</groupId>
+          <artifactId>jna</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
     <dependency>
       <groupId>org.jflac</groupId>
       <artifactId>jflac-codec</artifactId>
@@ -179,16 +192,11 @@ TODO
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.googlecode.soundlibs</groupId>
+      <groupId>com.github.umjammer</groupId>
       <artifactId>mp3spi</artifactId>
-      <version>1.9.5-1</version>
+      <version>1.9.5</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <scm>
-    <url>https://github.com/umjammer/vavi-sound-sandbox</url>
-  </scm>
-  <issueManagement>
-    <url>https://github.com/umjammer/vavi-sound-sandbox/issues</url>
-  </issueManagement>
+
 </project>

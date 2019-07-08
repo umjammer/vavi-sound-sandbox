@@ -16,7 +16,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,7 +36,7 @@ public class EqualizerTest {
     String outFile = "tmp/out.vavi.wav";
     String correctFile = "src/test/java/resources/vavi/sound/pcm/equalizing/out.wav";
 
-    @BeforeAll
+    @BeforeEach
     public void setUp() throws Exception {
         Properties props = new Properties();
         props.load(EqualizerTest.class.getResourceAsStream("local.properties"));

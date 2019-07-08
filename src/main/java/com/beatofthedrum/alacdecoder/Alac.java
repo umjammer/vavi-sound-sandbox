@@ -237,7 +237,6 @@ Debug.println("reset");
     /**
      *
      * sets position in pcm samples
-     * @param ac opus context
      * @param position position in pcm samples to go to
      */
     public void setPosition(long position) {
