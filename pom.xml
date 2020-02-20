@@ -8,7 +8,7 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-sound-sandbox</artifactId>
-  <version>1.0.2-SNAPSHOT</version>
+  <version>1.0.2</version>
 
   <name>Vavi Sound Sandbox API</name>
   <organization>
@@ -20,6 +20,8 @@
     alac spi
     opus spi
 
+    itunes library (jna)
+
 1.0.1
 
     maintenance version
@@ -28,7 +30,7 @@ TODO
 
     jni in maven
     resampling spi
-    rococoa
+    qt has been deprecated
   </description>
   <scm>
     <url>https://github.com/umjammer/vavi-sound-sandbox</url>
@@ -100,9 +102,9 @@ TODO
       <version>0.3.3</version>
     </dependency>
     <dependency>
-      <groupId>org.tritonus</groupId>
+      <groupId>com.github.umjammer.tritonus</groupId>
       <artifactId>tritonus-remaining</artifactId>
-      <version>0.3.6</version>
+      <version>0.3.7-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>com.github.lostromb</groupId>
@@ -135,28 +137,11 @@ TODO
       <version>1.0.9</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
-      <groupId>org.tritonus</groupId>
-      <artifactId>tritonus-share</artifactId>
-      <version>0.3.6</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.tritonus</groupId>
+      <groupId>com.github.umjammer.tritonus</groupId>
       <artifactId>tritonus-cdda</artifactId>
-      <version>0.3.6</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.SourceUtils</groupId>
-      <artifactId>jspeex</artifactId>
-      <version>master-SNAPSHOT</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.github.drogatkin</groupId>
-      <artifactId>JustFLAC</artifactId>
-      <version>master-SNAPSHOT</version>
+      <version>0.3.7-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
 <!--
@@ -172,29 +157,55 @@ TODO
         </exclusion>
       </exclusions>
     </dependency>
+-->
+<!--
+-->
     <dependency>
       <groupId>org.jflac</groupId>
       <artifactId>jflac-codec</artifactId>
       <version>1.5.2</version>
       <scope>test</scope>
     </dependency>
--->
+    <dependency>
+      <groupId>com.github.SourceUtils</groupId>
+      <artifactId>jspeex</artifactId>
+      <version>master-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>com.googlecode.soundlibs</groupId>
       <artifactId>vorbisspi</artifactId>
       <version>1.0.3-1</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.googlecode.soundlibs</groupId>
+          <artifactId>tritonus-share</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.github.DV8FromTheWorld</groupId>
-      <artifactId>JAADec</artifactId>
+      <groupId>com.github.drogatkin</groupId>
+      <artifactId>JustFLAC</artifactId>
       <version>master-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.sourceforge.jaadec</groupId>
+      <artifactId>jaad</artifactId>
+      <version>0.8.7</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>mp3spi</artifactId>
-      <version>1.9.5</version>
+      <version>1.9.6</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.7.2</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
