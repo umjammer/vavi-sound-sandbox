@@ -91,7 +91,7 @@ TODO
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons-sandbox</artifactId>
-      <version>0.3.3</version>
+      <version>0.3.5</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer.tritonus</groupId>
