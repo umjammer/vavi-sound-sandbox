@@ -18,7 +18,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import vavi.util.Debug;
@@ -42,7 +42,7 @@ public class Mp3InputStreamTest {
     Properties props = new Properties();
 
     /** */
-    @BeforeAll
+    @BeforeEach
     public void setUp() throws Exception {
         PropsEntity.Util.bind(this);
     }

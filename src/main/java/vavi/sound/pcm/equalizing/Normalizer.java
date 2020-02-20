@@ -19,7 +19,7 @@ import vavi.util.win32.WAVE;
 
 /**
  * Normalizer.
- * 
+ *
  * @author <a href="mike@naken.cc">Michael Kohn</a> (nsano)
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060207 nsano port to Java <br>

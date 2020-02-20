@@ -311,7 +311,7 @@ System.err.println(format);
                     SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
                     line.open(format);
 FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
-double gain = .3d; // number between 0 and 1 (loudest)
+double gain = .1d; // number between 0 and 1 (loudest)
 float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
 gainControl.setValue(dB);
                     line.start();
