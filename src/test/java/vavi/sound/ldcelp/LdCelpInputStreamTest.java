@@ -8,9 +8,9 @@ package vavi.sound.ldcelp;
 
 import java.io.File;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import vavix.util.Checksum;
 
@@ -18,14 +18,14 @@ import vavix.util.Checksum;
 /**
  * LdCelpInputStreamTest. 
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060219 nsano initial version <br>
  */
 public class LdCelpInputStreamTest {
 
-    String inFile = "f17.bit";
-    String outFile = "f17.vavi.outnpf";
-    String correctFile = "f17.outnpf";
+    String inFile = "src/test/resources/vavi/sound/ldcelp/f17.bit";
+    String outFile = "tmp/f17.vavi.outnpf";
+    String correctFile = "src/test/resources/vavi/sound/ldcelp/f17.outnpf";
 
     /** */
     @Test

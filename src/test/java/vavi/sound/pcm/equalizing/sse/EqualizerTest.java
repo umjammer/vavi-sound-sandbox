@@ -16,10 +16,10 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import vavix.util.Checksum;
 
@@ -27,16 +27,16 @@ import vavix.util.Checksum;
 /**
  * EqualizerTest.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060417 nsano initial version <br>
  */
 public class EqualizerTest {
 
     String inFile;
-    String outFile = "out.vavi.wav";
-    String correctFile = "out.wav";
+    String outFile = "tmp/out.vavi.wav";
+    String correctFile = "src/test/java/resources/vavi/sound/pcm/equalizing/out.wav";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         Properties props = new Properties();
         props.load(EqualizerTest.class.getResourceAsStream("local.properties"));

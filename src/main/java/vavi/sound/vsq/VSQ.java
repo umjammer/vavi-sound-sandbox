@@ -31,7 +31,7 @@ import vavi.util.Debug;
 /**
  * VSQ. 
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 080630 nsano initial version <br>
  * @see "http://www9.atwiki.jp/boare/pages/16.html"
  */

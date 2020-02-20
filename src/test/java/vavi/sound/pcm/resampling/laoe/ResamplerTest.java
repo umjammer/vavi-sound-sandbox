@@ -19,9 +19,9 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import vavi.util.Debug;
 import vavix.util.ByteUtil;
@@ -30,7 +30,7 @@ import vavix.util.ByteUtil;
 /**
  * ResamplerTest.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060125 nsano initial version <br>
  */
 public class ResamplerTest {

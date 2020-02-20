@@ -28,7 +28,7 @@ import vavi.util.Debug;
  *
  * @author K. Bradley, Carnegie Mellon University
  * @author Stan Brooks
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version July 14, 1998 K. Bradley <br>
  *          October 29, 1999 Stan Brooks Various changes, bugfixes, speedups. <br>
  *          2006 nsano ported to java. <br>
@@ -85,7 +85,7 @@ class Polyphase {
     /**
      * Prepare processing.
      */
-    private static final short primes[] = {
+    private static final short[] primes = {
         2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37,
         41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89,
         97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151,
@@ -389,7 +389,7 @@ fail:
         work.factor = (double) work.inskip / (double) work.outskip;
         work.inpipe = 0;
 // moved to #resample()
-        
+
         // Find the prime factors of inskip and outskip
         int total = optimize_factors(work.inskip, work.outskip, l1, l2);
         work.total = total;
@@ -651,7 +651,7 @@ Debug.println("out_size: " + out_size);
      */
     public int[] drain() {
         // Call "flow" with null input.
-        return resample(null); // TODO null causes NPE
+        return resample(new int[0]);  // TODO does not work
     }
 }
 

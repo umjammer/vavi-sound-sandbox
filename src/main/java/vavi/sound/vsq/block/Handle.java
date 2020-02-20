@@ -15,7 +15,7 @@ import vavi.util.Debug;
 /**
  * Handle. 
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 080628 nsano initial version <br>
  */
 public class Handle implements Block {
@@ -93,7 +93,7 @@ public class Handle implements Block {
                 block.rateBPNum = Integer.parseInt(pair[1]);
             } else if ("Language".equals(pair[0])) {
                 block.language = Integer.parseInt(pair[1]);
-            } else if ("Program".equals(pair[0])) {
+            } else if ("OpusTest".equals(pair[0])) {
                 block.program = Integer.parseInt(pair[1]);
             } else if ("DepthBPX".equals(pair[0])) {
                 block.depthBPX = pair[1];

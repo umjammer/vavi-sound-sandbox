@@ -17,7 +17,7 @@ import javax.sound.sampled.AudioSystem;
  * resampling.
  *
  * @see "http://www.tritonus.org/"
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 051015 nsano initial version <br>
  */
 public class t150_0 {

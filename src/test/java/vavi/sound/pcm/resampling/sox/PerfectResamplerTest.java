@@ -11,7 +11,6 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.ByteOrder;
-import java.util.Properties;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -20,35 +19,37 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
 import vavi.util.Debug;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import vavix.util.ByteUtil;
 
 
 /**
  * PerfectResamplerTest.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 081029 nsano initial version <br>
+ * @see "rate.c"
  */
 public class PerfectResamplerTest {
 
-    String inFile;
-    String outFile;
+    static String inFile = "/Users/nsano/Music/0/wyolica - 星.wav";
+    static String outFile = "tmp/out.vavi.wav";
 
-    {
-        try {
-            Properties props = new Properties();
-            props.load(this.getClass().getResourceAsStream("/vavi/sound/pcm/resampling/sox/local.properties"));
-            inFile = props.getProperty("inFile");
-            outFile = props.getProperty("outFile");
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
+//    {
+//        try {
+//            Properties props = new Properties();
+//            props.load(this.getClass().getResourceAsStream("/vavi/sound/pcm/resampling/sox/local.properties"));
+//            inFile = props.getProperty("inFile");
+//            outFile = props.getProperty("outFile");
+//        } catch (Exception e) {
+//            throw new IllegalStateException(e);
+//        }
+//    }
 
     /** */
     ByteUtil byteUtil = new ByteUtil();

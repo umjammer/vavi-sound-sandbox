@@ -5,17 +5,40 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <groupId>vavi</groupId>
   <artifactId>vavi-sound-sandbox</artifactId>
+  <version>1.0.2</version>
+
   <name>Vavi Sound Sandbox API</name>
   <organization>
     <name></name>
   </organization>
-  <version>1.0.1</version>
   <url>https://github.com/umjammer/vavi-sound-sandbox</url>
-  <description>1.0.1
+  <description>1.0.2
 
-    maintenance version</description>
+    alac spi
+    opus spi
+
+    itunes library (jna)
+
+1.0.1
+
+    maintenance version
+
+TODO
+
+    jni in maven
+    resampling spi
+    qt has been deprecated
+  </description>
+  <scm>
+    <url>https://github.com/umjammer/vavi-sound-sandbox</url>
+  </scm>
+  <issueManagement>
+    <url>https://github.com/umjammer/vavi-sound-sandbox/issues</url>
+  </issueManagement>
+
   <build>
     <plugins>
       <plugin>
@@ -28,6 +51,7 @@
       </plugin>
     </plugins>
   </build>
+
   <repositories>
     <repository>
       <id>umjammer-mvn-repo</id>
@@ -43,20 +67,34 @@
       <url>http://jcenter.bintray.com</url>
     </repository>
     <repository>
+      <id>umjammer-mvn-repo</id>
+      <url>https://raw.github.com/umjammer/umjammer/mvn-repo/</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
+    <repository>
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
     </repository>
   </repositories>
+
   <dependencies>
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.3</version>
+      <version>1.0.7</version>
     </dependency>
     <dependency>
-      <groupId>javax.media</groupId>
-      <artifactId>jmf</artifactId>
-      <version>2.1.1e</version>
+      <groupId>com.github.umjammer</groupId>
+      <artifactId>Java-Apple-Lossless-decoder</artifactId>
+      <version>0.2.9</version>
+    </dependency>
+    <dependency>
+      <groupId>org.rococoa</groupId>
+      <artifactId>rococoa-cocoa</artifactId>
+      <version>0.5</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
@@ -64,9 +102,33 @@
       <version>0.3.3</version>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.5</version>
+      <groupId>com.github.umjammer.tritonus</groupId>
+      <artifactId>tritonus-remaining</artifactId>
+      <version>0.3.7-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.lostromb</groupId>
+      <artifactId>concentus</artifactId>
+      <version>fdf276e</version>
+      <type>pom</type>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.media</groupId>
+      <artifactId>jmf</artifactId>
+      <version>2.1.1e</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>5.3.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.3.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -75,46 +137,77 @@
       <version>1.0.9</version>
       <scope>test</scope>
     </dependency>
+
     <dependency>
-      <groupId>org.tritonus</groupId>
-      <artifactId>tritonus-share</artifactId>
-      <version>0.3.6</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.tritonus</groupId>
+      <groupId>com.github.umjammer.tritonus</groupId>
       <artifactId>tritonus-cdda</artifactId>
-      <version>0.3.6</version>
+      <version>0.3.7-SNAPSHOT</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.rococoa</groupId>
-      <artifactId>rococoa-core</artifactId>
-      <version>0.5</version>
-    </dependency>
-    <dependency>
-      <groupId>org.rococoa</groupId>
-      <artifactId>rococoa-cocoa</artifactId>
-      <version>0.5</version>
-      <optional>false</optional>
     </dependency>
 <!--
     <dependency>
-      <groupId>net.sourceforge.jaadec</groupId>
-      <artifactId>jaad</artifactId>
-      <version>0.8.5</version>
+      <groupId>com.github.locurasoft</groupId>
+      <artifactId>osxmidi4j</artifactId>
+      <version>osxmidi4j-1.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>net.java.dev.jna</groupId>
+          <artifactId>jna</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 -->
+<!--
+-->
+    <dependency>
+      <groupId>org.jflac</groupId>
+      <artifactId>jflac-codec</artifactId>
+      <version>1.5.2</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.SourceUtils</groupId>
+      <artifactId>jspeex</artifactId>
+      <version>master-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.soundlibs</groupId>
+      <artifactId>vorbisspi</artifactId>
+      <version>1.0.3-1</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.googlecode.soundlibs</groupId>
+          <artifactId>tritonus-share</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.github.drogatkin</groupId>
+      <artifactId>JustFLAC</artifactId>
+      <version>master-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.sourceforge.jaadec</groupId>
+      <artifactId>jaad</artifactId>
+      <version>0.8.7</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
-      <artifactId>Java-Apple-Lossless-decoder</artifactId>
-      <version>0.2.9</version>
+      <artifactId>mp3spi</artifactId>
+      <version>1.9.6</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>1.7.2</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
-  <scm>
-    <url>https://github.com/umjammer/vavi-sound-sandbox</url>
-  </scm>
-  <issueManagement>
-    <url>https://github.com/umjammer/vavi-sound-sandbox/issues</url>
-  </issueManagement>
+
 </project>

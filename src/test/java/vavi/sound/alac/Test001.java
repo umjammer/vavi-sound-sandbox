@@ -17,7 +17,7 @@ import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.beatofthedrum.alacdecoder.Alac;
 import com.beatofthedrum.alacdecoder.AlacContext;
@@ -27,7 +27,7 @@ import com.beatofthedrum.alacdecoder.AlacUtils;
 /**
  * Test001.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 111022 nsano initial version <br>
  */
 public class Test001 {
@@ -119,7 +119,7 @@ System.err.println(audioFormat);
         gainControl.setValue(dB);
 
         byte[] pcmBuffer = null;
-        int[] pDestBuffer = new int[1024 * 24 * 3]; // 24kb buffer = 4096 frames = 1 alac sample (we support max 24bps)
+        int[] pDestBuffer = new int[1024 * 24 * 3]; // 24kb buffer = 4096 frames = 1 opus sample (we support max 24bps)
         int bps = AlacUtils.AlacGetBytesPerSample(ac);
         while (true) {
             int bytes_unpacked = AlacUtils.AlacUnpackSamples(ac, pDestBuffer);
@@ -188,7 +188,7 @@ System.err.println(audioFormat);
         gainControl.setValue(dB);
 
         byte[] pcmBuffer = new byte[0xffff];
-        int[] pDestBuffer = new int[1024 * 24 * 3]; // 24kb buffer = 4096 frames = 1 alac sample (we support max 24bps)
+        int[] pDestBuffer = new int[1024 * 24 * 3]; // 24kb buffer = 4096 frames = 1 opus sample (we support max 24bps)
         while (true) {
             int bytes_unpacked = decoder.decode(pDestBuffer, pcmBuffer);
             if (bytes_unpacked == 0) {

@@ -7,6 +7,7 @@
 package vavi.sound.sampled.rococoa;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFileFormat.Type;
@@ -20,7 +21,8 @@ import javax.sound.sampled.LineListener;
 import javax.sound.sampled.SourceDataLine;
 import javax.swing.JFrame;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.rococoa.ObjCObjectByReference;
 import org.rococoa.Rococoa;
 import org.rococoa.cocoa.foundation.NSArray;
 import org.rococoa.cocoa.qtkit.MovieComponent;
@@ -33,39 +35,47 @@ import org.rococoa.cocoa.qtkit.QTTrack;
 import vavi.sound.sampled.MonauralInputFilter;
 import vavi.util.Debug;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 /**
  * RococaFormatConversionProviderTest.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060726 nsano initial version <br>
- * @see https://github.com/iterate-ch/rococoa
+ * @see "https://github.com/iterate-ch/rococoa"
  */
 public class RococaFormatConversionProviderTest {
 
-//    static final String inFile = "/Users/nsano/Movies/790278e8.3gp";
-//    static final String inFile = "/Users/nsano/Music/0/test001.m4a";
-    static final String inFile = "/Users/nsano/Music/0/rc.aiff";
-    static final String outFile = "out.wav";
+//    static final String inFile = "/Users/nsano/Movies/v_Lucien Foort ft. Candy Dulfer & Earl S - Indian Dream.mp4";
+//  static final String inFile = "/Users/nsano/Music/0/test001.m4a";
+    static final String inFile = "/Users/nsano/Music/0/Cyndi Lauper-Time After Time.m4a";
+//    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.flac"; // QTKit doesn't support FLAC, use AVFoundation
+//    static final String inFile = "/Users/nsano/Music/0/rc.aiff";
+    static final String outFile = "tmp/out.wav";
 
     static {
-       @SuppressWarnings("unused")
-       QTKit instance = QTKit.instance;
+        com.sun.jna.NativeLibrary.addSearchPath("rococoa", System.getProperty("java.library.path"));
+        @SuppressWarnings("unused")
+        QTKit instance = QTKit.instance;
     }
 
     public static void main(String[] args) throws Exception {
-        QTMovie movie = QTMovie.movieWithFile_error(inFile, null);
+        ObjCObjectByReference ref = new ObjCObjectByReference();
+        QTMovie movie = QTMovie.movieWithFile_error(inFile, ref);
+        if (movie == null) {
+            System.err.println(ref);
+            throw new FileNotFoundException(inFile);
+        }
         NSArray soundTracks = movie.tracksOfMediaType(QTMedia.QTMediaTypeSound);
         for (int i = 0; i < soundTracks.count(); i++) {
             QTTrack track = Rococoa.cast(soundTracks.objectAtIndex(i), QTTrack.class);
             track.setVolume(0.2f);
         }
         movie.play();
-        long duration = movie.duration().timeValue * 1000;
-System.err.println("duration: " + duration);
+        long duration = (long) Math.ceil((float) movie.duration().timeValue / movie.duration().timeScale.shortValue() * 1000);
+System.err.println("duration: " + duration + ", " + movie.duration().timeValue + ", " + movie.duration().timeScale + ", " + (movie.duration().timeValue / movie.duration().timeScale.shortValue()));
         Thread.sleep(duration);
     }
 
@@ -85,14 +95,12 @@ System.err.println("duration: " + duration);
     }
 
     /**
-     *
      * <ul>
      *  <li>→ mono に tritonus_remaining_###.jar が必要
      *  <li>eclipse では jar の順位がしたの方から plugin が機能している？？？
      * </ul>
-     *
      */
-    @Test
+//    @Test
     public void test1() throws Exception {
 
 for (Type type : AudioSystem.getAudioFileTypes()) {
@@ -103,6 +111,7 @@ for (Type type : AudioSystem.getAudioFileTypes()) {
         int outSamplingRate = 8000;
 
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
+System.err.println("IN: " + sourceAis.getFormat());
 
         AudioFormat inAudioFormat = sourceAis.getFormat();
         AudioFormat outAudioFormat = new AudioFormat(
@@ -127,6 +136,7 @@ System.err.println("secondAis: " + secondAis.getFormat());
 System.err.println("thirdAis: " + thirdAis.getFormat());
         AudioSystem.write(thirdAis, AudioFileFormat.Type.WAVE, new File(outFile));
 
+        // play
         AudioInputStream resultAis = AudioSystem.getAudioInputStream(new File(outFile));
         assertEquals(outSamplingRate, (int) resultAis.getFormat().getSampleRate());
 
@@ -160,6 +170,17 @@ gainControl.setValue(dB);
         line.drain();
         line.stop();
         line.close();
+    }
+
+    /** */
+    @Test
+    public void test2() throws Exception {
+        for (AudioFileFormat.Type type : AudioSystem.getAudioFileTypes()) {
+            System.err.println(type);
+        }
+        AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new File(inFile).toURI().toURL());
+        AudioFormat originalAudioFormat = originalAudioInputStream.getFormat();
+System.err.println(originalAudioFormat);
     }
 }
 

@@ -18,14 +18,14 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import vavix.util.Checksum;
 
@@ -33,7 +33,7 @@ import vavix.util.Checksum;
 /**
  * Mp3InputStreamTest.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060219 nsano initial version <br>
  */
 @PropsEntity(url = "file://${user.dir}/local.properties")
@@ -42,7 +42,7 @@ public class Mp3InputStreamTest {
     Properties props = new Properties();
 
     /** */
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         PropsEntity.Util.bind(this);
     }

@@ -33,19 +33,22 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
 
+import org.junit.jupiter.api.Disabled;
+
 import vavi.sound.pcm.equalizing.sse.Equalizer.Parameter;
 
 
 /**
  * Graphical GUI Test.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060419 nsano initial version <br>
  */
+@Disabled
 public class Test2 {
 
     String inFile;
-    String outFile = "out.vavi.wav";
+    String outFile = "tmp/out.vavi.wav";
 
     /** */
     public static void main(String[] args) throws Exception {
@@ -308,7 +311,7 @@ System.err.println(format);
                     SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
                     line.open(format);
 FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
-double gain = .3d; // number between 0 and 1 (loudest)
+double gain = .1d; // number between 0 and 1 (loudest)
 float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
 gainControl.setValue(dB);
                     line.start();

@@ -19,25 +19,25 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
 
 import vavi.util.Debug;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import vavix.util.ByteUtil;
 
 
 /**
  * ResamplerTest.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060203 nsano initial version <br>
  */
 public class ResamplerTest {
 
-//  String inFile = "C:\\Documents and Settings\\sano-n\\My Documents\\My Music\\1\\大塚 愛 - さくらんぼ.wav";
-    String inFile = "C:\\WINDOWS\\Media\\BATTVLOW.WAV";
-    String outFile = "out.wav";
+    static String inFile = "/Users/nsano/Music/0/wyolica - 星.wav";
+    static String outFile = "tmp/out.vavi.wav";
 
     /** */
     ByteUtil byteUtil = new ByteUtil();

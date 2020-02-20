@@ -15,27 +15,27 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import vavix.util.Checksum;
 
 
 /**
- * NormalizerTest. 
+ * NormalizerTest.
  *
- * @author <a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060623 nsano initial version <br>
  */
 public class NormalizerTest {
 
     String inFile;
-    String outFile = "out.vavi.wav";
-    String correctFile = "out.wav";
+    String outFile = "tmp/out.vavi.wav";
+    String correctFile = "src/test/resources/vavi/sound/sampled/out.wav";
 
-    @Before
+    @BeforeAll
     public void setUp() throws Exception {
         Properties props = new Properties();
         props.load(NormalizerTest.class.getResourceAsStream("local.properties"));
@@ -45,7 +45,7 @@ public class NormalizerTest {
     /** */
     @Test
     public void test1() throws Exception {
-        Normalizer.main(new String[] { inFile, outFile });
+        main(new String[] { inFile, outFile });
 
         AudioInputStream ais = AudioSystem.getAudioInputStream(new File(outFile));
         AudioFormat format = ais.getFormat();
@@ -65,6 +65,30 @@ System.err.println(format);
         line.close();
 
         assertEquals(Checksum.getChecksum(new File(correctFile)), Checksum.getChecksum(new File(outFile)));
+    }
+
+    /** */
+    public static void main(String[] argv) throws Exception {
+        String inname;
+        String outname;
+
+        System.out.printf("\nnormalize - Copyright 2002 Michael Kohn (mike@naken.cc)\n");
+
+        int argc = argv.length;
+        if (argc != 1 && argc != 2) {
+            System.out.printf("Usage: normalize <input filename.wav> <output filename.wav>\n");
+            System.out.printf("-- If you exclude the output filename normalize will only analyze\n\n");
+            System.exit(1);
+        }
+
+        inname = argv[0];
+        if (argc == 2) {
+            outname = argv[1];
+        } else {
+            outname = null;
+        }
+
+        new Normalizer().normalize(inname, outname);
     }
 }
 

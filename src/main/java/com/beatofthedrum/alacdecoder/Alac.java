@@ -10,7 +10,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import vavi.util.Debug;
 
+
+/**
+ * Alac.
+ *
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
+ * @version 0.00 2017/11/21 umjammer initial version <br>
+ */
 public class Alac {
 
     private AlacContext ac;
@@ -51,6 +59,8 @@ public class Alac {
             } else {
                 ac.error_message = "Error while loading the QuickTime movie headers.";
             }
+Debug.println("reset");
+            is.reset(); // TODO not sure here is fine.
             throw new IOException(ac.error_message);
         } else if (headerRead == 3) {
             // This section is used when the stream system being used doesn't
@@ -100,7 +110,7 @@ public class Alac {
         int sample_byte_size;
         SampleDuration sampleinfo = new SampleDuration();
         byte[] read_buffer = ac.read_buffer;
-//      int destBufferSize = 1024 * 24 * 3; // 24kb buffer = 4096 frames = 1 alac sample (we support max 24bps)
+//      int destBufferSize = 1024 * 24 * 3; // 24kb buffer = 4096 frames = 1 opus sample (we support max 24bps)
         int destBufferSize = pDestBuffer.length;
         int outputBytes;
         MyStream inputStream = new MyStream();
@@ -227,7 +237,6 @@ public class Alac {
     /**
      *
      * sets position in pcm samples
-     * @param ac alac context
      * @param position position in pcm samples to go to
      */
     public void setPosition(long position) {
