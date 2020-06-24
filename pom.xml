@@ -8,12 +8,9 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-sound-sandbox</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 
-  <name>Vavi Sound Sandbox API</name>
-  <organization>
-    <name></name>
-  </organization>
+  <name>Vavi Sound API (Sandbox)</name>
   <url>https://github.com/umjammer/vavi-sound-sandbox</url>
   <description>1.0.2
 
@@ -39,6 +36,12 @@ TODO
     <url>https://github.com/umjammer/vavi-sound-sandbox/issues</url>
   </issueManagement>
 
+  <properties>
+    <tritonus.groupId>org.tritonus</tritonus.groupId>
+    <tritonus.version>0.3.8-SNAPSHOT</tritonus.version>
+    <rococoa.version>0.8.3</rococoa.version>
+  </properties>
+
   <build>
     <plugins>
       <plugin>
@@ -49,16 +52,56 @@ TODO
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.10</version>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.rococoa</groupId>
+                  <artifactId>rococoa-core</artifactId>
+                  <type>dylib</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                  <destFileName>librococoa.dylib</destFileName>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M5</version>
+        <configuration>
+          <argLine>
+            -Dvavi.util.logging.VaviFormatter.extraClassMethod="org\.tritonus\.share\.TDebug#out"
+            -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
+          </argLine>
+          <trimStackTrace>false</trimStackTrace>
+          <forkMode>always</forkMode>
+          <systemProperties>
+            <dev.null>/dev/null</dev.null>
+          </systemProperties>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 
   <repositories>
     <repository>
-      <id>umjammer-mvn-repo</id>
-      <url>https://raw.github.com/umjammer/umjammer/mvn-repo/</url>
+      <id>bintray-umjammer-maven</id>
+      <name>bintray</name>
+      <url>https://dl.bintray.com/umjammer/maven</url>
       <snapshots>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
+        <enabled>false</enabled>
       </snapshots>
     </repository>
     <repository>
@@ -69,9 +112,14 @@ TODO
 
   <dependencies>
     <dependency>
+      <groupId>vavi</groupId>
+      <artifactId>vavi-commons</artifactId>
+      <version>1.1.3-SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.8</version>
+      <version>1.0.9</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
@@ -81,17 +129,17 @@ TODO
     <dependency>
       <groupId>org.rococoa</groupId>
       <artifactId>rococoa-cocoa</artifactId>
-      <version>0.5</version>
+      <version>${rococoa.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.github.umjammer</groupId>
-      <artifactId>vavi-commons-sandbox</artifactId>
-      <version>0.3.5</version>
+      <groupId>org.rococoa</groupId>
+      <artifactId>rococoa-core</artifactId>
+      <version>${rococoa.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.github.umjammer.tritonus</groupId>
+      <groupId>${tritonus.groupId}</groupId>
       <artifactId>tritonus-remaining</artifactId>
-      <version>0.3.7-SNAPSHOT</version>
+      <version>${tritonus.version}</version>
     </dependency>
     <dependency>
       <groupId>com.github.lostromb</groupId>
@@ -126,16 +174,13 @@ TODO
     </dependency>
 
     <dependency>
-      <groupId>com.github.umjammer.tritonus</groupId>
-      <artifactId>tritonus-cdda</artifactId>
-      <version>0.3.7-SNAPSHOT</version>
+      <groupId>com.github.umjammer</groupId>
+      <artifactId>vavi-commons-sandbox</artifactId>
+      <version>0.3.5</version>
       <scope>test</scope>
     </dependency>
-<!--
+
     <dependency>
-      <groupId>com.github.locurasoft</groupId>
-      <artifactId>osxmidi4j</artifactId>
-      <version>osxmidi4j-1.0</version>
       <groupId>${tritonus.groupId}</groupId>
       <artifactId>tritonus-dsp</artifactId>
       <version>${tritonus.version}</version>
@@ -143,17 +188,12 @@ TODO
     </dependency>
 
     <dependency>
+      <groupId>${tritonus.groupId}</groupId>
+      <artifactId>tritonus-cdda</artifactId>
+      <version>${tritonus.version}</version>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>net.java.dev.jna</groupId>
-          <artifactId>jna</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
--->
-<!--
--->
+
     <dependency>
       <groupId>org.jflac</groupId>
       <artifactId>jflac-codec</artifactId>
@@ -191,9 +231,9 @@ TODO
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.github.umjammer</groupId>
+      <groupId>net.javazoom</groupId>
       <artifactId>mp3spi</artifactId>
-      <version>1.9.6</version>
+      <version>1.9.7-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
