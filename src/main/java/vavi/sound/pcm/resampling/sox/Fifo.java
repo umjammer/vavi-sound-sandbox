@@ -46,7 +46,9 @@ class Fifo {
 
     /** */
     int reserve(int n) {
-
+if (n > 0x10000000) {
+ new Exception("*** DUMMY ***").printStackTrace();
+}
         if (begin == end) {
             clear();
         }
@@ -56,11 +58,13 @@ class Fifo {
                 int p = end;
 
                 end += n;
+//Debug.printf("fifo: length: %d, start: %d, end: %d, point: %d, n: %02x", allocation, begin, end, p, n);
                 return p;
             }
             if (begin > FIFO_MIN) {
                 System.arraycopy(data, begin, data, 0, end - begin);
                 end -= begin;
+//                assert end >= 0;
                 begin = 0;
                 continue;
             }
@@ -73,7 +77,7 @@ class Fifo {
     int write(int n, final double[] data) {
         int s = reserve(n);
         if (data != null) {
-            System.arraycopy(data, 0, data, s, n);
+            System.arraycopy(data, 0, this.data, s, n);
         }
         return s;
     }
@@ -86,11 +90,14 @@ class Fifo {
     /** */
     void trim_by(int n) {
         end -= n;
+//        assert end >= 0;
     }
 
     /** */
     int occupancy() {
-        return end - begin;
+        int n = end - begin;
+//        assert n >= 0 : "fifo: length " + allocation + ", begin: " + begin + ", end: " + end;
+        return n;
     }
 
     /** */
@@ -99,7 +106,7 @@ class Fifo {
             throw new IndexOutOfBoundsException();
         }
         if (data != null) {
-            System.arraycopy(data, begin, data, 0, n);
+            System.arraycopy(this.data, begin, data, 0, n);
         }
         begin += n;
         return begin;
@@ -111,7 +118,7 @@ class Fifo {
     }
 
     /** */
-    Fifo(int item_size) {
+    Fifo() {
         allocation = FIFO_MIN;
         data = new double[allocation];
         clear();
