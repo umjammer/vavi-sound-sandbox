@@ -19,7 +19,7 @@ import org.rococoa.cocoa.foundation.NSURL;
  */
 public abstract class ITLibMediaItem extends ITLibMediaEntity {
 
-    @SuppressWarnings("hiding")
+    @SuppressWarnings("unused")
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("ITLibMediaItem", _Class.class);
 
     interface _Class extends ObjCClass {

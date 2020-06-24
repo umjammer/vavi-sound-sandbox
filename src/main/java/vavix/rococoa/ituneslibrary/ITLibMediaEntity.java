@@ -6,12 +6,13 @@
 
 package vavix.rococoa.ituneslibrary;
 
-import java.util.Set;
-
 import org.rococoa.ObjCClass;
 import org.rococoa.cocoa.foundation.NSNumber;
 import org.rococoa.cocoa.foundation.NSObject;
 import org.rococoa.cocoa.foundation.NSString;
+
+import vavix.rococoa.foundation.NSMutableDictionary;
+import vavix.rococoa.foundation.NSSet;
 
 
 /**
@@ -29,15 +30,25 @@ public abstract class ITLibMediaEntity extends NSObject {
         ITLibMediaEntity alloc();
     }
 
+    public abstract NSMutableDictionary fields();
+
     public abstract NSNumber persistentID();
 
-	//NullAllowed
-    public abstract NSObject valueFor(String property);
+    /**
+     * @return nullable
+     */
+    public abstract NSObject valueForKey(NSString property);
 
-	//[Export ("enumerateValuesForProperties:usingBlock:")]
-    public abstract void enumerateValues (/*NullAllowed*/ Set<NSString> properties, /*ITLibMediaEntityEnumerateValuesHandler*/int handler);
+    /**
+     * @param properties NullAllowed
+     * @param handler ITLibMediaEntityEnumerateValuesHandler
+     */
+    public abstract void enumerateValuesForProperties(NSSet properties, com.sun.jna.Pointer handler);
 
-	//[Export ("enumerateValuesExceptForProperties:usingBlock:")]
-    public abstract void enumerateValuesExcept (/*NullAllowed*/ Set<NSString> properties, /*ITLibMediaEntityEnumerateValuesHandler*/int handler);
+    /**
+     * @param properties NullAllowed
+     * @param handler ITLibMediaEntityEnumerateValuesHandler
+     */
+    public abstract void enumerateValuesExceptForProperties(NSSet properties, com.sun.jna.Pointer handler);
 }
 

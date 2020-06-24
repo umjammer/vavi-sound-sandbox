@@ -13,7 +13,12 @@ import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.rococoa.cocoa.foundation.NSArray;
+import org.rococoa.cocoa.foundation.NSString;
+
+import vavix.rococoa.foundation.NSDictionary;
 
 
 /**
@@ -24,10 +29,6 @@ import org.junit.jupiter.api.Test;
  */
 class ITLibraryTest {
 
-    static {
-        com.sun.jna.NativeLibrary.addSearchPath("rococoa", System.getProperty("java.library.path"));
-    }
-
     /**
      * @param args top_directory regex_pattern
      */
@@ -36,10 +37,9 @@ class ITLibraryTest {
         app.exec(args);
     }
 
-
     BufferedImage image;
 
-    /** */
+    /** show all art works */
     private void exec(String[] args) throws Exception {
         JFrame frame = new JFrame();
         frame.setSize(600, 600);
@@ -71,7 +71,28 @@ class ITLibraryTest {
         ITLibrary library = ITLibrary.libraryWithAPIVersion("1.1");
         library.getMediaItems().stream()
             .filter(t -> t.mediaKind() == 2)
+            .filter(t -> t.artist().name().contains("a-ha"))
             .forEach(t -> System.err.println(t.artist().name() + " - " + t.title() + " [" + t.composer() + "]"));
+    }
+
+    int c = 0;
+
+    // TODO doesn't work
+    @Test
+    @Disabled
+    void test2() {
+        ITLibrary library = ITLibrary.libraryWithAPIVersion("1.1");
+        library.getMediaItems().stream()
+            .filter(t -> t.mediaKind() == 2)
+            .filter(t -> c++ < 1)
+            .forEach(t -> {
+                System.err.println(t.artist().name() + " - " + t.title());
+                NSDictionary dict = t.fields();
+                NSArray keys = dict.allKeys();
+                for (int i = 0; i < keys.count(); i++) {
+                    System.err.println(org.rococoa.Rococoa.cast(keys.objectAtIndex(i), NSString.class));
+                }
+            });
     }
 }
 
