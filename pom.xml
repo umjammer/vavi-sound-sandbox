@@ -136,6 +136,13 @@ TODO
       <groupId>com.github.locurasoft</groupId>
       <artifactId>osxmidi4j</artifactId>
       <version>osxmidi4j-1.0</version>
+      <groupId>${tritonus.groupId}</groupId>
+      <artifactId>tritonus-dsp</artifactId>
+      <version>${tritonus.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <scope>test</scope>
       <exclusions>
         <exclusion>
