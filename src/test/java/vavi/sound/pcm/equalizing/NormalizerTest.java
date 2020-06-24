@@ -7,7 +7,6 @@
 package vavi.sound.pcm.equalizing;
 
 import java.io.File;
-import java.util.Properties;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -15,12 +14,14 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import vavi.util.Debug;
 
 import vavix.util.Checksum;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -29,27 +30,20 @@ import vavix.util.Checksum;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060623 nsano initial version <br>
  */
-public class NormalizerTest {
+class NormalizerTest {
 
-    String inFile;
-    String outFile = "tmp/out.vavi.wav";
-    String correctFile = "src/test/resources/vavi/sound/sampled/out.wav";
+    static String inFile = "src/test/resources/test.wav";
+    static final String outFile = "tmp/out.vavi.wav";
+    static final String correctFile = "src/test/resources/vavi/sound/sampled/out.wav";
 
-    @BeforeAll
-    public void setUp() throws Exception {
-        Properties props = new Properties();
-        props.load(NormalizerTest.class.getResourceAsStream("local.properties"));
-        inFile = props.getProperty("normalizer.in.wav");
-    }
-
-    /** */
     @Test
-    public void test1() throws Exception {
+    @Disabled("not implemented yet")
+    void test1() throws Exception {
         main(new String[] { inFile, outFile });
 
-        AudioInputStream ais = AudioSystem.getAudioInputStream(new File(outFile));
+        AudioInputStream ais = AudioSystem.getAudioInputStream(new File(inFile));
         AudioFormat format = ais.getFormat();
-System.err.println(format);
+Debug.println("IN: " + format);
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(format);

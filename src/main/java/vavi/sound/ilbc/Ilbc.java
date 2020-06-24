@@ -816,8 +816,7 @@ public class Ilbc {
         // check if mode is valid
 
         if (mode < 0 || mode > 1) {
-            System.err.printf("\nERROR - Wrong mode - 0, 1 allowed\n");
-            System.exit(3);
+            throw new IllegalArgumentException("ERROR - Wrong mode - 0, 1 allowed: " + mode);
         }
 
         // do actual decoding of block
@@ -857,6 +856,8 @@ public class Ilbc {
         new Ilbc(argv);
     }
 
+    int exitCode;
+
     /** */
     Ilbc(String[] argv) throws IOException {
 
@@ -893,35 +894,30 @@ public class Ilbc {
             System.err.printf("                  1 - Packet received correctly\n");
             System.err.printf("                  0 - Packet Lost\n");
             System.err.printf("*-----------------------------------------------*\n\n");
-            System.exit(1);
+            return;
         }
         int mode = Integer.parseInt(argv[0]);
         if (mode != 20 && mode != 30) {
-            System.err.printf("Wrong mode %s, must be 20, or 30\n", argv[0]);
-            System.exit(2);
+            throw new IllegalArgumentException(String.format("Wrong mode %s, must be 20, or 30", argv[0]));
         }
         try {
             iFile = new FileInputStream(argv[1]);
         } catch (IOException e) {
-            System.err.printf("Cannot open input file %s\n", argv[1]);
-            System.exit(2);
+            throw new IllegalArgumentException(String.format("Cannot open input file %s", argv[1]));
         }
         try {
             eFile = new FileOutputStream(argv[2]);
         } catch (IOException e) {
-            System.err.printf("Cannot open encoded file %s\n", argv[2]);
-            System.exit(1);
+            throw new IllegalArgumentException(String.format("Cannot open encoded file %s", argv[2]));
         }
         try {
             oFile = new FileOutputStream(argv[3]);
         } catch (IOException e) {
-            System.err.printf("Cannot open decoded file %s\n", argv[3]);
-            System.exit(1);
+            throw new IllegalArgumentException(String.format("Cannot open decoded file %s", argv[3]));
         }
         if (argv.length == 5) {
             if ((cFile = new FileInputStream(argv[4])) == null) {
-                System.err.printf("Cannot open channel file %s\n", argv[4]);
-                System.exit(1);
+                throw new IllegalArgumentException(String.format("Cannot open channel file %s", argv[4]));
             }
         } else {
             cFile = null;
@@ -976,8 +972,7 @@ public class Ilbc {
                 cFile.read(tmp, 0, 2 * 1);
                 if ((pli = tmp[0] | tmp[1] << 8) != 0) { // TODO check endian
                     if ((pli != 0) && (pli != 1)) {
-                        System.err.printf("Error in channel file\n");
-                        System.exit(0);
+                        throw new IllegalStateException("Error in channel file");
                     }
                     if (pli == 0) {
                         // Packet loss -> remove info from frame
@@ -986,8 +981,7 @@ public class Ilbc {
                         packetLossCount++;
                     }
                 } else {
-                    System.err.printf("Error. Channel file too short\n");
-                    System.exit(0);
+                    throw new IllegalStateException("Error. Channel file too short");
                 }
             } else {
                 pli = 1;
@@ -1023,7 +1017,6 @@ public class Ilbc {
         if (argv.length == 6) {
             cFile.close();
         }
-        System.exit(0);
     }
 
     // A.3. iLBC_encode.c
@@ -1057,7 +1050,7 @@ public class Ilbc {
             // ULP init
             encoder.ULP_inst = ulp_20msTbl;
         } else {
-            System.exit(2);
+            throw new IllegalArgumentException("mode: " + mode);
         }
 
         for (int xx = 0; xx < LPC_FILTERORDER; xx++)
@@ -1414,7 +1407,7 @@ public class Ilbc {
             // ULP init
             decoder.ULP_inst = ulp_20msTbl;
         } else {
-            System.exit(2);
+            throw new IllegalArgumentException("mode: " + mode);
         }
 
         for (int xx = 0; xx < LPC_FILTERORDER; xx++)

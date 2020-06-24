@@ -11,13 +11,9 @@ import java.io.File;
 import javax.sound.midi.MidiFileFormat;
 import javax.sound.midi.MidiSystem;
 
-import org.junit.jupiter.api.Test;
-
 import vavi.sound.mfi.MfiSystem;
 import vavi.sound.mfi.vavi.VaviMfiFileFormat;
 import vavi.util.Debug;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 
 /**
@@ -27,14 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * @version 0.00 2019/04/08 umjammer initial version <br>
  */
 class IttakeMidiConverterTest {
-
-    @Test
-    void test() {
-        fail("Not yet implemented");
-    }
-
-
-    //-------------------------------------------------------------------------
 
     /**
      * Converts the midi file to a mfi file.

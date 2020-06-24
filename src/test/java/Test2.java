@@ -12,8 +12,6 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
-import org.junit.jupiter.api.Disabled;
-
 
 /**
  * line. (mic -> speaker)
@@ -21,7 +19,6 @@ import org.junit.jupiter.api.Disabled;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2012/06/11 umjammer initial version <br>
  */
-@Disabled
 public class Test2 {
 
     /**

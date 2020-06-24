@@ -15,8 +15,6 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.jupiter.api.Disabled;
-
 
 /**
  * line.
@@ -24,7 +22,6 @@ import org.junit.jupiter.api.Disabled;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2012/06/11 umjammer initial version <br>
  */
-@Disabled
 public class Test3 {
 
 //    static final String inFile = "/Users/nsano/Music/0/Mists of Time - 4T.ogg";

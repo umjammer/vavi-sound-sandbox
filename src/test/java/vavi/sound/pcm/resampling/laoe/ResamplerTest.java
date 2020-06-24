@@ -17,14 +17,16 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import vavi.util.Debug;
+
 import vavix.util.ByteUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -33,21 +35,19 @@ import vavix.util.ByteUtil;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060125 nsano initial version <br>
  */
-public class ResamplerTest {
+class ResamplerTest {
 
-//  String inFile = "C:\\Documents and Settings\\sano-n\\My Documents\\My Music\\1\\大塚 愛 - さくらんぼ.wav";
-    String inFile = "C:\\WINDOWS\\Media\\BATTVLOW.WAV";
-    String outFile = "out.wav";
+    static final String inFile = "src/test/resources/test.wav";
+    static final String outFile = "tmp/out.wav";
 
     /** */
     ByteUtil byteUtil = new ByteUtil();
 
-    /** */
     @Test
-    public void test1() throws Exception {
+    void test1() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
         AudioFormat format = sourceAis.getFormat();
-System.err.println("IN: " + format);
+Debug.println("IN: " + format);
 
         float sampleRate = format.getSampleRate();
 Debug.println("samplingRate: " + sampleRate);
@@ -92,11 +92,15 @@ Debug.println("done: " + (System.currentTimeMillis() - time) + " ms");
             2,
             resamplingRate,
             byteOrder.equals(ByteOrder.BIG_ENDIAN));
-System.err.println(audioFormat);
+Debug.println(audioFormat);
 
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(audioFormat);
+FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
+double gain = .2d; // number between 0 and 1 (loudest)
+float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
+gainControl.setValue(dB);
         line.start();
         line.write(dest, 0, dest.length);
         line.drain();

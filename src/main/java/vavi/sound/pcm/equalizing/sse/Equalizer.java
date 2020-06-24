@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Properties;
 
 import vavi.io.LittleEndianDataOutputStream;
+import vavi.util.Debug;
 import vavi.util.SplitRadixFft;
 
 
@@ -98,7 +99,10 @@ class Equalizer {
     private volatile int chg_ires, cur_ires;
 
     /** */
-    private int winlen, winlenbit, tabsize, nbufsamples;
+    private int winlen, tabsize, nbufsamples;
+
+    @SuppressWarnings("unused")
+    private int winlenbit;
 
     /** */
     private int[] inbuf;
@@ -281,19 +285,19 @@ System.err.println("property band." + c + " not found, break");
             p.upper = i == bands.length ? fs : bands[i];
             p.gain = bc[i];
             param2.add(p);
-System.err.println("0: ch: " + ch + ": [" + i + "]: " + p);
+Debug.println("0: ch: " + ch + ": [" + i + "]: " + p);
         }
 
         //
         for (int i = 0; i < param.size(); i++) {
-//System.err.println("1: ch: " + ch + ": [" + i + "]");
+//Debug.println("1: ch: " + ch + ": [" + i + "]");
             Parameter e = param.get(i);
             if ((ch == 0 && !e.left) || (ch == 1 && !e.right)) {
-//System.err.println("ch " + ch + ": ignore: unmatched channel");
+//Debug.println("ch " + ch + ": ignore: unmatched channel");
                 continue;
             }
             if (e.lower >= e.upper) {
-System.err.println("ch " + ch + ": lower >= upper: " + e.lower + ", " + e.upper);
+Debug.println("ch " + ch + ": lower >= upper: " + e.lower + ", " + e.upper);
                 continue;
             }
 
@@ -301,7 +305,7 @@ System.err.println("ch " + ch + ": lower >= upper: " + e.lower + ", " + e.upper)
             while (pi.hasNext()) {
                 p = pi.next();
                 if (p.upper > e.lower) {
-//System.err.println("ch " + ch + ": p.upper > e.lower: " + p.upper + ", " + e.lower);
+//Debug.println("ch " + ch + ": p.upper > e.lower: " + p.upper + ", " + e.lower);
                     break;
                 }
             }
@@ -309,7 +313,7 @@ System.err.println("ch " + ch + ": lower >= upper: " + e.lower + ", " + e.upper)
             while (pi.hasNext() && p.lower < e.upper) {
                 if (e.lower <= p.lower && p.upper <= e.upper) {
                     p.gain *= Math.pow(10, e.gain / 20);
-System.err.println("1.5.1: gain: " + p.gain);
+Debug.println("1.5.1: gain: " + p.gain);
                     p = pi.next();
                     continue;
                 }
@@ -318,14 +322,14 @@ System.err.println("1.5.1: gain: " + p.gain);
                     e2.lower = e.upper;
                     e2.upper = p.upper;
                     e2.gain = p.gain;
-System.err.println("1.5.2: gain: " + p.gain);
+Debug.println("1.5.2: gain: " + p.gain);
                     param2.add(i + 1, e2);
 
                     e2 = new Parameter();
                     e2.lower = e.lower;
                     e2.upper = e.upper;
                     e2.gain = p.gain * Math.pow(10, e.gain / 20);
-System.err.println("1.5.3: gain: " + p.gain);
+Debug.println("1.5.3: gain: " + p.gain);
                     param2.add(i + 1, e2);
 
                     p.upper = e.lower;
@@ -340,7 +344,7 @@ System.err.println("1.5.3: gain: " + p.gain);
                     e2.lower = e.lower;
                     e2.upper = p.upper;
                     e2.gain = p.gain * Math.pow(10, e.gain / 20);
-System.err.println("1.5.4: gain: " + p.gain);
+Debug.println("1.5.4: gain: " + p.gain);
                     param2.add(i + 1, e2);
 
                     p.upper = e.lower;
@@ -358,7 +362,7 @@ System.err.println("1.5.4: gain: " + p.gain);
 
                     p.upper = e.upper;
                     p.gain = p.gain * Math.pow(10, e.gain / 20);
-System.err.println("1.5.5: gain: " + p.gain);
+Debug.println("1.5.5: gain: " + p.gain);
 
                     p = pi.next();
                     p = pi.next();
@@ -369,7 +373,7 @@ System.err.println("1.5.5: gain: " + p.gain);
         }
 int i = 0;
 for (Parameter pp : param2) {
- System.err.println("2: ch: " + ch + ": [" + (i++) + "]: " + pp);
+ Debug.println("2: ch: " + ch + ": [" + (i++) + "]: " + pp);
 }
     }
 
@@ -391,7 +395,7 @@ for (Parameter pp : param2) {
             p.upper = i == bands.length ? fs : bands[i];
             p.gain = bc[i];
             param2.add(p);
-System.err.println("0: ch: " + ch + ": [" + i + "]: " + p);
+Debug.println("0: ch: " + ch + ": [" + i + "]: " + p);
         }
 
         //
@@ -404,7 +408,7 @@ System.err.println("0: ch: " + ch + ": [" + i + "]: " + p);
         }
 int i = 0;
 for (Parameter pp : param2) {
- System.err.println("2: ch: " + ch + ": [" + (i++) + "]: " + pp);
+ Debug.println("2: ch: " + ch + ": [" + (i++) + "]: " + pp);
 }
     }
 
@@ -519,7 +523,7 @@ for (Parameter pp : param2) {
         }
 
         p = 0;
-//System.err.println("bps: " + bps);
+//Debug.println("bps: " + bps);
         while (nbufsamples + nsamples >= winlen) {
             switch (bps) {
             case 8:
@@ -837,7 +841,7 @@ for (Parameter pp : param2) {
      * @param argv 0: in, 1: out, 2: preamp
      */
     public static void main(String[] argv) throws Exception {
-System.setOut(new PrintStream("NUL")); // fuckin' j-ogg
+System.setOut(new PrintStream(System.getProperty("dev.null"))); // fuckin' j-ogg
         // max 0 ~ 96 min, [0] is preamp
         int[] lslpos = new int[19], rslpos = new int[19];
 
@@ -861,7 +865,7 @@ System.setOut(new PrintStream("NUL")); // fuckin' j-ogg
         double lpreamp = lslpos[0] == 96 ? 0 : Math.pow(10, lslpos[0] / -20.0);
         double rpreamp = rslpos[0] == 96 ? 0 : Math.pow(10, rslpos[0] / -20.0);
 
-System.err.println("---- init ----");
+Debug.println("---- init ----");
         for (int i = 0; i < 18; i++) {
             //
             Parameter param = new Parameter();
@@ -870,8 +874,8 @@ System.err.println("---- init ----");
             param.right = false;
             param.gain = lbands[i];
             param.lower = bands[i];
-            param.upper = bands[i + 1];
-System.err.println(param);
+            param.upper = i == bands.length - 1 ? -1 : bands[i + 1];
+Debug.println(param);
             params.add(param);
             //
             rbands[i] = rslpos[i + 1] == 96 ? 0 : rpreamp * Math.pow(10, rslpos[i + 1] / -20.0);
@@ -879,11 +883,11 @@ System.err.println(param);
             param.right = true;
             param.gain = rbands[i];
             param.lower = bands[i];
-            param.upper = bands[i + 1];
-System.err.println(param);
+            param.upper = i == bands.length - 1 ? -1 :  bands[i + 1];
+Debug.println(param);
             params.add(param);
         }
-System.err.println("---- init ----");
+Debug.println("---- init ----");
 
         //----
 
@@ -897,7 +901,7 @@ System.err.println("---- init ----");
         int argc = argv.length;
         if (argc != 2 && argc != 3) {
             equ.usage();
-            System.exit(-1);
+            return;
         }
 
         try {
@@ -906,7 +910,7 @@ System.err.println("---- init ----");
         } catch (Exception e) {
             System.err.println(e);
             equ.usage();
-            System.exit(-1);
+            return;
         }
 
         // generate wav header
