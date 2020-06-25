@@ -20,6 +20,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import vavi.util.Debug;
@@ -36,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @version 0.00 081029 nsano initial version <br>
  * @see "rate.c"
  */
-public class PerfectResamplerTest {
+class PerfectResamplerTest {
 
     static String inFile = "src/test/resources/test.wav";
     static String outFile = "tmp/out.vavi.wav";
@@ -44,9 +45,9 @@ public class PerfectResamplerTest {
     /** */
     ByteUtil byteUtil = new ByteUtil();
 
-    /** */
+    @Disabled("not completed yet")
     @Test
-    public void test1() throws Exception {
+    void test1() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
         AudioFormat format = sourceAis.getFormat();
 Debug.println("IN: " + format);
@@ -91,7 +92,6 @@ Debug.println("done: " + (System.currentTimeMillis() - time) + " ms");
 //Debug.println("dest:\n" + StringUtil.getDump(dest, 128));
 
         // play
-if (false) {
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
 
         AudioFormat audioFormat = new AudioFormat(
@@ -132,7 +132,6 @@ Debug.println("result: " + r);
 
         AudioInputStream resultAis = AudioSystem.getAudioInputStream(new File(outFile));
         assertEquals((int) resamplingRate, (int) resultAis.getFormat().getSampleRate());
-}
     }
 }
 
