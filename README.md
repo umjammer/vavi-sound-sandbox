@@ -1,4 +1,4 @@
-[![](https://jitpack.io/v/umjammer/vavi-sound-sandbox.svg)](https://jitpack.io/#umjammer/vavi-sound-sandbox)
+[![](https://jitpack.io/v/umjammer/vavi-sound-sandbox.svg)](https://jitpack.io/#umjammer/vavi-sound-sandbox) [![Java CI with Maven](https://github.com/umjammer/vavi-sound-sandbox/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/umjammer/vavi-sound-sandbox/actions)
 
 # vavi-sound-sandbox
 
