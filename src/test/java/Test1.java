@@ -15,8 +15,6 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineEvent;
 
-import org.junit.jupiter.api.Disabled;
-
 
 /**
  * clip.
@@ -24,7 +22,6 @@ import org.junit.jupiter.api.Disabled;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2012/06/11 umjammer initial version <br>
  */
-@Disabled
 public class Test1 {
 
     static final String inFile = "/Users/nsano/Music/0/11 - Blockade.flac";

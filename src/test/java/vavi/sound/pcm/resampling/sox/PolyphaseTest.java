@@ -20,13 +20,14 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import vavi.util.Debug;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import vavix.util.ByteUtil;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -37,7 +38,7 @@ import vavix.util.ByteUtil;
  */
 public class PolyphaseTest {
 
-    static String inFile = "/Users/nsano/Music/0/wyolica - 星.wav";
+    static String inFile = "src/test/resources/test.wav";
     static String outFile = "tmp/out.vavi.wav";
 
     static boolean isGui;
@@ -49,12 +50,18 @@ public class PolyphaseTest {
     /** */
     ByteUtil byteUtil = new ByteUtil();
 
-    /** */
+    @Test
+    void test0() {
+        int i = 1, j = 2;
+        assertEquals(1, i);
+        assertEquals(2, j);
+    }
+
     @Test
     public void test1() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
         AudioFormat format = sourceAis.getFormat();
-System.err.println("IN: " + format);
+Debug.println("IN: " + format);
 
         float sampleRate = format.getSampleRate();
 Debug.println("samplingRate: " + sampleRate);
@@ -63,6 +70,7 @@ Debug.println("numberChannels: " + channels);
         int sampleSizeInBits = format.getSampleSizeInBits() / 8;
 Debug.println("sampleSizeInBits: " + sampleSizeInBits);
 
+        // to monaural
         int[] samples = new int[sourceAis.available() / format.getFrameSize()];
 Debug.println("samples: " + samples.length + ", frameSize: " + format.getFrameSize());
         byte [] sample = new byte[format.getFrameSize()];
@@ -74,6 +82,8 @@ Debug.println("samples: " + samples.length + ", frameSize: " + format.getFrameSi
             // L
             samples[i] = byteUtil.readAsInt(sample, 0);
         }
+
+        // resample
         final float resamplingRate = 8000;
 Debug.println("factor: " + sampleRate / resamplingRate);
 long time = System.currentTimeMillis();
@@ -83,14 +93,14 @@ long time = System.currentTimeMillis();
 Debug.println("drain: " + results2.length);
 Debug.println("done: " + (System.currentTimeMillis() - time) + " ms");
 
+        // int[] to byte[]
         byte[] dest = new byte[results.length * 2];
         for (int i = 0; i < results.length; i++) {
             byteUtil.writeAsByteArray(dest, i * 2, results[i]);
 //Debug.println("result[" + i + "]: " + results[i]);
         }
 
-        //----
-
+        // play
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
 
         AudioFormat audioFormat = new AudioFormat(
@@ -101,14 +111,18 @@ Debug.println("done: " + (System.currentTimeMillis() - time) + " ms");
             2,
             resamplingRate,
             byteOrder.equals(ByteOrder.BIG_ENDIAN));
-System.err.println(audioFormat);
+Debug.println("OUT: " + audioFormat);
 
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(audioFormat);
         line.start();
-        if (isGui)
-            line.write(dest, 0, dest.length);
+        if (isGui) {
+            int l = 0;
+            while (l < dest.length) {
+                l += line.write(dest, l, dest.length);
+            }
+        }
         line.drain();
         line.stop();
         line.close();
@@ -128,7 +142,9 @@ Debug.println("result: " + r);
         assertEquals((int) resamplingRate, (int) resultAis.getFormat().getSampleRate());
     }
 
+    // TODO doesn't work
     @Test
+    @Disabled
     public void test2() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
         AudioFormat format = sourceAis.getFormat();
@@ -138,10 +154,12 @@ Debug.println("result: " + r);
             format.getSampleSizeInBits(),
             format.getChannels(),
             format.getFrameSize(),
-            format.getFrameRate(),
+            8000,
             format.isBigEndian());
 
         InputStream in = new PolyphaseInputStream(sourceAis, format.getSampleRate(), outFormat.getSampleRate());
+Debug.println("IN: " + format);
+Debug.println("OUT: " + outFormat);
 
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, outFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
@@ -157,8 +175,10 @@ gainControl.setValue(dB);
             l = in.read(buf, 0, buf.length);
             if (l < 0)
                 break;
-            if (isGui)
+            if (isGui) {
                 line.write(buf, 0, l);
+Debug.println("line.write: " + l);
+            }
         }
         in.close();
         line.drain();

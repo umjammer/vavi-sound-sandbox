@@ -24,7 +24,7 @@ public class AlacFileFormatType extends AudioFileFormat.Type {
 
     /**
      * Constructs a file type.
-     * 
+     *
      * @param name the name of the ALAC File Format.
      * @param extension the file extension for this ALAC File Format.
      */

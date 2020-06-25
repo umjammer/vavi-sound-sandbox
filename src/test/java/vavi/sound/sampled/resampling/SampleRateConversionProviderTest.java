@@ -15,8 +15,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineListener;
 import javax.sound.sampled.SourceDataLine;
 
 import org.junit.jupiter.api.Test;
@@ -36,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class SampleRateConversionProviderTest {
 
-    String inFile = "/Users/nsano/Music/0/Cyndi Lauper-Time After Time.m4a";
+    String inFile = "src/test/resources/test.wav";
     String outFile = "tmp/out.wav";
 
     /**
@@ -49,14 +47,14 @@ public class SampleRateConversionProviderTest {
     public void test1() throws Exception {
 
 for (Type type : AudioSystem.getAudioFileTypes()) {
-    System.err.println("type: " + type);
+ Debug.println("type: " + type);
 }
 
         //
         int outSamplingRate = 8000;
 
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
-System.err.println("IN: " + sourceAis.getFormat());
+Debug.println("IN: " + sourceAis.getFormat());
 
         AudioFormat inAudioFormat = sourceAis.getFormat();
         AudioFormat outAudioFormat = new AudioFormat(
@@ -72,13 +70,13 @@ System.err.println("IN: " + sourceAis.getFormat());
 
         //
         AudioInputStream secondAis = AudioSystem.getAudioInputStream(outAudioFormat, sourceAis);
-System.err.println("OUT: " + secondAis.getFormat());
+Debug.println("OUT: " + secondAis.getFormat());
 for (Type type : AudioSystem.getAudioFileTypes(secondAis)) {
-    System.err.println("type: " + type);
+ System.err.println("type: " + type);
 }
-System.err.println("secondAis: " + secondAis.getFormat());
+Debug.println("secondAis: " + secondAis.getFormat());
         AudioInputStream thirdAis = new MonauralInputFilter().doFilter(secondAis);
-System.err.println("thirdAis: " + thirdAis.getFormat());
+Debug.println("thirdAis: " + thirdAis.getFormat());
         AudioSystem.write(thirdAis, AudioFileFormat.Type.WAVE, new File(outFile));
 
         // 2. play
@@ -89,14 +87,14 @@ System.err.println("thirdAis: " + thirdAis.getFormat());
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, resultAis.getFormat());
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(resultAis.getFormat());
-        line.addLineListener(new LineListener() {
-            public void update(LineEvent ev) {
-Debug.println(ev.getType());
-                if (LineEvent.Type.STOP == ev.getType()) {
-                    System.exit(0);
-                }
-            }
-        });
+//        line.addLineListener(new LineListener() {
+//            public void update(LineEvent ev) {
+//Debug.println(ev.getType());
+//                if (LineEvent.Type.STOP == ev.getType()) {
+//                    System.exit(0);
+//                }
+//            }
+//        });
         line.start();
         byte[] buf = new byte[1024];
         int l = 0;

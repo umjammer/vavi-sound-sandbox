@@ -19,6 +19,7 @@
 package vavi.sound.pcm.resampling.sox;
 
 import java.util.Random;
+import java.util.logging.Level;
 
 import vavi.util.Debug;
 
@@ -109,13 +110,13 @@ class Polyphase {
 
         int p = 0; // primes
         int q = 0; // q0
-System.err.printf("factors(%d) =", n);
+Debug.printf(Level.FINE, "factors(%d) =", n);
         while (n > 1) {
             while ((pr = primes[p]) != 0 && (n % pr) != 0) {
                 p++;
             }
             if (pr == 0) {
-System.err.printf("Number %d too large of a prime.", n);
+Debug.printf(Level.FINE, "Number %d too large of a prime.", n);
                 pr = n;
             }
             q0[q++] = pr;
@@ -123,9 +124,8 @@ System.err.printf("Number %d too large of a prime.", n);
         }
         q0[q] = 0;
         for (pr = 0; pr < q; pr++) {
-System.err.printf(" %d", q0[pr]);
+Debug.printf(Level.FINE, " %d", q0[pr]);
         }
-System.err.println();
         return q;
     }
 
@@ -176,8 +176,7 @@ System.err.println();
             m[p++] = n;
         }
         m[p] = 0;
-// for (k = 0; k < p - m; k++) { System.err.printf(" %d", m[k]); }
-// System.err.prinln();
+// for (k = 0; k < p - m; k++) { Debu.printf(Level.FINE, " %d", m[k]); }
         return p;
     }
 
@@ -207,9 +206,9 @@ fail:
                 cost = 0;
                 f = denom;
                 u = Math.min(ct1, ct2) + 1;
-//System.err.printf("pfacts(%d): ", numer);
+//Debug.printf(Level.FINE, "pfacts(%d): ", numer);
                 u1 = permute(m1, l1, ct1, u, amalg);
-//System.err.printf("pfacts(%d): ", denom);
+//Debug.printf(Level.FINE, "pfacts(%d): ", denom);
                 u2 = permute(m2, l2, ct2, u, amalg);
                 u = Math.max(u1, u2);
                 for (j = 0; j < u; j++) {
@@ -305,12 +304,12 @@ fail:
             hamming(buffer, length); // Design Hamming window: 43 dB cutoff
         }
 
-//System.err.printf("# fir_design length=%d, cutoff=%8.4f\n", length, cutoff);
+//Debug.printf(Level.FINE, "# fir_design length=%d, cutoff=%8.4f\n", length, cutoff);
         // Design filter: windowed sinc function
         double sum = 0.0;
         for (int j = 0; j < length; j++) {
             buffer[j] *= sinc((Math.PI * cutoff * (j - length / 2))); // center at length / 2
-//System.err.printf("%.1f %.6f\n", (double) j, buffer[j]);
+//Debug.printf(Level.FINE, "%.1f %.6f\n", (double) j, buffer[j]);
             sum += buffer[j];
         }
         sum = 1.0 / sum;
@@ -318,7 +317,7 @@ fail:
         for (int j = 0; j < length; j++) {
             buffer[j] *= sum;
         }
-//System.err.printf("# end\n\n");
+//Debug.printf(Level.FINE, "# end\n\n");
     }
 
     /** */
@@ -395,8 +394,8 @@ fail:
         work.total = total;
         // l1 and l2 are now lists of the up/down factors for conversion
 
-System.err.printf("Poly:  input rate %.1f, output rate %.1f.  %d stages.\n", inrate, outrate, total);
-System.err.printf("Poly:  window: %s  size: %d  cutoff: %.2f.\n", (win_type == 0) ? "nut" : "ham", win_width, cutoff);
+Debug.printf("Poly:  input rate %.1f, output rate %.1f.  %d stages.\n", inrate, outrate, total);
+Debug.printf("Poly:  window: %s  size: %d  cutoff: %.2f.\n", (win_type == 0) ? "nut" : "ham", win_width, cutoff);
 
         // Create an array of filters and past history
         float uprate = inrate;
@@ -417,12 +416,12 @@ System.err.printf("Poly:  window: %s  size: %d  cutoff: %.2f.\n", (win_type == 0
 //          s.size = size;
             s.hsize = f_len / s.up; // this much of window is past-history
             s.held = 0;
-System.err.printf("Poly:  stage %d:  Up by %d, down by %d,  i_samps %d, hsize %d\n", k + 1, s.up, s.down, -1/* size */, s.hsize);
+Debug.printf("Poly:  stage %d:  Up by %d, down by %d,  i_samps %d, hsize %d\n", k + 1, s.up, s.down, -1/* size */, s.hsize);
             s.filt_len = f_len;
             s.filt_array = new double[f_len];
 //          s.window = new double[s.hsize + size];
             uprate *= s.up;
-System.err.printf("Poly:         :  filt_len %d, cutoff freq %.1f\n", f_len, uprate * cutoff / f_cutoff);
+Debug.printf("Poly:         :  filt_len %d, cutoff freq %.1f\n", f_len, uprate * cutoff / f_cutoff);
             uprate /= s.down;
             fir_design(s.filt_array, f_len, cutoff / f_cutoff);
             // s.filt_array[f_len - 1] = 0;
@@ -445,7 +444,7 @@ System.err.printf("Poly:         :  filt_len %d, cutoff freq %.1f\n", f_len, upr
             s.filt_array = null;
 //          s.window = new double[size];
         }
-System.err.printf("Poly:  output samples %d, oskip %d\n", -1 /* size */, work.oskip);
+Debug.printf("Poly:  output samples %d, oskip %d\n", -1 /* size */, work.oskip);
     }
 
     /**
@@ -456,16 +455,16 @@ System.err.printf("Poly:  output samples %d, oskip %d\n", -1 /* size */, work.os
      * </p>
      */
     private final double st_prod(final double[] q, int qP, int qstep, final double[] p, int pP, int n) {
-//System.err.printf("qP: %d, qstep: %d, pP: %d, n: %d, (%d)\n", qP, qstep, pP, n, q.length);
+//Debug.printf("qP: %d, qstep: %d, pP: %d, n: %d, (%d)\n", qP, qstep, pP, n, q.length);
         double sum = 0;
         int p0 = pP - n; // p
         while (pP > p0) {
-//System.err.printf("p[%d]: %f, q[%d]: %f\n", pP, p[pP], qP, q[qP]);
+//Debug.printf("p[%d]: %f, q[%d]: %f\n", pP, p[pP], qP, q[qP]);
             sum += p[pP] * q[qP];
             qP += qstep;
             pP -= 1;
         }
-//System.err.printf("sum: %f\n", sum);
+//Debug.printf("sum: %f\n", sum);
         return sum;
     }
 
@@ -479,13 +478,13 @@ System.err.printf("Poly:  output samples %d, oskip %d\n", -1 /* size */, work.os
 //for (mm = 0; mm < s.filt_len; mm++) { System.err.printf("cf_%d %f\n", mm, s.filt_array[mm]); }
         // assumes s.size divisible by down (now true)
         int o_top = (s.size * up) / down; // output
-//System.err.printf(" isize %d, osize %d, up %d, down %d, N %d", s.size, o_top-output, up, down, f_len);
+//Debug.printf(" isize %d, osize %d, up %d, down %d, N %d", s.size, o_top-output, up, down, f_len);
         for (int mm = 0, o = 0; o < o_top; mm += down, o++) { // o: output pointer
             int q = mm % up; // decimated coef pointer, s.filt_array
             int p = in + (mm / up);
             double sum = st_prod(s.filt_array, q, up, s.window, p, f_len / up);
             output[oP + o] = sum * up;
-//System.err.printf("%f\n", output[oP + o]);
+//Debug.printf("%f\n", output[oP + o]);
         }
     }
 
@@ -506,7 +505,7 @@ System.err.printf("Poly:  output samples %d, oskip %d\n", -1 /* size */, work.os
 
     /** TODO check */
     private final int clipfloat(double sample) {
-//System.err.printf("%f\n", sample);
+//Debug.printf("%f\n", sample);
         if (sample > ST_SAMPLE_MAX) {
             return ST_SAMPLE_MAX;
         }
@@ -527,19 +526,19 @@ System.err.printf("Poly:  output samples %d, oskip %d\n", -1 /* size */, work.os
                 f = 1;
             }
             size = f * work.outskip; // reasonable input block size
-Debug.println("size 0: " + size);
+Debug.println(Level.FINE, "size 0: " + size);
         }
         for (j = 0; j < work.total; j++) {
             PolyStage s = work.stage[j];
             s.size = size;
             s.window = new double[s.hsize + size];
             size = (size * s.up) / s.down; // this is integer
-Debug.println("size [" + j + "]: " + size);
+Debug.println(Level.FINE, "size [" + j + "]: " + size);
         }
         {
             PolyStage s = work.stage[j];
             s.size = size;
-Debug.println("size [" + j + "]: " + size);
+Debug.println(Level.FINE, "size [" + j + "]: " + size);
             s.window = new double[size];
         }
 
@@ -551,7 +550,7 @@ Debug.println("size [" + j + "]: " + size);
         //----
 
         // Sanity check: how much can we tolerate?
-//System.err.printf("isamp=%d osamp=%d\n", isamp[0], osamp[0]); System.err.flush();
+//Debug.printf(Level.FINE, "isamp=%d osamp=%d\n", isamp[0], osamp[0]); System.err.flush();
         PolyStage s0 = work.stage[0]; // the first stage
         PolyStage s1 = work.stage[work.total]; // the 'last' stage is output buffer
         {
@@ -569,7 +568,7 @@ Debug.println("size [" + j + "]: " + size);
                     work.inpipe += work.factor * in_size;
                     for (int k = 0; k < in_size; k++) {
 //if (k < 300) {
-// System.err.printf("%d\n", ibuf[k]);
+// Debug.printf(Level.FINE, "%d\n", ibuf[k]);
 //}
                         s0.window[q++] = ibuf[k] / ISCALE;
                     }
@@ -589,10 +588,10 @@ Debug.println("size [" + j + "]: " + size);
                 PolyStage s = work.stage[k];
                 int out = work.stage[k + 1].hsize; // rate.stage[k + 1].window
 
-//System.err.printf("stage: %d insize=%d\n", k + 1, s.window.length); System.err.flush();
+//Debug.printf(Level.FINE, "stage: %d insize=%d\n", k + 1, s.window.length); System.err.flush();
 //for (int l = 0; l < s.window.length; l++) {
 // if (l < 300) {
-//  System.err.printf("%f\n", s.window[l]);
+//  Debug.printf(Level.FINE, "%f\n", s.window[l]);
 // }
 //}
                 polyphase(work.stage[k + 1].window, out, s);
@@ -612,21 +611,21 @@ Debug.println("size [" + j + "]: " + size);
 
             int oskip = work.oskip;
             int out_size = s1.held;
-//Debug.println("out_size 0: " + out_size);
+//Debug.println(Level.FINE, "out_size 0: " + out_size);
             int out_buf = s1.hsize; // s1.window
 
             if (ibuf == null && out_size > Math.ceil(work.inpipe)) {
                 out_size = (int) Math.ceil(work.inpipe);
-//Debug.println("out_size 1: " + out_size);
+//Debug.println(Level.FINE, "out_size 1: " + out_size);
             }
 
             if (out_size > oskip + osamp) {
                 out_size = oskip + osamp;
-//Debug.println("out_size 2: " + out_size);
+//Debug.println(Level.FINE, "out_size 2: " + out_size);
             }
 
             obuf = new int[out_size];
-Debug.println("out_size: " + out_size);
+Debug.println(Level.FINE, "out_size: " + out_size);
             for (q = 0, k = oskip; k < out_size; k++) {
                 obuf[q++] = clipfloat(s1.window[out_buf + k] * ISCALE); // should clip - limit
             }

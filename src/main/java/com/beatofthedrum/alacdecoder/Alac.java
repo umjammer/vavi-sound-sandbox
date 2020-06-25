@@ -6,6 +6,7 @@
 
 package com.beatofthedrum.alacdecoder;
 
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,12 +37,10 @@ public class Alac {
 
         ac.error = false;
 
-        if (!FileInputStream.class.isInstance(is)) {
-            if (!is.markSupported()) {
-                throw new IOException("is does not support mark");
-            }
-            is.mark(1024);
+        if (!is.markSupported()) {
+            is = new BufferedInputStream(is);
         }
+        is.mark(1024);
         AlacInputStream input_stream = new AlacInputStream(is);
 
         ac.input_stream = input_stream;
@@ -60,7 +59,11 @@ public class Alac {
                 ac.error_message = "Error while loading the QuickTime movie headers.";
             }
 Debug.println("reset");
+try {
             is.reset(); // TODO not sure here is fine.
+} catch (IOException e) {
+ Debug.println(e.getMessage());
+}
             throw new IOException(ac.error_message);
         } else if (headerRead == 3) {
             // This section is used when the stream system being used doesn't

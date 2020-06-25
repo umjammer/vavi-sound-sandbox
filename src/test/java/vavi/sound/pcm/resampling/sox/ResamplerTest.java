@@ -17,6 +17,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
 import org.junit.jupiter.api.Test;
@@ -36,18 +37,17 @@ import vavix.util.ByteUtil;
  */
 public class ResamplerTest {
 
-    static String inFile = "/Users/nsano/Music/0/wyolica - 星.wav";
+    static String inFile = "src/test/resources/test.wav";
     static String outFile = "tmp/out.vavi.wav";
 
     /** */
     ByteUtil byteUtil = new ByteUtil();
 
-    /** */
     @Test
     public void test1() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
         AudioFormat format = sourceAis.getFormat();
-System.err.println("IN: " + format);
+Debug.println("IN: " + format);
 
         float sampleRate = format.getSampleRate();
 Debug.println("samplingRate: " + sampleRate);
@@ -56,6 +56,7 @@ Debug.println("numberChannels: " + channels);
         int sampleSizeInBits = format.getSampleSizeInBits() / 8;
 Debug.println("sampleSizeInBits: " + sampleSizeInBits);
 
+        // to monaural
         int[] samples = new int[sourceAis.available() / format.getFrameSize()];
 Debug.println("samples: " + samples.length + ", frameSize: " + format.getFrameSize());
         byte [] sample = new byte[format.getFrameSize()];
@@ -67,6 +68,8 @@ Debug.println("samples: " + samples.length + ", frameSize: " + format.getFrameSi
             // L
             samples[i] = byteUtil.readAsInt(sample, 0);
         }
+
+        // resample
         final float resamplingRate = 8000;
 Debug.println("factor: " + sampleRate / resamplingRate);
 long time = System.currentTimeMillis();
@@ -76,6 +79,7 @@ long time = System.currentTimeMillis();
 Debug.println("results1: " + results1.length + ", 2: " + results2.length);
 Debug.println("done: " + (System.currentTimeMillis() - time) + " ms");
 
+        // int[] to byte[]
         byte[] dest = new byte[(results1.length + results2.length) * 2];
         for (int i = 0; i < results1.length; i++) {
             byteUtil.writeAsByteArray(dest, i * 2, results1[i]);
@@ -85,8 +89,7 @@ Debug.println("done: " + (System.currentTimeMillis() - time) + " ms");
             byteUtil.writeAsByteArray(dest, results1.length * 2 + i * 2, results2[i]);
         }
 
-        //----
-
+        // play
         ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
 
         AudioFormat audioFormat = new AudioFormat(
@@ -97,13 +100,20 @@ Debug.println("done: " + (System.currentTimeMillis() - time) + " ms");
             2,
             resamplingRate,
             byteOrder.equals(ByteOrder.BIG_ENDIAN));
-System.err.println(audioFormat);
+Debug.println(audioFormat);
 
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(audioFormat);
+FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
+double gain = .2d; // number between 0 and 1 (loudest)
+float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
+gainControl.setValue(dB);
         line.start();
-        line.write(dest, 0, dest.length);
+        int l = 0;
+        while (l < dest.length) {
+            l += line.write(dest, l, dest.length);
+        }
         line.drain();
         line.stop();
         line.close();

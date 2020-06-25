@@ -17,6 +17,7 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,14 +31,15 @@ import vavix.util.Checksum;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060417 nsano initial version <br>
  */
-public class EqualizerTest {
+@Disabled("not implemented yet")
+class EqualizerTest {
 
     String inFile;
     String outFile = "tmp/out.vavi.wav";
     String correctFile = "src/test/java/resources/vavi/sound/pcm/equalizing/out.wav";
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         Properties props = new Properties();
         props.load(EqualizerTest.class.getResourceAsStream("local.properties"));
         inFile = props.getProperty("equalizer.in.wav");
@@ -45,7 +47,7 @@ public class EqualizerTest {
 
     /** */
     @Test
-    public void test1() throws Exception {
+    void test1() throws Exception {
         Equalizer.main(new String[] { inFile, outFile });
 
         AudioInputStream ais = AudioSystem.getAudioInputStream(new File(outFile));

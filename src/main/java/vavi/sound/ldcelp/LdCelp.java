@@ -710,7 +710,7 @@ public class LdCelp {
         float gain = cb_gain[gx];
         for (int i = 0; i < Constants.IDIM; i++) {
 //Debug.println("v: " + i + "/" + v.length);
-//Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_shape[sx].length);
+Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_shape[sx].length);
             v[i] = cb_shape[sx][i] * gain;
         }
     }

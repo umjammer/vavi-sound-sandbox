@@ -23,7 +23,7 @@ public class AlacEncoding extends AudioFormat.Encoding {
 
     /**
      * Constructs a new encoding.
-     * 
+     *
      * @param name Name of the ALAC encoding.
      */
     public AlacEncoding(String name) {

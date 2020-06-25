@@ -89,7 +89,7 @@ Debug.println("track[" + i + "]: " + tracks[i].size());
                 if (!"EOS".equals(pair.id)) {
                     Event event = Event.class.cast(findEvent(i, pair.id));
                     currentTicks = pair.tick;
-        
+
                     //
                     MidiEvent[] midiEvents = event.toMidiEvents(this);
                     if (midiEvents != null) {

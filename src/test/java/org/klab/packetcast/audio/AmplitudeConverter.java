@@ -35,7 +35,7 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
-import vavi.sound.pcm.resampling.tritonus.AmplitudeAudioInputStream;
+import org.tritonus.dsp.ais.AmplitudeAudioInputStream;
 
 
 /**

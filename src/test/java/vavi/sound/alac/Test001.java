@@ -23,6 +23,8 @@ import com.beatofthedrum.alacdecoder.Alac;
 import com.beatofthedrum.alacdecoder.AlacContext;
 import com.beatofthedrum.alacdecoder.AlacUtils;
 
+import vavi.util.Debug;
+
 
 /**
  * Test001.
@@ -30,7 +32,7 @@ import com.beatofthedrum.alacdecoder.AlacUtils;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 111022 nsano initial version <br>
  */
-public class Test001 {
+class Test001 {
 
     byte[] format_samples(int bps, int[] src, int samcnt) {
         int temp = 0;
@@ -70,13 +72,10 @@ public class Test001 {
         return dst;
     }
 
-    /**
-     * <pre>
-     * </pre>
-     */
-//    @Test
-    public void test1() throws Exception {
-        String inFile = "/Users/nsano/Music/0/out.m4a";
+    static final String inFile = "src/test/resources/alac.m4a";
+
+    @Test
+    void test1() throws Exception {
 
         AlacContext ac = AlacUtils.AlacOpenFileInput(inFile);
         if (ac.error) {
@@ -87,7 +86,7 @@ public class Test001 {
         int byteps = AlacUtils.AlacGetBytesPerSample(ac);
         int sample_rate = AlacUtils.AlacGetSampleRate(ac);
         int bitps = AlacUtils.AlacGetBitsPerSample(ac);
-System.err.println("num_channels: " + num_channels +
+Debug.println("num_channels: " + num_channels +
                    ", total_samples: " + total_samples +
                    ", byteps: " + byteps +
                    ", sample_rate: " + sample_rate +
@@ -101,7 +100,7 @@ System.err.println("num_channels: " + num_channels +
             byteps * num_channels,
             sample_rate,
             false);
-System.err.println(audioFormat);
+Debug.println(audioFormat);
 
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
@@ -140,14 +139,8 @@ System.err.println(audioFormat);
         AlacUtils.AlacCloseFile(ac);
     }
 
-    /**
-     * <pre>
-     * </pre>
-     */
     @Test
-    public void test2() throws Exception {
-        String inFile = "/Users/nsano/Music/0/out.m4a";
-
+    void test2() throws Exception {
         InputStream is = new FileInputStream(inFile);
 
         Alac decoder = new Alac(is);
@@ -156,7 +149,7 @@ System.err.println(audioFormat);
         int byteps = decoder.getBytesPerSample();
         int sample_rate = decoder.getSampleRate();
         int bitps = decoder.getBitsPerSample();
-System.err.println("num_channels: " + num_channels +
+Debug.println("num_channels: " + num_channels +
                    ", total_samples: " + total_samples +
                    ", byteps: " + byteps +
                    ", sample_rate: " + sample_rate +
@@ -170,7 +163,7 @@ System.err.println("num_channels: " + num_channels +
             byteps * num_channels,
             sample_rate,
             false);
-System.err.println(audioFormat);
+Debug.println(audioFormat);
 
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
@@ -194,7 +187,7 @@ System.err.println(audioFormat);
             if (bytes_unpacked == 0) {
                 break;
             }
-//System.err.println("bytes_unpacked: " + bytes_unpacked + "\n" + StringUtil.getDump(pcmBuffer, 64));
+//Debug.println("bytes_unpacked: " + bytes_unpacked + "\n" + StringUtil.getDump(pcmBuffer, 64));
             line.write(pcmBuffer, 0, bytes_unpacked);
         }
         line.drain();

@@ -12,7 +12,7 @@ import org.rococoa.cocoa.foundation.NSArray;
 
 public abstract class ITLibPlaylist extends ITLibMediaEntity {
 
-    @SuppressWarnings("hiding")
+    @SuppressWarnings("unused")
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("ITLibPlaylist", _Class.class);
 
     interface _Class extends ObjCClass {

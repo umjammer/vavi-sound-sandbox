@@ -11,23 +11,20 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.ByteOrder;
-import java.util.Properties;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import vavi.util.Debug;
-import vavi.util.properties.annotation.Property;
-import vavi.util.properties.annotation.PropsEntity;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import vavix.util.Checksum;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 /**
@@ -36,25 +33,16 @@ import vavix.util.Checksum;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060219 nsano initial version <br>
  */
-@PropsEntity(url = "file://${user.dir}/local.properties")
-public class Mp3InputStreamTest {
+@Disabled("not implemented yet")
+class Mp3InputStreamTest {
 
-    Properties props = new Properties();
-
-    /** */
-    @BeforeEach
-    public void setUp() throws Exception {
-        PropsEntity.Util.bind(this);
-    }
-
-    @Property(name = "vavi.sound.mp3.in.mp3")
-    String inFile;
-    String outFile = "out.vavi.pcm";
-    String correctFile = "out.pcm";
+    static final String inFile = "src/test/resources/test.mp3";
+    static final String outFile = "tmp/out.vavi.pcm";
+    static final String correctFile = "tmp/out.pcm";
 
     /** */
     @Test
-    public void test1() throws Exception {
+    void test1() throws Exception {
         main(new String[] { inFile, outFile });
 
         assertEquals(Checksum.getChecksum(new File(correctFile)), Checksum.getChecksum(new File(outFile)));

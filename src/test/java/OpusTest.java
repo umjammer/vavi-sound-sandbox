@@ -69,8 +69,8 @@ public class OpusTest {
         System.err.println("Done!");
     }
 
-    static final String inFile = "tmp/hoshi.raw";
-    static final String outFile = "tmp/hoshi2.raw";
+    static final String inFile = "src/test/resources/opus.raw";
+    static final String outFile = "tmp/opus.pcm";
 
     @Test
     public void test() throws Exception {

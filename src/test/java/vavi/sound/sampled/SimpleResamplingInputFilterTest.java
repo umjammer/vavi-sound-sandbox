@@ -14,6 +14,8 @@ import javax.sound.sampled.AudioSystem;
 
 import org.junit.jupiter.api.Test;
 
+import vavi.util.Debug;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -27,15 +29,15 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class SimpleResamplingInputFilterTest {
 
-    String inFile = "C:\\Documents and Settings\\sano-n\\My Documents\\My Music\\1\\大塚 愛 - さくらんぼ.wav";
-    String outFile = "out.wav";
+    static final String inFile = "src/test/resources/test.wav";
+    static final String outFile = "tmp/out.wav";
 
     /** */
     @Test
     public void test1() throws Exception {
         // source: any any Hz, any bit, any, any bytes/frame, any
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
-System.err.println("IN: " + sourceAis.getFormat());
+Debug.println("IN: " + sourceAis.getFormat());
         final int outSamplingRate = 8000;
         AudioInputStream secondAis = new SimpleResamplingInputFilter(outSamplingRate).doFilter(sourceAis);
         AudioInputStream thirdAis = new MonauralInputFilter().doFilter(secondAis);

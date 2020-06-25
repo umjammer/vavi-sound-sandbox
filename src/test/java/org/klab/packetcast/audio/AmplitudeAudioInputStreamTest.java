@@ -13,10 +13,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import org.junit.jupiter.api.Test;
-
-import vavi.sound.pcm.resampling.tritonus.AmplitudeAudioInputStream;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.tritonus.dsp.ais.AmplitudeAudioInputStream;
 
 
 /**
@@ -27,44 +24,40 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class AmplitudeAudioInputStreamTest {
 
+    static final String strSourceFilename = "src/test/resources/test.wav";
+
+    static final String strTargetFilename = "tmp/out.wav";
+
     @Test
     public void test00() throws Exception {
         boolean bAmplitudeIsLog = true;
-        float   fAmplitude = 4f;
-        String  strSourceFilename = "/Users/nsano/Music/0/Time After Time.wav";
-        String  strTargetFilename = "/Users/nsano/Music/0/Time After Time-3.wav";
-        File    sourceFile = new File(strSourceFilename);
-        File    targetFile = new File(strTargetFilename);
+        float fAmplitude = 4f;
+        File sourceFile = new File(strSourceFilename);
+        File targetFile = new File(strTargetFilename);
 
-        AudioInputStream    sourceAudioInputStream =
-            AudioSystem.getAudioInputStream(sourceFile);
-        if (sourceAudioInputStream == null)
-        {
+        AudioInputStream sourceAudioInputStream = AudioSystem.getAudioInputStream(sourceFile);
+        if (sourceAudioInputStream == null) {
             throw new IllegalStateException("cannot open audio file");
         }
 
         AudioFileFormat aff = AudioSystem.getAudioFileFormat(sourceFile);
-        AudioFileFormat.Type    targetType = aff.getType();
+        AudioFileFormat.Type targetType = aff.getType();
 
-        AmplitudeAudioInputStream amplifiedAudioInputStream =
-            new AmplitudeAudioInputStream(sourceAudioInputStream);
+        AmplitudeAudioInputStream amplifiedAudioInputStream = new AmplitudeAudioInputStream(sourceAudioInputStream);
 
-        /* Here, we set the desired amplification.
+        /*
+         * Here, we set the desired amplification.
          */
-        if (bAmplitudeIsLog)
-        {
+        if (bAmplitudeIsLog) {
             amplifiedAudioInputStream.setAmplitudeLog(fAmplitude);
-        }
-        else
-        {
+        } else {
             amplifiedAudioInputStream.setAmplitudeLinear(fAmplitude);
         }
 
-        /* And finally, we are writing the amplified stream
-           to a new file.
-        */
-        AudioSystem.write(amplifiedAudioInputStream,
-                  targetType, targetFile);
+        /*
+         * And finally, we are writing the amplified stream to a new file.
+         */
+        AudioSystem.write(amplifiedAudioInputStream, targetType, targetFile);
     }
 }
 
