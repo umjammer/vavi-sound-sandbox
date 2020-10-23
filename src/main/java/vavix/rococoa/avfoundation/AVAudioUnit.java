@@ -1,0 +1,67 @@
+
+package vavix.rococoa.avfoundation;
+
+import java.util.concurrent.CountDownLatch;
+
+import org.rococoa.ID;
+import org.rococoa.ObjCClass;
+import org.rococoa.Rococoa;
+import org.rococoa.cocoa.foundation.NSError;
+
+import com.sun.jna.Callback;
+import com.sun.jna.Pointer;
+
+import vavi.util.Debug;
+
+public abstract class AVAudioUnit extends AVAudioNode {
+
+    @SuppressWarnings("hiding")
+    private static final _Class CLASS = org.rococoa.Rococoa.createClass("AVAudioUnit", _Class.class);
+
+    public interface _Class extends ObjCClass {
+        AVAudioUnit alloc();
+        /**
+         * @param options AudioComponentInstantiationOptions
+         * @param completionHandler BiFunction<AVAudioUnit, NSError, Void)
+         */
+        void instantiateWithComponentDescription_options_completionHandler(AudioComponentDescription.ByValue audioComponentDescription,
+                                                                           int options,
+                                                                           Callback completionHandler);
+    }
+
+    // AudioComponentInstantiationOptions
+    public static final int kAudioComponentInstantiation_LoadInProcess = 2;
+    public static final int kAudioComponentInstantiation_LoadOutOfProcess = 1;
+
+    public static AVAudioUnit instantiate(AudioComponentDescription audioComponentDescription,
+                                   int options) {
+        class Wrapper { AVAudioUnit object; };
+        final Wrapper result = new Wrapper();
+        CountDownLatch cdl = new CountDownLatch(1);
+        Callback callback = new Callback() {
+            public void apply(ID audioUnit, ID error) {
+//                result.object = Rococoa.wrap(audioUnit, AVAudioUnit.class);
+//Debug.println(Rococoa.wrap(error, NSError.class));
+//                cdl.countDown();
+            }
+        };
+        CLASS.instantiateWithComponentDescription_options_completionHandler(audioComponentDescription.byValue(), options, callback);
+        try { cdl.await(); } catch (InterruptedException e) { e.printStackTrace(); }
+        return result.object;
+    }
+
+    /**
+     * @return AudioUnit
+     */
+    public abstract Pointer audioUnit();
+
+    public abstract AudioComponentDescription.ByValue audioComponentDescription();
+
+    public abstract String manufacturerName();
+
+    public abstract String name();
+
+    public abstract int version();
+
+    public abstract AUAudioUnit AUAudioUnit();
+}

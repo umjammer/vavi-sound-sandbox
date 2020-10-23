@@ -23,6 +23,8 @@ import javax.swing.JFrame;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.rococoa.ObjCObjectByReference;
 import org.rococoa.Rococoa;
 import org.rococoa.cocoa.foundation.NSArray;
@@ -46,6 +48,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @version 0.00 060726 nsano initial version <br>
  * @see "https://github.com/iterate-ch/rococoa"
  */
+@EnabledOnOs(OS.MAC)
 public class RococaFormatConversionProviderTest {
 
     static final String inFile = "src/test/resources/test.caf";
