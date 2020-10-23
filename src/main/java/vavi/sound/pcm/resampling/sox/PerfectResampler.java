@@ -236,7 +236,7 @@ if (s.bit_rev_table == null) {
 }
 //Debug.printf("%d, %s\n", f.dft_length, s.bit_rev_table.length);
 
-                fft.rdft(f.dft_length, 1, o, s.bit_rev_table, s.sin_cos_table);
+                SplitRadixFft.rdft(f.dft_length, 1, o, s.bit_rev_table, s.sin_cos_table);
                 o[0] *= f.coefs[0];
                 o[1] *= f.coefs[1];
                 for (i = 2; i < f.dft_length; i += 2) {
@@ -244,7 +244,7 @@ if (s.bit_rev_table == null) {
                     o[i] = f.coefs[i] * tmp - f.coefs[i + 1] * o[i + 1];
                     o[i + 1] = f.coefs[i + 1] * tmp + f.coefs[i] * o[i + 1];
                 }
-                fft.rdft(f.dft_length, -1, o, s.bit_rev_table, s.sin_cos_table);
+                SplitRadixFft.rdft(f.dft_length, -1, o, s.bit_rev_table, s.sin_cos_table);
 
                 for (j = 1, i = 2; i < f.dft_length - overlap; ++j, i += 2) {
                     o[j] = o[i];
@@ -254,9 +254,6 @@ System.arraycopy(o, 0, output, outputP, f.dft_length);
             }
         }
     };
-
-    /** */
-    private SplitRadixFft fft = new SplitRadixFft();
 
     /** */
     StageFunction double_sample = new StageFunction() {
@@ -290,7 +287,7 @@ if (s.bit_rev_table == null) {
 }
 Debug.printf("%d, %s\n", f.dft_length, s.bit_rev_table);
 
-                fft.rdft(f.dft_length, 1, o, s.bit_rev_table, s.sin_cos_table);
+                SplitRadixFft.rdft(f.dft_length, 1, o, s.bit_rev_table, s.sin_cos_table);
                 o[0] *= f.coefs[0];
                 o[1] *= f.coefs[1];
                 for (i = 2; i < f.dft_length; i += 2) {
@@ -298,7 +295,7 @@ Debug.printf("%d, %s\n", f.dft_length, s.bit_rev_table);
                     o[i] = f.coefs[i] * tmp - f.coefs[i + 1] * o[i + 1];
                     o[i + 1] = f.coefs[i + 1] * tmp + f.coefs[i] * o[i + 1];
                 }
-                fft.rdft(f.dft_length, -1, o, s.bit_rev_table, s.sin_cos_table);
+                SplitRadixFft.rdft(f.dft_length, -1, o, s.bit_rev_table, s.sin_cos_table);
 
 System.arraycopy(o, 0, output, outputP, f.dft_length);
             }
@@ -402,14 +399,14 @@ System.arraycopy(o, 0, output, outputP, f.dft_length);
             work[i] = h[0][i];
         }
 
-        fft.rdft(work_len, 1, work, rateShared.bit_rev_table, rateShared.sin_cos_table); // Cepstrum:
+        SplitRadixFft.rdft(work_len, 1, work, rateShared.bit_rev_table, rateShared.sin_cos_table); // Cepstrum:
         work[0] = Math.log(Math.abs(work[0]));
         work[1] = Math.log(Math.abs(work[1]));
         for (i = 2; i < work_len; i += 2) {
             work[i] = Math.log(Math.sqrt(Math.pow(work[i], 2) + Math.pow(work[i + 1], 2)));
             work[i + 1] = 0;
         }
-        fft.rdft(work_len, -1, work, rateShared.bit_rev_table, rateShared.sin_cos_table);
+        SplitRadixFft.rdft(work_len, -1, work, rateShared.bit_rev_table, rateShared.sin_cos_table);
         for (i = 0; i < work_len; ++i) {
             work[i] *= 2. / work_len;
         }
@@ -417,7 +414,7 @@ System.arraycopy(o, 0, output, outputP, f.dft_length);
             work[i] *= 2;
             work[i + work_len / 2] = 0;
         }
-        fft.rdft(work_len, 1, work, rateShared.bit_rev_table, rateShared.sin_cos_table);
+        SplitRadixFft.rdft(work_len, 1, work, rateShared.bit_rev_table, rateShared.sin_cos_table);
         // Some DFTs require phase unwrapping here, but rdft seems not to.
 
         for (i = 2; i < work_len; i += 2) {
@@ -432,7 +429,7 @@ System.arraycopy(o, 0, output, outputP, f.dft_length);
             work[i] = x * Math.cos(work[i + 1]);
             work[i + 1] = x * Math.sin(work[i + 1]);
         }
-        fft.rdft(work_len, -1, work, rateShared.bit_rev_table, rateShared.sin_cos_table);
+        SplitRadixFft.rdft(work_len, -1, work, rateShared.bit_rev_table, rateShared.sin_cos_table);
         for (i = 0; i < work_len; ++i) {
             work[i] *= 2. / work_len;
         }
@@ -532,7 +529,7 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
             rateShared.bit_rev_table = new int[dft_br_len(dft_length)];
             rateShared.sin_cos_table = new double[dft_sc_len(dft_length)];
         }
-        fft.rdft(dft_length, 1, f.coefs, rateShared.bit_rev_table, rateShared.sin_cos_table);
+        SplitRadixFft.rdft(dft_length, 1, f.coefs, rateShared.bit_rev_table, rateShared.sin_cos_table);
     }
 
     /** */
