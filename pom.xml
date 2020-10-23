@@ -244,6 +244,13 @@ TODO
       <version>1.9.7</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>com.github.mina-berger</groupId>
+      <artifactId>mocha-sound</artifactId>
+      <version>master-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
