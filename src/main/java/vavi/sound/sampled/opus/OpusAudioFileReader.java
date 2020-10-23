@@ -202,8 +202,12 @@ public class OpusAudioFileReader extends AudioFileReader {
      * @exception IOException if an I/O exception occurs.
      */
     protected AudioInputStream getAudioInputStream(InputStream inputStream, int medialength) throws UnsupportedAudioFileException, IOException {
-        AudioFileFormat audioFileFormat = getAudioFileFormat(inputStream, medialength);
-        OpusInpputStream opus = OpusInpputStream.class.cast(audioFileFormat.getFormat().getProperty("opus"));
-        return new Opus2PcmAudioInputStream(opus, audioFileFormat.getFormat(), audioFileFormat.getFrameLength());
+        try {
+            AudioFileFormat audioFileFormat = getAudioFileFormat(inputStream, medialength);
+            OpusInpputStream opus = OpusInpputStream.class.cast(audioFileFormat.getFormat().getProperty("opus"));
+            return new Opus2PcmAudioInputStream(opus, audioFileFormat.getFormat(), audioFileFormat.getFrameLength());
+        } catch (IllegalArgumentException e) {
+            throw (UnsupportedAudioFileException) new UnsupportedAudioFileException(e.getMessage()).initCause(e);
+        }
     }
 }
