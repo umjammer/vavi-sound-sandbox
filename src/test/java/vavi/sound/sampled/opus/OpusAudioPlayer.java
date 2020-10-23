@@ -17,8 +17,6 @@ import org.concentus.OpusDecoder;
 import org.concentus.OpusException;
 import org.gagravarr.opus.OpusAudioData;
 
-import vavi.sound.sampled.opus.OpusInpputStream;
-
 
 /**
  * OpusAudioPlayer.

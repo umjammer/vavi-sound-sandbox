@@ -1,7 +1,6 @@
 
 import java.util.Iterator;
 import java.util.ServiceLoader;
-import java.util.logging.Logger;
 
 import javax.sound.midi.MidiDevice.Info;
 import javax.sound.midi.spi.MidiDeviceProvider;
@@ -13,7 +12,6 @@ public final class Main {
      * MidiDeviceProvider
      */
     public static void main(final String[] args) {
-        final Logger logger = Logger.getLogger(Main.class.getName());
         final ServiceLoader<MidiDeviceProvider> serviceLoader =
                 ServiceLoader.load(MidiDeviceProvider.class);
         final Iterator<MidiDeviceProvider> iterator = serviceLoader.iterator();
@@ -22,13 +20,13 @@ public final class Main {
                     iterator.next();
 
             final Info[] deviceInfo = midiDeviceProvider.getDeviceInfo();
-            logger.info(midiDeviceProvider.getClass().getName() + ": "
+            System.err.println(midiDeviceProvider.getClass().getName() + ": "
                     + deviceInfo.length);
-
+            int i = 0;
             for (final Info info : deviceInfo) {
-                logger.info(info.getName());
+                System.err.println("[" + i++ + "]: " + info.getName());
             }
-            logger.info("---------------\n");
+            System.err.println("---------------");
         }
     }
 }

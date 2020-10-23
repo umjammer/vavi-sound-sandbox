@@ -25,7 +25,7 @@ public class Test2 {
      * @param args
      */
     public static void main(String[] args) throws Exception {
-        // speaker
+        // microphone
         AudioFormat targetFormat = new AudioFormat(44100, 16, 2, true, false);
         DataLine.Info targetInfo = new DataLine.Info(TargetDataLine.class, targetFormat);
 System.err.println(targetInfo);
@@ -34,7 +34,7 @@ System.err.println(targetInfo);
         target.start();
         AudioInputStream stream = new AudioInputStream(target);
 
-        // microphone
+        // speaker
         AudioFormat sourceFormat = new AudioFormat(44100, 16, 2, true, false);
         DataLine.Info sourceInfo = new DataLine.Info(SourceDataLine.class, sourceFormat);
 System.err.println(sourceInfo);
@@ -46,7 +46,7 @@ float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
 gainControl.setValue(dB);
         source.start();
 
-        byte[] buf = new byte[8192];
+        byte[] buf = new byte[source.getBufferSize()];
         while (true) {
             int r = stream.read(buf);
             if (r < 0) {

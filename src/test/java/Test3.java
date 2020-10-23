@@ -31,10 +31,10 @@ class Test3 {
 
 //    static final String inFile = "/Users/nsano/Music/0/Mists of Time - 4T.ogg";
 //    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.flac";
-//    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.m4a"; // ALAC
+    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.m4a"; // ALAC
 //    static final String inFile = "/Users/nsano/Music/0/rc.wav";
 //    static final String inFile = "/Users/nsano/Music/0/Cyndi Lauper-Time After Time.m4a"; // AAC
-    static final String inFile = "tmp/hoshiF.opus";
+//    static final String inFile = "tmp/hoshiF.opus";
 //    static final String inFile = "/Users/nsano/Music/iTunes/iTunes Music/NAMCO/Ace Combat 04 Shattered Skies Original Sound Tracks/1-11 Blockade.mp3";
 
     /**
@@ -64,6 +64,7 @@ Debug.println(targetAudioFormat);
         AudioFormat audioFormat = audioInputStream.getFormat();
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat, AudioSystem.NOT_SPECIFIED);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
+Debug.println(line.getClass().getName());
         line.addLineListener(event -> {
             if (event.getType().equals(LineEvent.Type.START)) {
 Debug.println("play");
@@ -73,7 +74,7 @@ Debug.println("done");
             }
         });
 
-        byte[] buf = new byte[8192];
+        byte[] buf = new byte[line.getBufferSize()];
         line.open(audioFormat, buf.length);
 FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
 double gain = .2d; // number between 0 and 1 (loudest)
@@ -86,6 +87,7 @@ gainControl.setValue(dB);
             if (r < 0) {
                 break;
             }
+//Debug.println("line: " + line.available());
             line.write(buf, 0, r);
         }
         line.drain();
