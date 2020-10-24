@@ -22,10 +22,33 @@
 package org.uva.emulation;
 
 import java.io.IOException;
+import java.util.Arrays;
+
+import javax.sound.sampled.AudioFormat;
 
 import com.cozendey.opl3.OPL3;
 
+import vavi.util.Debug;
+
+
 abstract class Opl3Player {
+
+    /** decoder database */
+    enum FileType {
+        MID(Opl3Encoding.MID, new MidPlayer()),
+        DRO1(Opl3Encoding.DRO1, new DroPlayer(true)),
+        DRO2(Opl3Encoding.DRO2, new Dro2Player(true));
+        AudioFormat.Encoding encoding;
+        Opl3Player player;
+        FileType(AudioFormat.Encoding encoding, Opl3Player player) {
+            this.encoding = encoding;
+            this.player = player;
+        }
+        static Opl3Player getPlayer(AudioFormat.Encoding encoding) {
+Debug.println("encoding: " + encoding);
+            return Arrays.stream(values()).filter(e -> e.encoding == encoding).findFirst().get().player;
+        }
+    }
 
     private OPL3 opl;
 

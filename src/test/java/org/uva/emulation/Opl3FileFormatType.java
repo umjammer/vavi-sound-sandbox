@@ -20,7 +20,7 @@ public class Opl3FileFormatType extends AudioFileFormat.Type {
     /**
      * Specifies an OPL3 file.
      */
-    public static final AudioFileFormat.Type MID = new Opl3FileFormatType("MID", "laa,cmf");
+    public static final AudioFileFormat.Type MID = new Opl3FileFormatType("MID", "laa,cmf"); // TODO is comma separated is right way?
     public static final AudioFileFormat.Type DRO1 = new Opl3FileFormatType("DRO1", "dro");
     public static final AudioFileFormat.Type DRO2 = new Opl3FileFormatType("DRO2", "dro");
 
