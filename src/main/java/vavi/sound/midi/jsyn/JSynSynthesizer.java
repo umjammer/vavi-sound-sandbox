@@ -93,8 +93,8 @@ public class JSynSynthesizer implements Synthesizer {
         // volume default (0.75) is too small
         multiSynth.setMasterAmplitude(100);
 
-        multiSynth.getOutput().connect(0, lineOut.input, 0);
-        multiSynth.getOutput().connect(1, lineOut.input, 1);
+        multiSynth.getOutput().connect(0, lineOut.input, 0); // channel 0
+        multiSynth.getOutput().connect(1, lineOut.input, 1); // channel 1
 
         midiSynthesizer = new MidiSynthesizer(multiSynth);
 

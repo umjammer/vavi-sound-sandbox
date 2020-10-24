@@ -20,6 +20,9 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 
+import org.gagravarr.ogg.OggFile;
+import org.gagravarr.opus.OpusFile;
+
 
 /**
  * Provider for Opus audio file reading services. This implementation can parse
@@ -31,17 +34,7 @@ import javax.sound.sampled.spi.AudioFileReader;
  */
 public class OpusAudioFileReader extends AudioFileReader {
 
-    /**
-     * Obtains the audio file format of the File provided. The File must point
-     * to valid audio file data.
-     *
-     * @param file the File from which file format information should be
-     *            extracted.
-     * @return an AudioFileFormat object describing the audio file format.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioFileFormat getAudioFileFormat(File file) throws UnsupportedAudioFileException, IOException {
         InputStream inputStream = null;
         try {
@@ -52,17 +45,7 @@ public class OpusAudioFileReader extends AudioFileReader {
         }
     }
 
-    /**
-     * Obtains an audio input stream from the URL provided. The URL must point
-     * to valid audio file data.
-     *
-     * @param url the URL for which the AudioInputStream should be constructed.
-     * @return an AudioInputStream object based on the audio file data pointed
-     *         to by the URL.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioFileFormat getAudioFileFormat(URL url) throws UnsupportedAudioFileException, IOException {
         InputStream inputStream = url.openStream();
         try {
@@ -72,33 +55,10 @@ public class OpusAudioFileReader extends AudioFileReader {
         }
     }
 
-    /**
-     * Obtains an audio input stream from the input stream provided.
-     *
-     * @param stream the input stream from which the AudioInputStream should be
-     *            constructed.
-     * @return an AudioInputStream object based on the audio file data contained
-     *         in the input stream.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioFileFormat getAudioFileFormat(InputStream stream) throws UnsupportedAudioFileException, IOException {
-        return getAudioFileFormat(stream, AudioSystem.NOT_SPECIFIED); // TODO
+        return getAudioFileFormat(stream, AudioSystem.NOT_SPECIFIED); // TODO ???
     }
-
-    /**
-     * Return the AudioFileFormat from the given InputStream.
-     *
-     * @param stream the input stream from which the AudioInputStream should be
-     *            constructed.
-     * @param medialength
-     * @return an AudioInputStream object based on the audio file data contained
-     *         in the input stream.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
 
     /**
      * Return the AudioFileFormat from the given InputStream. Implementation.
@@ -113,28 +73,17 @@ public class OpusAudioFileReader extends AudioFileReader {
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
 //Debug.println("here: " + bitStream.markSupported());
-        OpusInpputStream opus;
+        OpusFile opus;
         try {
-            opus = new OpusInpputStream(bitStream); // no need to mark/reset, why?
-        } catch (IOException e) {
+            opus = new OpusFile(new OggFile(bitStream)); // no need to mark/reset, why?
+        } catch (IOException | IllegalArgumentException e) {
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException(e.getMessage()).initCause(e);
         }
         AudioFormat format = new AudioFormat(OpusEncoding.OPUS, opus.getInfo().getSampleRate(), AudioSystem.NOT_SPECIFIED, opus.getInfo().getNumChannels(), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true, new HashMap<String, Object>() {{ put("opus", opus); }});
         return new AudioFileFormat(OpusFileFormatType.OPUS, format, AudioSystem.NOT_SPECIFIED);
     }
 
-    /**
-     * Obtains an audio input stream from the File provided. The File must point
-     * to valid audio file data.
-     *
-     * @param file the File for which the AudioInputStream should be
-     *            constructed.
-     * @return an AudioInputStream object based on the audio file data pointed
-     *         to by the File.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioInputStream getAudioInputStream(File file) throws UnsupportedAudioFileException, IOException {
         InputStream inputStream = new FileInputStream(file);
         try {
@@ -148,17 +97,7 @@ public class OpusAudioFileReader extends AudioFileReader {
         }
     }
 
-    /**
-     * Obtains an audio input stream from the URL provided. The URL must point
-     * to valid audio file data.
-     *
-     * @param url the URL for which the AudioInputStream should be constructed.
-     * @return an AudioInputStream object based on the audio file data pointed
-     *         to by the URL.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioInputStream getAudioInputStream(URL url) throws UnsupportedAudioFileException, IOException {
         InputStream inputStream = url.openStream();
         try {
@@ -172,18 +111,7 @@ public class OpusAudioFileReader extends AudioFileReader {
         }
     }
 
-    /**
-     * Obtains an audio input stream from the input stream provided. The stream
-     * must point to valid audio file data.
-     *
-     * @param stream the input stream from which the AudioInputStream should be
-     *            constructed.
-     * @return an AudioInputStream object based on the audio file data contained
-     *         in the input stream.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioInputStream getAudioInputStream(InputStream stream) throws UnsupportedAudioFileException, IOException {
         return getAudioInputStream(stream, AudioSystem.NOT_SPECIFIED);
     }
@@ -202,12 +130,7 @@ public class OpusAudioFileReader extends AudioFileReader {
      * @exception IOException if an I/O exception occurs.
      */
     protected AudioInputStream getAudioInputStream(InputStream inputStream, int medialength) throws UnsupportedAudioFileException, IOException {
-        try {
-            AudioFileFormat audioFileFormat = getAudioFileFormat(inputStream, medialength);
-            OpusInpputStream opus = OpusInpputStream.class.cast(audioFileFormat.getFormat().getProperty("opus"));
-            return new Opus2PcmAudioInputStream(opus, audioFileFormat.getFormat(), audioFileFormat.getFrameLength());
-        } catch (IllegalArgumentException e) {
-            throw (UnsupportedAudioFileException) new UnsupportedAudioFileException(e.getMessage()).initCause(e);
-        }
+        AudioFileFormat audioFileFormat = getAudioFileFormat(inputStream, medialength);
+        return new AudioInputStream(inputStream, audioFileFormat.getFormat(), audioFileFormat.getFrameLength());
     }
 }
