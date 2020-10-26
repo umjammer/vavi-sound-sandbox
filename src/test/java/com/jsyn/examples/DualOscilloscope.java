@@ -20,6 +20,7 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JApplet;
 import javax.swing.JComboBox;
@@ -35,7 +36,7 @@ import com.jsyn.unitgen.PassThrough;
 
 /**
  * Two channel oscilloscope that demonstrates the use of audio input.
- * 
+ *
  * @author Phil Burk (C) 2012 Mobileer Inc
  */
 public class DualOscilloscope extends JApplet {
@@ -48,11 +49,11 @@ public class DualOscilloscope extends JApplet {
     private AudioScope scope;
     private AudioDeviceManager audioManager;
     private int defaultInputId;
-    private ArrayList<String> deviceNames = new ArrayList<String>();
-    private ArrayList<Integer> deviceMaxInputs = new ArrayList<Integer>();
-    private ArrayList<Integer> deviceIds = new ArrayList<Integer>();
+    private List<String> deviceNames = new ArrayList<>();
+    private List<Integer> deviceMaxInputs = new ArrayList<>();
+    private List<Integer> deviceIds = new ArrayList<>();
     private int defaultSelection;
-    private JComboBox deviceComboBox;
+    private JComboBox<?> deviceComboBox;
 
     @Override
     public void init() {
@@ -91,7 +92,7 @@ public class DualOscilloscope extends JApplet {
     private void setupGUI() {
         setLayout(new BorderLayout());
 
-        deviceComboBox = new JComboBox(deviceNames.toArray(new String[0]));
+        deviceComboBox = new JComboBox<>(deviceNames.toArray(new String[0]));
         deviceComboBox.setSelectedIndex(defaultSelection);
         add(deviceComboBox, BorderLayout.NORTH);
         deviceComboBox.addActionListener(new ActionListener() {

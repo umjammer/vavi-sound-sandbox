@@ -24,7 +24,7 @@ import com.jsyn.unitgen.UnitOscillator;
 
 /**
  * Play a tone using a JSyn oscillator.
- * 
+ *
  * @author Phil Burk (C) 2010 Mobileer Inc
  */
 public class PlayTone {

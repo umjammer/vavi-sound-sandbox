@@ -53,6 +53,7 @@ public class EditEnvelope1 extends JApplet {
     JButton hitme;
     JButton attackButton;
     JButton releaseButton;
+    @SuppressWarnings("unused")
     private EnvelopeEditorPanel envEditor;
     private EnvelopePoints points;
 
