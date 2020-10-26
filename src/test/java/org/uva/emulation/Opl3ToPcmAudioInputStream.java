@@ -8,7 +8,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.logging.Level;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -17,8 +16,6 @@ import org.uva.emulation.Opl3Player.FileType;
 
 import vavi.io.OutputEngine;
 import vavi.io.OutputEngineInputStream;
-import vavi.util.Debug;
-import vavi.util.StringUtil;
 
 
 /**
@@ -31,7 +28,7 @@ public class Opl3ToPcmAudioInputStream extends AudioInputStream {
 
     /** decode */
     public Opl3ToPcmAudioInputStream(InputStream stream, AudioFormat format, long length, AudioFormat sourceFormat) throws IOException {
-        super(new OutputEngineInputStream(new Opl3OutputEngine(stream, sourceFormat, (int) length)), format, length);
+        super(new OutputEngineInputStream(new Opl3OutputEngine(stream, sourceFormat)), format, length);
     }
 
     /** */
@@ -47,19 +44,9 @@ public class Opl3ToPcmAudioInputStream extends AudioInputStream {
         private float sampleRate;
 
         /** */
-        public Opl3OutputEngine(InputStream is, AudioFormat format, int length) throws IOException {
-            byte[] buf = new byte[length > 0 ? length : is.available()];
-Debug.println(Level.FINE, "buf: " + buf.length + ", " + length + ", " + is.available() + ", " + is);
-            int l = 0;
-            while (true) {
-                int r = is.read(buf, l, buf.length - l);
-                if (r < 0) {
-                    break;
-                }
-            }
-Debug.println(Level.FINE, "buf:\n" + StringUtil.getDump(buf, 128));
+        public Opl3OutputEngine(InputStream is, AudioFormat format) throws IOException {
             player = FileType.getPlayer(format.getEncoding());
-            player.load(buf);
+            player.load(is);
 
             sampleRate = format.getSampleRate();
         }

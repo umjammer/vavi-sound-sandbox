@@ -48,8 +48,8 @@ Debug.println("sequencer: " + sequencer);
 
 //        String filename = "title-screen.mid";
 //        String filename = "overworld.mid";
-        String filename = "m0057_01.mid";
-//        String filename = "ac4br_gm.MID";
+//        String filename = "m0057_01.mid";
+        String filename = "ac4br_gm.MID";
         File file = new File(System.getProperty("user.home"), "/Music/midi/1/" + filename);
         Sequence seq = MidiSystem.getSequence(file);
 

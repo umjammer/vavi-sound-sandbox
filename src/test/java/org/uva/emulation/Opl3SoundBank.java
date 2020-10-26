@@ -10,6 +10,7 @@ import javax.sound.midi.Instrument;
 import javax.sound.midi.Patch;
 import javax.sound.midi.Soundbank;
 import javax.sound.midi.SoundbankResource;
+import javax.sound.midi.SysexMessage;
 
 
 /**
@@ -159,7 +160,7 @@ public class Opl3SoundBank implements Soundbank {
             System.arraycopy(midi_fm_instruments[i], 0, b, 0, midi_fm_instruments[i].length);
             b[14] = 0;
             b[15] = 0;
-            instruments[i] = new Opl3Instrument(0, i, "ins" + i, b);
+            instruments[i] = new Opl3Instrument(this, 0, i, "ins" + i, b);
         }
     }
 
@@ -206,14 +207,14 @@ public class Opl3SoundBank implements Soundbank {
         return null;
     }
 
-    public Opl3Instrument newInstrument(int bank, int program, String name, int[] data) {
-        return new Opl3Instrument(bank, program, name, data);
+    public static Opl3Instrument newInstrument(int bank, int program, String name, int[] data) {
+        return new Opl3Instrument(null, bank, program, name, data);
     }
 
-    class Opl3Instrument extends Instrument {
+    static class Opl3Instrument extends Instrument {
         int[] data;
-        protected Opl3Instrument(int bank, int program, String name, int[] data) {
-            super(Opl3SoundBank.this, new Patch(bank, program), name, int[].class);
+        protected Opl3Instrument(Opl3SoundBank sounBbank, int bank, int program, String name, int[] data) {
+            super(sounBbank, new Patch(bank, program), name, int[].class);
             this.data = data;
         }
 
@@ -236,6 +237,42 @@ public class Opl3SoundBank implements Soundbank {
         x[5] = ins[10];
         x[7] = ins[11];
         x[9] = ins[12];
+        return x;
+    }
+
+    static int[] fromSierra(int[] buf) {
+        int[] x = new int[11];
+        x[0] = buf[9] * 0x80 + buf[10] * 0x40 + buf[5] * 0x20 + buf[11] * 0x10 + buf[1];
+        x[1] = buf[22] * 0x80 + buf[23] * 0x40 + buf[18] * 0x20 + buf[24] * 0x10 + buf[14];
+        x[2] = (buf[0] << 6) + buf[8];
+        x[3] = (buf[13] << 6) + buf[21];
+        x[4] = (buf[3] << 4) + buf[6];
+        x[5] = (buf[16] << 4) + buf[19];
+        x[6] = (buf[4] << 4) + buf[7];
+        x[7] = (buf[17] << 4) + buf[20];
+        x[8] = buf[26];
+        x[9] = buf[27];
+        x[10] = (buf[2] << 1) + (1 - (buf[12] & 1));
+        return x;
+    }
+
+    /**
+     * @param data {@link SysexMessage#getData()}
+     */
+    static int[] fromSysex(byte[] data) {
+        int pos = 1;
+        int[] x = new int[11];
+        x[0] = ((data[pos + 4] & 0xff) << 4) + (data[pos + 5] & 0xff);
+        x[2] = 0xff - (((data[pos + 6] & 0xff) << 4) + data[pos + 7] & 0x3f);
+        x[4] = 0xff - (((data[pos + 8] & 0xff) << 4) + (data[pos + 9] & 0xff));
+        x[6] = 0xff - (((data[pos + 10] & 0xff) << 4) + (data[pos + 11] & 0xff));
+        x[8] = ((data[pos + 12] & 0xff) << 4) + (data[pos + 13] & 0xff);
+        x[1] = ((data[pos + 14] & 0xff) << 4) + (data[pos + 15] & 0xff);
+        x[3] = 0xff - (((data[pos + 16] & 0xff) << 4) + (data[pos + 17] & 0x3f));
+        x[5] = 0xff - (((data[pos + 18] & 0xff) << 4) + (data[pos + 19] & 0xff));
+        x[7] = 0xff - (((data[pos + 20] & 0xff) << 4) + (data[pos + 21] & 0xff));
+        x[9] = ((data[pos + 22] & 0xff) << 4) + (data[pos + 23] & 0xff);
+        x[10] = ((data[pos + 24] & 0xff) << 4) + (data[pos + 24] & 0xff);
         return x;
     }
 }

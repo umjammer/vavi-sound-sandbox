@@ -7,13 +7,12 @@
 package org.uva.emulation;
 
 import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.logging.Level;
+import java.util.NoSuchElementException;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -22,7 +21,9 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 
-import vavi.util.Debug;
+import org.uva.emulation.Opl3Player.FileType;
+
+import static org.uva.emulation.Opl3Player.opl3;
 
 
 /**
@@ -35,28 +36,8 @@ import vavi.util.Debug;
  */
 public class Opl3AudioFileReader extends AudioFileReader {
 
-    private AudioFileFormat.Type type;
-    private AudioFormat.Encoding encoding;
-
-    /** TODO by stream, separate into each player via FileType */
-    private void checkExitension(File file) throws UnsupportedAudioFileException {
-        type = null;
-        encoding = null;
-        String ext = file.getName().substring(file.getName().lastIndexOf('.') + 1).toLowerCase();
-
-        if (Opl3FileFormatType.MID.getExtension().contains(ext)) {
-            encoding = Opl3Encoding.MID;
-            type = Opl3FileFormatType.MID;
-        } else if (Opl3FileFormatType.DRO1.getExtension().contains(ext)) {
-        } else {
-            throw new UnsupportedAudioFileException("unrecognized extension: " + ext);
-        }
-    }
-
     @Override
     public AudioFileFormat getAudioFileFormat(File file) throws UnsupportedAudioFileException, IOException {
-        checkExitension(file);
-
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(file);
@@ -68,16 +49,18 @@ public class Opl3AudioFileReader extends AudioFileReader {
 
     @Override
     public AudioFileFormat getAudioFileFormat(URL url) throws UnsupportedAudioFileException, IOException {
-        throw new UnsupportedOperationException();
+        InputStream inputStream = url.openStream();
+        try {
+            return getAudioFileFormat(inputStream);
+        } finally {
+            inputStream.close();
+        }
     }
 
     @Override
     public AudioFileFormat getAudioFileFormat(InputStream stream) throws UnsupportedAudioFileException, IOException {
-        throw new UnsupportedOperationException();
+        return getAudioFileFormat(stream, AudioSystem.NOT_SPECIFIED);
     }
-
-    /** TODO who defined 49700? */
-    public static final AudioFormat opl3 = new AudioFormat(49700.0f, 16, 2, true, false);
 
     /**
      * Return the AudioFileFormat from the given InputStream. Implementation.
@@ -91,31 +74,13 @@ public class Opl3AudioFileReader extends AudioFileReader {
      * @exception IOException if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
-        if (encoding == null) {
-            DataInputStream is = new DataInputStream(bitStream);
-            try {
-                byte[] buf = new byte[10];
-                is.mark(10);
-                is.readFully(buf);
-                if (buf[10] == 1) {
-                    encoding = Opl3Encoding.DRO1;
-                    type = Opl3FileFormatType.DRO1;
-                } else if (buf[8] == 2) {
-                    encoding = Opl3Encoding.DRO2;
-                    type = Opl3FileFormatType.DRO2;
-                }
-                is.reset();
-                if (encoding == null || type == null) {
-                    throw new UnsupportedAudioFileException("bad dro type");
-                }
-            } finally {
-                try {
-                    is.reset();
-                } catch (IOException e) {
-                    Debug.println(Level.FINE, e);
-                }
-            }
+        AudioFormat.Encoding encoding;
+        try {
+            encoding = FileType.getEncoding(bitStream);
+        } catch (NoSuchElementException e) {
+            throw (UnsupportedAudioFileException) new UnsupportedAudioFileException().initCause(e);
         }
+        AudioFileFormat.Type type = FileType.getType(encoding);
         // specification for around frame might cause AudioInputStream modification at below (*1)
         AudioFormat format = new AudioFormat(encoding, opl3.getSampleRate(), AudioSystem.NOT_SPECIFIED, opl3.getChannels(), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, opl3.isBigEndian());
         return new AudioFileFormat(type, format, AudioSystem.NOT_SPECIFIED);
@@ -123,8 +88,6 @@ public class Opl3AudioFileReader extends AudioFileReader {
 
     @Override
     public AudioInputStream getAudioInputStream(File file) throws UnsupportedAudioFileException, IOException {
-        checkExitension(file);
-
         InputStream inputStream = new BufferedInputStream(new FileInputStream(file));
         try {
             return getAudioInputStream(inputStream, (int) file.length());
@@ -139,12 +102,21 @@ public class Opl3AudioFileReader extends AudioFileReader {
 
     @Override
     public AudioInputStream getAudioInputStream(URL url) throws UnsupportedAudioFileException, IOException {
-        throw new UnsupportedOperationException();
+        InputStream inputStream = url.openStream();
+        try {
+            return getAudioInputStream(inputStream);
+        } catch (UnsupportedAudioFileException e) {
+            inputStream.close();
+            throw e;
+        } catch (IOException e) {
+            inputStream.close();
+            throw e;
+        }
     }
 
     @Override
     public AudioInputStream getAudioInputStream(InputStream stream) throws UnsupportedAudioFileException, IOException {
-        throw new UnsupportedOperationException();
+        return getAudioInputStream(stream, AudioSystem.NOT_SPECIFIED);
     }
 
     /**

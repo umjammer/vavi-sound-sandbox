@@ -16,14 +16,15 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
- * player.h - Replayer base class, by Simon Peter <dn.tlp@gmx.net>
  */
 
 package org.uva.emulation;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 
 import com.cozendey.opl3.OPL3;
@@ -31,22 +32,42 @@ import com.cozendey.opl3.OPL3;
 import vavi.util.Debug;
 
 
+/**
+ * Player base class.
+ *
+ * @author Simon Peter <dn.tlp@gmx.net>
+ */
 abstract class Opl3Player {
+
+    /** TODO who defined 49700? */
+    public static final AudioFormat opl3 = new AudioFormat(49700.0f, 16, 2, true, false);
 
     /** decoder database */
     enum FileType {
-        MID(Opl3Encoding.MID, new MidPlayer()),
-        DRO1(Opl3Encoding.DRO1, new DroPlayer(true)),
-        DRO2(Opl3Encoding.DRO2, new Dro2Player(true));
+        MID(Opl3Encoding.MID, Opl3FileFormatType.MID, new MidPlayer()),
+        DRO1(Opl3Encoding.DRO1, Opl3FileFormatType.DRO1, new DroPlayer()),
+        DRO2(Opl3Encoding.DRO2, Opl3FileFormatType.DRO2, new Dro2Player());
         AudioFormat.Encoding encoding;
+        AudioFileFormat.Type type;
         Opl3Player player;
-        FileType(AudioFormat.Encoding encoding, Opl3Player player) {
+        FileType(AudioFormat.Encoding encoding, AudioFileFormat.Type type, Opl3Player player) {
             this.encoding = encoding;
+            this.type = type;
             this.player = player;
         }
         static Opl3Player getPlayer(AudioFormat.Encoding encoding) {
 Debug.println("encoding: " + encoding);
             return Arrays.stream(values()).filter(e -> e.encoding == encoding).findFirst().get().player;
+        }
+        /** @param ext lower case w/o '.' */
+        static AudioFileFormat.Type getType(String ext) {
+            return Arrays.stream(values()).filter(e -> e.type.getExtension().contains(ext)).findFirst().get().type;
+        }
+        static AudioFileFormat.Type getType(AudioFormat.Encoding encoding) {
+            return Arrays.stream(values()).filter(e -> e.encoding == encoding).findFirst().get().type;
+        }
+        static AudioFormat.Encoding getEncoding(InputStream is) {
+            return Arrays.stream(values()).filter(e -> e.player.matchFormat(is)).findFirst().get().encoding;
         }
     }
 
@@ -60,7 +81,9 @@ Debug.println("encoding: " + encoding);
         opl.write(array, address, data);
     }
 
-    public abstract void load(byte[] file) throws IOException;
+    public abstract boolean matchFormat(InputStream is);
+
+    public abstract void load(InputStream is) throws IOException;
 
     public byte[] read(int len) {
 //LOGGER.warning("Enter in read method");
@@ -80,11 +103,11 @@ Debug.println("encoding: " + encoding);
       return buf;
     }
 
-    public abstract void rewind(int subSong);
+    public abstract void rewind(int subSong) throws IOException;
 
     public abstract float getRefresh();
 
-    public abstract boolean update();
+    public abstract boolean update() throws IOException;
 
     public abstract int getTotalMiliseconds();
 }

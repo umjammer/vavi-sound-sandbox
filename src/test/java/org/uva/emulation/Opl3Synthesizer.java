@@ -7,11 +7,15 @@
 package org.uva.emulation;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.sound.midi.Instrument;
+import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiMessage;
@@ -24,7 +28,12 @@ import javax.sound.midi.Synthesizer;
 import javax.sound.midi.SysexMessage;
 import javax.sound.midi.Transmitter;
 import javax.sound.midi.VoiceStatus;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.SourceDataLine;
 
+import org.uva.emulation.MidPlayer.FileType;
 import org.uva.emulation.Opl3SoundBank.Opl3Instrument;
 
 import vavi.util.Debug;
@@ -52,9 +61,9 @@ public class Opl3Synthesizer implements Synthesizer {
     // TODO != channel???
     private static final int MAX_CHANNEL = 16;
 
-    private Opl3MidiChannel[] channels = new Opl3MidiChannel[MAX_CHANNEL];
+    Opl3MidiChannel[] channels = new Opl3MidiChannel[MAX_CHANNEL];
 
-    private VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
+    VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
 
     private long timestump;
 
@@ -67,7 +76,7 @@ public class Opl3Synthesizer implements Synthesizer {
     Opl3SoundBank soundBank = new Opl3SoundBank();
 
     /** default {@link Opl3SoundBank#midi_fm_instruments} */
-    Opl3Instrument[] myinsbank = new Opl3Instrument[128];
+    Opl3Instrument[] instruments = new Opl3Instrument[128];
 
     static class Percussion {
         int channel = -1;
@@ -85,7 +94,7 @@ public class Opl3Synthesizer implements Synthesizer {
         return info;
     }
 
-    public void open(Map<String, Object> info) throws MidiUnavailableException {
+    public void open(FileType type, Adlib.Writer writer) throws MidiUnavailableException {
         for (int i = 0; i < MAX_CHANNEL; i++) {
             channels[i] = new Opl3MidiChannel(i);
             voiceStatus[i] = new VoiceStatus();
@@ -93,10 +102,10 @@ public class Opl3Synthesizer implements Synthesizer {
         }
 
         // constructor
-        if (info == null || info.get("adlib.writer") == null) {
+        if (writer == null) {
             adlib = new Adlib();
         } else {
-            adlib = new Adlib((Adlib.Writer) info.get("adlib.writer"));
+            adlib = new Adlib(writer);
         }
 
         // rewind
@@ -104,13 +113,13 @@ public class Opl3Synthesizer implements Synthesizer {
         adlib.mode = Adlib.MELODIC;
 
         for (int i = 0; i < 128; ++i) {
-            myinsbank[i] = (Opl3Instrument) soundBank.getInstruments()[i];
+            instruments[i] = (Opl3Instrument) soundBank.getInstruments()[i];
         }
 
         for (int c = 0; c < 16; ++c) {
             channels[c].inum = 0;
 
-            channels[c].setIns(myinsbank[channels[c].inum]);
+            channels[c].setIns(instruments[channels[c].inum]);
 
             voiceStatus[c].volume = 127;
             channels[c].nshift = -25;
@@ -121,73 +130,49 @@ public class Opl3Synthesizer implements Synthesizer {
             percussions[i] = new Percussion();
         }
 
-        int type = info == null || info.get("type") == null ? MidPlayer.FILE_MIDI : (int) info.get("type");
 Debug.println("type: " + type);
-        switch (type) {
-        case MidPlayer.FILE_LUCAS:
-            adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
-        case MidPlayer.FILE_MIDI:
-            break;
-        case MidPlayer.FILE_CMF:
-            int tins = (int) info.get("cmf.tins");
-            for (int i = 0; i < tins; ++i) {
-                myinsbank[i] = (Opl3Instrument) info.get("cmf.myinsbank." + i);
-            }
-
-            for (int c = 0; c < 16; ++c) {
-                channels[c].nshift = -13;
-            }
-
-            adlib.style = Adlib.CMF_STYLE;
-            break;
-        case MidPlayer.FILE_SIERRA:
-            myinsbank = (Opl3Instrument[]) info.get("sierra.myinsbank");
-            for (int c = 0; c < 16; ++c) {
-                channels[c].nshift = -13;
-                voiceStatus[c].active = (boolean) info.get("sierra." + c + ".on");
-                channels[c].inum = (int) info.get("sierra." + c + ".inum");
-
-                channels[c].setIns(myinsbank[channels[c].inum]);
-            }
-
-            adlib.style = Adlib.SIERRA_STYLE | Adlib.MIDI_STYLE;
-            break;
-        case MidPlayer.FILE_ADVSIERRA:
-            myinsbank = (Opl3Instrument[]) info.get("sierra.myinsbank");
-            adlib.style = Adlib.SIERRA_STYLE | Adlib.MIDI_STYLE; // advanced sierra tunes use volume;
-            break;
-        case MidPlayer.FILE_OLDLUCAS:
-            tins = (int) info.get("old_lucas.tins");
-            for (int i = 0; i < tins; ++i) {
-                myinsbank[i] = (Opl3Instrument) info.get("old_lucas.myinsbank." + i);
-            }
-
-            for (int c = 0; c < 16; ++c) {
-                if (c < tins) {
-                    channels[c].inum = c;
-
-                    channels[c].setIns(myinsbank[channels[c].inum]);
-                }
-            }
-
-            info.put("adlib.style", Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE);
-            break;
-        }
+        type.midiTypeFile.init(this);
 
         adlib.reset();
 
-//        AudioInputStream ais = new Opl3
-        
-        
-        
-        
-        
+        //
+        if (writer == null) {
+            executor.submit(() -> {
+                try {
+                    AudioFormat audioFormat = Opl3Player.opl3;
+                    DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, audioFormat, AudioSystem.NOT_SPECIFIED);
+                    SourceDataLine line = (SourceDataLine) AudioSystem.getLine(lineInfo);
+Debug.println(line.getClass().getName());
+                    line.addLineListener(event -> { Debug.println(event.getType()); });
+
+                    line.open(audioFormat);
+                    line.start();
+                    long backup = System.currentTimeMillis();
+                    while (!executor.isShutdown()) {
+                        long msec = System.currentTimeMillis() - backup;
+//Debug.printf("%.2f", sec);
+
+                        byte[] b = adlib.readBytes(4 * (int) (audioFormat.getSampleRate() * (msec / 1000.0)));
+                        line.write(b, 0, b.length);
+                        backup = System.currentTimeMillis();
+                        Thread.sleep(Math.round(1000.0 / audioFormat.getSampleRate()));
+                    }
+                    line.drain();
+                    line.close();
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            });
+        }
+
         isOpen = true;
     }
 
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+
     @Override
     public void open() throws MidiUnavailableException {
-        open(null);
+        open(FileType.MIDI, null);
     }
 
     @Override
@@ -206,13 +191,11 @@ Debug.println("type: " + type);
 
     @Override
     public int getMaxReceivers() {
-        // TODO Auto-generated method stub
         return 1;
     }
 
     @Override
     public int getMaxTransmitters() {
-        // TODO Auto-generated method stub
         return 0;
     }
 
@@ -228,19 +211,17 @@ Debug.println("type: " + type);
 
     @Override
     public Transmitter getTransmitter() throws MidiUnavailableException {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public List<Transmitter> getTransmitters() {
-        // TODO Auto-generated method stub
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     @Override
     public int getMaxPolyphony() {
-        return MAX_CHANNEL * 6;
+        return MAX_CHANNEL * 6; // TODO
     }
 
     @Override
@@ -296,8 +277,7 @@ Debug.println("type: " + type);
 
     @Override
     public Instrument[] getLoadedInstruments() {
-        // TODO Auto-generated method stub
-        return new Instrument[0];
+        return instruments;
     }
 
     @Override
@@ -324,7 +304,7 @@ Debug.println("type: " + type);
 
     }
 
-    private class Opl3MidiChannel implements MidiChannel {
+    class Opl3MidiChannel implements MidiChannel {
 
         private int channel;
 
@@ -446,9 +426,9 @@ Debug.println("type: " + type);
                     percussions[voice].volume = 0;
                 }
 
-                logger.fine(String.format(" [%d:%d:%d:%d]", channel, inum, noteNumber, velocity));
+                logger.fine(String.format("note on[%d]: %d %d %d", channel, inum, noteNumber, velocity));
             } else {
-                logger.fine("off");
+                logger.fine("note is off");
             }
             //
             voiceStatus[channel].note = noteNumber;
@@ -497,12 +477,11 @@ Debug.println("type: " + type);
         public void controlChange(int controller, int value) {
             switch (controller) {
             case 0x07:
-                logger.fine(String.format("(pb:%d: %d %d)", channel, controller, value));
                 voiceStatus[channel].volume = value;
-                logger.fine("vol");
+                logger.fine(String.format("control change[%d]: vol(%02x): %d", channel, controller, value));
                 break;
             case 0x67:
-                logger.fine(String.format("\n\nhere:%d\n\n", value));
+                logger.fine(String.format("control change[%d]: (%02x): %d", channel, controller, value));
                 if ((adlib.style & Adlib.CMF_STYLE) != 0) {
                     adlib.mode = value;
                     if (adlib.mode == Adlib.RYTHM) {
@@ -525,7 +504,7 @@ Debug.println("type: " + type);
         @Override
         public void programChange(int program) {
             inum = program;
-            setIns(myinsbank[inum]);
+            setIns(instruments[inum]);
             //
             voiceStatus[channel].program = program;
         }
@@ -630,67 +609,64 @@ Debug.println("type: " + type);
 
         @Override
         public void send(MidiMessage message, long timeStamp) {
+            if (!isOpen) {
+                throw new IllegalStateException("receiver is not open");
+            }
+
             timestump = timeStamp;
-            if (isOpen) {
-                if (message instanceof ShortMessage) {
-                    ShortMessage shortMessage = (ShortMessage) message;
-                    int channel = shortMessage.getChannel();
-                    int command = shortMessage.getCommand();
-                    int data1 = shortMessage.getData1();
-                    int data2 = shortMessage.getData2();
-                    switch (command) {
-                    case ShortMessage.NOTE_OFF:
-                        channels[channel].noteOff(data1, data2);
-                        break;
-                    case ShortMessage.NOTE_ON:
-                        channels[channel].noteOn(data1, data2);
-                        break;
-                    case ShortMessage.POLY_PRESSURE:
-                        channels[channel].setPolyPressure(data1, data2);
-                        break;
-                    case ShortMessage.CONTROL_CHANGE:
-                        channels[channel].controlChange(data1, data2);
-                        break;
-                    case ShortMessage.PROGRAM_CHANGE:
-                        channels[channel].programChange(data1);
-                        break;
-                    case ShortMessage.CHANNEL_PRESSURE:
-                        channels[channel].setChannelPressure(data1);
-                        break;
-                    case ShortMessage.PITCH_BEND:
-                        channels[channel].setPitchBend(data1 | (data2 << 7));
-                        break;
-                    default:
-Debug.printf("%02X\n", command);
-                    }
-                } else if (message instanceof SysexMessage) {
-                    SysexMessage sysexMessage = (SysexMessage) message;
-                    byte[] data = sysexMessage.getData();
+            if (message instanceof ShortMessage) {
+                ShortMessage shortMessage = (ShortMessage) message;
+                int channel = shortMessage.getChannel();
+                int command = shortMessage.getCommand();
+                int data1 = shortMessage.getData1();
+                int data2 = shortMessage.getData2();
+                switch (command) {
+                case ShortMessage.NOTE_OFF:
+                    channels[channel].noteOff(data1, data2);
+                    break;
+                case ShortMessage.NOTE_ON:
+                    channels[channel].noteOn(data1, data2);
+                    break;
+                case ShortMessage.POLY_PRESSURE:
+                    channels[channel].setPolyPressure(data1, data2);
+                    break;
+                case ShortMessage.CONTROL_CHANGE:
+                    channels[channel].controlChange(data1, data2);
+                    break;
+                case ShortMessage.PROGRAM_CHANGE:
+                    channels[channel].programChange(data1);
+                    break;
+                case ShortMessage.CHANNEL_PRESSURE:
+                    channels[channel].setChannelPressure(data1);
+                    break;
+                case ShortMessage.PITCH_BEND:
+                    channels[channel].setPitchBend(data1 | (data2 << 7));
+                    break;
+                default:
+Debug.printf("unhandled short: %02X\n", command);
+                }
+            } else if (message instanceof SysexMessage) {
+                SysexMessage sysexMessage = (SysexMessage) message;
+                byte[] data = sysexMessage.getData();
 //Debug.print("sysex:\n" + StringUtil.getDump(data));
+Debug.printf(Level.FINE, "sysex: %02x %02x %02x", data[1], data[2], data[3]);
 
-                    int pos = 1;
-                    if (data[pos] == 0x7d && data[pos + 1] == 0x10 && data[pos + 2] < 16) {
-                        adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
+                if (data[1] == 0x7d && data[2] == 0x10 && data[3] < 16) {
+                    adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
 
-                        int c = data[pos + 2];
-                        channels[c].ins[0] = (data[pos + 4] << 4) + data[pos + 5];
-                        channels[c].ins[2] = 0xff - ((data[pos + 6] << 4) + data[pos + 7] & 0x3f);
-                        channels[c].ins[4] = 0xff - ((data[pos + 8] << 4) + data[pos + 9]);
-                        channels[c].ins[6] = 0xff - ((data[pos + 10] << 4) + data[pos + 11]);
-                        channels[c].ins[8] = (data[pos + 12] << 4) + data[pos + 13];
-                        channels[c].ins[1] = (data[pos + 14] << 4) + data[pos + 15];
-                        channels[c].ins[3] = 0xff - ((data[pos + 16] << 4) + data[pos + 17] & 0x3f);
-                        channels[c].ins[5] = 0xff - ((data[pos + 18] << 4) + data[pos + 19]);
-                        channels[c].ins[7] = 0xff - ((data[pos + 20] << 4) + data[pos + 21]);
-                        channels[c].ins[9] = (data[pos + 22] << 4) + data[pos + 23];
-                        channels[c].ins[10] = (data[pos + 24] << 4) + data[pos + 24];
-                    }
-                } else {
-                    // TODO meta message
-Debug.printf(message.getClass().getName());
+                    int c = data[3];
+                    channels[c].ins = Opl3SoundBank.fromSysex(data);
+                }
+            } else if (message instanceof SysexMessage) {
+                MetaMessage metaMessage = (MetaMessage) message;
+Debug.printf("meta: %02x", metaMessage.getType());
+                switch (metaMessage.getType()) {
+                case 0x2f:
+                    executor.shutdown();
+                    break;
                 }
             } else {
-                throw new IllegalStateException("receiver is not open");
+                assert false;
             }
         }
 

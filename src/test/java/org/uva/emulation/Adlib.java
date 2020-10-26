@@ -24,6 +24,10 @@ class Adlib {
     static final int MELODIC = 0;
     static final int RYTHM = 1;
 
+    /**
+     * This table holds the register offset for operator 1 for each of the nine
+     * channels. To get the register offset for operator 2, simply add 3.
+     */
     private static final int[] opadd = { 0, 1, 2, 8, 9, 10, 16, 17, 18 };
     /** Standard AdLib frequency table */
     private static final int[] fnums = { 363, 385, 408, 432, 458, 485, 514, 544, 577, 611, 647, 686 };
@@ -52,26 +56,32 @@ class Adlib {
     int mode;
     private int[] data = new int[256];
 
+    // for outer opl3
     @FunctionalInterface
     interface Writer {
         void write(int a, int b, int c);
     }
 
+    // internal opl3
     private OPL3 opl3;
 
-    Writer writer;
-
+    // for internal opl3
     Adlib() {
         opl3 = new OPL3();
         this.writer = this::write;
     }
 
-    Adlib(Writer writer) {
-        this.writer = writer;
-    }
-
+    // for internal opl3
     protected void write(int array, int address, int data) {
         opl3.write(array, address, data);
+    }
+
+    // for outer opl3
+    Writer writer;
+
+    // for outer opl3
+    Adlib(Writer writer) {
+        this.writer = writer;
     }
 
     int read(int address) {
@@ -178,6 +188,21 @@ class Adlib {
 
         write(0x01, 0x20);
         write(0xbd, 0xc0);
+    }
+
+    // TODO
+    public byte[] readBytes(int len) {
+        byte[] buf = new byte[len];
+        for (int i = 0; i < len; i += 4) {
+            short[] data = opl3.read();
+            short chA = data[0];
+            short chB = data[1];
+            buf[i] = (byte) (chA & 0xff);
+            buf[i + 1] = (byte) (chA >> 8 & 0xff);
+            buf[i + 2] = (byte) (chB & 0xff);
+            buf[i + 3] = (byte) (chB >> 8 & 0xff);
+        }
+        return buf;
     }
 }
 
