@@ -1,6 +1,9 @@
-# adplug
+# vavi.sound.opl3
 
- * https://github.com/adplug/adplug
+## original
+
+ * [opl3](http://opl3.cozendey.com/)
+ * [adplug](https://github.com/adplug/adplug)
 
 |type  |status|description|
 |------|------|-----------|

@@ -4,13 +4,14 @@
  * Programmed by Naohide Sano
  */
 
-package org.uva.emulation;
+package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import org.uva.emulation.MidPlayer.MidiTypeFile;
-import org.uva.emulation.Opl3SoundBank.Opl3Instrument;
+import vavi.sound.midi.opl3.Opl3SoundBank.Opl3Instrument;
+import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
+import vavi.sound.opl3.MidPlayer.MidiTypeFile;
 
 
 /**
@@ -55,20 +56,20 @@ class SierraFile extends MidiTypeFile {
     }
 
     @Override
-    void init(Opl3Synthesizer synthesizer) {
+    public void init(Context context) {
         if (smyinsbank != null) {
-            synthesizer.instruments = smyinsbank;
+            context.instruments(smyinsbank);
         }
 
         for (int c = 0; c < 16; ++c) {
-            synthesizer.channels[c].nshift = -13;
-            synthesizer.voiceStatus[c].active = this.ons[c];
-            synthesizer.channels[c].inum = this.inums[c];
+            context.channels()[c].nshift = -13;
+            context.voiceStatus()[c].active = this.ons[c];
+            context.channels()[c].inum = this.inums[c];
 
-            synthesizer.channels[c].setIns(synthesizer.instruments[synthesizer.channels[c].inum]);
+            context.channels()[c].setIns(context.instruments()[context.channels()[c].inum]);
         }
 
-        synthesizer.adlib.style = Adlib.SIERRA_STYLE | Adlib.MIDI_STYLE;
+        context.adlib().style = Adlib.SIERRA_STYLE | Adlib.MIDI_STYLE;
     }
 }
 

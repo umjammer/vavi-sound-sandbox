@@ -30,6 +30,7 @@ Sandbox for sound libraries.
 | midi    | AudioUnit  | ✅ | - | ✅ | this | [rococoa](https://github.com/umjammer/rococoa) | use `AVAudioUnitMIDIInstrument/kAudioUnitSubType_DLSSynth` |
 | midi    | AudioUnit  | ✅ | - | 🚫 | this | [rococoa](https://github.com/umjammer/rococoa) | use `AVAudioUnitSampler`, how to adjust sf2 patch? |
 | midi    | JSyn       | ✅ | -  | ✅ | this | [JSyn](https://github.com/philburk/jsyn) | looking for good drums |
+| midi    | OPL3       | ✅ | - | ✅ | this | [adplug](https://github.com/adplug/adplug) | [opl3-player](http://opl3.cozendey.com/) |
 | sampled | speex      | ✅ | -  | ✅ | [jspeex](http://jspeex.sourceforge.net/) | | sample rate is limited to convert |
 | sampled | flac       | ✅ | -  | ✅ | [jFLAC](http://jflac.sourceforge.net/) | | |
 | sampled | aac        | -  | -  | ✅ | [JAADec](https://github.com/umjammer/JAADec) | | |

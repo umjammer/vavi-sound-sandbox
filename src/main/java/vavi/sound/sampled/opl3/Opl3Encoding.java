@@ -4,7 +4,7 @@
  * Programmed by Naohide Sano
  */
 
-package org.uva.emulation;
+package vavi.sound.sampled.opl3;
 
 
 import javax.sound.sampled.AudioFormat;

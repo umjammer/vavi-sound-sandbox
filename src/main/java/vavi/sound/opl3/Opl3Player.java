@@ -18,7 +18,7 @@
  *
  */
 
-package org.uva.emulation;
+package vavi.sound.opl3;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,8 +27,8 @@ import java.util.Arrays;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 
-import com.cozendey.opl3.OPL3;
-
+import vavi.sound.sampled.opl3.Opl3Encoding;
+import vavi.sound.sampled.opl3.Opl3FileFormatType;
 import vavi.util.Debug;
 
 
@@ -37,13 +37,13 @@ import vavi.util.Debug;
  *
  * @author Simon Peter <dn.tlp@gmx.net>
  */
-abstract class Opl3Player {
+public abstract class Opl3Player {
 
     /** TODO who defined 49700? */
     public static final AudioFormat opl3 = new AudioFormat(49700.0f, 16, 2, true, false);
 
     /** decoder database */
-    enum FileType {
+    public enum FileType {
         MID(Opl3Encoding.MID, Opl3FileFormatType.MID, new MidPlayer()),
         DRO1(Opl3Encoding.DRO1, Opl3FileFormatType.DRO1, new DroPlayer()),
         DRO2(Opl3Encoding.DRO2, Opl3FileFormatType.DRO2, new Dro2Player());
@@ -55,7 +55,7 @@ abstract class Opl3Player {
             this.type = type;
             this.player = player;
         }
-        static Opl3Player getPlayer(AudioFormat.Encoding encoding) {
+        public static Opl3Player getPlayer(AudioFormat.Encoding encoding) {
 Debug.println("encoding: " + encoding);
             return Arrays.stream(values()).filter(e -> e.encoding == encoding).findFirst().get().player;
         }
@@ -63,10 +63,10 @@ Debug.println("encoding: " + encoding);
         static AudioFileFormat.Type getType(String ext) {
             return Arrays.stream(values()).filter(e -> e.type.getExtension().contains(ext)).findFirst().get().type;
         }
-        static AudioFileFormat.Type getType(AudioFormat.Encoding encoding) {
+        public static AudioFileFormat.Type getType(AudioFormat.Encoding encoding) {
             return Arrays.stream(values()).filter(e -> e.encoding == encoding).findFirst().get().type;
         }
-        static AudioFormat.Encoding getEncoding(InputStream is) {
+        public static AudioFormat.Encoding getEncoding(InputStream is) {
             return Arrays.stream(values()).filter(e -> e.player.matchFormat(is)).findFirst().get().encoding;
         }
     }

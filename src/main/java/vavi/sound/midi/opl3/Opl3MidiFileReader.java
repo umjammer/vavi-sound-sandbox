@@ -4,7 +4,7 @@
  * Programmed by Naohide Sano
  */
 
-package org.uva.emulation;
+package vavi.sound.midi.opl3;
 
 import java.io.IOException;
 import java.io.InputStream;

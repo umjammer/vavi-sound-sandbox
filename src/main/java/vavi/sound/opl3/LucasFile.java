@@ -4,10 +4,12 @@
  * Programmed by Naohide Sano
  */
 
-package org.uva.emulation;
+package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+
+import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 
 
 /**
@@ -35,9 +37,9 @@ class LucasFile extends MidiFile {
     }
 
     @Override
-    void init(Opl3Synthesizer synthesizer) {
-        synthesizer.adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
-        super.init(synthesizer);
+    public void init(Context context) {
+        context.adlib().style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
+        super.init(context);
     }
 }
 

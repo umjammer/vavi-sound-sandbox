@@ -2,7 +2,7 @@
  * http://opl3.cozendey.com/
  */
 
-package org.uva.emulation;
+package vavi.sound.sampled.opl3;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -12,10 +12,11 @@ import java.io.OutputStream;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
-import org.uva.emulation.Opl3Player.FileType;
-
 import vavi.io.OutputEngine;
 import vavi.io.OutputEngineInputStream;
+import vavi.sound.opl3.Opl3Player;
+import vavi.sound.opl3.Opl3Player.FileType;
+import vavi.util.Debug;
 
 
 /**
@@ -67,7 +68,7 @@ public class Opl3ToPcmAudioInputStream extends AudioInputStream {
             } else {
                 if (player.update()) {
                     double sec = 1.0 / player.getRefresh();
-//Debug.println("sec: " + sec);
+Debug.println("bytes: " + (int) (sampleRate * sec) + ", " + player.getRefresh());
 
                     byte[] buf = player.read(4 * (int) (sampleRate * sec));
                     out.write(buf);

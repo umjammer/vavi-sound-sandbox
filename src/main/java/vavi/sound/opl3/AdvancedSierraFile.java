@@ -4,13 +4,16 @@
  * Programmed by Naohide Sano
  */
 
-package org.uva.emulation;
+package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.logging.Logger;
+
+import vavi.sound.midi.opl3.Opl3SoundBank;
+import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 
 
 /**
@@ -36,6 +39,23 @@ class AdvancedSierraFile extends SierraFile {
 
     int sierra_pos;
 
+    static int[] fromSierra(int[] buf) {
+        int[] x = new int[11];
+        x[0] = buf[9] * 0x80 + buf[10] * 0x40 + buf[5] * 0x20 + buf[11] * 0x10 + buf[1];
+        x[1] = buf[22] * 0x80 + buf[23] * 0x40 + buf[18] * 0x20 + buf[24] * 0x10 + buf[14];
+        x[2] = (buf[0] << 6) + buf[8];
+        x[3] = (buf[13] << 6) + buf[21];
+        x[4] = (buf[3] << 4) + buf[6];
+        x[5] = (buf[16] << 4) + buf[19];
+        x[6] = (buf[4] << 4) + buf[7];
+        x[7] = (buf[17] << 4) + buf[20];
+        x[8] = buf[26];
+        x[9] = buf[27];
+        x[10] = (buf[2] << 1) + (1 - (buf[12] & 1));
+        return x;
+    }
+
+    // TODO
     private boolean loadSierraIns(Path path) throws IOException {
 
         Path patch = path.getParent().resolve("patch.003");
@@ -54,7 +74,7 @@ class AdvancedSierraFile extends SierraFile {
                     buf[i] = dis.readUnsignedByte();
                 }
 
-                smyinsbank[p] = Opl3SoundBank.newInstrument(0, p, "sierra." + p, Opl3SoundBank.fromSierra(buf));
+                smyinsbank[p] = Opl3SoundBank.newInstrument(0, p, "sierra." + p, fromSierra(buf));
 
                 ++stins;
             }
@@ -121,9 +141,9 @@ class AdvancedSierraFile extends SierraFile {
     }
 
     @Override
-    void init(Opl3Synthesizer synthesizer) {
-        synthesizer.instruments = smyinsbank;
-        synthesizer.adlib.style = Adlib.SIERRA_STYLE | Adlib.MIDI_STYLE; // advanced sierra tunes use volume;
+    public void init(Context context) {
+        context.instruments(smyinsbank);
+        context.adlib().style = Adlib.SIERRA_STYLE | Adlib.MIDI_STYLE; // advanced sierra tunes use volume;
     }
 }
 

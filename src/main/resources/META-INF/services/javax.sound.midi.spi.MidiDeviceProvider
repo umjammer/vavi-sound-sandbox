@@ -1,2 +1,3 @@
 vavi.sound.midi.rococoa.RococoaMidiDeviceProvider
 vavi.sound.midi.jsyn.JSynMidiDeviceProvider
+vavi.sound.midi.opl3.Opl3MidiDeviceProvider

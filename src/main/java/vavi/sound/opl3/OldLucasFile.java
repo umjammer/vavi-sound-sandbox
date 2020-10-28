@@ -4,14 +4,16 @@
  * Programmed by Naohide Sano
  */
 
-package org.uva.emulation;
+package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import org.uva.emulation.MidPlayer.MidiTypeFile;
-import org.uva.emulation.Opl3SoundBank.Opl3Instrument;
+import vavi.sound.midi.opl3.Opl3SoundBank;
+import vavi.sound.midi.opl3.Opl3SoundBank.Opl3Instrument;
+import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
+import vavi.sound.opl3.MidPlayer.MidiTypeFile;
 
 
 /**
@@ -37,6 +39,22 @@ class OldLucasFile extends MidiTypeFile {
     int tins;
     Opl3Instrument[] instruments;
 
+    static int[] fromOldLucas(int[] ins) {
+        int[] x = new int[11];
+        x[10] = ins[2];
+        x[0] = ins[3];
+        x[2] = ins[4];
+        x[4] = ins[5];
+        x[6] = ins[6];
+        x[8] = ins[7];
+        x[1] = ins[8];
+        x[3] = ins[9];
+        x[5] = ins[10];
+        x[7] = ins[11];
+        x[9] = ins[12];
+        return x;
+    }
+
     @Override
     void rewind(int subSong, MidPlayer player) throws IOException {
         player.takeBE(1);
@@ -58,7 +76,7 @@ class OldLucasFile extends MidiTypeFile {
                 ins[i] = player.takeBE(1);
             }
 
-            int[] x = Opl3SoundBank.fromOldLucas(ins);
+            int[] x = fromOldLucas(ins);
             this.instruments[p] = Opl3SoundBank.newInstrument(0, p, "oldlucas." + p, x);
         }
 
@@ -68,20 +86,20 @@ class OldLucasFile extends MidiTypeFile {
     }
 
     @Override
-    void init(Opl3Synthesizer synthesizer) {
+    public void init(Context context) {
         for (int p = 0; p < this.tins; ++p) {
-            synthesizer.instruments[p] = this.instruments[p];
+            context.instruments()[p] = this.instruments[p];
         }
 
         for (int c = 0; c < 16; ++c) {
             if (c < this.tins) {
-                synthesizer.channels[c].inum = c;
+                context.channels()[c].inum = c;
 
-                synthesizer.channels[c].setIns(synthesizer.instruments[synthesizer.channels[c].inum]);
+                context.channels()[c].setIns(context.instruments()[context.channels()[c].inum]);
             }
         }
 
-        synthesizer.adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
+        context.adlib().style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
     }
 }
 

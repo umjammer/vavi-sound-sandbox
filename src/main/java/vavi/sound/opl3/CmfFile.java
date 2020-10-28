@@ -4,16 +4,16 @@
  * Programmed by Naohide Sano
  */
 
-package org.uva.emulation;
+package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import org.uva.emulation.MidPlayer.MidiTypeFile;
-import org.uva.emulation.Opl3SoundBank.Opl3Instrument;
-
-import vavi.util.StringUtil;
+import vavi.sound.midi.opl3.Opl3SoundBank;
+import vavi.sound.midi.opl3.Opl3SoundBank.Opl3Instrument;
+import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
+import vavi.sound.opl3.MidPlayer.MidiTypeFile;
 
 
 /**
@@ -41,7 +41,6 @@ class CmfFile extends MidiTypeFile {
 
     @Override
     void rewind(int subSong, MidPlayer player) throws IOException {
-logger.fine("\n" + StringUtil.getDump(player.data, 0, 256));
         player.takeBE(4); // ctmf
 
         int v = player.takeLE(2); // version
@@ -93,16 +92,16 @@ logger.info(String.format("pos2: 0x%04x", player.pos));
     }
 
     @Override
-    void init(Opl3Synthesizer synthesizer) {
+    public void init(Context context) {
         for (int p = 0; p < this.tins; ++p) {
-            synthesizer.instruments[p] = this.instruments[p];
+            context.instruments()[p] = this.instruments[p];
         }
 
         for (int c = 0; c < 16; ++c) {
-            synthesizer.channels[c].nshift = -13;
+            context.channels()[c].nshift = -13;
         }
 
-        synthesizer.adlib.style = Adlib.CMF_STYLE;
+        context.adlib().style = Adlib.CMF_STYLE;
     }
 }
 

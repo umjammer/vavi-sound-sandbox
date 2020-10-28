@@ -4,20 +4,22 @@
  * Programmed by Naohide Sano
  */
 
-package org.uva.emulation;
+package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
-import org.uva.emulation.MidPlayer.FileType;
-import org.uva.emulation.MidPlayer.MidiTypeFile;
-
-import vavi.util.StringUtil;
+import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
+import vavi.sound.opl3.MidPlayer.MidiTypeFile;
 
 
 /**
  * MidiFile.
+ * <p>
+ * support only format 0 SMF.
+ * <li> if you want use this device, set system property "vavi.sound.opl3.MidiFile" true
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/25 umjammer initial version <br>
@@ -26,22 +28,26 @@ class MidiFile extends MidiTypeFile {
     static Logger logger = Logger.getLogger(MidiFile.class.getName());
 
     int markSize() {
-        return 4;
+        return 10;
     }
+
     boolean matchFormatImpl(DataInputStream dis) throws IOException {
-        return dis.readUnsignedByte() == 'M' &&
-                dis.readUnsignedByte() == 'T' &&
-                dis.readUnsignedByte() == 'h' &&
-                dis.readUnsignedByte() == 'd';
+        if (!Boolean.valueOf(System.getProperty("vavi.sound.opl3.MidiFile", "false"))) {
+logger.info("vavi.sound.opl3.MidiFile: false");
+            return false;
+        }
+        byte[] chunkType = new byte[4];
+        dis.readFully(chunkType);
+        dis.skipBytes(4);
+        int format = dis.readUnsignedShort();
+logger.info("format: " + format);
+        return Arrays.equals("MThd".getBytes(), chunkType) && format == 0;
     }
 
     @Override
     void rewind(int subSong, MidPlayer player) throws IOException {
-logger.info("\n" + StringUtil.getDump(player.data, 0, 128));
-        if (player.type != FileType.LUCAS) {
-            player.tins = 128;
-        }
-        player.takeBE(12); // skip header
+        player.tins = 128;
+        player.takeBE(4 + 4 + 2 + 2); // skip header
         player.deltas = player.takeBE(2);
         logger.fine(String.format("deltas: %d", player.deltas));
         player.takeBE(4);
@@ -53,7 +59,7 @@ logger.info("\n" + StringUtil.getDump(player.data, 0, 128));
     }
 
     @Override
-    void init(Opl3Synthesizer synthesizer) {
+    public void init(Context context) {
     }
 }
 

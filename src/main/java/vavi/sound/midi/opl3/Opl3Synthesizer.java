@@ -4,7 +4,7 @@
  * Programmed by Naohide Sano
  */
 
-package org.uva.emulation;
+package vavi.sound.midi.opl3;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,11 +31,14 @@ import javax.sound.midi.VoiceStatus;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
-import org.uva.emulation.MidPlayer.FileType;
-import org.uva.emulation.Opl3SoundBank.Opl3Instrument;
-
+import vavi.sound.midi.opl3.Opl3SoundBank.Opl3Instrument;
+import vavi.sound.opl3.Adlib;
+import vavi.sound.opl3.MidPlayer;
+import vavi.sound.opl3.MidPlayer.FileType;
+import vavi.sound.opl3.Opl3Player;
 import vavi.util.Debug;
 
 
@@ -61,22 +64,26 @@ public class Opl3Synthesizer implements Synthesizer {
     // TODO != channel???
     private static final int MAX_CHANNEL = 16;
 
-    Opl3MidiChannel[] channels = new Opl3MidiChannel[MAX_CHANNEL];
+    private Opl3MidiChannel[] channels = new Opl3MidiChannel[MAX_CHANNEL];
 
-    VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
+    private VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
 
     private long timestump;
 
-    boolean isOpen;
+    private boolean isOpen;
+
+    private SourceDataLine line;
+
+    private AudioFormat audioFormat = Opl3Player.opl3;
 
     // ----
 
-    Adlib adlib;
+    private Adlib adlib;
 
-    Opl3SoundBank soundBank = new Opl3SoundBank();
+    private Opl3SoundBank soundBank = new Opl3SoundBank(Adlib.midi_fm_instruments);
 
-    /** default {@link Opl3SoundBank#midi_fm_instruments} */
-    Opl3Instrument[] instruments = new Opl3Instrument[128];
+    /** default {@link Adlib#midi_fm_instruments} */
+    private Opl3Instrument[] instruments = new Opl3Instrument[128];
 
     static class Percussion {
         int channel = -1;
@@ -86,6 +93,14 @@ public class Opl3Synthesizer implements Synthesizer {
 
     // ch percussion?
     private Percussion[] percussions = new Percussion[18];
+
+    public class Context {
+        public Adlib adlib() { return Opl3Synthesizer.this.adlib; }
+        public Opl3Instrument[] instruments() { return Opl3Synthesizer.this.instruments; }
+        public void instruments(Opl3Instrument[] instruments) { Opl3Synthesizer.this.instruments = instruments; }
+        public Opl3MidiChannel[] channels() { return Opl3Synthesizer.this.channels; }
+        public VoiceStatus[] voiceStatus() { return Opl3Synthesizer.this.voiceStatus; }
+    }
 
     // ----
 
@@ -131,44 +146,63 @@ public class Opl3Synthesizer implements Synthesizer {
         }
 
 Debug.println("type: " + type);
-        type.midiTypeFile.init(this);
+        type.midiTypeFile.init(new Context());
 
         adlib.reset();
 
         //
-        if (writer == null) {
-            executor.submit(() -> {
-                try {
-                    AudioFormat audioFormat = Opl3Player.opl3;
-                    DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, audioFormat, AudioSystem.NOT_SPECIFIED);
-                    SourceDataLine line = (SourceDataLine) AudioSystem.getLine(lineInfo);
-Debug.println(line.getClass().getName());
-                    line.addLineListener(event -> { Debug.println(event.getType()); });
-
-                    line.open(audioFormat);
-                    line.start();
-                    long backup = System.currentTimeMillis();
-                    while (!executor.isShutdown()) {
-                        long msec = System.currentTimeMillis() - backup;
-//Debug.printf("%.2f", sec);
-
-                        byte[] b = adlib.readBytes(4 * (int) (audioFormat.getSampleRate() * (msec / 1000.0)));
-                        line.write(b, 0, b.length);
-                        backup = System.currentTimeMillis();
-                        Thread.sleep(Math.round(1000.0 / audioFormat.getSampleRate()));
-                    }
-                    line.drain();
-                    line.close();
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-            });
-        }
-
         isOpen = true;
+
+        if (adlib.isOplInternal()) {
+            init();
+            executor.submit(this::play);
+        }
     }
 
-    ExecutorService executor = Executors.newSingleThreadExecutor();
+    ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
+        Thread thread = new Thread(r);
+        thread.setPriority(Thread.MAX_PRIORITY);
+        return thread;
+    });
+
+    /** */
+    private void init() throws MidiUnavailableException {
+        try {
+            DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, audioFormat, AudioSystem.NOT_SPECIFIED);
+            line = (SourceDataLine) AudioSystem.getLine(lineInfo);
+Debug.println(line.getClass().getName());
+            line.addLineListener(event -> { Debug.println(event.getType()); });
+
+            line.open(audioFormat);
+            line.start();
+        } catch (LineUnavailableException e) {
+            throw (MidiUnavailableException) new MidiUnavailableException().initCause(e);
+        }
+
+        timestump = 0;
+    }
+
+    /** */
+    private void play() {
+        byte[] buf = new byte[4 * (int) audioFormat.getSampleRate() / 10];
+//Debug.printf("buf: %d", buf.length);
+
+        while (isOpen) {
+            try {
+                long msec = System.currentTimeMillis() - timestump;
+                timestump = System.currentTimeMillis();
+                msec = msec > 100 ? 100 : msec;
+                int l = adlib.read(buf, 0, 4 * (int) (audioFormat.getSampleRate() * msec / 1000.0));
+//Debug.printf("adlib: %d", l);
+                if (l > 0) {
+                    line.write(buf, 0, l);
+                }
+                Thread.sleep(33); // TODO how to define?
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Override
     public void open() throws MidiUnavailableException {
@@ -177,6 +211,10 @@ Debug.println(line.getClass().getName());
 
     @Override
     public void close() {
+        isOpen = false;
+        line.drain();
+        line.close();
+        executor.shutdown();
     }
 
     @Override
@@ -304,23 +342,23 @@ Debug.println(line.getClass().getName());
 
     }
 
-    class Opl3MidiChannel implements MidiChannel {
+    public class Opl3MidiChannel implements MidiChannel {
 
         private int channel;
 
-        private int[] polyPressure = new int[127];
+        private int[] polyPressure = new int[128];
         private int pressure;
         private int pitchBend;
-        private int[] control = new int[127];
+        private int[] control = new int[128];
 
-        // instrument number
-        int inum;
+        // instrument number TODO public
+        public int inum;
         // instrument for adlib
         int[] ins = new int[11];
         //
-        int nshift;
+        public int nshift; // TODO public
 
-        void setIns(Opl3Instrument instrument) {
+        public void setIns(Opl3Instrument instrument) { // TODO public
             int[] data = (int[]) instrument.getData();
             for (int i = 0; i < 11; ++i) {
                 ins[i] = data[i];
@@ -613,7 +651,6 @@ Debug.println(line.getClass().getName());
                 throw new IllegalStateException("receiver is not open");
             }
 
-            timestump = timeStamp;
             if (message instanceof ShortMessage) {
                 ShortMessage shortMessage = (ShortMessage) message;
                 int channel = shortMessage.getChannel();
@@ -655,14 +692,13 @@ Debug.printf(Level.FINE, "sysex: %02x %02x %02x", data[1], data[2], data[3]);
                     adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
 
                     int c = data[3];
-                    channels[c].ins = Opl3SoundBank.fromSysex(data);
+                    channels[c].ins = MidPlayer.fromSysex(data);
                 }
             } else if (message instanceof SysexMessage) {
                 MetaMessage metaMessage = (MetaMessage) message;
 Debug.printf("meta: %02x", metaMessage.getType());
                 switch (metaMessage.getType()) {
                 case 0x2f:
-                    executor.shutdown();
                     break;
                 }
             } else {

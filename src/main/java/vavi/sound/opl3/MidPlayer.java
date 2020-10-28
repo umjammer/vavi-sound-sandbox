@@ -17,12 +17,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package org.uva.emulation;
+package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
@@ -32,6 +33,7 @@ import javax.sound.midi.ControllerEventListener;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MetaMessage;
+import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
@@ -43,6 +45,9 @@ import javax.sound.midi.Track;
 import javax.sound.midi.Transmitter;
 
 import vavi.sound.midi.MidiConstants;
+import vavi.sound.midi.opl3.Opl3SoundBank;
+import vavi.sound.midi.opl3.Opl3Synthesizer;
+import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 import vavi.util.Debug;
 import vavi.util.StringUtil;
 
@@ -106,18 +111,18 @@ import vavi.util.StringUtil;
  * <li> FreeSCI - for some information on the sci music files
  * <li> SD - the SCI Decoder (to get all .sci out of the Sierra files)
  */
-class MidPlayer extends Opl3Player implements Sequencer {
+public class MidPlayer extends Opl3Player implements Sequencer {
 
     static Logger logger = Logger.getLogger(MidPlayer.class.getName());
 
-    enum FileType {
+    public enum FileType {
         LUCAS(new LucasFile(), "LucasArts AdLib MIDI"),
         MIDI(new MidiFile(), "General MIDI"),
         CMF(new CmfFile(), "Creative Music Format (CMF MIDI)"),
         SIERRA(new SierraFile(), "Sierra On-Line EGA MIDI"),
         ADVSIERRA(new AdvancedSierraFile(), "Sierra On-Line VGA MIDI"),
         OLDLUCAS(new OldLucasFile(), "Lucasfilm Adlib MIDI");
-        MidiTypeFile midiTypeFile;
+        public MidiTypeFile midiTypeFile;
         String desc;
         FileType(MidiTypeFile midiTypeFile, String desc) {
             this.midiTypeFile = midiTypeFile;
@@ -129,7 +134,7 @@ class MidPlayer extends Opl3Player implements Sequencer {
         }
     }
 
-    static abstract class MidiTypeFile {
+    public static abstract class MidiTypeFile {
         boolean matchFormat(InputStream bitStream) {
             DataInputStream dis = new DataInputStream(bitStream);
             try {
@@ -149,7 +154,7 @@ Debug.println(Level.FINE, e);
         abstract int markSize();
         abstract boolean matchFormatImpl(DataInputStream dis) throws IOException;
         abstract void rewind(int subSong, MidPlayer player) throws IOException;
-        abstract void init(Opl3Synthesizer synthesizer);
+        public abstract void init(Context context);
     }
 
     static class MidiTrack {
@@ -176,29 +181,36 @@ Debug.println(Level.FINE, e);
         }
     }
 
+    private static final int MAX_CHANNELS = 16;
+
     // data length
     int flen;
-    DataInputStream data;
+    private DataInputStream data;
     // data pos
     int pos;
 
-    Opl3SoundBank soundBank = new Opl3SoundBank();
+    Opl3SoundBank soundBank = new Opl3SoundBank(Adlib.midi_fm_instruments);
 
-    FileType type;
+    private FileType type;
     int subsongs;
 
-    MidiTrack[] tracks = new MidiTrack[16];
+    MidiTrack[] tracks = new MidiTrack[MAX_CHANNELS];
 
     int deltas;
     int msqtr;
     float fwait;
-    int iwait;
+    private int iwait;
     boolean doing;
     // number of instruments
     int tins;
 
+    private Opl3Synthesizer synthesizer = new Opl3Synthesizer();
+
+    private Transmitter transmitter = new Opl3Transmitter();
+
     @Override
     public boolean matchFormat(InputStream bitStream) {
+logger.fine("\n" + StringUtil.getDump(bitStream, 0, 256));
         try {
             type = FileType.getFileType(bitStream);
             return true;
@@ -257,7 +269,10 @@ Debug.println(Level.FINE, e);
         return b;
     }
 
-    // TODO deprecate
+    /**
+     * variable length
+     * TODO deprecate
+     */
     private int takeLen() throws IOException {
         int b = takeBE(1);
         int v = b & 0x7f;
@@ -283,15 +298,12 @@ logger.fine("type: " + type);
         rewind(0);
     }
 
-    Opl3Synthesizer synthesizer = new Opl3Synthesizer();
-    Transmitter transmitter = new Opl3Transmitter();
-
     @Override
     public boolean update() throws IOException {
         if (doing) {
-            for (int t = 0; t < 16; ++t) {
+            for (int t = 0; t < MAX_CHANNELS; ++t) {
                 if (tracks[t].on) {
-                    pos = tracks[t].pos;
+                    pos = tracks[t].pos; // TODO substitution for pos!!! track > 0 cause bug
                     if (type != FileType.SIERRA && type != FileType.ADVSIERRA) {
                         tracks[t].iwait += takeLen();
                     } else {
@@ -306,12 +318,12 @@ logger.fine("type: " + type);
         }
 
         iwait = 0;
-        boolean ret = true;
+        boolean eos = true;
 
-        while (iwait == 0 && ret) {
-            for (int t = 0; t < 16; ++t) {
+        while (iwait == 0 && eos) {
+            for (int t = 0; t < MAX_CHANNELS; ++t) {
                 if (tracks[t].on && tracks[t].iwait == 0 && tracks[t].pos < tracks[t].tend) {
-                    pos = tracks[t].pos;
+                    pos = tracks[t].pos; // TODO substitution for pos!!! track > 0 cause bug
                     data.mark(1);
                     int v = takeBE(1);
                     if (v < 0x80) {
@@ -383,7 +395,7 @@ logger.fine("type: " + type);
                                 }
                                 byte[] b = new byte[l + 2];
                                 b[0] = (byte) (v & 0xff);
-                                b[1] = (byte) (l & 0xff);
+                                b[1] = (byte) (l & 0xff); // TODO variable length not considered
                                 for (int i = 2; i < b.length; i++) {
                                     b[i] = (byte) (takeBE(1) & 0xff);
                                 }
@@ -429,7 +441,8 @@ logger.fine("type: " + type);
                                 v = takeBE(1);
                                 switch (v) {
                                 case 0x2f:
-                                    msqtr = takeBE(1);
+                                    logger.info(String.format("meta: %02x", v));
+                                    takeBE(data.available()); // TODO out of spec.
                                     break;
                                 case 0x51:
                                     l = takeLen();
@@ -478,19 +491,19 @@ logger.fine("type: " + type);
                 }
             }
 
-            ret = false; // end of song.
+            eos = false; // end of song.
             iwait = 0;
 
-            for (int t = 0; t < 16; ++t) {
+            for (int t = 0; t < MAX_CHANNELS; ++t) {
                 if (tracks[t].on && tracks[t].pos < tracks[t].tend) {
-                    ret = true; // not yet...
+                    eos = true; // not yet...
                 }
             }
 
-            if (ret) {
+            if (eos) {
                 iwait = 0xffffff; // bigger than any wait can be!
 
-                for (int t = 0; t < 16; ++t) {
+                for (int t = 0; t < MAX_CHANNELS; ++t) {
                     if (tracks[t].on && tracks[t].pos < tracks[t].tend && tracks[t].iwait < iwait) {
                         iwait = tracks[t].iwait;
                     }
@@ -507,8 +520,8 @@ logger.fine("type: " + type);
         }
 
 //        logger.info(String.format("iwait: %d, deltas: %d, msqtr: %d", iwait, deltas, msqtr));
-        if (iwait != 0 && ret) {
-            for (int t = 0; t < 16; ++t) {
+        if (iwait != 0 && eos) {
+            for (int t = 0; t < MAX_CHANNELS; ++t) {
                 if (tracks[t].on) {
                     tracks[t].iwait -= iwait;
                 }
@@ -519,7 +532,7 @@ logger.fine("type: " + type);
             fwait = 50.0F; // 1/50th of a second
         }
 
-        for (int t = 0; t < 16; ++t) {
+        for (int t = 0; t < MAX_CHANNELS; ++t) {
             if (tracks[t].on) {
                 if (tracks[t].pos < tracks[t].tend) {
                     logger.fine(String.format("iwait: %d", tracks[t].iwait));
@@ -529,7 +542,27 @@ logger.fine("type: " + type);
             }
         }
 
-        return ret;
+        return eos;
+    }
+
+    /**
+     * @param data {@link SysexMessage#getData()}
+     */
+    public static int[] fromSysex(byte[] data) {
+        int pos = 1;
+        int[] x = new int[11];
+        x[0] = ((data[pos + 4] & 0xff) << 4) + (data[pos + 5] & 0xff);
+        x[2] = 0xff - (((data[pos + 6] & 0xff) << 4) + data[pos + 7] & 0x3f);
+        x[4] = 0xff - (((data[pos + 8] & 0xff) << 4) + (data[pos + 9] & 0xff));
+        x[6] = 0xff - (((data[pos + 10] & 0xff) << 4) + (data[pos + 11] & 0xff));
+        x[8] = ((data[pos + 12] & 0xff) << 4) + (data[pos + 13] & 0xff);
+        x[1] = ((data[pos + 14] & 0xff) << 4) + (data[pos + 15] & 0xff);
+        x[3] = 0xff - (((data[pos + 16] & 0xff) << 4) + (data[pos + 17] & 0x3f));
+        x[5] = 0xff - (((data[pos + 18] & 0xff) << 4) + (data[pos + 19] & 0xff));
+        x[7] = 0xff - (((data[pos + 20] & 0xff) << 4) + (data[pos + 21] & 0xff));
+        x[9] = ((data[pos + 22] & 0xff) << 4) + (data[pos + 23] & 0xff);
+        x[10] = ((data[pos + 24] & 0xff) << 4) + (data[pos + 24] & 0xff);
+        return x;
     }
 
     @Override
@@ -549,14 +582,14 @@ logger.fine("type: " + type);
         fwait = 123.0F; // gotta be a small thing... sorta like nothing
         iwait = 0;
 
-        for (int t = 0; t < 16; ++t) {
+        for (int t = 0; t < MAX_CHANNELS; ++t) {
             tracks[t].reset();
         }
 
         pos = 0;
         type.midiTypeFile.rewind(subSong, this);
 
-        for (int t = 0; t < 16; ++t) {
+        for (int t = 0; t < MAX_CHANNELS; ++t) {
             tracks[t].initOn();
         }
 
@@ -593,11 +626,18 @@ logger.fine("type: " + type);
         }
     }
 
-    /* @see javax.sound.midi.MidiDevice#getDeviceInfo() */
+    private static final String version = "0.0.1.";
+
+    /** the device information */
+    protected static final MidiDevice.Info info =
+        new MidiDevice.Info("OPL3 MIDI Sequencer",
+                            "Vavisoft",
+                            "Software sequencer for OPL3",
+                            "Version " + version) {};
+
     @Override
     public Info getDeviceInfo() {
-        // TODO Auto-generated method stub
-        return null;
+        return info;
     }
 
     /* @see javax.sound.midi.MidiDevice#open() */
@@ -621,60 +661,48 @@ logger.fine("type: " + type);
         return false;
     }
 
-    /* @see javax.sound.midi.MidiDevice#getMaxReceivers() */
     @Override
     public int getMaxReceivers() {
-        // TODO Auto-generated method stub
-        return 0;
+        return 1;
     }
 
-    /* @see javax.sound.midi.MidiDevice#getMaxTransmitters() */
     @Override
     public int getMaxTransmitters() {
-        // TODO Auto-generated method stub
-        return 0;
+        return 1;
     }
 
-    /* @see javax.sound.midi.MidiDevice#getReceiver() */
     @Override
     public Receiver getReceiver() throws MidiUnavailableException {
-        // TODO Auto-generated method stub
-        return null;
+        return transmitter.getReceiver();
     }
 
-    /* @see javax.sound.midi.MidiDevice#getReceivers() */
     @Override
     public List<Receiver> getReceivers() {
-        // TODO Auto-generated method stub
-        return null;
+        if (transmitter.getReceiver() != null) {
+            return Arrays.asList(transmitter.getReceiver());
+        } else {
+            return Collections.EMPTY_LIST;
+        }
     }
 
-    /* @see javax.sound.midi.MidiDevice#getTransmitter() */
     @Override
     public Transmitter getTransmitter() throws MidiUnavailableException {
-        // TODO Auto-generated method stub
-        return null;
+        return transmitter;
     }
 
-    /* @see javax.sound.midi.MidiDevice#getTransmitters() */
     @Override
     public List<Transmitter> getTransmitters() {
-        // TODO Auto-generated method stub
-        return null;
+        return Arrays.asList(transmitter);
     }
 
-    /* @see javax.sound.midi.Sequencer#setSequence(javax.sound.midi.Sequence) */
     @Override
     public void setSequence(Sequence sequence) throws InvalidMidiDataException {
-        // TODO Auto-generated method stub
-        
+        throw new UnsupportedOperationException();
     }
 
-    /* @see javax.sound.midi.Sequencer#setSequence(java.io.InputStream) */
     @Override
     public void setSequence(InputStream stream) throws IOException, InvalidMidiDataException {
-        // TODO Auto-generated method stub
-        
+        load(stream);
     }
 
     /* @see javax.sound.midi.Sequencer#getSequence() */
@@ -740,32 +768,24 @@ logger.fine("type: " + type);
         
     }
 
-    /* @see javax.sound.midi.Sequencer#getTempoInBPM() */
     @Override
     public float getTempoInBPM() {
-        // TODO Auto-generated method stub
-        return 0;
+        return msqtr;
     }
 
-    /* @see javax.sound.midi.Sequencer#setTempoInBPM(float) */
     @Override
     public void setTempoInBPM(float bpm) {
-        // TODO Auto-generated method stub
-        
+        this.msqtr = (int) bpm;
     }
 
-    /* @see javax.sound.midi.Sequencer#getTempoInMPQ() */
     @Override
     public float getTempoInMPQ() {
-        // TODO Auto-generated method stub
-        return 0;
+        return msqtr;
     }
 
-    /* @see javax.sound.midi.Sequencer#setTempoInMPQ(float) */
     @Override
     public void setTempoInMPQ(float mpq) {
-        // TODO Auto-generated method stub
-        
+        this.msqtr = (int) mpq;
     }
 
     /* @see javax.sound.midi.Sequencer#setTempoFactor(float) */
@@ -803,14 +823,11 @@ logger.fine("type: " + type);
         
     }
 
-    /* @see javax.sound.midi.Sequencer#getMicrosecondLength() */
     @Override
     public long getMicrosecondLength() {
-        // TODO Auto-generated method stub
-        return 0;
+        return getTotalMiliseconds() / 10;
     }
 
-    /* @see javax.sound.midi.Sequencer#getMicrosecondPosition() */
     @Override
     public long getMicrosecondPosition() {
         // TODO Auto-generated method stub

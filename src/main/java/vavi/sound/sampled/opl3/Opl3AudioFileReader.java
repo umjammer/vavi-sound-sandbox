@@ -4,7 +4,7 @@
  * Programmed by Naohide Sano
  */
 
-package org.uva.emulation;
+package vavi.sound.sampled.opl3;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -21,9 +21,9 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 
-import org.uva.emulation.Opl3Player.FileType;
+import vavi.sound.opl3.Opl3Player.FileType;
 
-import static org.uva.emulation.Opl3Player.opl3;
+import static vavi.sound.opl3.Opl3Player.opl3;
 
 
 /**

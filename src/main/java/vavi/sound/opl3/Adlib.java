@@ -4,25 +4,25 @@
  * Programmed by Naohide Sano
  */
 
-package org.uva.emulation;
-
-import javax.sound.midi.Instrument;
-import javax.sound.midi.Patch;
-import javax.sound.midi.Soundbank;
-import javax.sound.midi.SoundbankResource;
-import javax.sound.midi.SysexMessage;
-
+package vavi.sound.opl3;
 
 /**
- * Opl3SoundBank.
+ * Adlib.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/23 umjammer initial version <br>
  */
-public class Opl3SoundBank implements Soundbank {
+public class Adlib {
+    public static final int LUCAS_STYLE = 1;
+    public static final int CMF_STYLE = 2;
+    public static final int MIDI_STYLE = 4;
+    static final int SIERRA_STYLE = 8;
+
+    public static final int MELODIC = 0;
+    public static final int RYTHM = 1;
 
     /** This set of GM instrument patches was provided by Jorrit Rouwe... */
-    private static final int[][] midi_fm_instruments = {
+    public static final int[][] midi_fm_instruments = {
         { 33, 33, 143, 12, 242, 242, 69, 118, 0, 0, 8, 0, 0, 0 },
         { 49, 33, 75, 9, 242, 242, 84, 86, 0, 0, 8, 0, 0, 0 },
         { 49, 33, 73, 9, 242, 242, 85, 118, 0, 0, 8, 0, 0, 0 },
@@ -153,127 +153,188 @@ public class Opl3SoundBank implements Soundbank {
         { 0, 0, 0, 9, 243, 246, 240, 201, 0, 2, 14, 0, 0, 0}
     };
 
-    Opl3SoundBank() {
-        instruments = new Instrument[midi_fm_instruments.length];
-        for (int i = 0; i < instruments.length; i++) {
-            int[] b = new int[16];
-            System.arraycopy(midi_fm_instruments[i], 0, b, 0, midi_fm_instruments[i].length);
-            b[14] = 0;
-            b[15] = 0;
-            instruments[i] = new Opl3Instrument(this, 0, i, "ins" + i, b);
+    /**
+     * This table holds the register offset for operator 1 for each of the nine
+     * channels. To get the register offset for operator 2, simply add 3.
+     */
+    private static final int[] opadd = { 0, 1, 2, 8, 9, 10, 16, 17, 18 };
+    /** Standard AdLib frequency table */
+    private static final int[] fnums = { 363, 385, 408, 432, 458, 485, 514, 544, 577, 611, 647, 686 };
+    /**
+     * map CMF drum channels 12 - 15 to corresponding AdLib drum operators
+     * bass drum (channel 11) not mapped, cause it's handled like a normal instrument
+     */
+    private static final int[] map_chan = { 20, 18, 21, 17 };
+    /** Map CMF drum channels 11 - 15 to corresponding AdLib drum channels */
+    public static final int[] percussion_map = { 6, 7, 8, 8, 7 };
+    /** logarithmic relationship between midi and FM volumes */
+    public static int[] my_midi_fm_vol_table = {
+        0, 11, 16, 19, 22, 25, 27, 29, 32, 33, 35, 37, 39, 40, 42, 43,
+        45, 46, 48, 49, 50, 51, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62,
+        64, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 75, 76, 77,
+        78, 79, 80, 80, 81, 82, 83, 83, 84, 85, 86, 86, 87, 88, 89, 89,
+        90, 91, 91, 92, 93, 93, 94, 95, 96, 96, 97, 97, 98, 99, 99, 100,
+        101, 101, 102, 103, 103, 104, 104, 105, 106, 106, 107, 107, 108,
+        109, 109, 110, 110, 111, 112, 112, 113, 113, 114, 114, 115, 115,
+        116, 117, 117, 118, 118, 119, 119, 120, 120, 121, 121, 122, 122,
+        123, 123, 124, 124, 125, 125, 126, 126, 127
+    };
+    static final int[] ops = { 32, 32, 64, 64, 96, 96, 128, 128, 224, 224, 192 };
+
+    public int style;
+    public int mode;
+    private int[] data = new int[256];
+
+    /** for outer opl3 */
+    @FunctionalInterface
+    public interface Writer {
+        void write(int a, int b, int c);
+    }
+
+    /** internal opl3 */
+    private OPL3 opl3;
+
+    /** for internal opl3 */
+    public Adlib() {
+        opl3 = new OPL3();
+        this.writer = this::write;
+    }
+
+    /** for internal opl3 */
+    protected void write(int array, int address, int data) {
+        opl3.write(array, address, data);
+    }
+
+    /** for outer opl3 */
+    Writer writer;
+
+    /** for outer opl3 */
+    public Adlib(Writer writer) {
+        this.writer = writer;
+    }
+
+    public boolean isOplInternal() {
+        return opl3 != null;
+    }
+
+    public int read(int address) {
+        return data[address];
+    }
+
+    public void write(int address, int data) {
+        writer.write(0, address, data);
+        this.data[address] = data;
+    }
+
+    public void instrument(int voice, int[] inst) {
+        if ((style & SIERRA_STYLE) != 0) {
+            // just gotta make sure this happens..
+            // 'cause who knows when it'll be
+            // reset otherwise.
+            write(0xbd, 0);
         }
-    }
 
-    private Instrument[] instruments;
-
-    @Override
-    public String getName() {
-        return "Opl3SoundBank";
-    }
-
-    @Override
-    public String getVersion() {
-        return "0.0.1";
-    }
-
-    @Override
-    public String getVendor() {
-        return "vavisoft";
-    }
-
-    @Override
-    public String getDescription() {
-        return "soundbank for opl3";
-    }
-
-    @Override
-    public SoundbankResource[] getResources() {
-        return new SoundbankResource[0];
-    }
-
-    @Override
-    public Instrument[] getInstruments() {
-        return instruments;
-    }
-
-    @Override
-    public Instrument getInstrument(Patch patch) {
-        for (int i = 0; i < instruments.length; i++) {
-            if (instruments[i].getPatch().getProgram() == patch.getProgram() &&
-                instruments[i].getPatch().getBank() == patch.getBank()) {
-                return instruments[i];
+        write(0x20 + opadd[voice], inst[0]);
+        write(0x23 + opadd[voice], inst[1]);
+        if ((style & LUCAS_STYLE) != 0) {
+            write(0x43 + opadd[voice], 0x3f);
+            if ((inst[10] & 1) == 0) {
+                write(0x40 + opadd[voice], inst[2]);
+            } else {
+                write(0x40 + opadd[voice], 0x3f);
+            }
+        } else if ((style & SIERRA_STYLE) != 0) {
+            write(0x40 + opadd[voice], inst[2]);
+            write(0x43 + opadd[voice], inst[3]);
+        } else {
+            write(0x40 + opadd[voice], inst[2]);
+            if ((inst[10] & 1) == 0) {
+                write(0x43 + opadd[voice], inst[3]);
+            } else {
+                write(0x43 + opadd[voice], 0);
             }
         }
-        return null;
+
+        write(0x60 + opadd[voice], inst[4]);
+        write(0x63 + opadd[voice], inst[5]);
+        write(0x80 + opadd[voice], inst[6]);
+        write(0x83 + opadd[voice], inst[7]);
+        write(0xe0 + opadd[voice], inst[8]);
+        write(0xe3 + opadd[voice], inst[9]);
+        write(0xc0 + voice, 0xf0 | inst[10]);
     }
 
-    public static Opl3Instrument newInstrument(int bank, int program, String name, int[] data) {
-        return new Opl3Instrument(null, bank, program, name, data);
+    public void percussion(int ch, int[] inst) {
+        int opadd = map_chan[ch - 12];
+        write(0x20 + opadd, inst[0]);
+        write(0x40 + opadd, inst[2]);
+        write(0x60 + opadd, inst[4]);
+        write(0x80 + opadd, inst[6]);
+        write(0xe0 + opadd, inst[8]);
+        write(0xc0 + opadd, 0xf0 | inst[10]);
     }
 
-    static class Opl3Instrument extends Instrument {
-        int[] data;
-        protected Opl3Instrument(Opl3SoundBank sounBbank, int bank, int program, String name, int[] data) {
-            super(sounBbank, new Patch(bank, program), name, int[].class);
-            this.data = data;
+    void volume(int voice, int volume) {
+        if ((style & SIERRA_STYLE) == 0) { // sierra likes it loud!
+            int vol = volume >> 2;
+            if ((style & LUCAS_STYLE) != 0) {
+                if ((data[0xc0 + voice] & 1) == 1) {
+                    write(0x40 + opadd[voice], 63 - vol | data[0x40 + opadd[voice]] & 0xc0);
+                }
+
+                write(0x43 + opadd[voice], 63 - vol | data[0x43 + opadd[voice]] & 0xc0);
+            } else {
+                if ((data[0xc0 + voice] & 1) == 1) {
+                    write(0x40 + opadd[voice], 63 - vol | data[0x40 + opadd[voice]] & 0xc0);
+                }
+
+                write(0x43 + opadd[voice], 63 - vol | data[0x43 + opadd[voice]] & 0xc0);
+            }
+        }
+    }
+
+    public void playNote(int voice, int note, int volume) {
+        if (note < 0) {
+            note = 12 - note % 12;
         }
 
-        @Override
-        public Object getData() {
-            return data;
+        int freq = fnums[note % 12];
+        int oct = note / 12;
+        volume(voice, volume);
+        write(0xa0 + voice, freq & 0xff);
+        int c = ((freq & 0x300) >> 8) + (oct << 2) + (mode == MELODIC || voice < 6 ? (1 << 5) : 0);
+        write(0xb0 + voice, c);
+    }
+
+    public void endNote(int voice) {
+        write(0xb0 + voice, data[0xb0 + voice] & (255 - 32));
+    }
+
+    public void reset() {
+        for (int i = 0; i < 256; ++i) {
+            write(i, 0);
         }
+
+        for (int i = 0xc0; i <= 0xc8; ++i) {
+            write(i, 0xf0);
+        }
+
+        write(0x01, 0x20);
+        write(0xbd, 0xc0);
     }
 
-    static int[] fromOldLucas(int[] ins) {
-        int[] x = new int[11];
-        x[10] = ins[2];
-        x[0] = ins[3];
-        x[2] = ins[4];
-        x[4] = ins[5];
-        x[6] = ins[6];
-        x[8] = ins[7];
-        x[1] = ins[8];
-        x[3] = ins[9];
-        x[5] = ins[10];
-        x[7] = ins[11];
-        x[9] = ins[12];
-        return x;
-    }
-
-    static int[] fromSierra(int[] buf) {
-        int[] x = new int[11];
-        x[0] = buf[9] * 0x80 + buf[10] * 0x40 + buf[5] * 0x20 + buf[11] * 0x10 + buf[1];
-        x[1] = buf[22] * 0x80 + buf[23] * 0x40 + buf[18] * 0x20 + buf[24] * 0x10 + buf[14];
-        x[2] = (buf[0] << 6) + buf[8];
-        x[3] = (buf[13] << 6) + buf[21];
-        x[4] = (buf[3] << 4) + buf[6];
-        x[5] = (buf[16] << 4) + buf[19];
-        x[6] = (buf[4] << 4) + buf[7];
-        x[7] = (buf[17] << 4) + buf[20];
-        x[8] = buf[26];
-        x[9] = buf[27];
-        x[10] = (buf[2] << 1) + (1 - (buf[12] & 1));
-        return x;
-    }
-
-    /**
-     * @param data {@link SysexMessage#getData()}
-     */
-    static int[] fromSysex(byte[] data) {
-        int pos = 1;
-        int[] x = new int[11];
-        x[0] = ((data[pos + 4] & 0xff) << 4) + (data[pos + 5] & 0xff);
-        x[2] = 0xff - (((data[pos + 6] & 0xff) << 4) + data[pos + 7] & 0x3f);
-        x[4] = 0xff - (((data[pos + 8] & 0xff) << 4) + (data[pos + 9] & 0xff));
-        x[6] = 0xff - (((data[pos + 10] & 0xff) << 4) + (data[pos + 11] & 0xff));
-        x[8] = ((data[pos + 12] & 0xff) << 4) + (data[pos + 13] & 0xff);
-        x[1] = ((data[pos + 14] & 0xff) << 4) + (data[pos + 15] & 0xff);
-        x[3] = 0xff - (((data[pos + 16] & 0xff) << 4) + (data[pos + 17] & 0x3f));
-        x[5] = 0xff - (((data[pos + 18] & 0xff) << 4) + (data[pos + 19] & 0xff));
-        x[7] = 0xff - (((data[pos + 20] & 0xff) << 4) + (data[pos + 21] & 0xff));
-        x[9] = ((data[pos + 22] & 0xff) << 4) + (data[pos + 23] & 0xff);
-        x[10] = ((data[pos + 24] & 0xff) << 4) + (data[pos + 24] & 0xff);
-        return x;
+    // TODO
+    public int read(byte[] buf, int ofs, int len) {
+        for (int i = ofs; i < len; i += 4) {
+            short[] data = opl3.read();
+            short chA = data[0];
+            short chB = data[1];
+            buf[i] = (byte) (chA & 0xff);
+            buf[i + 1] = (byte) (chA >> 8 & 0xff);
+            buf[i + 2] = (byte) (chB & 0xff);
+            buf[i + 3] = (byte) (chB >> 8 & 0xff);
+        }
+        return len;
     }
 }
 
