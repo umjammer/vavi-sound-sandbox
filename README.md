@@ -27,6 +27,9 @@ Sandbox for sound libraries.
 | -       | vsq        | ✅ | -  | - | this | | YAMAHA Vocaloid |
 | sampled | opus       | ✅ | 🚫 | ✅ | this | [concentus](https://github.com/lostromb/concentus) | |
 | midi    | midi       | 🚫 | -  | 🚫 | [osxmidi4j](https://github.com/locurasoft/osxmidi4j) | | for hardware midi only? |
+| midi    | AudioUnit  | ✅ | - | ✅ | this | [rococoa](https://github.com/umjammer/rococoa) | use `AVAudioUnitMIDIInstrument/kAudioUnitSubType_DLSSynth` |
+| midi    | AudioUnit  | ✅ | - | 🚫 | this | [rococoa](https://github.com/umjammer/rococoa) | use `AVAudioUnitSampler`, how to adjust sf2 patch? |
+| midi    | JSyn       | ✅ | -  | ✅ | this | [JSyn](https://github.com/philburk/jsyn) | looking for good drums |
 | sampled | speex      | ✅ | -  | ✅ | [jspeex](http://jspeex.sourceforge.net/) | | sample rate is limited to convert |
 | sampled | flac       | ✅ | -  | ✅ | [jFLAC](http://jflac.sourceforge.net/) | | |
 | sampled | aac        | -  | -  | ✅ | [JAADec](https://github.com/umjammer/JAADec) | | |

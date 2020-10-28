@@ -6,6 +6,8 @@
 
 package vavi.sound.midi.jsyn;
 
+import java.util.logging.Level;
+
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.spi.MidiDeviceProvider;
 
@@ -36,11 +38,11 @@ public class JSynMidiDeviceProvider extends MidiDeviceProvider {
         throws IllegalArgumentException {
 
         if (info == JSynSynthesizer.info) {
-Debug.println("★1 info: " + info);
-            JSynSynthesizer wrappedSequencer = new JSynSynthesizer();
-            return wrappedSequencer;
+Debug.println(Level.FINE, "★1 info: " + info);
+            JSynSynthesizer sequencer = new JSynSynthesizer();
+            return sequencer;
         } else {
-Debug.println("★1 here: " + info);
+Debug.println(Level.FINE, "★1 here: " + info);
             throw new IllegalArgumentException();
         }
     }

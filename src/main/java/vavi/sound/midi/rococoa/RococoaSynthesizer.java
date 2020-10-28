@@ -245,10 +245,10 @@ Debug.println("stated: " + r);
 
         private int channel;
 
-        private int[] polyPressure = new int[127];
+        private int[] polyPressure = new int[128];
         private int pressure;
         private int pitchBend;
-        private int[] control = new int[127];
+        private int[] control = new int[128];
 
         /** */
         public RococoaMidiChannel(int channel) {

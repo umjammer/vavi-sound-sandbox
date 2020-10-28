@@ -6,6 +6,8 @@
 
 package vavi.sound.midi.rococoa;
 
+import java.util.logging.Level;
+
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.spi.MidiDeviceProvider;
 
@@ -36,11 +38,11 @@ public class RococoaMidiDeviceProvider extends MidiDeviceProvider {
         throws IllegalArgumentException {
 
         if (info == RococoaSynthesizer.info) {
-Debug.println("★1 info: " + info);
-            RococoaSynthesizer wrappedSequencer = new RococoaSynthesizer();
-            return wrappedSequencer;
+Debug.println(Level.FINE, "★1 info: " + info);
+            RococoaSynthesizer sequencer = new RococoaSynthesizer();
+            return sequencer;
         } else {
-Debug.println("★1 here: " + info);
+Debug.println(Level.FINE, "★1 here: " + info);
             throw new IllegalArgumentException();
         }
     }
