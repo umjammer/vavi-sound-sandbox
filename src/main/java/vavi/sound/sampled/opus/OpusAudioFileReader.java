@@ -6,6 +6,7 @@
 
 package vavi.sound.sampled.opus;
 
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -72,12 +73,26 @@ public class OpusAudioFileReader extends AudioFileReader {
      * @exception IOException if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
-//Debug.println("here: " + bitStream.markSupported());
         OpusFile opus;
         try {
-            opus = new OpusFile(new OggFile(bitStream)); // no need to mark/reset, why?
+            bitStream.mark(32);
+            DataInputStream dis = new DataInputStream(bitStream);
+            byte[] b = new byte[32];
+            dis.readFully(b);
+            if (b[0] != 'O' || b[1] != 'g' || b[2] != 'g' || b[3] != 'S' ||
+                    b[28] != 'O' || b[29] != 'p' || b[30] != 'u' || b[31] != 's') { // TODO 28 ~ fixed???
+                throw new UnsupportedAudioFileException("not ogg/opus");
+            }
+            bitStream.reset();
+            opus = new OpusFile(new OggFile(bitStream));
         } catch (IOException | IllegalArgumentException e) {
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException(e.getMessage()).initCause(e);
+        } finally {
+            try {
+                bitStream.reset();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         AudioFormat format = new AudioFormat(OpusEncoding.OPUS, opus.getInfo().getSampleRate(), AudioSystem.NOT_SPECIFIED, opus.getInfo().getNumChannels(), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true, new HashMap<String, Object>() {{ put("opus", opus); }});
         return new AudioFileFormat(OpusFileFormatType.OPUS, format, AudioSystem.NOT_SPECIFIED);
