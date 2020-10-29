@@ -74,7 +74,7 @@ public class Resampler {
      * passband/stopband tuning magic
      * anything <= 2 means Nutall window
      */
-    private double beta; 
+    private double beta;
     /** */
     private int nMult;
 
@@ -149,16 +149,16 @@ public class Resampler {
                      int nMult,
                      int beta) {
 
-        
+
         work.quadr = quadr;
         this.nMult = nMult;
-        
+
         if (rollOff <= 0.01 || rollOff >= 1.0) {
             throw new IllegalArgumentException("rolloff should be 0.01 ~ 1.0");
         } else {
             this.rollOff = rollOff;
         }
-        
+
         if (beta <= 2.0) {
             this.beta = 0;
 Debug.println("Nuttall window, cutoff " + rollOff);
@@ -166,35 +166,35 @@ Debug.println("Nuttall window, cutoff " + rollOff);
             this.beta = beta;
 Debug.println("Kaiser window, cutoff " + rollOff + ", beta " + beta);
         }
-        
+
         if (inRate == outRate) {
             throw new IllegalArgumentException("input, output rates are same");
         }
-        
+
         work.factor = outRate / inRate;
 Debug.println("r.factor: " + work.factor);
-        
+
         float gcdRate = getGcdRate(inRate, outRate);
         work.inRate = inRate / gcdRate;
         work.outRate = outRate / gcdRate;
-        
+
         if (work.inRate <= work.outRate && work.outRate <= NQMAX) {
             work.quadr = -1;                // exact coeff's
             work.nq = (int) work.outRate;   // max(inRate, outRate);
         } else {
             work.nq = NC;                   // for now
         }
-        
+
         // nWing: # of filter coeffs in right wing
         work.nWing = work.nq * (this.nMult / 2 + 1) + 1;
-        
+
         work.imp = new double[work.nWing + 2 + 1];
         // need Imp[-1] and Imp[Nwing] for quadratic interpolation
         // returns error # <=0, or adjusted wing-len > 0
         makeFilter(true);
-        
+
 Debug.println("nMult: " + nMult + ", nWing: " + work.nWing + ", nq: " + work.nq);
-        
+
         if (work.quadr < 0) {               // exact coeff's method
             work.xh = (int) (work.nWing / work.outRate);
 Debug.println("resample: rate ratio " + work.inRate + " : " + work.outRate + ", coeff interpolation not needed");
@@ -206,10 +206,10 @@ Debug.println("resample: rate ratio " + work.inRate + " : " + work.outRate + ", 
             work.xh = (work.nWing << LA) / work.dhb;
             // (xh * dhb) >> LA is max index into imp[]
         }
-        
+
         // reach of LP filter wings + some creeping room
         work.xOff = work.xh + 10;
-        
+
         // Current "now"-sample pointer for input to filter
         work.xp = work.xOff;
         // Position in input array to read into
@@ -341,7 +341,7 @@ Debug.println("k: " + k + ", last: " + last);
 
     /**
      * Process tail of input samples.
-     * @return output 
+     * @return output
      */
     public int[] drain() {
 
@@ -499,7 +499,7 @@ Debug.println("DRAIN: " + work.xOff);
     }
 
     /**
-     * @param nx 
+     * @param nx
      * @return the number of output samples
      */
     private final int srcEX(int nx) {
@@ -592,7 +592,7 @@ Debug.println("DRAIN: " + work.xOff);
      * (Needed to compute Kaiser window).
      */
     private final double iZero(double x) {
-        
+
         double sum = 1;
         double u = 1;
         double n = 1;
@@ -604,7 +604,7 @@ Debug.println("DRAIN: " + work.xOff);
             u *= temp;
             sum += u;
         } while (u >= iZeroEPSILON * sum);
-        
+
         return sum;
     }
 

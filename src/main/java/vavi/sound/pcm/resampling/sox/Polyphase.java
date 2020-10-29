@@ -34,7 +34,7 @@ import vavi.util.Debug;
  *          October 29, 1999 Stan Brooks Various changes, bugfixes, speedups. <br>
  *          2006 nsano ported to java. <br>
  */
-class Polyphase {
+public class Polyphase {
 
     /** */
     private static final double ISCALE = 0x10000;
@@ -42,7 +42,7 @@ class Polyphase {
     private static final int MF = 30;
 
     /** */
-    private class PolyStage {
+    private static class PolyStage {
         /** up/down conversion factors for this stage */
         int up, down;
         /** # coefficients in filter_array */
@@ -60,7 +60,7 @@ class Polyphase {
     }
 
     /** */
-    private class PolyWork {
+    private static class PolyWork {
         /** least common multiple of rates */
         float lcmrate;
         /** LCM increments for I & O rates */
@@ -338,7 +338,7 @@ fail:
     }
 
     /** */
-    Polyphase(float inrate, float outrate) {
+    public Polyphase(float inrate, float outrate) {
         this(inrate, outrate, 0, 1024, 0.95f);
     }
 
@@ -358,7 +358,7 @@ fail:
      * @param win_width short:128, long:1024, default is 1024
      * @param cutoff frequency cutoff of base bandwidth in percentage. default is 0.95f (95%)
      */
-    Polyphase(float inrate, float outrate, int win_type, int win_width, float cutoff) {
+    public Polyphase(float inrate, float outrate, int win_type, int win_width, float cutoff) {
         int[] l1 = new int[MF];
         int[] l2 = new int[MF];
 

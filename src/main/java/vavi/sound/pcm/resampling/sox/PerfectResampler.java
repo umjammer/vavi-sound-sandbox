@@ -35,7 +35,7 @@ import vavi.util.SplitRadixFft;
  * @see "http://ldesoras.free.fr/doc/articles/resampler-en.pdf"
  * @see "https://github.com/rbouqueau/SoX/blob/8025dd7861959189fc0abaade8d5be47244034da/src/rate.c"
  */
-class PerfectResampler {
+public class PerfectResampler {
 
     /** */
     private final void coef(double[] coef_p, int interp_order, int fir_len, int phase_num, int coef_interp_num, int fir_coef_num, double value) {
@@ -105,7 +105,7 @@ Debug.printf(Level.FINE, "coefs:%d, index:%d\n", coefs.length, pos - 1);
     }
 
     /** not half-band as in symmetric about Fn/2 (Fs/4) */
-    class HalfBand {
+    static class HalfBand {
         int dft_length;
         int num_taps;
         int[] post_peak = new int[1];
@@ -113,7 +113,7 @@ Debug.printf(Level.FINE, "coefs:%d, index:%d\n", coefs.length, pos - 1);
     }
 
     /** Data that are shared between channels and filters */
-    class RateShared {
+    static class RateShared {
         double[] poly_fir_coefs;
         /** [0]: halve; [1]: down/up: halve/double */
         HalfBand[] half_band = { new HalfBand(), new HalfBand() };
@@ -129,7 +129,7 @@ Debug.printf(Level.FINE, "coefs:%d, index:%d\n", coefs.length, pos - 1);
     }
 
     /** */
-    class Stage {
+    static class Stage {
         static final double MULT32 = 65536. * 65536.;
         //
         class Union {
@@ -533,7 +533,7 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
     }
 
     /** */
-    class Rate {
+    static class Rate {
         double factor;
         int samples_in;
         int samples_out;
@@ -560,7 +560,7 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
     }
 
     /** */
-    class Filter {
+    static class Filter {
         int[] len = new int[1];
         double[] h;
         double bw, a;
@@ -573,7 +573,7 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
     }
 
     /** */
-    class PolyFir1 {
+    static class PolyFir1 {
         int phase_bits;
         StageFunction fn;
         PolyFir1(int phase_bits, StageFunction fn) {
@@ -583,7 +583,7 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
     }
 
     /** */
-    class PolyFir {
+    static class PolyFir {
         int num_coefs;
         double pass;
         double stop;
@@ -1219,7 +1219,7 @@ Debug.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, s.pre
     // SoX Wrapper
 
     /** */
-    class Priv {
+    static class Priv {
         float out_rate;
         Quality quality;
         double coef_interp, phase, bandwidth;
@@ -1271,12 +1271,17 @@ Debug.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, s.pre
         rate_init(priv.rate, priv.shared, (double) in_rate / out_rate, priv.quality, (int) priv.coef_interp - 1, priv.phase, priv.bandwidth, priv.allow_aliasing);
     }
 
-    /** */
+    /**
+     *
+     * @param isamp [out]
+     * @param osamp [out]
+     */
     public void flow(final int[] ibuf, int[] obuf, int[] isamp, int[] osamp) {
         int i;
         int[] odone = { osamp[0] };
 
         int sP = rate_output(priv.rate, null, odone);
+Debug.println("odone: " + odone[0]);
         final double[] s = priv.rate.stages[priv.rate.output_stage_num + 1].fifo.data;
         int obufP = 0;
         for (i = 0; i < odone[0]; ++i) {
@@ -1297,7 +1302,10 @@ Debug.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, s.pre
         osamp[0] = odone[0];
     }
 
-    /** */
+    /**
+     *
+     * @param osamp [out]
+     */
     public void drain(int[] obuf, int[] osamp) {
         final int[] isamp = { 0 };
         rate_flush(priv.rate);

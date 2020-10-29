@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 by Naohide Sano, All rights reserved.
+ * Copyright (c) 2020 by Naohide Sano, All rights reserved.
  *
  * Programmed by Naohide Sano
  */
@@ -19,20 +19,20 @@ import vavi.util.Debug;
 
 
 /**
- * PolyphaseInputStream.
+ * ResamplerInputStream.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
- * @version 0.00 111022 nsano initial version <br>
+ * @version 0.00 201029 nsano initial version <br>
  */
-class PolyphaseInputStream extends FilterInputStream {
+class ResamplerInputStream extends FilterInputStream {
 
     /** */
-    public PolyphaseInputStream(InputStream is, float in, float out) throws IOException {
-        super(new OutputEngineInputStream(new PolyphaseOutputEngine(is, in, out)));
+    public ResamplerInputStream(InputStream is, float in, float out) throws IOException {
+        super(new OutputEngineInputStream(new ResamplerOutputEngine(is, in, out)));
     }
 
     /** */
-    private static class PolyphaseOutputEngine implements OutputEngine {
+    private static class ResamplerOutputEngine implements OutputEngine {
 
         /** */
         private InputStream in;
@@ -41,12 +41,12 @@ class PolyphaseInputStream extends FilterInputStream {
         private DataOutputStream out;
 
         /** */
-        private Polyphase resampler;
+        private Resampler resampler;
 
         /** */
-        public PolyphaseOutputEngine(InputStream is, float in, float out) throws IOException {
+        public ResamplerOutputEngine(InputStream is, float in, float out) throws IOException {
             this.in = is;
-            this.resampler = new Polyphase(in, out);
+            this.resampler = new Resampler(in, out);
         }
 
         /** */
