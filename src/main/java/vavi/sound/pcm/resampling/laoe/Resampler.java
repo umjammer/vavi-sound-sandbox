@@ -22,7 +22,7 @@ import vavi.util.Debug;
 
 
 /**
- * Resampler.
+ * LAOE Resampler.
  *
  * TODO resample with interpolation
  *
@@ -46,7 +46,7 @@ public class Resampler {
     /**
      * @param inRate
      * @param outRate
-     * @param order order of interpolate
+     * @param order order of interpolate 0 ~ 3
      */
     public Resampler(float inRate, float outRate, int order) {
         this.sampleRateFactor = inRate / outRate;
@@ -56,7 +56,7 @@ public class Resampler {
     /** samplerate factor */
     private double sampleRateFactor = 1.0;
 
-    /** interpolation order */
+    /** interpolation order 0 ~ 3 */
     private int order = 2;
 
     /**
