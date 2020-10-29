@@ -113,7 +113,7 @@ Debug.println("stated: " + r);
 
     @Override
     public boolean isOpen() {
-        return engine.running();
+        return engine != null && engine.running();
     }
 
     @Override
