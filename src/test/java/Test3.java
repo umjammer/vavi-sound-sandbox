@@ -31,10 +31,10 @@ class Test3 {
 
 //    static final String inFile = "/Users/nsano/Music/0/Mists of Time - 4T.ogg";
 //    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.flac";
-    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.m4a"; // ALAC
+//    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.m4a"; // ALAC
 //    static final String inFile = "/Users/nsano/Music/0/rc.wav";
 //    static final String inFile = "/Users/nsano/Music/0/Cyndi Lauper-Time After Time.m4a"; // AAC
-//    static final String inFile = "tmp/hoshiF.opus";
+    static final String inFile = "tmp/hoshiF.opus";
 //    static final String inFile = "/Users/nsano/Music/iTunes/iTunes Music/NAMCO/Ace Combat 04 Shattered Skies Original Sound Tracks/1-11 Blockade.mp3";
 
     /**
@@ -74,8 +74,8 @@ Debug.println("done");
             }
         });
 
+        line.open(audioFormat);
         byte[] buf = new byte[line.getBufferSize()];
-        line.open(audioFormat, buf.length);
 FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
 double gain = .2d; // number between 0 and 1 (loudest)
 float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);

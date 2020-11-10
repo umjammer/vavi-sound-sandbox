@@ -75,7 +75,7 @@ class ITLibraryTest {
         library.getMediaItems().stream()
             .filter(t -> t.mediaKind() == 2)
             .filter(t -> t.artist().name().contains("a-ha"))
-            .forEach(t -> System.err.println(t.artist().name() + " - " + t.title() + " [" + t.composer() + "]"));
+            .forEach(t -> System.err.println(t.artist().name() + " - " + t.title() + " [" + t.composer() + "] " + t.addedDate()));
     }
 
     int c = 0;

@@ -13,19 +13,41 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
+
+import vavi.sound.sampled.opl3.Opl3Encoding;
+import vavi.util.Debug;
 
 
 /**
  * clip.
+ * <p>
+ * read all input stream then play
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2012/06/11 umjammer initial version <br>
  */
 public class Test1 {
 
-    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.flac";
+    static {
+        System.setProperty("vavi.sound.opl3.MidiFile", "true"); // true: means using opl3 midi device when SMF format 0
+    }
+
+    static final String inFile = System.getProperty("user.home") + "/Music/midi/1/title-screen.mid";
+//    static final String inFile = System.getProperty("user.home") + "/Music/midi/1/Rydeen.mid";
+//    static final String inFile = System.getProperty("user.home") + "/Music/midi/1/ac4br_gm.MID";
+//    static final String inFile = System.getProperty("user.home") + "/Music/midi/1/thexder.mid";
+//    static final String inFile = "tmp/opl3/demo.cmf";
+//    static final String inFile = "tmp/opl3/dro_v2.dro";
+//    static final String inFile = "tmp/opl3/samurai.dro";
+//    static final String inFile = "tmp/opl3/dune1.dro";
+//    static final String inFile = "tmp/opl3/dott_dott_logo.laa";
+//    static final String inFile = "tmp/opl3/michaeld.cmf";
+//    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.flac";
+//    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.m4a"; // ALAC
 //    static final String inFile = "tmp/female_scrub.spx";
+//    static final String inFile = "tmp/hoshiF.opus";
 
     /**
      * @param args
@@ -36,21 +58,23 @@ public class Test1 {
         }
 //        URL clipURL = new URL(args[0]);
 //        AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(clipURL);
-        AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new File(inFile).toURI().toURL());
+//        AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new File(inFile).toURI().toURL());
+        AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new File(inFile));
         AudioFormat originalAudioFormat = originalAudioInputStream.getFormat();
-System.err.println(originalAudioFormat);
+Debug.println(originalAudioFormat);
         AudioFormat targetAudioFormat = new AudioFormat(
             originalAudioFormat.getSampleRate(),
             16,
             originalAudioFormat.getChannels(),
             true,
             false);
-System.err.println(targetAudioFormat);
+Debug.println(targetAudioFormat);
         AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(targetAudioFormat, originalAudioInputStream);
         AudioFormat audioFormat = audioInputStream.getFormat();
         DataLine.Info info = new DataLine.Info(Clip.class, audioFormat, AudioSystem.NOT_SPECIFIED);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         Clip clip = (Clip) AudioSystem.getLine(info);
+Debug.println(clip.getClass().getName());
         clip.addLineListener(event -> {
             if (event.getType().equals(LineEvent.Type.START)) {
 System.err.println("play");
@@ -61,8 +85,16 @@ System.err.println("done");
             }
         });
         clip.open(audioInputStream);
+if (!(originalAudioFormat.getEncoding() instanceof Opl3Encoding)) {
+// Debug.println("down volume: " + originalAudioFormat.getEncoding());
+ FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+ double gain = .2d; // number between 0 and 1 (loudest)
+ float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
+ gainControl.setValue(dB);
+}
         clip.start();
         countDownLatch.await();
+        clip.close();
     }
 }
 
