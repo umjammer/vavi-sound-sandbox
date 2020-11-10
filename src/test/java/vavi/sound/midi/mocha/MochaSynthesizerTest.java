@@ -1,8 +1,10 @@
 /*
- * mocha-java.com
+ * Copyright (c) 2020 by Naohide Sano, All rights reserved.
+ *
+ * Programmed by Naohide Sano
  */
 
-package moca;
+package vavi.sound.midi.mocha;
 
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
@@ -17,25 +19,24 @@ import javax.sound.midi.Sequencer;
 
 import vavi.util.Debug;
 
-import mocha.sound.midi.MidiUtil;
-
 
 /**
+ * MochaSynthesizer.
  *
- * @author minaberger
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
+ * @version 0.00 2020/10/30 umjammer initial version <br>
  */
-public class PlayNote {
+public class MochaSynthesizerTest {
 
     static {
         System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
-//        System.setProperty("javax.sound.midi.Synthesizer", "JSyn MIDI Synthesizer");
+        System.setProperty("javax.sound.midi.Synthesizer", "#Mocha MIDI Synthesizer");
     }
 
     public static void main(String[] args) throws Exception {
-        //mocha.sound.sequencer.AbstractMidiDeviceProvider;
-        MidiDevice aria = MidiUtil.getMidiDevices("ARIA", true)[0];
-        aria.open();
-        Receiver receiver = aria.getReceiver();
+        MidiDevice synthesizer = MidiSystem.getSynthesizer();
+        synthesizer.open();
+        Receiver receiver = synthesizer.getReceiver();
 Debug.println("receiver: " + receiver);
 
         Sequencer sequencer = MidiSystem.getSequencer(false);
@@ -67,6 +68,6 @@ System.err.println("END");
         sequencer.close();
 
         sequencer.close();
-        aria.close();
+        synthesizer.close();
    }
 }

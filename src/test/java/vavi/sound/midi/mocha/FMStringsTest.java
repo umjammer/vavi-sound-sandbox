@@ -2,7 +2,7 @@
  * https://mocha-java.com/fm-strings-sound/
  */
 
-package moca;
+package vavi.sound.midi.mocha;
 
 import java.io.File;
 import java.io.IOException;
