@@ -14,7 +14,25 @@ public abstract class AVAudioNode extends NSObject {
         AVAudioNode alloc();
     }
 
+    public abstract AVAudioFormat inputFormatForBus(int bus);
+
+    public abstract String nameForInputBus(int bus);
+
+    public abstract int numberOfInputs();
+
+    public abstract AVAudioFormat outputFormatForBus(int bus);
+
+    public abstract String nameForOutputBus(int bus);
+
+    public abstract int numberOfOutputs();
+
     public abstract AVAudioEngine engine();
 
     public abstract void reset();
+
+    public abstract AUAudioUnit AUAudioUnit();
+
+    public abstract double latency();
+
+    public abstract double outputPresentationLatency();
 }

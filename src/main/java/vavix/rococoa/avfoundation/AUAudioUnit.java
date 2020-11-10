@@ -1,9 +1,6 @@
 
 package vavix.rococoa.avfoundation;
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.rococoa.ObjCClass;
 import org.rococoa.ObjCObjectByReference;
 import org.rococoa.RunOnMainThread;
@@ -12,7 +9,6 @@ import org.rococoa.cocoa.foundation.NSObject;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
-import com.sun.jna.Structure;
 
 import vavi.util.Debug;
 
