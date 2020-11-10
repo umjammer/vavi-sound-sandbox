@@ -39,8 +39,8 @@ public class RococoaMidiDeviceProvider extends MidiDeviceProvider {
 
         if (info == RococoaSynthesizer.info) {
 Debug.println(Level.FINE, "★1 info: " + info);
-            RococoaSynthesizer sequencer = new RococoaSynthesizer();
-            return sequencer;
+            RococoaSynthesizer synthesizer = new RococoaSynthesizer();
+            return synthesizer;
         } else {
 Debug.println(Level.FINE, "★1 here: " + info);
             throw new IllegalArgumentException();

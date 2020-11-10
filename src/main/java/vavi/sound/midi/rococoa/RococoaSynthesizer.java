@@ -25,6 +25,7 @@ import javax.sound.midi.VoiceStatus;
 
 import vavi.util.ByteUtil;
 import vavi.util.Debug;
+import vavi.util.StringUtil;
 
 import vavix.rococoa.avfoundation.AVAudioEngine;
 import vavix.rococoa.avfoundation.AVAudioUnitMIDIInstrument;
@@ -44,13 +45,13 @@ import vavix.rococoa.avfoundation.AudioComponentDescription;
  */
 public class RococoaSynthesizer implements Synthesizer {
 
-    private static final String version = "0.0.1.";
+    private static final String version = "1.0.4";
 
     /** the device information */
     protected static final MidiDevice.Info info =
         new MidiDevice.Info("Rococoa MIDI Synthesizer",
-                            "Vavisoft",
-                            "Software synthesizer for MacOS",
+                            "vavi",
+                            "Software synthesizer by MacOS",
                             "Version " + version) {};
 
     // TODO != channel???
@@ -62,6 +63,7 @@ public class RococoaSynthesizer implements Synthesizer {
 
     private MidiChannel[] channels = new MidiChannel[MAX_CHANNEL];
 
+    // TODO voice != channel ( = getMaxPolyphony())
     private VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
 
     private long timestump;
@@ -73,6 +75,11 @@ public class RococoaSynthesizer implements Synthesizer {
 
     @Override
     public void open() throws MidiUnavailableException {
+        if (isOpen()) {
+Debug.println("already open: " + hashCode());
+            return;
+        }
+
         for (int i = 0; i < MAX_CHANNEL; i++) {
             channels[i] = new RococoaMidiChannel(i);
             voiceStatus[i] = new VoiceStatus();
@@ -103,7 +110,7 @@ Debug.println(midiSynth + ", " + midiSynth.name() + ", " + midiSynth.version() +
         engine.connect_to_format(midiSynth, engine.mainMixerNode(), null);
         engine.prepare();
         boolean r = engine.start();
-Debug.println("stated: " + r);
+Debug.println("stated: " + r + ", " + hashCode());
     }
 
     @Override
@@ -435,9 +442,11 @@ Debug.println("stated: " + r);
                         channels[channel].setPolyPressure(data1, data2);
                         break;
                     case ShortMessage.CONTROL_CHANGE:
+//Debug.printf("control change: %02X, %d %d\n", command, data1, data2);
                         channels[channel].controlChange(data1, data2);
                         break;
                     case ShortMessage.PROGRAM_CHANGE:
+//Debug.printf("program change: %02X, %d %d\n", command, data1, data2);
                         channels[channel].programChange(data1);
                         break;
                     case ShortMessage.CHANNEL_PRESSURE:
@@ -447,11 +456,12 @@ Debug.println("stated: " + r);
                         channels[channel].setPitchBend(data1 | (data2 << 7));
                         break;
                     default:
-Debug.printf("%02X\n", command);
+Debug.printf("uncknown short: %02X\n", command);
                     }
                 } else if (message instanceof SysexMessage) {
                     SysexMessage sysexMessage = (SysexMessage) message;
                     byte[] data = sysexMessage.getData();
+Debug.printf("sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data));
                     midiSynth.sendMIDISysExEvent(data);
                 } else {
                     // TODO meta message

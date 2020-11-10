@@ -30,13 +30,28 @@ import vavi.util.Debug;
  */
 class RococoaSynthesizerTest {
 
+    //
+    // how to make voltage work
+    // * make voltage use the same jvm
+    // ```
+    // % pushd /Library/Application Support/Voltage/VRE13
+    // % mv 64 64.off
+    // % ln -s $JAVA_13_HOME 64
+    // ```
+    // * add voltage class path
+    // `/Library/Application Support/Voltage/voltage.jar`
+    // * run by the same jvm
+    //
     static {
+//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "Chry:Vltg"); // normally not work (jvm collision)
+//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "");
 //        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "DGSB:Dexd");
 //        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "AKai:MpcB");
 //        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "NiSc:nK1v");
 //        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "Ftcr:mc5p");
+//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "VmbA:Srge");
         System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
-        System.setProperty("javax.sound.midi.Synthesizer", "Rococoa MIDI Synthesizer");
+        System.setProperty("javax.sound.midi.Synthesizer", "#Rococoa MIDI Synthesizer");
     }
 
     @Test
@@ -51,7 +66,9 @@ Debug.println("synthesizer: " + synthesizer);
 Debug.println("sequencer: " + sequencer);
 
 //        String filename = "1/風の谷のナウシカ メインテーマ.mid";
-        String filename = "1/ac4br_gm.MID";
+//        String filename = "1/ac4br_gm.MID";
+        String filename = "1/TongPoo.mid";
+//        String filename = "1/overworld.mid";
 //        String filename = "1/m0057_01.mid";
 //        String filename = "town.mid";
         File file = new File(System.getProperty("user.home"), "Music/midi/" + filename);
