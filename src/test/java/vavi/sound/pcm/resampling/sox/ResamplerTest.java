@@ -12,6 +12,7 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.ByteOrder;
+import java.util.logging.Level;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -180,7 +181,7 @@ gainControl.setValue(dB);
             if (l < 0)
                 break;
             line.write(buf, 0, l);
-Debug.println("line.write: " + l);
+Debug.println(Level.FINE, "line.write: " + l);
         }
         line.drain();
         line.stop();
@@ -240,7 +241,7 @@ gainControl.setValue(dB);
             if (l < 0)
                 break;
             line.write(buf, 0, l);
-//Debug.println("line.write: " + l);
+Debug.println(Level.FINE, "line.write: " + l);
         }
         line.drain();
         line.stop();

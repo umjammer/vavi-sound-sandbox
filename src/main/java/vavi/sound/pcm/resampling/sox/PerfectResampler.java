@@ -136,14 +136,11 @@ Debug.printf(Level.FINE, "coefs:%d, index:%d\n", coefs.length, pos - 1);
             int integer;
             int fraction;
             long all() {
-                return integer << 32 | (fraction & 0xffff);
-//                return fraction << 32 | (integer & 0xffff);
+                return (long) integer << 32 | (fraction & 0xffffffff);
             }
             void all(long v) {
-                integer = (int) ((v >> 32) & 0xffff);
-                fraction = (int) v & 0xffff;
-//                fraction = (int) ((v >> 32) & 0xffff);
-//                integer = (int) v & 0xffff;
+                integer = (int) ((v >> 32) & 0xffffffff);
+                fraction = (int) (v & 0xffffffff);
             }
         }
         RateShared shared;
@@ -1191,7 +1188,9 @@ Debug.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, s.pre
         return p.stages[p.input_stage_num + 1].fifo.write(n, samples);
     }
 
-    /** */
+    /**
+     * @param n [out]
+     */
     private final int rate_output(Rate p, double[] samples, int[] n) {
         Fifo fifo = p.stages[p.output_stage_num + 1].fifo;
         n[0] = Math.min(n[0], fifo.occupancy());
