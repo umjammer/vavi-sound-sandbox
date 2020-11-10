@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
-import vavi.sound.midi.opl3.Opl3SoundBank;
+import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 
 
@@ -74,7 +74,7 @@ class AdvancedSierraFile extends SierraFile {
                     buf[i] = dis.readUnsignedByte();
                 }
 
-                smyinsbank[p] = Opl3SoundBank.newInstrument(0, p, "sierra." + p, fromSierra(buf));
+                smyinsbank[p] = Opl3Soundbank.newInstrument(0, p, "sierra." + p, fromSierra(buf));
 
                 ++stins;
             }

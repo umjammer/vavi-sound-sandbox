@@ -47,7 +47,7 @@ package vavi.sound.opl3;
  * @version 1.0.6
  */
 public final class OPL3 {
-    static int registers[] = new int[0x200];
+    static int[] registers = new int[0x200];
 
     static Operator[][] operators;
     static Channel2op[][] channels2op;

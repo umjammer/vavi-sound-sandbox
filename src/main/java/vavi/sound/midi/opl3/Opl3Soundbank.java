@@ -13,22 +13,22 @@ import javax.sound.midi.SoundbankResource;
 
 
 /**
- * Opl3SoundBank.
+ * Opl3Soundbank.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/23 umjammer initial version <br>
  */
-public class Opl3SoundBank implements Soundbank {
+public class Opl3Soundbank implements Soundbank {
 
     /** */
-    public Opl3SoundBank(int[][] defaultInstruments) {
+    public Opl3Soundbank(int[][] defaultInstruments) {
         instruments = new Instrument[defaultInstruments.length];
         for (int i = 0; i < instruments.length; i++) {
             int[] b = new int[16];
             System.arraycopy(defaultInstruments[i], 0, b, 0, defaultInstruments[i].length);
             b[14] = 0;
             b[15] = 0;
-            instruments[i] = new Opl3Instrument(this, 0, i, "ins" + i, b);
+            instruments[i] = new Opl3Instrument(this, 0, i, "instrument." + i, b);
         }
     }
 
@@ -37,7 +37,7 @@ public class Opl3SoundBank implements Soundbank {
 
     @Override
     public String getName() {
-        return "Opl3SoundBank";
+        return "Opl3Soundbank";
     }
 
     @Override
@@ -47,12 +47,12 @@ public class Opl3SoundBank implements Soundbank {
 
     @Override
     public String getVendor() {
-        return "vavisoft";
+        return "vavi";
     }
 
     @Override
     public String getDescription() {
-        return "soundbank for opl3";
+        return "Soundbank for opl3";
     }
 
     @Override
@@ -84,7 +84,7 @@ public class Opl3SoundBank implements Soundbank {
     /** */
     public static class Opl3Instrument extends Instrument {
         int[] data;
-        protected Opl3Instrument(Opl3SoundBank sounBbank, int bank, int program, String name, int[] data) {
+        protected Opl3Instrument(Opl3Soundbank sounBbank, int bank, int program, String name, int[] data) {
             super(sounBbank, new Patch(bank, program), name, int[].class);
             this.data = data;
         }

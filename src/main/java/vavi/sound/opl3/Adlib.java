@@ -323,7 +323,6 @@ public class Adlib {
         write(0xbd, 0xc0);
     }
 
-    // TODO
     public int read(byte[] buf, int ofs, int len) {
         for (int i = ofs; i < len; i += 4) {
             short[] data = opl3.read();

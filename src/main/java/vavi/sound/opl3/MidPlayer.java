@@ -45,7 +45,7 @@ import javax.sound.midi.Track;
 import javax.sound.midi.Transmitter;
 
 import vavi.sound.midi.MidiConstants;
-import vavi.sound.midi.opl3.Opl3SoundBank;
+import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Synthesizer;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 import vavi.util.Debug;
@@ -189,7 +189,7 @@ Debug.println(Level.FINE, e);
     // data pos
     int pos;
 
-    Opl3SoundBank soundBank = new Opl3SoundBank(Adlib.midi_fm_instruments);
+    Opl3Soundbank soundBank = new Opl3Soundbank(Adlib.midi_fm_instruments);
 
     private FileType type;
     int subsongs;

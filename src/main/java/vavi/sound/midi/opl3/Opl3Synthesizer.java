@@ -34,7 +34,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
-import vavi.sound.midi.opl3.Opl3SoundBank.Opl3Instrument;
+import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
 import vavi.sound.opl3.Adlib;
 import vavi.sound.opl3.MidPlayer;
 import vavi.sound.opl3.MidPlayer.FileType;
@@ -50,14 +50,14 @@ import vavi.util.Debug;
  */
 public class Opl3Synthesizer implements Synthesizer {
 
-    static Logger logger = Logger.getLogger(Opl3Synthesizer.class.getName());
+    private static Logger logger = Logger.getLogger(Opl3Synthesizer.class.getName());
 
-    private static final String version = "0.0.1.";
+    private static final String version = "1.0.4";
 
     /** the device information */
     protected static final MidiDevice.Info info =
         new MidiDevice.Info("OPL3 MIDI Synthesizer",
-                            "Vavisoft",
+                            "vavi",
                             "Software synthesizer for OPL3",
                             "Version " + version) {};
 
@@ -66,6 +66,7 @@ public class Opl3Synthesizer implements Synthesizer {
 
     private Opl3MidiChannel[] channels = new Opl3MidiChannel[MAX_CHANNEL];
 
+    // TODO voice != channel ( = getMaxPolyphony())
     private VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
 
     private long timestump;
@@ -80,12 +81,12 @@ public class Opl3Synthesizer implements Synthesizer {
 
     private Adlib adlib;
 
-    private Opl3SoundBank soundBank = new Opl3SoundBank(Adlib.midi_fm_instruments);
+    private Opl3Soundbank soundBank = new Opl3Soundbank(Adlib.midi_fm_instruments);
 
     /** default {@link Adlib#midi_fm_instruments} */
     private Opl3Instrument[] instruments = new Opl3Instrument[128];
 
-    static class Percussion {
+    private static class Percussion {
         int channel = -1;
         int note;
         int volume = 0;
@@ -110,6 +111,11 @@ public class Opl3Synthesizer implements Synthesizer {
     }
 
     public void open(FileType type, Adlib.Writer writer) throws MidiUnavailableException {
+        if (isOpen()) {
+Debug.println("already open: " + hashCode());
+            return;
+        }
+
         for (int i = 0; i < MAX_CHANNEL; i++) {
             channels[i] = new Opl3MidiChannel(i);
             voiceStatus[i] = new VoiceStatus();
@@ -159,7 +165,7 @@ Debug.println("type: " + type);
         }
     }
 
-    ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
+    private ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
         Thread thread = new Thread(r);
         thread.setPriority(Thread.MAX_PRIORITY);
         return thread;
@@ -171,7 +177,7 @@ Debug.println("type: " + type);
             DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, audioFormat, AudioSystem.NOT_SPECIFIED);
             line = (SourceDataLine) AudioSystem.getLine(lineInfo);
 Debug.println(line.getClass().getName());
-            line.addLineListener(event -> { Debug.println(event.getType()); });
+            line.addLineListener(event -> { Debug.println("Line: " + event.getType()); });
 
             line.open(audioFormat);
             line.start();
@@ -259,12 +265,12 @@ Debug.println(line.getClass().getName());
 
     @Override
     public int getMaxPolyphony() {
-        return MAX_CHANNEL * 6; // TODO
+        return 18; // TODO OPL3 class said
     }
 
     @Override
     public long getLatency() {
-        return 0;
+        return 330;
     }
 
     @Override
@@ -279,8 +285,7 @@ Debug.println(line.getClass().getName());
 
     @Override
     public boolean isSoundbankSupported(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-        return false;
+        return soundbank instanceof Opl3Instrument;
     }
 
     @Override
@@ -303,14 +308,12 @@ Debug.println(line.getClass().getName());
 
     @Override
     public Soundbank getDefaultSoundbank() {
-        // TODO Auto-generated method stub
-        return null;
+        return soundBank;
     }
 
     @Override
     public Instrument[] getAvailableInstruments() {
-        // TODO Auto-generated method stub
-        return new Instrument[0];
+        return instruments;
     }
 
     @Override

@@ -23,7 +23,7 @@ import vavi.util.Debug;
 public class Opl3MidiDeviceProvider extends MidiDeviceProvider {
 
     /**  */
-    public final static int MANUFACTURER_ID = 0x5f;
+    public final static int MANUFACTURER_ID = 0x43;
 
     /** */
     private static final MidiDevice.Info[] infos = new MidiDevice.Info[] { Opl3Synthesizer.info };
@@ -39,8 +39,8 @@ public class Opl3MidiDeviceProvider extends MidiDeviceProvider {
 
         if (info == Opl3Synthesizer.info) {
 Debug.println(Level.FINE, "★1 info: " + info);
-            Opl3Synthesizer sequencer = new Opl3Synthesizer();
-            return sequencer;
+            Opl3Synthesizer synthesizer = new Opl3Synthesizer();
+            return synthesizer;
         } else {
 Debug.println(Level.FINE, "★1 here: " + info);
             throw new IllegalArgumentException();

@@ -33,7 +33,7 @@ class Opl3SynthesizerTest {
 
     static {
 //        System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
-        System.setProperty("javax.sound.midi.Synthesizer", "OPL3 MIDI Synthesizer");
+        System.setProperty("javax.sound.midi.Synthesizer", "#OPL3 MIDI Synthesizer");
     }
 
     @Test
@@ -77,6 +77,7 @@ System.err.println("END");
     }
 
     @Test
+    @Disabled
     void test0() throws Exception {
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
         synthesizer.open();
@@ -87,6 +88,9 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
+//        String filename = "../../src/sano-n/vavi-apps-dx7/tmp/midi/minute_waltz.mid";
+//        String filename = "../../src/sano-n/vavi-games-puyo/src/main/resources/sound/puyo_08.mid";
+//        String filename = "../../src/sano-n/vavi-apps-dx7/tmp/midi/rachmaninoff-op39-no6.mid";
         String filename = "1/overworld.mid";
         File file = new File(System.getProperty("user.home"), "/Music/midi/" + filename);
         Sequence seq = MidiSystem.getSequence(file);
@@ -108,6 +112,25 @@ System.err.println("START");
 System.err.println("END");
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
+
+        synthesizer.close();
+    }
+
+    @Test
+    void test2() throws Exception {
+        Synthesizer synthesizer = MidiSystem.getSynthesizer();
+        synthesizer.open();
+Debug.println("synthesizer: " + synthesizer);
+
+        for (int i = 0; i < 128; i++) {
+System.err.println("instrument[" + i + "]");
+            synthesizer.getChannels()[0].programChange(i);
+            for (int j = 0; j < 12; j++) {
+                synthesizer.getChannels()[0].noteOn(50 + j % 12, 127);
+                Thread.sleep(200);
+                synthesizer.getChannels()[0].noteOff(50 + j % 12);
+            }
+        }
 
         synthesizer.close();
     }

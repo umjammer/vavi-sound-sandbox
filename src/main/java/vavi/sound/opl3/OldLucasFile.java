@@ -10,8 +10,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import vavi.sound.midi.opl3.Opl3SoundBank;
-import vavi.sound.midi.opl3.Opl3SoundBank.Opl3Instrument;
+import vavi.sound.midi.opl3.Opl3Soundbank;
+import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 import vavi.sound.opl3.MidPlayer.MidiTypeFile;
 
@@ -77,7 +77,7 @@ class OldLucasFile extends MidiTypeFile {
             }
 
             int[] x = fromOldLucas(ins);
-            this.instruments[p] = Opl3SoundBank.newInstrument(0, p, "oldlucas." + p, x);
+            this.instruments[p] = Opl3Soundbank.newInstrument(0, p, "oldlucas." + p, x);
         }
 
         player.tracks[0].on = true;

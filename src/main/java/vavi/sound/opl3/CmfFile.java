@@ -10,8 +10,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import vavi.sound.midi.opl3.Opl3SoundBank;
-import vavi.sound.midi.opl3.Opl3SoundBank.Opl3Instrument;
+import vavi.sound.midi.opl3.Opl3Soundbank;
+import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 import vavi.sound.opl3.MidPlayer.MidiTypeFile;
 
@@ -82,7 +82,7 @@ logger.info(String.format("pos1: 0x%04x", player.pos));
             for (int j = 0; j < 16; ++j) {
                 x[j] = player.takeBE(1);
             }
-            this.instruments[p] =  Opl3SoundBank.newInstrument(0, p, "oldlucas." + p, x);
+            this.instruments[p] =  Opl3Soundbank.newInstrument(0, p, "oldlucas." + p, x);
         }
 logger.info(String.format("pos2: 0x%04x", player.pos));
 

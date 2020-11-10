@@ -63,7 +63,7 @@ class DroPlayer extends Opl3Player {
     private int currChip = 0;
 
     @Override
-    public boolean matchFormat(InputStream bitStream){
+    public boolean matchFormat(InputStream bitStream) {
         LittleEndianDataInputStream dis = new LittleEndianDataInputStream(bitStream);
         try {
             dis.mark(11);
@@ -82,7 +82,7 @@ class DroPlayer extends Opl3Player {
 
             return true;
         } catch (IOException e) {
-Debug.println(Level.INFO, e);
+Debug.println(Level.FINE, e);
             return false;
         } finally {
             try {

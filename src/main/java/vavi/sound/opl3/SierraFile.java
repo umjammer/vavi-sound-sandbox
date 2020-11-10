@@ -9,7 +9,7 @@ package vavi.sound.opl3;
 import java.io.DataInputStream;
 import java.io.IOException;
 
-import vavi.sound.midi.opl3.Opl3SoundBank.Opl3Instrument;
+import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 import vavi.sound.opl3.MidPlayer.MidiTypeFile;
 
