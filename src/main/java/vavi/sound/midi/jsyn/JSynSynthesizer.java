@@ -24,8 +24,6 @@ import javax.sound.midi.Transmitter;
 import javax.sound.midi.VoiceStatus;
 
 import com.jsyn.JSyn;
-import com.jsyn.instruments.DualOscillatorSynthVoice;
-import com.jsyn.instruments.NoiseHit;
 import com.jsyn.midi.MidiSynthesizer;
 import com.jsyn.unitgen.LineOut;
 import com.jsyn.util.MultiChannelSynthesizer;
@@ -37,17 +35,19 @@ import vavi.util.Debug;
 /**
  * JSynSynthesizer.
  *
+ * TODO delegate default synthesizer
+ *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/03 umjammer initial version <br>
  */
 public class JSynSynthesizer implements Synthesizer {
 
-    private static final String version = "0.0.1.";
+    private static final String version = "0.0.1";
 
     /** the device information */
     protected static final MidiDevice.Info info =
         new MidiDevice.Info("JSyn MIDI Synthesizer",
-                            "Vavisoft",
+                            "vavi",
                             "Software synthesizer for JSyn",
                             "Version " + version) {};
 
@@ -58,8 +58,11 @@ public class JSynSynthesizer implements Synthesizer {
     private MidiSynthesizer midiSynthesizer;
     private LineOut lineOut;
 
+    private JSynSoundbank soundBank = new JSynSoundbank();
+
     private MidiChannel[] channels = new MidiChannel[MAX_CHANNEL];
 
+    // TODO voice != channel ( = getMaxPolyphony())
     private VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
 
     private long timestump;
@@ -71,6 +74,11 @@ public class JSynSynthesizer implements Synthesizer {
 
     @Override
     public void open() throws MidiUnavailableException {
+        if (isOpen()) {
+Debug.println("already open: " + hashCode());
+            return;
+        }
+
         for (int i = 0; i < MAX_CHANNEL; i++) {
             channels[i] = new JSynMidiChannel(i);
             voiceStatus[i] = new VoiceStatus();
@@ -84,8 +92,8 @@ public class JSynSynthesizer implements Synthesizer {
         MultiChannelSynthesizer multiSynth = new MultiChannelSynthesizer();
 
         // voice setting for each channel
-        VoiceDescription voice1 = DualOscillatorSynthVoice.getVoiceDescription();
-        VoiceDescription drums = NoiseHit.getVoiceDescription();
+        VoiceDescription voice1 = (VoiceDescription) soundBank.getInstruments()[0].getData();
+        VoiceDescription drums = (VoiceDescription) soundBank.getInstruments()[0].getData();
         multiSynth.setup(synth, 0, 9, 6, voice1);
         multiSynth.setup(synth, 9, 1, 6, drums);
         multiSynth.setup(synth, 10, 6, 6, voice1);
@@ -154,7 +162,7 @@ public class JSynSynthesizer implements Synthesizer {
 
     @Override
     public int getMaxPolyphony() {
-        return MAX_CHANNEL * 6;
+        return MAX_CHANNEL;
     }
 
     @Override

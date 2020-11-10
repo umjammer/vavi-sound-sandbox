@@ -23,7 +23,7 @@ import vavi.util.Debug;
 public class JSynMidiDeviceProvider extends MidiDeviceProvider {
 
     /**  */
-    public final static int MANUFACTURER_ID = 0x5f;
+    public final static int MANUFACTURER_ID = 0x5e;
 
     /** */
     private static final MidiDevice.Info[] infos = new MidiDevice.Info[] { JSynSynthesizer.info };
@@ -39,8 +39,8 @@ public class JSynMidiDeviceProvider extends MidiDeviceProvider {
 
         if (info == JSynSynthesizer.info) {
 Debug.println(Level.FINE, "★1 info: " + info);
-            JSynSynthesizer sequencer = new JSynSynthesizer();
-            return sequencer;
+            JSynSynthesizer synthesizer = new JSynSynthesizer();
+            return synthesizer;
         } else {
 Debug.println(Level.FINE, "★1 here: " + info);
             throw new IllegalArgumentException();
