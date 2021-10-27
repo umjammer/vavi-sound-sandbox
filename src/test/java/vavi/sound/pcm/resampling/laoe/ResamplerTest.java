@@ -9,8 +9,11 @@ package vavi.sound.pcm.resampling.laoe;
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -20,6 +23,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import vavi.util.Debug;
@@ -42,6 +46,11 @@ class ResamplerTest {
 
     /** */
     ByteUtil byteUtil = new ByteUtil();
+
+    @BeforeAll
+    static void setup() throws IOException {
+    	Files.createDirectories(Paths.get("tmp"));
+    }
 
     @Test
     void test1() throws Exception {

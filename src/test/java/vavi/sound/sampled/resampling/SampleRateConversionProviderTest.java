@@ -7,6 +7,9 @@
 package vavi.sound.sampled.resampling;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFileFormat.Type;
@@ -17,6 +20,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import vavi.sound.sampled.MonauralInputFilter;
@@ -36,6 +40,11 @@ public class SampleRateConversionProviderTest {
 
     String inFile = "src/test/resources/test.wav";
     String outFile = "tmp/out.wav";
+
+    @BeforeAll
+    static void setup() throws IOException {
+    	Files.createDirectories(Paths.get("tmp"));
+    }
 
     /**
      * <ul>

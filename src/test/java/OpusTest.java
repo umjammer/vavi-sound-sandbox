@@ -4,8 +4,11 @@
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import org.concentus.OpusApplication;
 import org.concentus.OpusDecoder;
@@ -16,6 +19,7 @@ import org.gagravarr.opus.OpusAudioData;
 import org.gagravarr.opus.OpusFile;
 import org.gagravarr.opus.OpusInfo;
 import org.gagravarr.opus.OpusTags;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 
@@ -72,6 +76,11 @@ public class OpusTest {
     static final String inFile = "src/test/resources/opus.raw";
     static final String outFile = "tmp/opus.pcm";
 
+    @BeforeAll
+    static void setup() throws IOException {
+    	Files.createDirectories(Paths.get("tmp"));
+    }
+
     @Test
     public void test() throws Exception {
         FileInputStream fileIn = new FileInputStream(inFile);
@@ -92,10 +101,10 @@ public class OpusTest {
             int bytesRead = fileIn.read(inBuf, 0, inBuf.length);
             short[] pcm = bytesToShorts(inBuf, 0, inBuf.length);
             int bytesEncoded = encoder.encode(pcm, 0, packetSamples, dataPacket, 0, 1275);
-//                System.out.println(bytesEncoded + " bytes encoded");
+//            System.out.println(bytesEncoded + " bytes encoded");
 
             int samplesDecoded = decoder.decode(dataPacket, 0, bytesEncoded, pcm, 0, packetSamples, false);
-//                System.out.println(samplesDecoded + " samples decoded");
+//            System.out.println(samplesDecoded + " samples decoded");
             byte[] bytesOut = shortsToBytes(pcm);
             fileOut.write(bytesOut, 0, bytesOut.length);
         }

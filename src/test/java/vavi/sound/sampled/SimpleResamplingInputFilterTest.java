@@ -7,11 +7,15 @@
 package vavi.sound.sampled;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import vavi.util.Debug;
@@ -32,7 +36,11 @@ public class SimpleResamplingInputFilterTest {
     static final String inFile = "src/test/resources/test.wav";
     static final String outFile = "tmp/out.wav";
 
-    /** */
+    @BeforeAll
+    static void setup() throws IOException {
+    	Files.createDirectories(Paths.get("tmp"));
+    }
+
     @Test
     public void test1() throws Exception {
         // source: any any Hz, any bit, any, any bytes/frame, any

@@ -7,11 +7,15 @@
 package org.klab.packetcast.audio;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.tritonus.dsp.ais.AmplitudeAudioInputStream;
 
@@ -27,6 +31,11 @@ public class AmplitudeAudioInputStreamTest {
     static final String strSourceFilename = "src/test/resources/test.wav";
 
     static final String strTargetFilename = "tmp/out.wav";
+
+    @BeforeAll
+    static void setup() throws IOException {
+    	Files.createDirectories(Paths.get("tmp"));
+    }
 
     @Test
     public void test00() throws Exception {
