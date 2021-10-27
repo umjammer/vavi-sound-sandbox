@@ -62,9 +62,6 @@ class Equalizer {
     private static final int M = 15;
 
     /** */
-    private SplitRadixFft fft = new SplitRadixFft();
-
-    /** */
     private final int RINT(double x) {
         return (int) (x >= 0 ? x + 0.5 : x - 0.5);
     }
@@ -811,7 +808,7 @@ for (Parameter pp : param2) {
             w = new double[wsize];
         }
 
-        fft.rdft(n, isign, x, ip, w);
+        SplitRadixFft.rdft(n, isign, x, ip, w);
     }
 
     /** when bps = 16 */
