@@ -7,6 +7,8 @@
 package vavi.sound.vsq;
 
 import java.io.File;
+import java.nio.charset.Charset;
+import java.util.concurrent.CountDownLatch;
 
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MidiSystem;
@@ -14,8 +16,8 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 
 import vavi.sound.midi.MidiConstants;
-import vavi.sound.midi.MidiUtil;
 import vavi.util.Debug;
+import vavi.util.StringUtil;
 
 
 /**
@@ -26,8 +28,16 @@ import vavi.util.Debug;
  */
 public class Test2 {
 
+    static {
+        System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
+        System.setProperty("javax.sound.midi.Synthesizer", "#Gervill");
+    }
+
     public static void main(String[] args) throws Exception {
         String infile = args[0];
+
+        CountDownLatch cdl = new CountDownLatch(1);
+
         Sequence sequence = MidiSystem.getSequence(new File(infile));
         VSQ vsq = new VSQ(sequence);
         vsq.convert1(sequence);
@@ -38,7 +48,19 @@ public class Test2 {
             public void meta(javax.sound.midi.MetaMessage message) {
                 switch (message.getType()) {
                 case MidiConstants.META_MACHINE_DEPEND: // シーケンサ固有のメタイベント
-Debug.println(MidiUtil.getDecodedMessage(message.getData()));
+                    byte[] data = message.getData();
+Debug.printf("%02X, %s\n", data[0], StringUtil.getDump(data));
+                    break;
+                case 1:  // テキスト・イベント 127 bytes
+//Debug.println(new String(meta.getData()));
+                    String text = new String(message.getData(), Charset.forName("MS932"));
+                    if (!text.startsWith("DM")) {
+                        String parts[] = text.split(":");
+Debug.println(parts[0] + ":" + parts[1] + ":" + message.getData().length/* + "\n" + parts[2]*/);
+                    }
+                    break;
+                case 47:
+                    cdl.countDown();
                     break;
                 default:
                     break;
@@ -46,9 +68,7 @@ Debug.println(MidiUtil.getDecodedMessage(message.getData()));
             }
         });
         sequencer.start();
-        while (sequencer.isRunning()) {
-            try { Thread.sleep(100); } catch (Exception e) {}
-        }
+        cdl.await();
         sequencer.stop();
         sequencer.close();
     }

@@ -191,7 +191,7 @@ class Normalizer {
         InputStream in;
         OutputStream out;
         byte[] chunk_name = new byte[4];
-        WAVE.fmt fmt_chunk = new WAVE().new fmt();
+        WAVE.fmt fmt_chunk = new WAVE.fmt();
 
         try {
             in = new BufferedInputStream(new FileInputStream(inname));

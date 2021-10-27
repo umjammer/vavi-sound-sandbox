@@ -14,6 +14,8 @@ import java.io.OutputStream;
 
 import vavi.io.OutputEngine;
 import vavi.io.OutputEngineInputStream;
+import vavi.util.ByteUtil;
+import vavi.util.Debug;
 
 
 /**
@@ -26,11 +28,11 @@ class PolyphaseInputStream extends FilterInputStream {
 
     /** */
     public PolyphaseInputStream(InputStream is, float in, float out) throws IOException {
-        super(new OutputEngineInputStream(new PolyPhaseOutputEngine(is, in, out)));
+        super(new OutputEngineInputStream(new PolyphaseOutputEngine(is, in, out)));
     }
 
     /** */
-    private static class PolyPhaseOutputEngine implements OutputEngine {
+    private static class PolyphaseOutputEngine implements OutputEngine {
 
         /** */
         private InputStream in;
@@ -42,7 +44,7 @@ class PolyphaseInputStream extends FilterInputStream {
         private Polyphase resampler;
 
         /** */
-        public PolyPhaseOutputEngine(InputStream is, float in, float out) throws IOException {
+        public PolyphaseOutputEngine(InputStream is, float in, float out) throws IOException {
             this.in = is;
             this.resampler = new Polyphase(in, out);
         }
@@ -56,26 +58,29 @@ class PolyphaseInputStream extends FilterInputStream {
             }
         }
 
+        private byte[] sample = new byte[44100 * 2];
+
         /** */
         public void execute() throws IOException {
             if (out == null) {
                 throw new IOException("Not yet initialized");
             } else {
-                byte[] sample = new byte[0x8192];
                 int r = in.read(sample);
                 if (r < 0) {
+                    out.flush();
                     out.close();
                 } else {
-                    int[] samples = new int[r];
-                    for (int i = 0; i < r; i++) {
-                        samples[i] = sample[i];
+                    int[] samples = new int[r / 2];
+                    for (int i = 0; i < samples.length; i++) {
+                        samples[i] = ByteUtil.readLeShort(sample, i * 2); // LE
                     }
-                    int[] result = resampler.resample(samples);  // TODO single channel ???
-                    for (int i = 0; i < result.length; i++) { // LE
-                        sample[i * 2 + 1] = (byte) (result[i] >>> 8);
-                        sample[i * 2] = (byte) result[i];
+                    int[] resamples = resampler.resample(samples);  // TODO single channel ???
+Debug.println(r / 2 + ", " + resamples.length);
+                    byte[] result = new byte[resamples.length * 2];
+                    for (int i = 0; i < resamples.length; i++) {
+                        ByteUtil.writeLeShort((short) resamples[i], result, i * 2); // LE
                     }
-                    out.write(sample, 0, result.length);
+                    out.write(result);
                 }
             }
         }

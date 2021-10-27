@@ -15,6 +15,8 @@ import javax.swing.JPanel;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.rococoa.cocoa.foundation.NSArray;
 import org.rococoa.cocoa.foundation.NSString;
 
@@ -27,6 +29,7 @@ import vavix.rococoa.foundation.NSDictionary;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/02/15 umjammer initial version <br>
  */
+@EnabledOnOs(OS.MAC)
 class ITLibraryTest {
 
     /**
@@ -72,7 +75,7 @@ class ITLibraryTest {
         library.getMediaItems().stream()
             .filter(t -> t.mediaKind() == 2)
             .filter(t -> t.artist().name().contains("a-ha"))
-            .forEach(t -> System.err.println(t.artist().name() + " - " + t.title() + " [" + t.composer() + "]"));
+            .forEach(t -> System.err.println(t.artist().name() + " - " + t.title() + " [" + t.composer() + "] " + t.addedDate()));
     }
 
     int c = 0;

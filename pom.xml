@@ -40,7 +40,48 @@ TODO
     <tritonus.groupId>org.tritonus</tritonus.groupId>
     <tritonus.version>0.3.10</tritonus.version>
     <rococoa.version>0.8.3</rococoa.version>
+    <cyberduck.version>7.6.0</cyberduck.version>
   </properties>
+
+  <profiles>
+    <profile>
+      <id>mac</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.10</version>
+            <executions>
+              <execution>
+                <id>copy</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.rococoa</groupId>
+                      <artifactId>rococoa-core</artifactId>
+                      <type>dylib</type>
+                      <overWrite>true</overWrite>
+                      <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                      <destFileName>librococoa.dylib</destFileName>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <build>
     <plugins>
@@ -51,31 +92,6 @@ TODO
           <target>8</target>
           <encoding>UTF-8</encoding>
         </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.10</version>
-        <executions>
-          <execution>
-            <id>copy</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.rococoa</groupId>
-                  <artifactId>rococoa-core</artifactId>
-                  <type>dylib</type>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
-                  <destFileName>librococoa.dylib</destFileName>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -105,13 +121,17 @@ TODO
       <name>GitHub umjammer Apache Maven Packages</name>
       <url>https://maven.pkg.github.com/umjammer/*</url>
     </repository>
+    <repository>
+      <id>maven.cyberduck.io-release</id>
+      <url>http://repo.maven.cyberduck.io.s3.amazonaws.com/releases</url>
+    </repository>
   </repositories>
 
   <dependencies>
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.3</version>
+      <version>1.1.4</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
@@ -120,8 +140,8 @@ TODO
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
-      <artifactId>Java-Apple-Lossless-decoder</artifactId>
-      <version>0.2.9</version>
+      <artifactId>vavi-sound-alac</artifactId>
+      <version>0.3.1</version>
     </dependency>
     <dependency>
       <groupId>org.rococoa</groupId>
@@ -152,6 +172,19 @@ TODO
     </dependency>
 
     <dependency>
+      <groupId>com.github.philburk</groupId>
+      <artifactId>jsyn</artifactId>
+      <version>v16.8.1</version>
+    </dependency>
+<!--
+    <dependency>
+      <groupId>com.moandjiezana.toml</groupId>
+      <artifactId>toml4j</artifactId>
+      <version>0.7.2</version>
+    </dependency>
+-->
+
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <version>5.3.0</version>
@@ -180,7 +213,7 @@ TODO
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons-sandbox</artifactId>
-      <version>0.3.5</version>
+      <version>0.4.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -219,8 +252,8 @@ TODO
     </dependency>
     <dependency>
       <groupId>com.github.drogatkin</groupId>
-      <artifactId>JustFLAC</artifactId>
-      <version>master-SNAPSHOT</version>
+      <artifactId>justflac</artifactId>
+      <version>-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -233,15 +266,75 @@ TODO
       <!-- net.javazoom -->
       <groupId>com.github.umjammer</groupId>
       <artifactId>mp3spi</artifactId>
-      <version>1.9.7</version>
+      <version>1.9.8</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>com.github.mina-berger</groupId>
+      <artifactId>mocha-sound</artifactId>
+      <version>master-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.2</version>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>1.7.5</version>
       <scope>test</scope>
     </dependency>
-  </dependencies>
+<!--
+    <dependency>
+      <groupId>uk.co.xfactory-librarians</groupId>
+      <artifactId>coremidi4j</artifactId>
+      <version>1.4</version>
+      <scope>test</scope>
+    </dependency>
+-->
+    <dependency>
+      <groupId>com.locurasoft</groupId>
+      <artifactId>osxmidi4j</artifactId>
+      <version>1.1-SNAPSHOT</version>
+      <scope>test</scope>
+    </dependency>
 
+    <dependency>
+      <!-- rococoa -->
+      <groupId>ch.cyberduck</groupId>
+      <artifactId>binding</artifactId>
+      <version>${cyberduck.version}</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>net.beadsproject</groupId>
+      <artifactId>beads</artifactId>
+      <version>3.2</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.googlecode.soundlibs</groupId>
+          <artifactId>mp3spi</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.clojars.automata</groupId>
+          <artifactId>tritonus-aos</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.clojars.automata</groupId>
+          <artifactId>tritonus-share</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javazoom</groupId>
+          <artifactId>jlayer</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
 </project>

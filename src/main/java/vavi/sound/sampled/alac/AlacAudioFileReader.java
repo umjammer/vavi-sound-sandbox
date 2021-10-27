@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -35,17 +36,7 @@ import vavi.util.Debug;
  */
 public class AlacAudioFileReader extends AudioFileReader {
 
-    /**
-     * Obtains the audio file format of the File provided. The File must point
-     * to valid audio file data.
-     *
-     * @param file the File from which file format information should be
-     *            extracted.
-     * @return an AudioFileFormat object describing the audio file format.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioFileFormat getAudioFileFormat(File file) throws UnsupportedAudioFileException, IOException {
         InputStream inputStream = null;
         try {
@@ -56,17 +47,7 @@ public class AlacAudioFileReader extends AudioFileReader {
         }
     }
 
-    /**
-     * Obtains an audio input stream from the URL provided. The URL must point
-     * to valid audio file data.
-     *
-     * @param url the URL for which the AudioInputStream should be constructed.
-     * @return an AudioInputStream object based on the audio file data pointed
-     *         to by the URL.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioFileFormat getAudioFileFormat(URL url) throws UnsupportedAudioFileException, IOException {
         InputStream inputStream = url.openStream();
         try {
@@ -76,33 +57,10 @@ public class AlacAudioFileReader extends AudioFileReader {
         }
     }
 
-    /**
-     * Obtains an audio input stream from the input stream provided.
-     *
-     * @param stream the input stream from which the AudioInputStream should be
-     *            constructed.
-     * @return an AudioInputStream object based on the audio file data contained
-     *         in the input stream.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioFileFormat getAudioFileFormat(InputStream stream) throws UnsupportedAudioFileException, IOException {
         return getAudioFileFormat(stream, AudioSystem.NOT_SPECIFIED);
     }
-
-    /**
-     * Return the AudioFileFormat from the given InputStream.
-     *
-     * @param stream the input stream from which the AudioInputStream should be
-     *            constructed.
-     * @param medialength
-     * @return an AudioInputStream object based on the audio file data contained
-     *         in the input stream.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
 
     /**
      * Return the AudioFileFormat from the given InputStream. Implementation.
@@ -121,25 +79,14 @@ public class AlacAudioFileReader extends AudioFileReader {
         try {
             alac = new Alac(bitStream);
         } catch (IOException e) {
-Debug.println(e.getMessage());
+Debug.println(Level.FINE, e.getMessage());
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException(e.getMessage()).initCause(e);
         }
         AudioFormat format = new AudioFormat(AlacEncoding.ALAC, alac.getSampleRate(), alac.getBitsPerSample(), alac.getNumChannels(), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true, new HashMap<String, Object>() {{ put("alac", alac); }});
         return new AudioFileFormat(AlacFileFormatType.ALAC, format, AudioSystem.NOT_SPECIFIED);
     }
 
-    /**
-     * Obtains an audio input stream from the File provided. The File must point
-     * to valid audio file data.
-     *
-     * @param file the File for which the AudioInputStream should be
-     *            constructed.
-     * @return an AudioInputStream object based on the audio file data pointed
-     *         to by the File.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioInputStream getAudioInputStream(File file) throws UnsupportedAudioFileException, IOException {
         InputStream inputStream = new FileInputStream(file);
         try {
@@ -153,17 +100,7 @@ Debug.println(e.getMessage());
         }
     }
 
-    /**
-     * Obtains an audio input stream from the URL provided. The URL must point
-     * to valid audio file data.
-     *
-     * @param url the URL for which the AudioInputStream should be constructed.
-     * @return an AudioInputStream object based on the audio file data pointed
-     *         to by the URL.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioInputStream getAudioInputStream(URL url) throws UnsupportedAudioFileException, IOException {
         InputStream inputStream = url.openStream();
         try {
@@ -177,18 +114,7 @@ Debug.println(e.getMessage());
         }
     }
 
-    /**
-     * Obtains an audio input stream from the input stream provided. The stream
-     * must point to valid audio file data.
-     *
-     * @param stream the input stream from which the AudioInputStream should be
-     *            constructed.
-     * @return an AudioInputStream object based on the audio file data contained
-     *         in the input stream.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioInputStream getAudioInputStream(InputStream stream) throws UnsupportedAudioFileException, IOException {
         return getAudioInputStream(stream, AudioSystem.NOT_SPECIFIED);
     }
@@ -208,7 +134,6 @@ Debug.println(e.getMessage());
      */
     protected AudioInputStream getAudioInputStream(InputStream inputStream, int medialength) throws UnsupportedAudioFileException, IOException {
         AudioFileFormat audioFileFormat = getAudioFileFormat(inputStream, medialength);
-        Alac alac = Alac.class.cast(audioFileFormat.getFormat().getProperty("alac"));
-        return new Alac2PcmAudioInputStream(inputStream, audioFileFormat.getFormat(), audioFileFormat.getFrameLength(), alac);
+        return new AudioInputStream(inputStream, audioFileFormat.getFormat(), audioFileFormat.getFrameLength());
     }
 }

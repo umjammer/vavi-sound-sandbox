@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -29,7 +30,7 @@ import vavi.util.Debug;
 
 
 /**
- * VSQ. 
+ * VSQ.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 080630 nsano initial version <br>
@@ -45,7 +46,7 @@ public class VSQ {
      */
     @SuppressWarnings("unchecked")
     public VSQ(Sequence sequence) throws IOException {
-        
+
         String[] data = getData(sequence);
 
         tracks = new List[data.length];
@@ -56,7 +57,7 @@ public class VSQ {
             Reader reader = new StringReader(data[i]);
             readBlocks(i, reader);
 Debug.println("track[" + i + "]: " + tracks[i].size());
-            
+
         }
     }
 
@@ -168,10 +169,12 @@ Debug.println("track[" + i + "]: " + tracks[i].size());
 Debug.println("tracks: " + tracks.length);
         String[] results = new String[tracks.length - 1];
 
+        // for text, "DM:###:###..."
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
         for (int t = 0; t < tracks.length; t++) {
             Track track = tracks[t];
             if (t > 0) { // track 0 is master track
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
 Debug.println("events[" + t + "]: " + track.size());
                 for (int e = 0; e < track.size(); e++) {
                     MidiEvent event = track.get(e);
@@ -184,18 +187,22 @@ Debug.println("events[" + t + "]: " + track.size());
                         case 1:  // テキスト・イベント 127 bytes
                             byte[] data = meta.getData();
 //Debug.println(new String(data));
-                            int p = 0;
-                            do {
+                            if (data[0] == 'D' && data[1] == 'M') {
+                                int p = 0;
+                                do {
+                                    p++;
+                                } while (data[p] != ':');
+                                do {
+                                    p++;
+                                } while (data[p] != ':');
                                 p++;
-                            } while (data[p] != ':');
-                            do {
-                                p++;
-                            } while (data[p] != ':');
-                            p++;
 //Debug.println(new String(data).substring(p));
-                            baos.write(data, p, data.length - p);
+                                baos.write(data, p, data.length - p);
+                            } else {
+Debug.println(new String(data, Charset.forName("MS932")));
+                            }
                             break;
-                        case 3:  // トラック名 , 
+                        case 3:  // トラック名 ,
                             String trackName = new String(meta.getData());
 Debug.println("trackName[" + t + "]: " + trackName);
                             break;
@@ -208,6 +215,8 @@ Debug.println("unhandled meta: " + meta.getType());
                 results[t - 1] = baos.toString();
             }
         }
+
+Debug.println(baos.toString("MS932"));
 
         return results;
     }

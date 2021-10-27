@@ -17,6 +17,7 @@ import javax.sound.sampled.AudioInputStream;
 import org.concentus.OpusDecoder;
 import org.concentus.OpusException;
 import org.gagravarr.opus.OpusAudioData;
+import org.gagravarr.opus.OpusFile;
 
 import vavi.io.OutputEngine;
 import vavi.io.OutputEngineInputStream;
@@ -37,7 +38,7 @@ class Opus2PcmAudioInputStream extends AudioInputStream {
      * @param format the target format of this stream's audio data.
      * @param length the length in sample frames of the data in this stream.
      */
-    public Opus2PcmAudioInputStream(OpusInpputStream in, AudioFormat format, long length) throws IOException {
+    public Opus2PcmAudioInputStream(OpusFile in, AudioFormat format, long length) throws IOException {
         super(new OutputEngineInputStream(new OpusOutputEngine(in, format.getSampleRate(), format.getChannels())), format, length);
     }
 
@@ -51,13 +52,13 @@ class Opus2PcmAudioInputStream extends AudioInputStream {
         private OpusDecoder decoder;
 
         /** OGG only */
-        private OpusInpputStream in;
+        private OpusFile in;
 
         /** */
         private int channels;
 
         /** */
-        public OpusOutputEngine(OpusInpputStream in, float sampleRate, int channels) throws IOException {
+        public OpusOutputEngine(OpusFile in, float sampleRate, int channels) throws IOException {
             try {
                 decoder = new OpusDecoder((int) sampleRate, channels);
             } catch (OpusException e) {

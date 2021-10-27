@@ -64,6 +64,7 @@ Debug.println(targetAudioFormat);
         AudioFormat audioFormat = audioInputStream.getFormat();
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat, AudioSystem.NOT_SPECIFIED);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
+Debug.println(line.getClass().getName());
         line.addLineListener(event -> {
             if (event.getType().equals(LineEvent.Type.START)) {
 Debug.println("play");
@@ -73,8 +74,8 @@ Debug.println("done");
             }
         });
 
-        byte[] buf = new byte[8192];
-        line.open(audioFormat, buf.length);
+        line.open(audioFormat);
+        byte[] buf = new byte[line.getBufferSize()];
 FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
 double gain = .2d; // number between 0 and 1 (loudest)
 float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
@@ -86,6 +87,7 @@ gainControl.setValue(dB);
             if (r < 0) {
                 break;
             }
+//Debug.println("line: " + line.available());
             line.write(buf, 0, r);
         }
         line.drain();
