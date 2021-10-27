@@ -8,7 +8,7 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-sound-sandbox</artifactId>
-  <version>1.0.3</version>
+  <version>1.0.4</version>
 
   <name>Vavi Sound API (Sandbox)</name>
   <url>https://github.com/umjammer/vavi-sound-sandbox</url>
@@ -37,8 +37,8 @@ TODO
   </issueManagement>
 
   <properties>
-    <tritonus.groupId>com.github.umjammer.tritonus</tritonus.groupId>
-    <tritonus.version>0.3.8</tritonus.version>
+    <tritonus.groupId>org.tritonus</tritonus.groupId>
+    <tritonus.version>0.3.10</tritonus.version>
     <rococoa.version>0.8.3</rococoa.version>
   </properties>
 
@@ -97,16 +97,13 @@ TODO
 
   <repositories>
     <repository>
-      <id>bintray-umjammer-maven</id>
-      <name>bintray</name>
-      <url>https://dl.bintray.com/umjammer/maven</url>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
+    </repository>
+    <repository>
+      <id>github</id>
+      <name>GitHub umjammer Apache Maven Packages</name>
+      <url>https://maven.pkg.github.com/umjammer/*</url>
     </repository>
   </repositories>
 
@@ -119,7 +116,7 @@ TODO
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.9</version>
+      <version>1.0.11</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
