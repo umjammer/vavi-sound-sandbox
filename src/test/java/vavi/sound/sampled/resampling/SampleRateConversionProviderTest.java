@@ -43,7 +43,7 @@ public class SampleRateConversionProviderTest {
 
     @BeforeAll
     static void setup() throws IOException {
-    	Files.createDirectories(Paths.get("tmp"));
+        Files.createDirectories(Paths.get("tmp"));
     }
 
     /**

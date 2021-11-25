@@ -36,7 +36,7 @@ class Player {
     public static void main(String[] args) throws Exception {
         new Player(args[0]);
     }
-    
+
     Player(String filename) throws Exception {
         BFile bfile = new BFile(filename, "rb");
 

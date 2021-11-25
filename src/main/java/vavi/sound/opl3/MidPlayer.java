@@ -644,14 +644,14 @@ logger.fine("type: " + type);
     @Override
     public void open() throws MidiUnavailableException {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.MidiDevice#close() */
     @Override
     public void close() {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.MidiDevice#isOpen() */
@@ -716,14 +716,14 @@ logger.fine("type: " + type);
     @Override
     public void start() {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.Sequencer#stop() */
     @Override
     public void stop() {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.Sequencer#isRunning() */
@@ -737,14 +737,14 @@ logger.fine("type: " + type);
     @Override
     public void startRecording() {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.Sequencer#stopRecording() */
     @Override
     public void stopRecording() {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.Sequencer#isRecording() */
@@ -758,14 +758,14 @@ logger.fine("type: " + type);
     @Override
     public void recordEnable(Track track, int channel) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.Sequencer#recordDisable(javax.sound.midi.Track) */
     @Override
     public void recordDisable(Track track) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -792,7 +792,7 @@ logger.fine("type: " + type);
     @Override
     public void setTempoFactor(float factor) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.Sequencer#getTempoFactor() */
@@ -820,7 +820,7 @@ logger.fine("type: " + type);
     @Override
     public void setTickPosition(long tick) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -838,14 +838,14 @@ logger.fine("type: " + type);
     @Override
     public void setMicrosecondPosition(long microseconds) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.Sequencer#setMasterSyncMode(javax.sound.midi.Sequencer.SyncMode) */
     @Override
     public void setMasterSyncMode(SyncMode sync) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.Sequencer#getMasterSyncMode() */
@@ -866,7 +866,7 @@ logger.fine("type: " + type);
     @Override
     public void setSlaveSyncMode(SyncMode sync) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.Sequencer#getSlaveSyncMode() */
@@ -897,7 +897,7 @@ logger.fine("type: " + type);
     @Override
     public void setTrackSolo(int track, boolean solo) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.Sequencer#getTrackSolo(int) */
@@ -918,7 +918,7 @@ logger.fine("type: " + type);
     @Override
     public void removeMetaEventListener(MetaEventListener listener) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.Sequencer#addControllerEventListener(javax.sound.midi.ControllerEventListener, int[]) */
@@ -939,7 +939,7 @@ logger.fine("type: " + type);
     @Override
     public void setLoopStartPoint(long tick) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.Sequencer#getLoopStartPoint() */
@@ -953,7 +953,7 @@ logger.fine("type: " + type);
     @Override
     public void setLoopEndPoint(long tick) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.Sequencer#getLoopEndPoint() */
@@ -967,7 +967,7 @@ logger.fine("type: " + type);
     @Override
     public void setLoopCount(int count) {
         // TODO Auto-generated method stub
-        
+
     }
 
     /* @see javax.sound.midi.Sequencer#getLoopCount() */

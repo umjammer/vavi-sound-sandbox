@@ -452,7 +452,7 @@ Debug.println(line.getClass().getName());
         @Override
         public void setSolo(boolean soloState) {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override

@@ -19,7 +19,7 @@ import org.rococoa.cocoa.foundation.NSObject;
 
 
 /**
- * ITLibArtwork.
+ * @interface ITLibArtwork : NSObject
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/02/17 umjammer initial version <br>

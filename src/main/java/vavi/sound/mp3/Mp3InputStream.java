@@ -80,7 +80,7 @@ System.err.println("skip length: " + length);
         // collect data
         int dataSize = size - firstSyncAddress;
         int frames = dataSize / decodeInfo.inputSize;
-        
+
         int channels = decodeInfo.channels;
         int frequency = decodeInfo.frequency;
         int bitRate = decodeInfo.bitRate;
@@ -149,9 +149,9 @@ Debug.println("mp3:\n" + StringUtil.getDump(param.inputBuf, 16));
 
         param.outputSize = decodeInfo.outputSize;
         param.outputBuf = data;
-        
+
         decoder.decode(param);
-        
+
         return param.outputSize;
     }
 

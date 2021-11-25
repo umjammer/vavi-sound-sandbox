@@ -38,7 +38,7 @@ public class SimpleResamplingInputFilterTest {
 
     @BeforeAll
     static void setup() throws IOException {
-    	Files.createDirectories(Paths.get("tmp"));
+        Files.createDirectories(Paths.get("tmp"));
     }
 
     @Test

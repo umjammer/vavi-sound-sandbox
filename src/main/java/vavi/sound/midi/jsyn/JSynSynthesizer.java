@@ -399,7 +399,7 @@ Debug.println("already open: " + hashCode());
         @Override
         public void setSolo(boolean soloState) {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override

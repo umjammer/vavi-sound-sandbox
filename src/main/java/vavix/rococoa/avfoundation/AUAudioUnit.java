@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2020 by Naohide Sano, All rights reserved.
+ *
+ * Programmed by Naohide Sano
+ */
 
 package vavix.rococoa.avfoundation;
 
@@ -13,6 +18,12 @@ import com.sun.jna.Pointer;
 import vavi.util.Debug;
 
 
+/**
+ * @interface AUAudioUnit : NSObject
+ *
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
+ * @version 0.00 2020/??/?? umjammer initial version <br>
+ */
 public abstract class AUAudioUnit extends NSObject {
 
     @SuppressWarnings("hiding")

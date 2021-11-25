@@ -401,7 +401,7 @@ Debug.println("stated: " + r + ", " + hashCode());
         @Override
         public void setSolo(boolean soloState) {
             // TODO Auto-generated method stub
-            
+
         }
 
         @Override
