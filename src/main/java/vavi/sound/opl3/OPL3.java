@@ -176,7 +176,7 @@ public final class OPL3 {
             int operatorOffset = address & 0x1F;
             if (operators[array][operatorOffset] == null)
                 break;
-            switch(address&0xE0) {
+            switch (address&0xE0) {
             // 0x20...0x35 keeps am,vib,egt,ksr,mult for each operator:
             case 0x20:
                 operators[array][operatorOffset].update_AM1_VIB1_EGT1_KSR1_MULT4();
@@ -330,29 +330,33 @@ public final class OPL3 {
         int new_sd  = (dam1_dvb1_ryt1_bd1_sd1_tom1_tc1_hh1 & 0x08) >> 3;
         if (new_sd != sd) {
             sd = new_sd;
-            if (sd == 1)
+            if (sd == 1) {
                 snareDrumOperator.keyOn();
+            }
         }
 
         int new_tom = (dam1_dvb1_ryt1_bd1_sd1_tom1_tc1_hh1 & 0x04) >> 2;
         if (new_tom != tom) {
             tom = new_tom;
-            if (tom == 1)
+            if (tom == 1) {
                 tomTomOperator.keyOn();
+            }
         }
 
         int new_tc  = (dam1_dvb1_ryt1_bd1_sd1_tom1_tc1_hh1 & 0x02) >> 1;
         if (new_tc != tc) {
             tc = new_tc;
-            if (tc == 1)
+            if (tc == 1) {
                 topCymbalOperator.keyOn();
+            }
         }
 
         int new_hh  = dam1_dvb1_ryt1_bd1_sd1_tom1_tc1_hh1 & 0x01;
         if (new_hh != hh) {
             hh = new_hh;
-            if (hh == 1)
+            if (hh == 1) {
                 highHatOperator.keyOn();
+            }
         }
     }
 

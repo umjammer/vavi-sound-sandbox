@@ -640,21 +640,18 @@ logger.fine("type: " + type);
         return info;
     }
 
-    /* @see javax.sound.midi.MidiDevice#open() */
     @Override
     public void open() throws MidiUnavailableException {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.MidiDevice#close() */
     @Override
     public void close() {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.MidiDevice#isOpen() */
     @Override
     public boolean isOpen() {
         // TODO Auto-generated method stub
@@ -681,7 +678,7 @@ logger.fine("type: " + type);
         if (transmitter.getReceiver() != null) {
             return Arrays.asList(transmitter.getReceiver());
         } else {
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         }
     }
 
@@ -705,63 +702,54 @@ logger.fine("type: " + type);
         load(stream);
     }
 
-    /* @see javax.sound.midi.Sequencer#getSequence() */
     @Override
     public Sequence getSequence() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    /* @see javax.sound.midi.Sequencer#start() */
     @Override
     public void start() {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.Sequencer#stop() */
     @Override
     public void stop() {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.Sequencer#isRunning() */
     @Override
     public boolean isRunning() {
         // TODO Auto-generated method stub
         return false;
     }
 
-    /* @see javax.sound.midi.Sequencer#startRecording() */
     @Override
     public void startRecording() {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.Sequencer#stopRecording() */
     @Override
     public void stopRecording() {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.Sequencer#isRecording() */
     @Override
     public boolean isRecording() {
         // TODO Auto-generated method stub
         return false;
     }
 
-    /* @see javax.sound.midi.Sequencer#recordEnable(javax.sound.midi.Track, int) */
     @Override
     public void recordEnable(Track track, int channel) {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.Sequencer#recordDisable(javax.sound.midi.Track) */
     @Override
     public void recordDisable(Track track) {
         // TODO Auto-generated method stub
@@ -788,35 +776,30 @@ logger.fine("type: " + type);
         this.msqtr = (int) mpq;
     }
 
-    /* @see javax.sound.midi.Sequencer#setTempoFactor(float) */
     @Override
     public void setTempoFactor(float factor) {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.Sequencer#getTempoFactor() */
     @Override
     public float getTempoFactor() {
         // TODO Auto-generated method stub
         return 0;
     }
 
-    /* @see javax.sound.midi.Sequencer#getTickLength() */
     @Override
     public long getTickLength() {
         // TODO Auto-generated method stub
         return 0;
     }
 
-    /* @see javax.sound.midi.Sequencer#getTickPosition() */
     @Override
     public long getTickPosition() {
         // TODO Auto-generated method stub
         return 0;
     }
 
-    /* @see javax.sound.midi.Sequencer#setTickPosition(long) */
     @Override
     public void setTickPosition(long tick) {
         // TODO Auto-generated method stub
@@ -834,49 +817,42 @@ logger.fine("type: " + type);
         return 0;
     }
 
-    /* @see javax.sound.midi.Sequencer#setMicrosecondPosition(long) */
     @Override
     public void setMicrosecondPosition(long microseconds) {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.Sequencer#setMasterSyncMode(javax.sound.midi.Sequencer.SyncMode) */
     @Override
     public void setMasterSyncMode(SyncMode sync) {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.Sequencer#getMasterSyncMode() */
     @Override
     public SyncMode getMasterSyncMode() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    /* @see javax.sound.midi.Sequencer#getMasterSyncModes() */
     @Override
     public SyncMode[] getMasterSyncModes() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    /* @see javax.sound.midi.Sequencer#setSlaveSyncMode(javax.sound.midi.Sequencer.SyncMode) */
     @Override
     public void setSlaveSyncMode(SyncMode sync) {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.Sequencer#getSlaveSyncMode() */
     @Override
     public SyncMode getSlaveSyncMode() {
         // TODO Auto-generated method stub
         return null;
     }
 
-    /* @see javax.sound.midi.Sequencer#getSlaveSyncModes() */
     @Override
     public SyncMode[] getSlaveSyncModes() {
         // TODO Auto-generated method stub
@@ -893,84 +869,72 @@ logger.fine("type: " + type);
         return this.tracks[track].on;
     }
 
-    /* @see javax.sound.midi.Sequencer#setTrackSolo(int, boolean) */
     @Override
     public void setTrackSolo(int track, boolean solo) {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.Sequencer#getTrackSolo(int) */
     @Override
     public boolean getTrackSolo(int track) {
         // TODO Auto-generated method stub
         return false;
     }
 
-    /* @see javax.sound.midi.Sequencer#addMetaEventListener(javax.sound.midi.MetaEventListener) */
     @Override
     public boolean addMetaEventListener(MetaEventListener listener) {
         // TODO Auto-generated method stub
         return false;
     }
 
-    /* @see javax.sound.midi.Sequencer#removeMetaEventListener(javax.sound.midi.MetaEventListener) */
     @Override
     public void removeMetaEventListener(MetaEventListener listener) {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.Sequencer#addControllerEventListener(javax.sound.midi.ControllerEventListener, int[]) */
     @Override
     public int[] addControllerEventListener(ControllerEventListener listener, int[] controllers) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    /* @see javax.sound.midi.Sequencer#removeControllerEventListener(javax.sound.midi.ControllerEventListener, int[]) */
     @Override
     public int[] removeControllerEventListener(ControllerEventListener listener, int[] controllers) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    /* @see javax.sound.midi.Sequencer#setLoopStartPoint(long) */
     @Override
     public void setLoopStartPoint(long tick) {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.Sequencer#getLoopStartPoint() */
     @Override
     public long getLoopStartPoint() {
         // TODO Auto-generated method stub
         return 0;
     }
 
-    /* @see javax.sound.midi.Sequencer#setLoopEndPoint(long) */
     @Override
     public void setLoopEndPoint(long tick) {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.Sequencer#getLoopEndPoint() */
     @Override
     public long getLoopEndPoint() {
         // TODO Auto-generated method stub
         return 0;
     }
 
-    /* @see javax.sound.midi.Sequencer#setLoopCount(int) */
     @Override
     public void setLoopCount(int count) {
         // TODO Auto-generated method stub
 
     }
 
-    /* @see javax.sound.midi.Sequencer#getLoopCount() */
     @Override
     public int getLoopCount() {
         // TODO Auto-generated method stub

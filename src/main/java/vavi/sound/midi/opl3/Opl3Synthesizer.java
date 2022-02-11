@@ -133,11 +133,11 @@ Debug.println("already open: " + hashCode());
         adlib.style = Adlib.MIDI_STYLE | Adlib.CMF_STYLE;
         adlib.mode = Adlib.MELODIC;
 
-        for (int i = 0; i < 128; ++i) {
+        for (int i = 0; i < 128; i++) {
             instruments[i] = (Opl3Instrument) soundBank.getInstruments()[i];
         }
 
-        for (int c = 0; c < 16; ++c) {
+        for (int c = 0; c < 16; c++) {
             channels[c].inum = 0;
 
             channels[c].setIns(instruments[channels[c].inum]);
@@ -147,7 +147,7 @@ Debug.println("already open: " + hashCode());
             voiceStatus[c].active = true;
         }
 
-        for (int i = 0; i < 18; ++i) {
+        for (int i = 0; i < 18; i++) {
             percussions[i] = new Percussion();
         }
 
@@ -260,7 +260,7 @@ Debug.println(line.getClass().getName());
 
     @Override
     public List<Transmitter> getTransmitters() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override
@@ -517,11 +517,11 @@ Debug.println(line.getClass().getName());
         @Override
         public void controlChange(int controller, int value) {
             switch (controller) {
-            case 0x07:
+            case 0x07: // channel volume
                 voiceStatus[channel].volume = value;
                 logger.fine(String.format("control change[%d]: vol(%02x): %d", channel, controller, value));
                 break;
-            case 0x67:
+            case 0x67: // 103: undefined
                 logger.fine(String.format("control change[%d]: (%02x): %d", channel, controller, value));
                 if ((adlib.style & Adlib.CMF_STYLE) != 0) {
                     adlib.mode = value;
@@ -641,6 +641,7 @@ Debug.println(line.getClass().getName());
     private List<Receiver> receivers = new ArrayList<>();
 
     private class Opl3Receiver implements Receiver {
+        @SuppressWarnings("hiding")
         private boolean isOpen;
 
         public Opl3Receiver() {
