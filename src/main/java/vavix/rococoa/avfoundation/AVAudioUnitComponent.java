@@ -10,7 +10,7 @@ import vavix.rococoa.foundation.NSDictionary;
 
 public abstract class AVAudioUnitComponent extends NSObject {
 
-    @SuppressWarnings("hiding")
+    @SuppressWarnings("unused")
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("AVAudioUnitComponent", _Class.class);
 
     public interface _Class extends ObjCClass {

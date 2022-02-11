@@ -57,7 +57,7 @@ public class OpusTest {
         long start = System.currentTimeMillis();
         while (is.available() >= inBuf.length) {
             int bytesRead = is.read(inBuf, 0, inBuf.length);
-            short[] pcm = bytesToShorts(inBuf, 0, inBuf.length);
+            short[] pcm = bytesToShorts(inBuf, 0, bytesRead);
             int bytesEncoded = encoder.encode(pcm, 0, packetSamples, dataPacket, 0, 1275);
             byte[] packet = new byte[bytesEncoded];
             System.arraycopy(dataPacket, 0, packet, 0, bytesEncoded);
@@ -100,10 +100,11 @@ public class OpusTest {
         long start = System.currentTimeMillis();
         while (fileIn.available() >= inBuf.length) {
             int bytesRead = fileIn.read(inBuf, 0, inBuf.length);
-            short[] pcm = bytesToShorts(inBuf, 0, inBuf.length);
+            short[] pcm = bytesToShorts(inBuf, 0, bytesRead);
             int bytesEncoded = encoder.encode(pcm, 0, packetSamples, dataPacket, 0, 1275);
 //            System.out.println(bytesEncoded + " bytes encoded");
 
+            @SuppressWarnings("unused")
             int samplesDecoded = decoder.decode(dataPacket, 0, bytesEncoded, pcm, 0, packetSamples, false);
 //            System.out.println(samplesDecoded + " samples decoded");
             byte[] bytesOut = shortsToBytes(pcm);

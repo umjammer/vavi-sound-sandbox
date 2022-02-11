@@ -23,7 +23,7 @@ import vavix.rococoa.foundation.NSSet;
  */
 public abstract class ITLibMediaEntity extends NSObject {
 
-    @SuppressWarnings("hiding")
+    @SuppressWarnings("unused")
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("ITLibMediaEntity", _Class.class);
 
     interface _Class extends ObjCClass {

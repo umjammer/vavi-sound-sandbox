@@ -8,7 +8,6 @@ import org.rococoa.cocoa.foundation.NSError;
 import org.rococoa.cocoa.foundation.NSObject;
 
 import com.sun.jna.Callback;
-import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 
@@ -27,7 +26,6 @@ public abstract class AVAudioConverter extends NSObject {
         endOfStream;
     }
 
-    @SuppressWarnings("hiding")
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("AVAudioConverter", _Class.class);
 
     public interface _Class extends ObjCClass {

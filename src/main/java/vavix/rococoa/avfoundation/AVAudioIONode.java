@@ -8,7 +8,7 @@ import com.sun.jna.Pointer;
 
 public abstract class AVAudioIONode extends AVAudioNode {
 
-    @SuppressWarnings("hiding")
+    @SuppressWarnings("unused")
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("AVAudioIONode", _Class.class);
 
     public interface _Class extends ObjCClass {

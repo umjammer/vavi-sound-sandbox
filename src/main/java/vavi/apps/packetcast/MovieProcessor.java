@@ -60,11 +60,8 @@ class MovieProcessor implements ControllerListener {
     /** */
     public MovieProcessor(String url) {
 
-        MediaLocator ml;
+        MediaLocator ml = new MediaLocator(url);
 System.err.println("url: " + url);
-        if ((ml = new MediaLocator(url)) == null) {
-            throw new IllegalArgumentException("Cannot build media locator from: " + ml);
-        }
 
         DataSource ds = null;
         // Create a DataSource given the media locator.

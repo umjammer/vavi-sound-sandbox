@@ -92,6 +92,7 @@ class Player {
         // decoding
 //      byte hours, minutes, secs;
         int wout_flag = 2;
+        @SuppressWarnings("unused")
         int counter = 0/*, acttime = 0*/;
 
         while (bstream.readBsFrame(index, bfile) != 0/* &&!skip_song */) {

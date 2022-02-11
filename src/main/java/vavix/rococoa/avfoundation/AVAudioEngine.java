@@ -46,6 +46,10 @@ public abstract class AVAudioEngine extends NSObject {
         return r;
     }
 
+    /**
+     * This method preallocates many resources the audio engine requires to
+     * start. Use it to responsively start audio input or output.
+     */
     public abstract void prepare();
 
     public abstract void pause();

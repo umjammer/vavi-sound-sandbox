@@ -10,13 +10,9 @@ import java.util.concurrent.CountDownLatch;
 
 import org.rococoa.ID;
 import org.rococoa.ObjCClass;
-import org.rococoa.Rococoa;
-import org.rococoa.cocoa.foundation.NSError;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
-
-import vavi.util.Debug;
 
 
 /**
@@ -27,7 +23,6 @@ import vavi.util.Debug;
  */
 public abstract class AVAudioUnit extends AVAudioNode {
 
-    @SuppressWarnings("hiding")
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("AVAudioUnit", _Class.class);
 
     public interface _Class extends ObjCClass {
@@ -51,6 +46,7 @@ public abstract class AVAudioUnit extends AVAudioNode {
         final Wrapper result = new Wrapper();
         CountDownLatch cdl = new CountDownLatch(1);
         Callback callback = new Callback() {
+            @SuppressWarnings("unused")
             public void apply(ID audioUnit, ID error) {
 //                result.object = Rococoa.wrap(audioUnit, AVAudioUnit.class);
 //Debug.println(Rococoa.wrap(error, NSError.class));

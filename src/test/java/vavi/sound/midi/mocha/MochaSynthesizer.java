@@ -213,7 +213,7 @@ Debug.println(line.getClass().getName());
 
     @Override
     public List<Transmitter> getTransmitters() {
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
     @Override

@@ -6,7 +6,6 @@ import org.rococoa.ObjCClass;
 
 public abstract class AVAudioPCMBuffer extends AVAudioBuffer {
 
-    @SuppressWarnings("hiding")
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("AVAudioPCMBuffer", _Class.class);
 
     public interface _Class extends ObjCClass {

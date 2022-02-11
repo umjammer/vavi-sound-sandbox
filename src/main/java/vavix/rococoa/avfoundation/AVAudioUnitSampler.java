@@ -17,7 +17,6 @@ public abstract class AVAudioUnitSampler extends AVAudioUnitMIDIInstrument {
 
     public static final int kAUSampler_DefaultBankLSB = 0x00;
 
-    @SuppressWarnings("hiding")
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("AVAudioUnitSampler", _Class.class);
 
     public interface _Class extends ObjCClass {

@@ -7,13 +7,13 @@ import org.rococoa.cocoa.foundation.NSData;
 
 public abstract class AVAudioUnitMIDIInstrument extends AVAudioUnit {
 
-    @SuppressWarnings("hiding")
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("AVAudioUnitMIDIInstrument", _Class.class);
 
     public interface _Class extends ObjCClass {
         AVAudioUnitMIDIInstrument alloc();
     }
 
+    // TODO wrong description terminates jvm (cannot catch NSException)
     public static AVAudioUnitMIDIInstrument init(AudioComponentDescription description) {
         AVAudioUnitMIDIInstrument audioUnit = CLASS.alloc();
         return audioUnit.initWithAudioComponentDescription(description.byValue());
