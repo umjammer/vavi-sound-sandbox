@@ -156,7 +156,7 @@ Debug.println(Level.SEVERE, e);
             }
 
             if (iIndex == delayShift8) {
-                delay = 1 + (data.readUnsignedByte()) << 8;
+                delay = (1 + data.readUnsignedByte()) << 8;
                 ++pos;
                 return true;
             }
