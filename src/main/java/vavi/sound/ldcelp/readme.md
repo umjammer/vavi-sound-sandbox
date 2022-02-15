@@ -1,40 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?>
+# vavi.sound.ldcelp
 
-<html lang="ja">
-
-<head>
-<link rev="MADE" href="mailto:vavivavi@yahoo.co.jp" />
-<link rel="INDEX" href="orverview.html" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta http-equiv="Content-Style-Type" content="text/css" />
-<link rel="stylesheet" type="text/css" href="../../../vavi.css" />
-<title>vavi.sound.ldcelp</title>
-<!--
- * Copyright (c) 2003 by Naohide Sano, All rights reserved.
- *
- * Written by Naohide Sano
- *
- * @author	<a href="mailto:vavivavi@yahoo.co.jp">Naohide Sano</a> (nsano)
- *
- * @version	0.00	030901	nsano	initial version
--->
-</head>
-
-<body>
-
-<p>
 G.728 LD-CELP サウンド関連のクラスを提供します．
-</p>
 
-<h2>これから実装すること</h2>
+## TODO
 
-<ul>
-<li>完成させる</li>
-<li></li>
-</ul>
+ * 完成させる
 
-<h2>一次ライセンス</h2>
-<pre>
+## License
+
+```
 /*************************************************************************/
 /*                                                                       */
 /*                            LD-CELP  G.728                             */
@@ -45,7 +19,4 @@ G.728 LD-CELP サウンド関連のクラスを提供します．
 /*    Based on code written by Alex Zatsman, Analog Devices 1993         */
 /*                                                                       */
 /*************************************************************************/
-</pre>
-
-</body>
-</html>
+```
