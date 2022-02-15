@@ -13,11 +13,12 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 
 import vavi.sound.sampled.opl3.Opl3Encoding;
 import vavi.util.Debug;
+
+import static vavi.sound.SoundUtil.volume;
 
 
 /**
@@ -87,10 +88,7 @@ System.err.println("done");
         clip.open(audioInputStream);
 if (!(originalAudioFormat.getEncoding() instanceof Opl3Encoding)) {
 // Debug.println("down volume: " + originalAudioFormat.getEncoding());
- FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
- double gain = .2d; // number between 0 and 1 (loudest)
- float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
- gainControl.setValue(dB);
+ volume(clip, .2d);
 }
         clip.start();
         countDownLatch.await();

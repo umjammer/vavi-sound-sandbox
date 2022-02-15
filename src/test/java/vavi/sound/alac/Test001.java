@@ -25,6 +25,8 @@ import com.beatofthedrum.alacdecoder.AlacUtils;
 
 import vavi.util.Debug;
 
+import static vavi.sound.SoundUtil.volume;
+
 
 /**
  * Test001.
@@ -112,10 +114,7 @@ Debug.println(audioFormat);
         });
         line.start();
 
-        FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
-        double gain = .2d; // number between 0 and 1 (loudest)
-        float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
-        gainControl.setValue(dB);
+        volume(line, .2d);
 
         byte[] pcmBuffer = null;
         int[] pDestBuffer = new int[1024 * 24 * 3]; // 24kb buffer = 4096 frames = 1 opus sample (we support max 24bps)
@@ -175,10 +174,7 @@ Debug.println(audioFormat);
         });
         line.start();
 
-        FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
-        double gain = .2d; // number between 0 and 1 (loudest)
-        float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
-        gainControl.setValue(dB);
+        volume(line, .2d);
 
         byte[] pcmBuffer = new byte[0xffff];
         int[] pDestBuffer = new int[1024 * 24 * 3]; // 24kb buffer = 4096 frames = 1 opus sample (we support max 24bps)

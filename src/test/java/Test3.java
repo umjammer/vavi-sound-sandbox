@@ -11,7 +11,6 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.SourceDataLine;
 
@@ -19,6 +18,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import vavi.util.Debug;
+
+import static vavi.sound.SoundUtil.volume;
 
 
 /**
@@ -76,10 +77,7 @@ Debug.println("done");
 
         line.open(audioFormat);
         byte[] buf = new byte[line.getBufferSize()];
-FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
-double gain = .2d; // number between 0 and 1 (loudest)
-float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
-gainControl.setValue(dB);
+        volume(line, .2d);
         line.start();
         int r = 0;
         while (true) {

@@ -8,9 +8,10 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
+
+import static vavi.sound.SoundUtil.volume;
 
 
 /**
@@ -40,10 +41,7 @@ System.err.println(targetInfo);
 System.err.println(sourceInfo);
         SourceDataLine speaker = (SourceDataLine) AudioSystem.getLine(sourceInfo);
         speaker.open(sourceFormat);
-FloatControl gainControl = (FloatControl) speaker.getControl(FloatControl.Type.MASTER_GAIN);
-double gain = .2d; // number between 0 and 1 (loudest)
-float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
-gainControl.setValue(dB);
+        volume(speaker, .2d);
         speaker.start();
 
         byte[] buf = new byte[speaker.getBufferSize()];

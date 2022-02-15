@@ -15,7 +15,7 @@ import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 
-import vavi.sound.midi.MidiConstants;
+import vavi.sound.midi.MidiConstants.MetaEvent;
 import vavi.util.Debug;
 import vavi.util.StringUtil;
 
@@ -46,12 +46,12 @@ public class Test2 {
         sequencer.setSequence(sequence);
         sequencer.addMetaEventListener(new MetaEventListener() {
             public void meta(javax.sound.midi.MetaMessage message) {
-                switch (message.getType()) {
-                case MidiConstants.META_MACHINE_DEPEND: // シーケンサ固有のメタイベント
+                switch (MetaEvent.valueOf(message.getType())) {
+                case META_MACHINE_DEPEND: // シーケンサ固有のメタイベント
                     byte[] data = message.getData();
 Debug.printf("%02X, %s\n", data[0], StringUtil.getDump(data));
                     break;
-                case 1:  // テキスト・イベント 127 bytes
+                case META_TEXT_EVENT:  // テキスト・イベント 127 bytes
 //Debug.println(new String(meta.getData()));
                     String text = new String(message.getData(), Charset.forName("MS932"));
                     if (!text.startsWith("DM")) {
@@ -59,7 +59,7 @@ Debug.printf("%02X, %s\n", data[0], StringUtil.getDump(data));
 Debug.println(parts[0] + ":" + parts[1] + ":" + message.getData().length/* + "\n" + parts[2]*/);
                     }
                     break;
-                case 47:
+                case META_END_OF_TRACK:
                     cdl.countDown();
                     break;
                 default:

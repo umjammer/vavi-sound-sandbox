@@ -12,12 +12,13 @@ import java.nio.ByteOrder;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.SourceDataLine;
 
 import vavi.sound.adpcm.ccitt.G721InputStream;
+
+import static vavi.sound.SoundUtil.volume;
 
 
 /**
@@ -64,10 +65,7 @@ System.err.println(format);
                 }
             }
         });
-FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
-double gain = .2d; // number between 0 and 1 (loudest)
-float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
-gainControl.setValue(dB);
+        volume(line, .2d);
         line.start();
         byte[] buf = new byte[1024];
         int l = 0;

@@ -13,7 +13,7 @@ import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.ShortMessage;
 
-import vavi.sound.midi.MidiConstants;
+import vavi.sound.midi.MidiConstants.MetaEvent;
 import vavi.sound.midi.MidiUtil;
 import vavi.sound.vsq.Block;
 import vavi.sound.vsq.VSQ;
@@ -124,7 +124,7 @@ Debug.println("unhandled param: " + pair[0]);
             Handle handle = Handle.class.cast(context.findHandle(track, lyricHandle));
             byte[] data = MidiUtil.getEncodedMessage(handle.getLyric());
             MetaMessage metaMessage = new MetaMessage();
-            metaMessage.setMessage(MidiConstants.META_MACHINE_DEPEND, data, data.length);
+            metaMessage.setMessage(MetaEvent.META_MACHINE_DEPEND.number(), data, data.length);
             MidiEvent textEvent = new MidiEvent(metaMessage, context.getCurrentTicks());
 
             return new MidiEvent[] { textEvent, noteOnEvent, noteOffEvent };

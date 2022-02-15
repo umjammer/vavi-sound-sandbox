@@ -17,7 +17,6 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -28,6 +27,7 @@ import vavi.util.Debug;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static vavi.sound.SoundUtil.volume;
 
 
 /**
@@ -107,10 +107,7 @@ Debug.println("thirdAis: " + thirdAis.getFormat());
         line.start();
         byte[] buf = new byte[1024];
         int l = 0;
-FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
-double gain = .2d; // number between 0 and 1 (loudest)
-float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
-gainControl.setValue(dB);
+        volume(line, .2d);
 
         while (resultAis.available() > 0) {
             l = resultAis.read(buf, 0, 1024);

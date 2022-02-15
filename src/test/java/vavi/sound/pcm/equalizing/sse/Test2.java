@@ -22,7 +22,6 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -37,9 +36,11 @@ import org.junit.jupiter.api.Disabled;
 
 import vavi.sound.pcm.equalizing.sse.Equalizer.Parameter;
 
+import static vavi.sound.SoundUtil.volume;
+
 
 /**
- * Graphical GUI Test.
+ * Graphical GUI MidiUtilTest.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060419 nsano initial version <br>
@@ -310,10 +311,7 @@ System.err.println(format);
                     DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
                     SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
                     line.open(format);
-FloatControl gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
-double gain = .1d; // number between 0 and 1 (loudest)
-float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0);
-gainControl.setValue(dB);
+                    volume(line, .2d);
                     line.start();
                     byte[] buf = new byte[1024];
                     int l;
