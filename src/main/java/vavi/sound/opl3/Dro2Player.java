@@ -30,7 +30,7 @@ import vavi.util.Debug;
 
 
 /**
- * DOSBox Raw OPL v2.0 player
+ * DOSBox Raw OPL v2.0 player (DRO).
  * <p>
  * <li> 2017 Wraithverge - Finalized support for displaying arbitrary Tag data.
  *
@@ -44,20 +44,24 @@ class Dro2Player extends Opl3Player {
     private int pos;
 
     private int length;
+    /** length in milliseconds */
     private int msTotal;
     private int delay;
     private int delay256;
     private int delayShift8;
+    /** the OPL data */
     private int[] toReg;
     private int opl3Type;
     @SuppressWarnings("unused")
     private int total = 0;
 
+    private static final int MARK_SIZE = 9;
+
     @Override
     public boolean matchFormat(InputStream bitStream) {
         LittleEndianDataInputStream dis = new LittleEndianDataInputStream(bitStream);
         try {
-            dis.mark(9);
+            dis.mark(MARK_SIZE);
 
             byte[] id = new byte[8];
             dis.readFully(id);
@@ -72,13 +76,13 @@ class Dro2Player extends Opl3Player {
 
             return true;
         } catch (IOException e) {
-Debug.println(Level.FINE, e);
+Debug.println(Level.WARNING, e);
             return false;
         } finally {
             try {
                 dis.reset();
             } catch (IOException e) {
-Debug.println(Level.FINE, e);
+Debug.println(Level.SEVERE, e);
             }
         }
     }
@@ -99,10 +103,11 @@ Debug.println(Level.FINE, e);
         msTotal = dis.readInt();
 
         opl3Type = dis.readUnsignedByte();
-        if (dis.readUnsignedByte() != 0) {
+        if (dis.readUnsignedByte() != 0) { // format
             dis.reset();
             throw new IllegalArgumentException();
-        } else if (dis.readUnsignedByte() != 0) {
+        }
+        if (dis.readUnsignedByte() != 0) { // compression
             dis.reset();
             throw new IllegalArgumentException();
         }
@@ -125,6 +130,8 @@ Debug.println(Level.FINE, e);
         logger.info("delayShift8: " + delayShift8);
 
         data = dis;
+
+        // TODO after data, title, author, desc tag
 
         length -= 26 + l;
         total = 0;

@@ -25,17 +25,21 @@ import vavi.sound.opl3.MidPlayer.MidiTypeFile;
  * @version 0.00 2020/10/25 umjammer initial version <br>
  */
 class MidiFile extends MidiTypeFile {
+
     static Logger logger = Logger.getLogger(MidiFile.class.getName());
 
+    @Override
     int markSize() {
         return 10;
     }
 
+    @Override
     boolean matchFormatImpl(DataInputStream dis) throws IOException {
         if (!Boolean.valueOf(System.getProperty("vavi.sound.opl3.MidiFile", "false"))) {
 logger.info("vavi.sound.opl3.MidiFile: false");
             return false;
         }
+logger.info("use vavi.sound.opl3.MidiFile");
         byte[] chunkType = new byte[4];
         dis.readFully(chunkType);
         dis.skipBytes(4);

@@ -15,17 +15,19 @@ import vavi.sound.opl3.MidPlayer.MidiTypeFile;
 
 
 /**
- * SierraFile.
+ * SierraFile (SCI).
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/25 umjammer initial version <br>
  */
 class SierraFile extends MidiTypeFile {
 
+    @Override
     int markSize() {
         return 3;
     }
 
+    @Override
     boolean matchFormatImpl(DataInputStream dis) throws IOException {
         return dis.readUnsignedByte() == 0x84 &&
                 dis.readUnsignedByte() == 0 &&

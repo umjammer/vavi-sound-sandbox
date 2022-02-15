@@ -44,7 +44,16 @@ import vavi.util.Debug;
 
 /**
  * Opl3Synthesizer.
- *
+ * <p>
+ * CC accepts
+ * <pre>
+ * 7 ... channel volume
+ * 103 ... modify adlib parameter
+ * </pre>
+ * sysex accepts
+ * <pre>
+ * 0xf0 xx 0x7d 0x10 yy ... (yy: channel) program set change
+ * </pre>
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/03 umjammer initial version <br>
  */
@@ -112,7 +121,7 @@ public class Opl3Synthesizer implements Synthesizer {
 
     public void open(FileType type, Adlib.Writer writer) throws MidiUnavailableException {
         if (isOpen()) {
-Debug.println("already open: " + hashCode());
+Debug.println(Level.WARNING, "already open: " + hashCode());
             return;
         }
 

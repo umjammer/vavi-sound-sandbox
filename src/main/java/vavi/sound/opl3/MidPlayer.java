@@ -115,6 +115,7 @@ public class MidPlayer extends Opl3Player implements Sequencer {
 
     static Logger logger = Logger.getLogger(MidPlayer.class.getName());
 
+    /** midi like file types */
     public enum FileType {
         LUCAS(new LucasFile(), "LucasArts AdLib MIDI"),
         MIDI(new MidiFile(), "General MIDI"),
@@ -128,8 +129,11 @@ public class MidPlayer extends Opl3Player implements Sequencer {
             this.midiTypeFile = midiTypeFile;
             this.desc = desc;
         }
-        /** @throws NoSuchElementException when not found */
-        static FileType getFileType(InputStream is) {
+        /**
+         * is midi like file or not
+         * @throws NoSuchElementException when not found
+         */
+        public static FileType getFileType(InputStream is) {
             return Arrays.stream(values()).filter(e -> e.midiTypeFile.matchFormat(is)).findFirst().get();
         }
     }
@@ -141,13 +145,13 @@ public class MidPlayer extends Opl3Player implements Sequencer {
                 dis.mark(markSize());
                 return matchFormatImpl(dis);
             } catch (IOException e) {
-Debug.println(Level.FINE, e);
+Debug.println(Level.WARNING, e);
                 return false;
             } finally {
                 try {
                     dis.reset();
                 } catch (IOException e) {
-Debug.println(Level.FINE, e);
+Debug.println(Level.SEVERE, e);
                 }
             }
         }
@@ -603,6 +607,7 @@ logger.fine("type: " + type);
     }
 
     private class Opl3Transmitter implements Transmitter {
+        @SuppressWarnings("unused")
         private boolean isOpen;
         Receiver receiver;
 

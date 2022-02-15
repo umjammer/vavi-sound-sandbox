@@ -42,7 +42,7 @@ public abstract class Opl3Player {
     /** TODO who defined 49700? */
     public static final AudioFormat opl3 = new AudioFormat(49700.0f, 16, 2, true, false);
 
-    /** decoder database */
+    /** formats using opl3 decoder database */
     public enum FileType {
         MID(Opl3Encoding.MID, Opl3FileFormatType.MID, new MidPlayer()),
         DRO1(Opl3Encoding.DRO1, Opl3FileFormatType.DRO1, new DroPlayer()),

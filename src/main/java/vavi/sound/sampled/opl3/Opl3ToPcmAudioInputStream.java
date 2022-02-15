@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.logging.Level;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -68,7 +69,7 @@ public class Opl3ToPcmAudioInputStream extends AudioInputStream {
             } else {
                 if (player.update()) {
                     double sec = 1.0 / player.getRefresh();
-Debug.println("bytes: " + (int) (sampleRate * sec) + ", " + player.getRefresh());
+Debug.println(Level.FINE, "bytes: " + (int) (sampleRate * sec) + ", " + player.getRefresh());
 
                     byte[] buf = player.read(4 * (int) (sampleRate * sec));
                     out.write(buf);

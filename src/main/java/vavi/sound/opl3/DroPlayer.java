@@ -30,7 +30,7 @@ import vavi.util.Debug;
 
 
 /**
- * DOSBox Raw OPL Player
+ * DOSBox Raw OPL Player (DRO).
  *
  * @author Sjoerd van der Berg <harekiet@zophar.net>
  * @author matthew gambrell <zeromus@zeromus.org>
@@ -62,11 +62,13 @@ class DroPlayer extends Opl3Player {
     private int total = 0;
     private int currChip = 0;
 
+    private static final int MARK_SIZE = 11;
+
     @Override
     public boolean matchFormat(InputStream bitStream) {
         LittleEndianDataInputStream dis = new LittleEndianDataInputStream(bitStream);
         try {
-            dis.mark(11);
+            dis.mark(MARK_SIZE);
 
             byte[] id = new byte[8];
             dis.readFully(id);
@@ -82,13 +84,13 @@ class DroPlayer extends Opl3Player {
 
             return true;
         } catch (IOException e) {
-Debug.println(Level.FINE, e);
+Debug.println(Level.WARNING, e);
             return false;
         } finally {
             try {
                 dis.reset();
             } catch (IOException e) {
-Debug.println(Level.FINE, e);
+Debug.println(Level.SEVERE, e);
             }
         }
     }
@@ -174,7 +176,6 @@ Debug.println(Level.FINE, e);
                     break;
                 }
             }
-
             return pos < length;
         }
     }

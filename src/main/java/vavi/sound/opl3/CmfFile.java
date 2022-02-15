@@ -17,7 +17,7 @@ import vavi.sound.opl3.MidPlayer.MidiTypeFile;
 
 
 /**
- * CmfFile.
+ * CmfFile (CMF).
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/25 umjammer initial version <br>
