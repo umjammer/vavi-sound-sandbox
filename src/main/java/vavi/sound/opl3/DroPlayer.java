@@ -142,10 +142,12 @@ Debug.println(Level.FINE, e);
                 ++pos;
                 switch (iIndex) {
                 case 0:
+                    if (pos < length) return false;
                     delay = 1 + data.readUnsignedByte();
                     ++pos;
                     return true;
                 case 1:
+                    if (pos + 1 < length) return false;
                     delay = 1 + data.readUnsignedShort();
                     pos += 2;
                     return true;
