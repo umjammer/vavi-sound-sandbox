@@ -57,7 +57,7 @@ class SierraFile extends MidiTypeFile {
 
     @Override
     public void init(Context context) {
-        if (smyinsbank != null) {
+        if (smyinsbank[0] != null) {
             context.instruments(smyinsbank);
         }
 
