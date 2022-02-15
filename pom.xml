@@ -45,12 +45,37 @@ TODO
 
   <profiles>
     <profile>
+      <id>unix</id>
+      <activation>
+        <os>
+          <family>unix</family>
+        </os>
+      </activation>
+      <properties>
+        <dev.null>/dev/null</dev.null>
+      </properties>
+    </profile>
+    <profile>
+      <id>windows</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+      <properties>
+        <dev.null>NUL</dev.null>
+      </properties>
+    </profile>
+    <profile>
       <id>mac</id>
       <activation>
         <os>
           <family>mac</family>
         </os>
       </activation>
+      <properties>
+        <dev.null>/dev/null</dev.null>
+      </properties>
       <build>
         <plugins>
           <plugin>
@@ -100,12 +125,12 @@ TODO
           <argLine>
             -Dvavi.util.logging.VaviFormatter.extraClassMethod="org\.tritonus\.share\.TDebug#out"
             -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
+            -Dgrive.home="/Volumes/Google Drive/My Drive"
+            -Dvavi.test.dev.null=/dev/null
+            -Dvavi.test=true
           </argLine>
           <trimStackTrace>false</trimStackTrace>
           <forkMode>always</forkMode>
-          <systemProperties>
-            <dev.null>/dev/null</dev.null>
-          </systemProperties>
         </configuration>
       </plugin>
     </plugins>
