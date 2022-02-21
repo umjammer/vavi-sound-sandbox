@@ -26,19 +26,17 @@ public class AlacFormatConversionProvider extends FormatConversionProvider {
 
     @Override
     public AudioFormat.Encoding[] getSourceEncodings() {
-        return new AudioFormat.Encoding[] { AlacEncoding.ALAC, AudioFormat.Encoding.PCM_SIGNED };
+        return new AudioFormat.Encoding[] { AlacEncoding.ALAC };
     }
 
     @Override
     public AudioFormat.Encoding[] getTargetEncodings() {
-        return new AudioFormat.Encoding[] { AlacEncoding.ALAC, AudioFormat.Encoding.PCM_SIGNED };
+        return new AudioFormat.Encoding[] { AudioFormat.Encoding.PCM_SIGNED };
     }
 
     @Override
     public AudioFormat.Encoding[] getTargetEncodings(AudioFormat sourceFormat) {
-        if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
-            return new AudioFormat.Encoding[] { AlacEncoding.ALAC };
-        } else if (sourceFormat.getEncoding() instanceof AlacEncoding) {
+        if (sourceFormat.getEncoding() instanceof AlacEncoding) {
             return new AudioFormat.Encoding[] { AudioFormat.Encoding.PCM_SIGNED };
         } else {
             return new AudioFormat.Encoding[0];
@@ -47,24 +45,8 @@ public class AlacFormatConversionProvider extends FormatConversionProvider {
 
     @Override
     public AudioFormat[] getTargetFormats(AudioFormat.Encoding targetEncoding, AudioFormat sourceFormat) {
-        if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) &&
-            targetEncoding instanceof AlacEncoding) {
-            if (sourceFormat.getChannels() > 2 ||
-                sourceFormat.getChannels() <= 0 ||
-                sourceFormat.isBigEndian()) {
-                return new AudioFormat[0];
-            } else {
-                return new AudioFormat[] {
-                    new AudioFormat(targetEncoding,
-                                    sourceFormat.getSampleRate(),
-                                    -1,     // sample size in bits
-                                    sourceFormat.getChannels(),
-                                    -1,     // frame size
-                                    -1,     // frame rate
-                                    false)  // little endian
-                };
-            }
-        } else if (sourceFormat.getEncoding() instanceof AlacEncoding && targetEncoding.equals(AudioFormat.Encoding.PCM_SIGNED)) {
+        if (sourceFormat.getEncoding() instanceof AlacEncoding && targetEncoding.equals(AudioFormat.Encoding.PCM_SIGNED)) {
+            // TODO signed, endian should be free (means add more 3 patterns)
             return new AudioFormat[] {
                 new AudioFormat(sourceFormat.getSampleRate(),
                                 16,         // sample size in bits

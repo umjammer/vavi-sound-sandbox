@@ -75,11 +75,12 @@ public class AlacAudioFileReader extends AudioFileReader {
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
 //Debug.println("here: " + bitStream.markSupported());
+Debug.println(Level.FINE, "enter avaiable: " + bitStream.available());
         Alac alac;
         try {
             alac = new Alac(bitStream);
         } catch (IOException e) {
-Debug.println(Level.FINE, e.getMessage());
+Debug.println(Level.FINE, "error exit avaiable: " + bitStream.available() + ", " + e.getMessage());
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException(e.getMessage()).initCause(e);
         }
         AudioFormat format = new AudioFormat(AlacEncoding.ALAC, alac.getSampleRate(), alac.getBitsPerSample(), alac.getNumChannels(), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true, new HashMap<String, Object>() {{ put("alac", alac); }});
