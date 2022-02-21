@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -23,6 +24,8 @@ import javax.sound.sampled.spi.AudioFileReader;
 
 import org.gagravarr.ogg.OggFile;
 import org.gagravarr.opus.OpusFile;
+
+import vavi.util.Debug;
 
 
 /**
@@ -73,6 +76,7 @@ public class OpusAudioFileReader extends AudioFileReader {
      * @exception IOException if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
+Debug.println(Level.FINE, "enter avaiable: " + bitStream.available());
         OpusFile opus;
         try {
             bitStream.mark(32);
@@ -93,6 +97,7 @@ public class OpusAudioFileReader extends AudioFileReader {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+Debug.println(Level.FINE, "finally avaiable: " + bitStream.available());
         }
         AudioFormat format = new AudioFormat(OpusEncoding.OPUS, opus.getInfo().getSampleRate(), AudioSystem.NOT_SPECIFIED, opus.getInfo().getNumChannels(), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true, new HashMap<String, Object>() {{ put("opus", opus); }});
         return new AudioFileFormat(OpusFileFormatType.OPUS, format, AudioSystem.NOT_SPECIFIED);
