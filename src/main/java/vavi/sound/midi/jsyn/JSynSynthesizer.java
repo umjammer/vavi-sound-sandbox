@@ -8,6 +8,7 @@ package vavi.sound.midi.jsyn;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MidiChannel;
@@ -30,6 +31,7 @@ import com.jsyn.util.MultiChannelSynthesizer;
 import com.jsyn.util.VoiceDescription;
 
 import vavi.util.Debug;
+import vavi.util.StringUtil;
 
 
 /**
@@ -55,6 +57,7 @@ public class JSynSynthesizer implements Synthesizer {
     private static final int MAX_CHANNEL = 16;
 
     private com.jsyn.Synthesizer synth;
+    private MultiChannelSynthesizer multiSynth;
     private MidiSynthesizer midiSynthesizer;
     private LineOut lineOut;
 
@@ -75,7 +78,7 @@ public class JSynSynthesizer implements Synthesizer {
     @Override
     public void open() throws MidiUnavailableException {
         if (isOpen()) {
-Debug.println("already open: " + hashCode());
+Debug.println(Level.WARNING, "already open: " + hashCode());
             return;
         }
 
@@ -89,7 +92,7 @@ Debug.println("already open: " + hashCode());
 
         synth.add(lineOut = new LineOut());
 
-        MultiChannelSynthesizer multiSynth = new MultiChannelSynthesizer();
+        this.multiSynth = new MultiChannelSynthesizer();
 
         // voice setting for each channel
         VoiceDescription voice1 = (VoiceDescription) soundBank.getInstruments()[0].getData();
@@ -452,14 +455,30 @@ Debug.println("already open: " + hashCode());
                         channels[channel].setPitchBend(data1 | (data2 << 7));
                         break;
                     default:
-Debug.printf("%02X\n", command);
+Debug.printf(Level.FINE, "%02X\n", command);
                     }
                 } else if (message instanceof SysexMessage) {
-//                    SysexMessage sysexMessage = (SysexMessage) message;
-//                    byte[] data = sysexMessage.getData();
+                    SysexMessage sysexMessage = (SysexMessage) message;
+                    byte[] data = sysexMessage.getData();
+Debug.printf(Level.FINE, "sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data));
+                    switch (data[0]) {
+                    case 0x7f: // Universal Realtime
+                        @SuppressWarnings("unused")
+                        int c = data[1]; // 0x7f: Disregards channel
+                        // Sub-ID, Sub-ID2
+                        if (data[2] == 0x04 && data[3] == 0x01) { // Device Control / Master Volume
+                            float gain = ((data[4] & 0x7f) | ((data[5] & 0x7f) << 7)) / 16383f;
+Debug.printf(Level.FINE, "sysex volume: gain: %4.0f%n", gain * 100);
+                            multiSynth.setMasterAmplitude(gain * 100);
+                            break;
+                        }
+                        break;
+                    default:
+                        break;
+                    }
                 } else {
                     // TODO meta message
-Debug.printf(message.getClass().getName());
+Debug.printf(Level.FINE, message.getClass().getName());
                 }
             } else {
                 throw new IllegalStateException("receiver is not open");

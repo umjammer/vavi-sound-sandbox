@@ -6,19 +6,24 @@
 
 package vavi.sound.midi.jsyn;
 
-import java.io.File;
+import java.io.BufferedInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 
 import javax.sound.midi.MetaEventListener;
-import javax.sound.midi.MetaMessage;
+import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
+import javax.sound.midi.SysexMessage;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import vavi.util.Debug;
 
@@ -32,13 +37,17 @@ import vavi.util.Debug;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/05 umjammer initial version <br>
  */
+@DisabledIfEnvironmentVariable(named = "GITHUB_WORKFLOW", matches = ".*")
 class JSynSynthesizerTest {
 
     static {
         System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
+
 //        System.setProperty("javax.sound.midi.Synthesizer", "#JSyn MIDI Synthesizer");
         System.setProperty("javax.sound.midi.Synthesizer", "#Gervill");
     }
+
+    static String base;
 
     @Test
     void test() throws Exception {
@@ -51,28 +60,37 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-//        String filename = "../../../src/sano-n/vavi-apps-dx7/tmp/midi/minute_waltz.mid";
-//        String filename = "title-screen.mid";
-        String filename = "overworld.mid";
-//        String filename = "m0057_01.mid";
-//        String filename = "ac4br_gm.MID";
-        File file = new File(System.getProperty("user.home"), "/Music/midi/1/" + filename);
-        Sequence seq = MidiSystem.getSequence(file);
+        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
+//        String filename = "/Fusion/YMO - Firecracker.mid";
+
+        Path file = Paths.get(System.getProperty("grive.home"), "/Music/midi/", filename);
+        Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        MetaEventListener mel = new MetaEventListener() {
-            public void meta(MetaMessage meta) {
+        MetaEventListener mel = meta -> {
 System.err.println("META: " + meta.getType());
-                if (meta.getType() == 47) {
-                    countDownLatch.countDown();
-                }
+            if (meta.getType() == 47) {
+                countDownLatch.countDown();
             }
         };
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
 System.err.println("START");
         sequencer.start();
+
+        int volume = (int) (16383 * .2);
+        byte[] data = { (byte) 0xf0, 0x7f, 0x7f, 0x04, 0x01, (byte) (volume & 0x7f), (byte) ((volume >> 7) & 0x7f), (byte) 0xf7 };
+        MidiMessage sysex = new SysexMessage(data, data.length);
+        Receiver receiver = synthesizer.getReceivers().get(0);
+        receiver.send(sysex, -1);
+
+if (Boolean.valueOf(System.getProperty("vavi.test"))) {
+ Thread.sleep(10 * 1000);
+ sequencer.stop();
+ Debug.println("STOP");
+} else {
         countDownLatch.await();
+}
 System.err.println("END");
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
@@ -90,13 +108,10 @@ Debug.println("synthesizer: " + synthesizer.getClass().getName());
         synthesizer.unloadAllInstruments(synthesizer.getDefaultSoundbank());
         synthesizer.loadAllInstruments(new JSynOscillator());
 
-//        String filename = "../../src/sano-n/vavi-apps-dx7/tmp/midi/minute_waltz.mid";
-//        String filename = "1/title-screen.mid";
-        String filename = "1/overworld.mid";
-//        String filename = "1/m0057_01.mid";
-//        String filename = "1/ac4br_gm.MID";
-        File file = new File(System.getProperty("user.home"), "/Music/midi/" + filename);
-        Sequence seq = MidiSystem.getSequence(file);
+        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
+
+        Path file = Paths.get(System.getProperty("grive.home"), "/Music/midi/", filename);
+        Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
         Sequencer sequencer = MidiSystem.getSequencer(false);
 Debug.println("sequencer: " + sequencer.getClass().getName());
@@ -105,12 +120,10 @@ Debug.println("sequencer: " + sequencer.getClass().getName());
         sequencer.getTransmitter().setReceiver(receiver);
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        MetaEventListener mel = new MetaEventListener() {
-            public void meta(MetaMessage meta) {
+        MetaEventListener mel = meta -> {
 System.err.println("META: " + meta.getType());
-                if (meta.getType() == 47) {
-                    countDownLatch.countDown();
-                }
+            if (meta.getType() == 47) {
+                countDownLatch.countDown();
             }
         };
         sequencer.setSequence(seq);
@@ -118,7 +131,13 @@ System.err.println("META: " + meta.getType());
 System.err.println("START");
         sequencer.start();
 
+if (Boolean.valueOf(System.getProperty("vavi.test"))) {
+ Thread.sleep(10 * 1000);
+ sequencer.stop();
+ Debug.println("STOP");
+} else {
         countDownLatch.await();
+}
 System.err.println("END");
         sequencer.removeMetaEventListener(mel);
 
