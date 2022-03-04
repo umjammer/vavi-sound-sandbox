@@ -44,6 +44,7 @@ public class Opl3FormatConversionProvider extends FormatConversionProvider {
     @Override
     public AudioFormat[] getTargetFormats(AudioFormat.Encoding targetEncoding, AudioFormat sourceFormat) {
         if (sourceFormat.getEncoding() instanceof Opl3Encoding && targetEncoding.equals(AudioFormat.Encoding.PCM_SIGNED)) {
+            // TODO signed, endian should be free (means add more 3 patterns)
             return new AudioFormat[] {
                 new AudioFormat(sourceFormat.getSampleRate(),
                                 16,         // sample size in bits

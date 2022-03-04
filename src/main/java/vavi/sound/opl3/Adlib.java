@@ -9,6 +9,8 @@ package vavi.sound.opl3;
 /**
  * Adlib.
  *
+ * TODO can be oscillator
+ *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/23 umjammer initial version <br>
  */
@@ -168,7 +170,7 @@ public class Adlib {
     /** Map CMF drum channels 11 - 15 to corresponding AdLib drum channels */
     public static final int[] percussion_map = { 6, 7, 8, 8, 7 };
     /** logarithmic relationship between midi and FM volumes */
-    public static int[] my_midi_fm_vol_table = {
+    public static final int[] my_midi_fm_vol_table = {
         0, 11, 16, 19, 22, 25, 27, 29, 32, 33, 35, 37, 39, 40, 42, 43,
         45, 46, 48, 49, 50, 51, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62,
         64, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 75, 76, 77,

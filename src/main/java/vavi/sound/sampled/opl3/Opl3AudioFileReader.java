@@ -22,6 +22,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 
 import vavi.sound.opl3.Opl3Player.FileType;
+import vavi.util.Debug;
 
 import static vavi.sound.opl3.Opl3Player.opl3;
 
@@ -74,10 +75,12 @@ public class Opl3AudioFileReader extends AudioFileReader {
      * @exception IOException if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
+Debug.println("exner: available: " + bitStream.available());
         AudioFormat.Encoding encoding;
         try {
             encoding = FileType.getEncoding(bitStream);
         } catch (NoSuchElementException e) {
+Debug.println("error exit: available: " + bitStream.available());
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException().initCause(e);
         }
         AudioFileFormat.Type type = FileType.getType(encoding);
