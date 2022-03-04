@@ -4,7 +4,10 @@
  * Programmed by Naohide Sano
  */
 
-import java.io.File;
+import java.io.BufferedInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -15,6 +18,7 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineEvent;
 
+import vavi.sound.DebugInputStream;
 import vavi.sound.sampled.opl3.Opl3Encoding;
 import vavi.util.Debug;
 
@@ -32,21 +36,20 @@ import static vavi.sound.SoundUtil.volume;
 public class Test1 {
 
     static {
+        System.setProperty("vavi.util.logging.VaviFormatter.extraClassMethod", "org.tritonus.share.TDebug#out");
+
         System.setProperty("vavi.sound.opl3.MidiFile", "true"); // true: means using opl3 midi device when SMF format 0
+
+//        TDebug.TraceAudioFileReader = true;
     }
 
-    static final String inFile = System.getProperty("user.home") + "/Music/midi/1/title-screen.mid";
-//    static final String inFile = System.getProperty("user.home") + "/Music/midi/1/Rydeen.mid";
-//    static final String inFile = System.getProperty("user.home") + "/Music/midi/1/ac4br_gm.MID";
+//    static final String inFile = "/Music/midi/Fusion/YMO - Firecracker.mid";
+//    static final String inFile = "/Music/misc/ハッピーイレイロ.mp3";
+//    static final String inFile = "/Music/midi/Games/Ace Combat 4 - Blockade (GM).mid";
 //    static final String inFile = System.getProperty("user.home") + "/Music/midi/1/thexder.mid";
-//    static final String inFile = "tmp/opl3/demo.cmf";
-//    static final String inFile = "tmp/opl3/dro_v2.dro";
-//    static final String inFile = "tmp/opl3/samurai.dro";
-//    static final String inFile = "tmp/opl3/dune1.dro";
-//    static final String inFile = "tmp/opl3/dott_dott_logo.laa";
-//    static final String inFile = "tmp/opl3/michaeld.cmf";
-//    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.flac";
-//    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.m4a"; // ALAC
+
+    static final String inFile = "test.flac";
+//    static final String inFile = "Music/ - Blockade.m4a"; // ALAC
 //    static final String inFile = "tmp/female_scrub.spx";
 //    static final String inFile = "tmp/hoshiF.opus";
 
@@ -57,10 +60,13 @@ public class Test1 {
         for (AudioFileFormat.Type type : AudioSystem.getAudioFileTypes()) {
             System.err.println(type);
         }
+//        Path file = Paths.get(System.getProperty("grive.home"), inFile);
+        Path file = Paths.get("src/test/resources", inFile);
+
 //        URL clipURL = new URL(args[0]);
 //        AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(clipURL);
 //        AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new File(inFile).toURI().toURL());
-        AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new File(inFile));
+        AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new DebugInputStream(new BufferedInputStream(Files.newInputStream(file))));
         AudioFormat originalAudioFormat = originalAudioInputStream.getFormat();
 Debug.println(originalAudioFormat);
         AudioFormat targetAudioFormat = new AudioFormat(
@@ -78,10 +84,10 @@ Debug.println(targetAudioFormat);
 Debug.println(clip.getClass().getName());
         clip.addLineListener(event -> {
             if (event.getType().equals(LineEvent.Type.START)) {
-System.err.println("play");
+Debug.println("play");
             }
             if (event.getType().equals(LineEvent.Type.STOP)) {
-System.err.println("done");
+Debug.println("done");
                 countDownLatch.countDown();
             }
         });

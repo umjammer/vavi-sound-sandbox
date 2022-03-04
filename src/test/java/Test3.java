@@ -103,10 +103,16 @@ Debug.println("done");
         "src/test/resources/test.opus",
     })
     void test(String file) throws Exception {
+Debug.println("------------------------------------------ " + file + " ------------------------------------------------");
+try {
         AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(file).toURI().toURL());
         AudioFormat audioFormat = audioInputStream.getFormat();
-Debug.println(audioFormat);
-//        play(audioInputStream);
+        play(audioInputStream);
+} catch (Throwable t) {
+  Debug.println("file: " + t);
+  t.printStackTrace();
+  throw t;
+}
     }
 }
 
