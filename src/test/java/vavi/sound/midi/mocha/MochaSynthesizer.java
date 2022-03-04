@@ -515,7 +515,7 @@ Debug.printf("unhandled short: %02X\n", command);
 //Debug.print("sysex:\n" + StringUtil.getDump(data));
 Debug.printf(Level.FINE, "sysex: %02x %02x %02x", data[1], data[2], data[3]);
 
-            } else if (message instanceof SysexMessage) {
+            } else if (message instanceof MetaMessage) {
                 MetaMessage metaMessage = (MetaMessage) message;
 Debug.printf("meta: %02x", metaMessage.getType());
                 switch (metaMessage.getType()) {
