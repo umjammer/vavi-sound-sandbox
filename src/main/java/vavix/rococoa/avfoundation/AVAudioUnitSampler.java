@@ -39,6 +39,9 @@ public abstract class AVAudioUnitSampler extends AVAudioUnitMIDIInstrument {
                                                                                (byte) bankLSB,
                                                                                outError);
         NSError error = outError.getValueAs(NSError.class);
+        if (error != null) {
+            return false;
+        }
         return r;
     }
 

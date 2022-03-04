@@ -6,8 +6,9 @@
 
 package vavix.rococoa.avfoundation;
 
-import java.io.File;
 import java.net.URI;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.EnumSet;
 
 import org.junit.jupiter.api.Disabled;
@@ -45,7 +46,6 @@ class AVFoundationTest {
 
     /** {@link AVAudioFormat#init(AudioStreamBasicDescription)} */
     @Test
-    @Disabled
     void test01() {
         AudioStreamBasicDescription outDesc = new AudioStreamBasicDescription();
         outDesc.mSampleRate = 44100.0;
@@ -100,7 +100,6 @@ Debug.println(status);
      * AVAudioUnitMIDIInstrument (kAudioUnitSubType_MIDISynth) w/ AudioToolbox#MusicDeviceMIDIEvent
      */
     @Test
-    @Disabled
     void test2() throws Exception {
         AVAudioEngine engine = AVAudioEngine.newInstance();
 Debug.println(engine);
@@ -144,7 +143,6 @@ Debug.println(status);
      * TODO w/ sound font
      */
     @Test
-    @Disabled
     void test3() throws Exception {
         AVAudioEngine engine = AVAudioEngine.newInstance();
 Debug.println(engine);
@@ -158,9 +156,9 @@ Debug.println(engine);
         AVAudioUnitMIDIInstrument midiSynth = AVAudioUnitMIDIInstrument.init(description);
 Debug.println(midiSynth);
 
-//        String sf2name = "FluidR3 GM2-2.SF2";
-//        File sf2 = new File("/Users/nsano/lib/audio/sf2", sf2name);
-//        NSURL bankURL = NSURL.CLASS.fileURLWithPath(sf2.getPath());
+//        String sf2name = "SGM-V2.01.sf2";
+//        Path sf2 = Paths.get(System.getProperty("user.home"), "/Library/Audio/Sounds/Banks/Orchestra", sf2name);
+//        NSURL bankURL = NSURL.CLASS.fileURLWithPath(sf2.toString());
 //        int status = AudioToolbox.instance.AudioUnitSetProperty(
 //                                  midiSynth.audioUnit(),
 //                                  AudioUnitPropertyID.kMusicDeviceProperty_SoundBankURL.id,
@@ -193,7 +191,6 @@ Debug.println("stated: " + r);
      * AVAudioUnitMIDIInstrument (kAudioUnitSubType_DLSSynth)
      */
     @Test
-    @Disabled
     void test31() throws Exception {
         AVAudioEngine engine = AVAudioEngine.newInstance();
 Debug.println(engine);
@@ -229,7 +226,6 @@ Debug.println("stated: " + r);
      * AVAudioUnitSampler w/ sound font
      */
     @Test
-    @Disabled
     void test4() throws Exception {
         AVAudioEngine engine = AVAudioEngine.newInstance();
 Debug.println(engine);
@@ -237,9 +233,9 @@ Debug.println(engine);
         AVAudioUnitSampler midiSynth = AVAudioUnitSampler.newInstance();
 Debug.println(midiSynth);
 
-        String sf2name = "FluidR3 GM2-2.SF2";
-        File sf2 = new File("/Users/nsano/lib/audio/sf2", sf2name);
-        midiSynth.loadSoundBankInstrument(sf2.toURI(),
+        String sf2name = "SGM-V2.01.sf2";
+        Path sf2 = Paths.get(System.getProperty("user.home"), "/Library/Audio/Sounds/Banks/Orchestra", sf2name);
+        midiSynth.loadSoundBankInstrument(sf2.toUri(),
                                 0,
                                 AVAudioUnitSampler.kAUSampler_DefaultMelodicBankMSB,
                                 AVAudioUnitSampler.kAUSampler_DefaultBankLSB);
@@ -268,7 +264,6 @@ Debug.println("stated: " + r);
      * @see "/Library/Audio/Plug-Ins/Components/Foo.component/Contents/Info.plist"
      */
     @Test
-    @Disabled
     void test5() throws Exception {
         AudioComponentDescription description = new AudioComponentDescription();
         description.componentType = AudioComponentDescription.kAudioUnitType_MusicDevice;
@@ -328,6 +323,14 @@ Debug.println("AudioUnit: " + audioUnit.description());
         };
         Native.setCallbackThreadInitializer(callback, new CallbackThreadInitializer(false, false, "Cocoa Dispatch Thread"));
         audioUnit.requestViewControllerWithCompletionHandler(callback);
+    }
+
+    @Test
+    void test8() throws Exception {
+        for (float f = .0f; f <= 1.1f; f += .1) {
+            float dB = (float) (Math.log(f) / Math.log(10.0) * 20.0);
+            System.out.printf("gain: %03.2f, dB: %03.0f%n", f, dB);
+        }
     }
 }
 

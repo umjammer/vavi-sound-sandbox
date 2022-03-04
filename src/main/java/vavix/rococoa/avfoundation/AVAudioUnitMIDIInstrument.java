@@ -59,7 +59,13 @@ public abstract class AVAudioUnitMIDIInstrument extends AVAudioUnit {
 
     public abstract void stopNote_onChannel(byte note, byte channel);
 
+    /**
+     * Sends a MIDI System Exclusive event to the instrument.
+     * @param midiData should contain the complete SysEx data, including start
+     *            (F0) and termination (F7) bytes.
+     */
     public void sendMIDISysExEvent(byte[] midiData) {
+//Debug.printf("sysex: %02X\n%s", midiData[0], StringUtil.getDump(midiData));
         NSData data = NSData.CLASS.dataWithBytes_length(midiData, midiData.length);
         sendMIDISysExEvent(data);
     }

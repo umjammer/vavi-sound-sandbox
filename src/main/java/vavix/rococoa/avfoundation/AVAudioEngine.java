@@ -43,6 +43,9 @@ public abstract class AVAudioEngine extends NSObject {
         ObjCObjectByReference outError = new ObjCObjectByReference();
         boolean r = startAndReturnError(outError);
         NSError error = outError.getValueAs(NSError.class);
+        if (error != null) {
+            return false;
+        }
         return r;
     }
 

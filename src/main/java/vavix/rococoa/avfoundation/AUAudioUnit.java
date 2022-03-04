@@ -26,6 +26,7 @@ import vavi.util.Debug;
  */
 public abstract class AUAudioUnit extends NSObject {
 
+    @SuppressWarnings("hiding")
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("AUAudioUnit", _Class.class);
 
     public interface _Class extends ObjCClass {
