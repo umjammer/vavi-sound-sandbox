@@ -46,5 +46,15 @@ public abstract class AVAudioFormat extends NSObject {
 
     public abstract double sampleRate();
 
+    public abstract int channelCount();
+
+    public abstract int commonFormat();
+
+    public static final int OtherFormat = 0;
+    public static final int PCMFormatFloat32 = 1;
+    public static final int PCMFormatFloat64 = 2;
+    public static final int PCMFormatInt16 = 3;
+    public static final int PCMFormatInt32 = 4;
+
     public abstract NSDictionary settings();
 }

@@ -6,20 +6,30 @@
 
 package vavi.sound.midi.rococoa;
 
-import java.io.File;
+import java.io.BufferedInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 
 import javax.sound.midi.MetaEventListener;
-import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiSystem;
+import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
 
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
+import vavi.sound.midi.MidiConstants.MetaEvent;
 import vavi.util.Debug;
+
+import static vavi.sound.midi.MidiUtil.volume;
 
 
 /**
@@ -28,6 +38,8 @@ import vavi.util.Debug;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/03 umjammer initial version <br>
  */
+@EnabledOnOs(OS.MAC)
+@DisabledIfEnvironmentVariable(named = "GITHUB_WORKFLOW", matches = ".*")
 class RococoaSynthesizerTest {
 
     //
@@ -48,47 +60,53 @@ class RococoaSynthesizerTest {
 //        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "DGSB:Dexd");
 //        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "AKai:MpcB");
 //        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "NiSc:nK1v");
-//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "Ftcr:mc5p");
+//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "Ftcr:mc5p"); // Kairatune
 //        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "VmbA:Srge");
         System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
         System.setProperty("javax.sound.midi.Synthesizer", "#Rococoa MIDI Synthesizer");
     }
 
     @Test
+    @DisplayName("directly")
     void test() throws Exception {
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
         synthesizer.open();
 Debug.println("synthesizer: " + synthesizer);
 
         Sequencer sequencer = MidiSystem.getSequencer(false);
-        sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
+        Receiver receiver = synthesizer.getReceiver();
+        sequencer.getTransmitter().setReceiver(receiver);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-//        String filename = "1/風の谷のナウシカ メインテーマ.mid";
-//        String filename = "1/ac4br_gm.MID";
-        String filename = "1/TongPoo.mid";
-//        String filename = "1/overworld.mid";
-//        String filename = "1/m0057_01.mid";
-//        String filename = "town.mid";
-        File file = new File(System.getProperty("user.home"), "Music/midi/" + filename);
-        Sequence seq = MidiSystem.getSequence(file);
+//        String filename = "Fusion/YMO - Firecracker.mid";
+        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
+
+        Path file = Paths.get(System.getProperty("grive.home"), "/Music/midi/", filename);
+        Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        MetaEventListener mel = new MetaEventListener() {
-            public void meta(MetaMessage meta) {
-System.err.println("META: " + meta.getType());
-                if (meta.getType() == 47) {
-                    countDownLatch.countDown();
-                }
+        MetaEventListener mel = meta -> {
+Debug.println("META: " + MetaEvent.valueOf(meta.getType()));
+            if (meta.getType() == 47) {
+                countDownLatch.countDown();
             }
         };
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
-System.err.println("START");
+Debug.println("START");
         sequencer.start();
+
+        volume(receiver, .2f); // volume works?
+
+if (Boolean.valueOf(System.getProperty("vavi.test"))) {
+ Thread.sleep(10 * 1000);
+ sequencer.stop();
+ Debug.println("STOP");
+} else {
         countDownLatch.await();
-System.err.println("END");
+}
+Debug.println("END");
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
 
@@ -98,6 +116,7 @@ System.err.println("END");
 
     @Test
     @Disabled
+    @DisplayName("by spi")
     void test1() throws Exception {
         Synthesizer synthesizer = new RococoaSynthesizer();
         synthesizer.open();
@@ -108,26 +127,30 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-//        String filename = "ac4br_s.MID";
-        String filename = "ac4br_gm.MID";
-        File file = new File(System.getProperty("user.home"), "/Music/midi/1/" + filename);
-        Sequence seq = MidiSystem.getSequence(file);
+        String filename = "Games/Super Mario Bros 2 - overworld.mid";
+
+        Path file = Paths.get(System.getProperty("grive.home"), "/Music/midi/", filename);
+        Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        MetaEventListener mel = new MetaEventListener() {
-            public void meta(MetaMessage meta) {
-System.err.println("META: " + meta.getType());
-                if (meta.getType() == 47) {
-                    countDownLatch.countDown();
-                }
+        MetaEventListener mel = meta -> {
+Debug.println("META: " + MetaEvent.valueOf(meta.getType()));
+            if (meta.getType() == 47) {
+                countDownLatch.countDown();
             }
         };
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
-System.err.println("START");
+Debug.println("START");
         sequencer.start();
-        countDownLatch.await();
-System.err.println("END");
+if (Boolean.valueOf(System.getProperty("vavi.test"))) {
+ Thread.sleep(10 * 1000);
+ sequencer.stop();
+ Debug.println("STOP");
+} else {
+ countDownLatch.await();
+}
+Debug.println("END");
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
 

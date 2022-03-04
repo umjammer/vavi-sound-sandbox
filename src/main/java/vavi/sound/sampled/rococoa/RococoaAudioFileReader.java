@@ -66,8 +66,9 @@ public class RococoaAudioFileReader extends AudioFileReader {
      * @exception IOException if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
+        // TODO determine rococoa is able to decode ot not
         // TODO sampling rate, bits per sample, channels
-        AudioFormat format = new AudioFormat(RcococaEncoding.ROCOCOA, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, false);
+        AudioFormat format = new AudioFormat(RcococaEncoding.ROCOCOA, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true);
         return new AudioFileFormat(RococoaFileFormatType.ROCOCOA, format, AudioSystem.NOT_SPECIFIED);
     }
 

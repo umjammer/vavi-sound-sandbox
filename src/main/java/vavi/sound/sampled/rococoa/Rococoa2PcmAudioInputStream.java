@@ -6,9 +6,6 @@
 
 package vavi.sound.sampled.rococoa;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,15 +13,11 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
-
-import org.rococoa.Rococoa;
-import org.rococoa.cocoa.foundation.NSArray;
-import org.rococoa.cocoa.qtkit.QTMedia;
-import org.rococoa.cocoa.qtkit.QTMovie;
-import org.rococoa.cocoa.qtkit.QTTrack;
 
 import vavi.io.InputEngine;
 import vavi.io.InputEngineOutputStream;
@@ -56,12 +49,12 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
         AdvancedPipedInputStream source = new AdvancedPipedInputStream();
         final AdvancedPipedInputStream.OutputStreamEx sink = source.getOutputStream();
         new Thread() {
+            ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
             public void run() {
                 try {
                     OutputStream out = new InputEngineOutputStream(new TempFileInputEngine(sink));
                     ReadableByteChannel rbc = Channels.newChannel(in);
                     WritableByteChannel wbc = Channels.newChannel(out);
-                    ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
                     while (true) {
                         buffer.clear();
                         if (rbc.read(buffer) < 0) {
@@ -87,13 +80,12 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
 
         InputStream in; 
         OutputStream out; 
-        File file;
+        Path file;
 
         TempFileInputEngine(OutputStream out) throws IOException {
             this.out = out;
-            this.file = File.createTempFile("vavi", ".rococoa");
-            file.deleteOnExit();
-            this.out = new FileOutputStream(file);
+            this.file = Files.createTempFile("vavi", ".rococoa"); // TODO delete on exit
+            this.out = Files.newOutputStream(file);
         }
 
         public void initialize(InputStream in) throws IOException {
@@ -104,14 +96,18 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
             }
         }
 
+        ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
+
         public void execute() throws IOException {
             if (in == null) {
                 throw new IOException("Not yet initialized");
             } else {
                 ReadableByteChannel rbc = Channels.newChannel(in);
                 WritableByteChannel wbc = Channels.newChannel(out);
-                ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
                 buffer.clear();
+
+                // TODO AVAudioConverter
+
                 if (rbc.read(buffer) < 0) {
                     in.close();
                 } else {
@@ -124,26 +120,6 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
         public void finish() throws IOException {
             out.flush();
             out.close();
-            play(file.getAbsolutePath()); // TODO
-        }
-    }
-
-    static void play(String inFile) throws IOException {
-        QTMovie movie = QTMovie.movieWithFile_error(inFile, null);
-        if (movie == null) {
-            throw new FileNotFoundException(inFile);
-        }
-        NSArray soundTracks = movie.tracksOfMediaType(QTMedia.QTMediaTypeSound);
-        for (int i = 0; i < soundTracks.count(); i++) {
-            QTTrack track = Rococoa.cast(soundTracks.objectAtIndex(i), QTTrack.class);
-            track.setVolume(0.2f);
-        }
-        movie.play();
-        long duration = (long) Math.ceil((float) movie.duration().timeValue / movie.duration().timeScale.shortValue() * 1000);
-        try {
-            Thread.sleep(duration);
-        } catch (InterruptedException e) {
-            throw new IllegalStateException(e);
         }
     }
 }
