@@ -19,7 +19,7 @@ import org.rococoa.cocoa.foundation.NSObject;
  */
 public abstract class ITLibAlbum extends NSObject {
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({ "unused", "hiding" })
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("ITLibAlbum", _Class.class);
 
     interface _Class extends ObjCClass {

@@ -13,8 +13,8 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import org.rococoa.ObjCClass;
+import org.rococoa.cocoa.appkit.NSImage;
 import org.rococoa.cocoa.foundation.NSData;
-import org.rococoa.cocoa.foundation.NSImage;
 import org.rococoa.cocoa.foundation.NSObject;
 
 
@@ -26,7 +26,7 @@ import org.rococoa.cocoa.foundation.NSObject;
  */
 public abstract class ITLibArtwork extends NSObject {
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings({ "unused", "hiding" })
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("ITLibArtwork", _Class.class);
 
     interface _Class extends ObjCClass {

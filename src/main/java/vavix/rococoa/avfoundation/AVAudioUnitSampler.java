@@ -31,7 +31,7 @@ public abstract class AVAudioUnitSampler extends AVAudioUnitMIDIInstrument {
     public abstract AVAudioUnitSampler init();
 
     public boolean loadSoundBankInstrument(URI uri, int program, int bankMSB, int bankLSB) {
-        NSURL bankURL = NSURL.CLASS.URLWithString(uri.toString());
+        NSURL bankURL = NSURL.URLWithString(uri.toString());
         ObjCObjectByReference outError = new ObjCObjectByReference();
         boolean r = loadSoundBankInstrumentAtURL_program_bankMSB_bankLSB_error(bankURL,
                                                                                (byte) program,

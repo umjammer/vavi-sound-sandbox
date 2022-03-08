@@ -7,12 +7,11 @@
 package vavix.rococoa.ituneslibrary;
 
 import org.rococoa.ObjCClass;
+import org.rococoa.cocoa.foundation.NSMutableDictionary;
 import org.rococoa.cocoa.foundation.NSNumber;
 import org.rococoa.cocoa.foundation.NSObject;
+import org.rococoa.cocoa.foundation.NSSet;
 import org.rococoa.cocoa.foundation.NSString;
-
-import vavix.rococoa.foundation.NSMutableDictionary;
-import vavix.rococoa.foundation.NSSet;
 
 
 /**

@@ -21,7 +21,7 @@ public abstract class AVAudioFile extends NSObject {
     }
 
     public static AVAudioFile init(URI uri) throws IOException {
-        NSURL fileURL = NSURL.CLASS.URLWithString(uri.toString());
+        NSURL fileURL = NSURL.URLWithString(uri.toString());
         AVAudioFile file = CLASS.alloc();
         ObjCObjectByReference outError = new ObjCObjectByReference();
         file.initForReading_error(fileURL, outError);

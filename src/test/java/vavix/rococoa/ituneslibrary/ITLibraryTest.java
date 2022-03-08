@@ -18,9 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.rococoa.cocoa.foundation.NSArray;
+import org.rococoa.cocoa.foundation.NSDictionary;
 import org.rococoa.cocoa.foundation.NSString;
-
-import vavix.rococoa.foundation.NSDictionary;
 
 
 /**
