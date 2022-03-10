@@ -29,7 +29,6 @@
     <tritonus.groupId>org.tritonus</tritonus.groupId>
     <tritonus.version>0.3.11</tritonus.version>
     <rococoa.version>0.8.4</rococoa.version>
-    <cyberduck.version>7.6.0</cyberduck.version>
   </properties>
 
   <profiles>
