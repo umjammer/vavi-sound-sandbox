@@ -514,7 +514,7 @@ logger.fine("type: " + type);
                 }
             } else {
                 try {
-                    MidiMessage midiMessage = new MetaMessage(MidiConstants.META_END_OF_TRACK, new byte[0], 0);
+                    MidiMessage midiMessage = new MetaMessage(MetaEvent.META_END_OF_TRACK.number(), new byte[0], 0);
                     transmitter.getReceiver().send(midiMessage, -1);
                 } catch (InvalidMidiDataException e) {
                     logger.warning(e.getMessage());

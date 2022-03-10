@@ -1,8 +1,10 @@
-[![](https://jitpack.io/v/umjammer/vavi-sound-sandbox.svg)](https://jitpack.io/#umjammer/vavi-sound-sandbox) [![Java CI with Maven](https://github.com/umjammer/vavi-sound-sandbox/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/umjammer/vavi-sound-sandbox/actions)
+[![](https://jitpack.io/v/umjammer/vavi-sound-sandbox.svg)](https://jitpack.io/#umjammer/vavi-sound-sandbox)
+[![](https://jitci.com/gh/umjammer/vavi-sound-sandbox/svg)](https://jitci.com/gh/umjammer/vavi-sound-sandbox)
+[![Java CI with Maven](https://github.com/umjammer/vavi-sound-sandbox/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/umjammer/vavi-sound-sandbox/actions)
 
 # vavi-sound-sandbox
 
-Sandbox for sound libraries.
+🌏 play the world ♪ 
 
 ## Status
 
@@ -42,6 +44,11 @@ Sandbox for sound libraries.
 
  * [iTunes Library (rococoa)](https://github.com/umjammer/vavi-sound-sandbox/tree/master/src/main/java/vavix/rococoa/ituneslibrary)
 
+## Install
+
+  * [jitpack](https://jitpack.io/#umjammer/vavi-sound-sandbox)
+  * plain JitPack cannot retrieve GitHub Packages, please choose green marked version made by JitCI like `f49ed0f0`
+
 ## Tech Know
 
   * `tritonus-mp3` only supports mp3 w/o tags
@@ -75,9 +82,13 @@ Sandbox for sound libraries.
 
  * open audiounit custom view
    * https://github.com/nativelibs4java/BridJ (is able to deal objective-c blocks)
+ * volume
 
 #### others
 
+ * opl3
+   * opl3 volume
+   * opl3 midi reader
  * https://github.com/fedex81/emuSandbox
  * https://github.com/toyoshim/tss
  * ~~Apple DLS Sound device~~ (done)
@@ -89,9 +100,18 @@ Sandbox for sound libraries.
  * https://github.com/jonasreese/soundsgood
  * https://www.kvraudio.com/plugins/macosx/audio-units/
  * https://github.com/ggrandes-clones
+ * pc88 (mml)
+   * https://github.com/onitama/mucom88
+   * https://github.com/BouKiCHi/mucom88
+   * https://github.com/kuma4649/MDPlayer
 
 #### ebml
 
  * https://github.com/Matroska-Org/jebm
  * https://github.com/matthewn4444/EBMLReader
+
+## References
+
+ * [Gervill](https://github.com/bluenote10/gervill)
+
 

@@ -12,18 +12,7 @@
 
   <name>Vavi Sound API (Sandbox)</name>
   <url>https://github.com/umjammer/vavi-sound-sandbox</url>
-  <description>1.0.2
-
-    alac spi
-    opus spi
-
-    itunes library (jna)
-
-1.0.1
-
-    maintenance version
-
-TODO
+  <description>TODO
 
     jni in maven
     resampling spi
@@ -38,8 +27,8 @@ TODO
 
   <properties>
     <tritonus.groupId>org.tritonus</tritonus.groupId>
-    <tritonus.version>0.3.10</tritonus.version>
-    <rococoa.version>0.8.3</rococoa.version>
+    <tritonus.version>0.3.11</tritonus.version>
+    <rococoa.version>0.8.4</rococoa.version>
     <cyberduck.version>7.6.0</cyberduck.version>
   </properties>
 
@@ -126,7 +115,7 @@ TODO
             -Dvavi.util.logging.VaviFormatter.extraClassMethod="org\.tritonus\.share\.TDebug#out"
             -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
             -Dgrive.home="/Volumes/Google Drive/My Drive"
-            -Dvavi.test.dev.null=/dev/null
+            -Dvavi.test.dev.null=${dev.null}
             -Dvavi.test=true
           </argLine>
           <trimStackTrace>false</trimStackTrace>
@@ -148,7 +137,7 @@ TODO
     </repository>
     <repository>
       <id>maven.cyberduck.io-release</id>
-      <url>http://repo.maven.cyberduck.io.s3.amazonaws.com/releases</url>
+      <url>https://repo.maven.cyberduck.io.s3.amazonaws.com/releases</url>
     </repository>
   </repositories>
 
@@ -168,18 +157,25 @@ TODO
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.4</version>
+      <version>1.1.6</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.11</version>
+      <version>1.0.12</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.github.umjammer</groupId>
+          <artifactId>vavi-sound-nda</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-sound-alac</artifactId>
       <version>0.3.1</version>
     </dependency>
+
     <dependency>
       <groupId>org.rococoa</groupId>
       <artifactId>rococoa-cocoa</artifactId>
@@ -220,7 +216,6 @@ TODO
       <version>0.7.2</version>
     </dependency>
 -->
-
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
@@ -247,8 +242,14 @@ TODO
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons-sandbox</artifactId>
-      <version>0.4.0</version>
+      <version>0.4.1</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.github.umjammer</groupId>
+          <artifactId>vavi-commons</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -272,12 +273,14 @@ TODO
       <scope>test</scope>
     </dependency>
 
+<!--
     <dependency>
       <groupId>org.jflac</groupId>
       <artifactId>jflac-codec</artifactId>
       <version>1.5.2</version>
       <scope>test</scope>
     </dependency>
+ -->
     <dependency>
       <groupId>com.github.SourceUtils</groupId>
       <artifactId>jspeex</artifactId>
@@ -285,23 +288,32 @@ TODO
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.github.drogatkin</groupId>
-      <artifactId>justflac</artifactId>
-      <version>-SNAPSHOT</version>
+      <groupId>com.github.umjammer</groupId>
+      <artifactId>JustFLAC</artifactId>
+      <version>0.0.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>JAADec</artifactId>
-      <version>0.8.7</version>
+      <version>0.8.8</version>
       <scope>test</scope>
     </dependency>
+<!--
+      <groupId>net.sourceforge.jaadec</groupId>
+      <artifactId>jaad</artifactId>
+ -->
     <dependency>
-      <!-- net.javazoom -->
-      <groupId>com.github.umjammer</groupId>
+      <groupId>net.javazoom</groupId>
       <artifactId>mp3spi</artifactId>
-      <version>1.9.8</version>
+      <version>1.9.10</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.github.umjammer</groupId>
+          <artifactId>vavi-commons</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -328,22 +340,8 @@ TODO
     <dependency>
       <groupId>com.locurasoft</groupId>
       <artifactId>osxmidi4j</artifactId>
-      <version>1.1-SNAPSHOT</version>
+      <version>1.0.3</version>
       <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <!-- rococoa -->
-      <groupId>ch.cyberduck</groupId>
-      <artifactId>binding</artifactId>
-      <version>${cyberduck.version}</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-log4j12</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -352,6 +350,10 @@ TODO
       <version>3.2</version>
       <scope>test</scope>
       <exclusions>
+        <exclusion>
+          <groupId>net.java.dev.jna</groupId>
+          <artifactId>jna</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>com.googlecode.soundlibs</groupId>
           <artifactId>mp3spi</artifactId>
