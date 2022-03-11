@@ -88,21 +88,26 @@ if (debug)
         PrintStream ps = System.err;
         ps.printf("%s: %s%n", e.getClass().getName(), e.getMessage());
         StackTraceElement[] stes = e.getStackTrace();
+        AtomicBoolean f = new AtomicBoolean(true);
         Arrays.stream(stes).forEach(ste -> {
             String cm = ste.getClassName() + "#" + ste.getMethodName();
             if (
+                f.get() && (
                 !cm.startsWith("org.junit") &&
                 !cm.startsWith("sun.reflect") &&
                 !cm.startsWith("java.lang.reflect") &&
                 !cm.startsWith("java.util.ArrayList#forEach") &&
                 !cm.startsWith("vavi.sound.DebugInputStream") &&
                 !cm.startsWith("org.eclipse")
-                ) {
+                )) {
                 ps.printf("\tat %s.%s(%s:%d)%n",
                               ste.getClassName(),
                               ste.getMethodName(),
                               ste.getFileName(),
                               ste.getLineNumber());
+            }
+            if (cm.contains(System.getProperty("test"))) {
+                f.set(false);
             }
         });
     }
