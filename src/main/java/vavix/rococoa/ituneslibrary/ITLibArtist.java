@@ -19,7 +19,7 @@ import org.rococoa.cocoa.foundation.NSObject;
  */
 public abstract class ITLibArtist extends NSObject {
 
-    @SuppressWarnings("hiding")
+    @SuppressWarnings({ "unused", "hiding" })
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("ITLibArtist", _Class.class);
 
     interface _Class extends ObjCClass {

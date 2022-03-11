@@ -12,18 +12,7 @@
 
   <name>Vavi Sound API (Sandbox)</name>
   <url>https://github.com/umjammer/vavi-sound-sandbox</url>
-  <description>1.0.2
-
-    alac spi
-    opus spi
-
-    itunes library (jna)
-
-1.0.1
-
-    maintenance version
-
-TODO
+  <description>TODO
 
     jni in maven
     resampling spi
@@ -38,9 +27,74 @@ TODO
 
   <properties>
     <tritonus.groupId>org.tritonus</tritonus.groupId>
-    <tritonus.version>0.3.10</tritonus.version>
-    <rococoa.version>0.8.3</rococoa.version>
+    <tritonus.version>0.3.11</tritonus.version>
+    <rococoa.version>0.8.4</rococoa.version>
   </properties>
+
+  <profiles>
+    <profile>
+      <id>unix</id>
+      <activation>
+        <os>
+          <family>unix</family>
+        </os>
+      </activation>
+      <properties>
+        <dev.null>/dev/null</dev.null>
+      </properties>
+    </profile>
+    <profile>
+      <id>windows</id>
+      <activation>
+        <os>
+          <family>windows</family>
+        </os>
+      </activation>
+      <properties>
+        <dev.null>NUL</dev.null>
+      </properties>
+    </profile>
+    <profile>
+      <id>mac</id>
+      <activation>
+        <os>
+          <family>mac</family>
+        </os>
+      </activation>
+      <properties>
+        <dev.null>/dev/null</dev.null>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.10</version>
+            <executions>
+              <execution>
+                <id>copy</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>copy</goal>
+                </goals>
+                <configuration>
+                  <artifactItems>
+                    <artifactItem>
+                      <groupId>org.rococoa</groupId>
+                      <artifactId>rococoa-core</artifactId>
+                      <type>dylib</type>
+                      <overWrite>true</overWrite>
+                      <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
+                      <destFileName>librococoa.dylib</destFileName>
+                    </artifactItem>
+                  </artifactItems>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <build>
     <plugins>
@@ -53,43 +107,18 @@ TODO
         </configuration>
       </plugin>
       <plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.10</version>
-        <executions>
-          <execution>
-            <id>copy</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>copy</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.rococoa</groupId>
-                  <artifactId>rococoa-core</artifactId>
-                  <type>dylib</type>
-                  <overWrite>true</overWrite>
-                  <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
-                  <destFileName>librococoa.dylib</destFileName>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.0.0-M5</version>
         <configuration>
           <argLine>
             -Dvavi.util.logging.VaviFormatter.extraClassMethod="org\.tritonus\.share\.TDebug#out"
             -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
+            -Dgdrive.home="/Volumes/Google Drive/My Drive"
+            -Dvavi.test.dev.null=${dev.null}
+            -Dvavi.test=true
           </argLine>
           <trimStackTrace>false</trimStackTrace>
           <forkMode>always</forkMode>
-          <systemProperties>
-            <dev.null>/dev/null</dev.null>
-          </systemProperties>
         </configuration>
       </plugin>
     </plugins>
@@ -107,22 +136,41 @@ TODO
     </repository>
   </repositories>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>5.8.1</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <dependencies>
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.3</version>
+      <version>1.1.6</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.11</version>
+      <version>1.0.12</version>
+      <exclusions>
+        <exclusion>
+          <groupId>com.github.umjammer</groupId>
+          <artifactId>vavi-sound-nda</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId>
-      <artifactId>Java-Apple-Lossless-decoder</artifactId>
-      <version>0.2.9</version>
+      <artifactId>vavi-sound-alac</artifactId>
+      <version>0.3.1</version>
     </dependency>
+
     <dependency>
       <groupId>org.rococoa</groupId>
       <artifactId>rococoa-cocoa</artifactId>
@@ -152,21 +200,30 @@ TODO
     </dependency>
 
     <dependency>
+      <groupId>com.github.philburk</groupId>
+      <artifactId>jsyn</artifactId>
+      <version>v16.8.1</version>
+    </dependency>
+<!--
+    <dependency>
+      <groupId>com.moandjiezana.toml</groupId>
+      <artifactId>toml4j</artifactId>
+      <version>0.7.2</version>
+    </dependency>
+-->
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>5.3.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.3.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
-      <version>5.3.0</version>
       <scope>test</scope>
     </dependency>
 
@@ -180,8 +237,14 @@ TODO
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons-sandbox</artifactId>
-      <version>0.3.5</version>
+      <version>0.4.1</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.github.umjammer</groupId>
+          <artifactId>vavi-commons</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -205,12 +268,14 @@ TODO
       <scope>test</scope>
     </dependency>
 
+<!--
     <dependency>
       <groupId>org.jflac</groupId>
       <artifactId>jflac-codec</artifactId>
       <version>1.5.2</version>
       <scope>test</scope>
     </dependency>
+ -->
     <dependency>
       <groupId>com.github.SourceUtils</groupId>
       <artifactId>jspeex</artifactId>
@@ -218,30 +283,89 @@ TODO
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.github.drogatkin</groupId>
+      <!-- drogatkin -->
+      <groupId>com.github.umjammer</groupId>
       <artifactId>JustFLAC</artifactId>
+      <version>0.0.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <!-- net.sourceforge.jaadec:jaad -->
+      <groupId>com.github.umjammer</groupId>
+      <artifactId>JAADec</artifactId>
+      <version>0.8.8</version>
+      <scope>test</scope>
+    </dependency>
+<!--
+ -->
+    <dependency>
+      <groupId>net.javazoom</groupId>
+      <artifactId>mp3spi</artifactId>
+      <version>1.9.11</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.github.umjammer</groupId>
+          <artifactId>vavi-commons</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.mina-berger</groupId>
+      <artifactId>mocha-sound</artifactId>
       <version>master-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>com.github.umjammer</groupId>
-      <artifactId>JAADec</artifactId>
-      <version>0.8.7</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <!-- net.javazoom -->
-      <groupId>com.github.umjammer</groupId>
-      <artifactId>mp3spi</artifactId>
-      <version>1.9.7</version>
-      <scope>test</scope>
-    </dependency>
+
     <dependency>
       <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>1.7.2</version>
+      <artifactId>slf4j-jdk14</artifactId>
+      <version>1.7.5</version>
       <scope>test</scope>
     </dependency>
-  </dependencies>
+<!--
+    <dependency>
+      <groupId>uk.co.xfactory-librarians</groupId>
+      <artifactId>coremidi4j</artifactId>
+      <version>1.4</version>
+      <scope>test</scope>
+    </dependency>
+-->
+    <dependency>
+      <groupId>com.locurasoft</groupId>
+      <artifactId>osxmidi4j</artifactId>
+      <version>1.0.3</version>
+      <scope>test</scope>
+    </dependency>
 
+    <dependency>
+      <groupId>net.beadsproject</groupId>
+      <artifactId>beads</artifactId>
+      <version>3.2</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>net.java.dev.jna</groupId>
+          <artifactId>jna</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.googlecode.soundlibs</groupId>
+          <artifactId>mp3spi</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.clojars.automata</groupId>
+          <artifactId>tritonus-aos</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.clojars.automata</groupId>
+          <artifactId>tritonus-share</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javazoom</groupId>
+          <artifactId>jlayer</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
 </project>

@@ -24,8 +24,6 @@ public class SpecialMessage extends TrackMessage {
         return specialMessage;
     }
 
-    private byte[] messageDataBytes;
-
     public SpecialMessage(int deltaTime, byte[] byteData) {
         super(deltaTime);
         setData(byteData);

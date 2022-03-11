@@ -36,7 +36,7 @@ class Player {
     public static void main(String[] args) throws Exception {
         new Player(args[0]);
     }
-    
+
     Player(String filename) throws Exception {
         BFile bfile = new BFile(filename, "rb");
 
@@ -92,6 +92,7 @@ class Player {
         // decoding
 //      byte hours, minutes, secs;
         int wout_flag = 2;
+        @SuppressWarnings("unused")
         int counter = 0/*, acttime = 0*/;
 
         while (bstream.readBsFrame(index, bfile) != 0/* &&!skip_song */) {

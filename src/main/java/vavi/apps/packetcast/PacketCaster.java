@@ -53,7 +53,7 @@ public class PacketCaster {
 
     /** */
     PacketCaster(String[] args) throws Exception {
-        String inputURL = new File(args[0]).toURL().toString();
+        String inputURL = new File(args[0]).toURI().toString();
 //        String inputURL = args[0];
 
         // Generate the input and output media locators.

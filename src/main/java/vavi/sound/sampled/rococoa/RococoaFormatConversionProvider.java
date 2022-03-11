@@ -10,6 +10,8 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.spi.FormatConversionProvider;
 
+import vavi.util.Debug;
+
 
 /**
  * RococoaFormatConversionProvider.
@@ -19,75 +21,30 @@ import javax.sound.sampled.spi.FormatConversionProvider;
  */
 public class RococoaFormatConversionProvider extends FormatConversionProvider {
 
-    /**
-     * Obtains the set of source format encodings from which format conversion
-     * services are provided by this provider.
-     *
-     * @return array of source format encodings. The array will always have a
-     *         length of at least 1.
-     */
+    @Override
     public AudioFormat.Encoding[] getSourceEncodings() {
-        return new AudioFormat.Encoding[] { RcococaEncoding.ROCOCOA, AudioFormat.Encoding.PCM_SIGNED };
+        return new AudioFormat.Encoding[] { RcococaEncoding.ROCOCOA };
     }
 
-    /**
-     * Obtains the set of target format encodings to which format conversion
-     * services are provided by this provider.
-     *
-     * @return array of target format encodings. The array will always have a
-     *         length of at least 1.
-     */
+    @Override
     public AudioFormat.Encoding[] getTargetEncodings() {
-        return new AudioFormat.Encoding[] { RcococaEncoding.ROCOCOA, AudioFormat.Encoding.PCM_SIGNED };
+        return new AudioFormat.Encoding[] { AudioFormat.Encoding.PCM_SIGNED };
     }
 
-    /**
-     * Obtains the set of target format encodings supported by the format
-     * converter given a particular source format. If no target format encodings
-     * are supported for this source format, an array of length 0 is returned.
-     *
-     * @param sourceFormat format of the incoming data.
-     * @return array of supported target format encodings.
-     */
+    @Override
     public AudioFormat.Encoding[] getTargetEncodings(AudioFormat sourceFormat) {
-        if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
-            return new AudioFormat.Encoding[] { RcococaEncoding.ROCOCOA };
-        } else if (sourceFormat.getEncoding() instanceof RcococaEncoding) {
+        if (sourceFormat.getEncoding() instanceof RcococaEncoding) {
             return new AudioFormat.Encoding[] { AudioFormat.Encoding.PCM_SIGNED };
         } else {
             return new AudioFormat.Encoding[0];
         }
     }
 
-    /**
-     * Obtains the set of target formats with the encoding specified supported
-     * by the format converter. If no target formats with the specified encoding
-     * are supported for this source format, an array of length 0 is returned.
-     *
-     * @param targetEncoding desired encoding of the outgoing data.
-     * @param sourceFormat format of the incoming data.
-     * @return array of supported target formats.
-     */
+    @Override
     public AudioFormat[] getTargetFormats(AudioFormat.Encoding targetEncoding, AudioFormat sourceFormat) {
-        if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) &&
-            targetEncoding instanceof RcococaEncoding) {
-            if (sourceFormat.getChannels() > 2 ||
-                sourceFormat.getChannels() <= 0 ||
-                sourceFormat.isBigEndian()) {
-                return new AudioFormat[0];
-            } else {
-                return new AudioFormat[] {
-                    new AudioFormat(targetEncoding,
-                                    sourceFormat.getSampleRate(),
-                                    -1,     // sample size in bits
-                                    sourceFormat.getChannels(),
-                                    -1,     // frame size
-                                    -1,     // frame rate
-                                    false)  // little endian
-                };
-            }
-        } else if (sourceFormat.getEncoding() instanceof RcococaEncoding && targetEncoding.equals(AudioFormat.Encoding.PCM_SIGNED)) {
+        if (sourceFormat.getEncoding() instanceof RcococaEncoding && targetEncoding.equals(AudioFormat.Encoding.PCM_SIGNED)) {
             return new AudioFormat[] {
+                // TODO signed, endian should be free (means add more 3 patterns)
                 new AudioFormat(sourceFormat.getSampleRate(),
                                 16,         // sample size in bits
                                 sourceFormat.getChannels(),
@@ -99,16 +56,7 @@ public class RococoaFormatConversionProvider extends FormatConversionProvider {
         }
     }
 
-    /**
-     * Obtains an audio input stream with the specified encoding from the given
-     * audio input stream.
-     *
-     * @param targetEncoding - desired encoding of the stream after processing.
-     * @param sourceStream - stream from which data to be processed should be
-     *            read.
-     * @return stream from which processed data with the specified target
-     *         encoding may be read.
-     */
+    @Override
     public AudioInputStream getAudioInputStream(AudioFormat.Encoding targetEncoding, AudioInputStream sourceStream) {
         if (isConversionSupported(targetEncoding, sourceStream.getFormat())) {
             AudioFormat[] formats = getTargetFormats(targetEncoding, sourceStream.getFormat());
@@ -120,28 +68,23 @@ public class RococoaFormatConversionProvider extends FormatConversionProvider {
                 } else if (sourceFormat.getEncoding() instanceof RcococaEncoding && targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
                     return new Rococoa2PcmAudioInputStream(sourceStream, targetFormat, -1);
                 } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof RcococaEncoding) {
-                    throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+                    throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 } else {
-                    throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+                    throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 }
             } else {
+Debug.println("target format not found");
                 throw new IllegalArgumentException("target format not found");
             }
         } else {
+Debug.println("conversion not supported");
             throw new IllegalArgumentException("conversion not supported");
         }
     }
 
-    /**
-     * Obtains an audio input stream with the specified format from the given
-     * audio input stream.
-     *
-     * @param targetFormat - desired data format of the stream after processing.
-     * @param sourceStream - stream from which data to be processed should be
-     *            read.
-     * @return stream from which processed data with the specified format may be
-     *         read.
-     */
+    @Override
     public AudioInputStream getAudioInputStream(AudioFormat targetFormat, AudioInputStream sourceStream) {
         if (isConversionSupported(targetFormat, sourceStream.getFormat())) {
             AudioFormat[] formats = getTargetFormats(targetFormat.getEncoding(), sourceStream.getFormat());
@@ -153,14 +96,18 @@ public class RococoaFormatConversionProvider extends FormatConversionProvider {
                            targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
                     return new Rococoa2PcmAudioInputStream(sourceStream, targetFormat, -1);
                 } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof RcococaEncoding) {
-                    throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+                    throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 } else {
-                    throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+                    throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 }
             } else {
+Debug.println("target format not found");
                 throw new IllegalArgumentException("target format not found");
             }
         } else {
+Debug.println("conversion not supported");
             throw new IllegalArgumentException("conversion not supported");
         }
     }

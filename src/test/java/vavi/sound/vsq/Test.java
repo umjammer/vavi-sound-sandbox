@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.Charset;
+import java.util.concurrent.CountDownLatch;
 
 import javax.sound.midi.ControllerEventListener;
 import javax.sound.midi.MetaEventListener;
@@ -30,6 +32,11 @@ import vavi.util.Debug;
  */
 public class Test {
 
+    static {
+        System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
+        System.setProperty("javax.sound.midi.Synthesizer", "#Gervill");
+    }
+
     public static void main(String[] args) throws Exception {
 //        MidiDevice.Info[] infos = MidiSystem.getMidiDeviceInfo();
 //        for (MidiDevice.Info info : infos) {
@@ -39,7 +46,10 @@ public class Test {
         String infile = args[0];
         final String outfile = args[1];
 
+        CountDownLatch cdl = new CountDownLatch(1);
+
         final Sequencer sequencer = MidiSystem.getSequencer();
+Debug.println(sequencer);
         sequencer.open();
         Sequence sequence = MidiSystem.getSequence(new File(infile));
         sequencer.setSequence(sequence);
@@ -50,7 +60,7 @@ public class Test {
                 switch (meta.getType()) {
                 case 1:  // テキスト・イベント 127 bytes
 //Debug.println(new String(meta.getData()));
-                    String text = new String(meta.getData());
+                    String text = new String(meta.getData(), Charset.forName("MS932"));
                     String parts[] = text.split(":");
 Debug.println(parts[0] + ":" + parts[1] + ":" + meta.getData().length);
                     sb.append(parts[2]);
@@ -72,6 +82,7 @@ try {
 } catch (IOException e) {
  e.printStackTrace(System.err);
 }
+                    cdl.countDown();
                     break;
                 default:
 Debug.println("unhandled meta: " + meta.getType());
@@ -102,6 +113,9 @@ Debug.println("unhandled control change: " + event.getData1());
             }
         }, null);
         sequencer.start();
+        cdl.await();
+        sequencer.stop();
+        sequencer.close();
     }
 }
 

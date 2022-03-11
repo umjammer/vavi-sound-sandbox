@@ -28,17 +28,7 @@ import javax.sound.sampled.spi.AudioFileReader;
  */
 public class RococoaAudioFileReader extends AudioFileReader {
 
-    /**
-     * Obtains the audio file format of the File provided. The File must point
-     * to valid audio file data.
-     * 
-     * @param file the File from which file format information should be
-     *            extracted.
-     * @return an AudioFileFormat object describing the audio file format.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioFileFormat getAudioFileFormat(File file) throws UnsupportedAudioFileException, IOException {
         InputStream inputStream = null;
         try {
@@ -49,17 +39,7 @@ public class RococoaAudioFileReader extends AudioFileReader {
         }
     }
 
-    /**
-     * Obtains an audio input stream from the URL provided. The URL must point
-     * to valid audio file data.
-     * 
-     * @param url the URL for which the AudioInputStream should be constructed.
-     * @return an AudioInputStream object based on the audio file data pointed
-     *         to by the URL.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioFileFormat getAudioFileFormat(URL url) throws UnsupportedAudioFileException, IOException {
         InputStream inputStream = url.openStream();
         try {
@@ -69,37 +49,14 @@ public class RococoaAudioFileReader extends AudioFileReader {
         }
     }
 
-    /**
-     * Obtains an audio input stream from the input stream provided.
-     * 
-     * @param stream the input stream from which the AudioInputStream should be
-     *            constructed.
-     * @return an AudioInputStream object based on the audio file data contained
-     *         in the input stream.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioFileFormat getAudioFileFormat(InputStream stream) throws UnsupportedAudioFileException, IOException {
         return getAudioFileFormat(stream, AudioSystem.NOT_SPECIFIED);
     }
 
     /**
-     * Return the AudioFileFormat from the given InputStream.
-     * 
-     * @param stream the input stream from which the AudioInputStream should be
-     *            constructed.
-     * @param medialength
-     * @return an AudioInputStream object based on the audio file data contained
-     *         in the input stream.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
-
-    /**
      * Return the AudioFileFormat from the given InputStream. Implementation.
-     * 
+     *
      * @param bitStream
      * @param mediaLength
      * @return an AudioInputStream object based on the audio file data contained
@@ -109,23 +66,13 @@ public class RococoaAudioFileReader extends AudioFileReader {
      * @exception IOException if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
+        // TODO determine rococoa is able to decode ot not
         // TODO sampling rate, bits per sample, channels
-        AudioFormat format = new AudioFormat(RcococaEncoding.ROCOCOA, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, false);
+        AudioFormat format = new AudioFormat(RcococaEncoding.ROCOCOA, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true);
         return new AudioFileFormat(RococoaFileFormatType.ROCOCOA, format, AudioSystem.NOT_SPECIFIED);
     }
 
-    /**
-     * Obtains an audio input stream from the File provided. The File must point
-     * to valid audio file data.
-     * 
-     * @param file the File for which the AudioInputStream should be
-     *            constructed.
-     * @return an AudioInputStream object based on the audio file data pointed
-     *         to by the File.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioInputStream getAudioInputStream(File file) throws UnsupportedAudioFileException, IOException {
         InputStream inputStream = new FileInputStream(file);
         try {
@@ -139,17 +86,7 @@ public class RococoaAudioFileReader extends AudioFileReader {
         }
     }
 
-    /**
-     * Obtains an audio input stream from the URL provided. The URL must point
-     * to valid audio file data.
-     * 
-     * @param url the URL for which the AudioInputStream should be constructed.
-     * @return an AudioInputStream object based on the audio file data pointed
-     *         to by the URL.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioInputStream getAudioInputStream(URL url) throws UnsupportedAudioFileException, IOException {
         InputStream inputStream = url.openStream();
         try {
@@ -163,18 +100,7 @@ public class RococoaAudioFileReader extends AudioFileReader {
         }
     }
 
-    /**
-     * Obtains an audio input stream from the input stream provided. The stream
-     * must point to valid audio file data.
-     * 
-     * @param stream the input stream from which the AudioInputStream should be
-     *            constructed.
-     * @return an AudioInputStream object based on the audio file data contained
-     *         in the input stream.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
-     */
+    @Override
     public AudioInputStream getAudioInputStream(InputStream stream) throws UnsupportedAudioFileException, IOException {
         return getAudioInputStream(stream, AudioSystem.NOT_SPECIFIED);
     }
@@ -194,6 +120,6 @@ public class RococoaAudioFileReader extends AudioFileReader {
      */
     protected AudioInputStream getAudioInputStream(InputStream inputStream, int medialength) throws UnsupportedAudioFileException, IOException {
         AudioFileFormat audioFileFormat = getAudioFileFormat(inputStream, medialength);
-        return new Rococoa2PcmAudioInputStream(inputStream, audioFileFormat.getFormat(), audioFileFormat.getFrameLength());
+        return new AudioInputStream(inputStream, audioFileFormat.getFormat(), audioFileFormat.getFrameLength());
     }
 }

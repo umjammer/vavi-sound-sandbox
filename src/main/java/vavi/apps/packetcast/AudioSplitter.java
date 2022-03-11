@@ -247,17 +247,13 @@ System.err.println("tc[" + i + "]: " + tc[i].getFormat());
         }
 
         if (url.startsWith(File.separator)) {
-            if ((ml = new MediaLocator("file:" + url)) != null) {
-                return ml;
-            }
+            ml = new MediaLocator("file:" + url);
+            return ml;
         } else {
             String file = "file:" + System.getProperty("user.dir") + File.separator + url;
-            if ((ml = new MediaLocator(file)) != null) {
-                return ml;
-            }
+            ml = new MediaLocator(file);
+            return ml;
         }
-
-        return null;
     }
 
     /**
