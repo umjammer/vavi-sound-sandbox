@@ -21,9 +21,7 @@ import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
 import javax.sound.midi.SysexMessage;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import vavi.util.Debug;
 
@@ -37,7 +35,6 @@ import vavi.util.Debug;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/05 umjammer initial version <br>
  */
-@DisabledIfEnvironmentVariable(named = "GITHUB_WORKFLOW", matches = ".*")
 class JSynSynthesizerTest {
 
     static {
@@ -60,10 +57,13 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
+//        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
 //        String filename = "/Fusion/YMO - Firecracker.mid";
+        String filename = "test.mid";
 
-        Path file = Paths.get(System.getProperty("grive.home"), "/Music/midi/", filename);
+//        Path file = Paths.get(System.getProperty("gdrive.home"), "/Music/midi/", filename);
+        Path file = Paths.get("src/test/resources/", filename);
+
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -100,7 +100,6 @@ System.err.println("END");
     }
 
     @Test
-    @Disabled
     void test3() throws Exception {
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
 Debug.println("synthesizer: " + synthesizer.getClass().getName());
@@ -108,9 +107,12 @@ Debug.println("synthesizer: " + synthesizer.getClass().getName());
         synthesizer.unloadAllInstruments(synthesizer.getDefaultSoundbank());
         synthesizer.loadAllInstruments(new JSynOscillator());
 
-        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
+//        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
+        String filename = "test.mid";
 
-        Path file = Paths.get(System.getProperty("grive.home"), "/Music/midi/", filename);
+//        Path file = Paths.get(System.getProperty("gdrive.home"), "/Music/midi/", filename);
+        Path file = Paths.get("src/test/resources/", filename);
+
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
         Sequencer sequencer = MidiSystem.getSequencer(false);

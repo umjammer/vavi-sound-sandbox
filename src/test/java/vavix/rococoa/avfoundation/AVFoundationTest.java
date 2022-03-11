@@ -13,6 +13,7 @@ import java.util.EnumSet;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.rococoa.RunOnMainThread;
@@ -226,6 +227,7 @@ Debug.println("stated: " + r);
      * AVAudioUnitSampler w/ sound font
      */
     @Test
+    @DisabledIfEnvironmentVariable(named = "GITHUB_WORKFLOW", matches = ".*")
     void test4() throws Exception {
         AVAudioEngine engine = AVAudioEngine.newInstance();
 Debug.println(engine);

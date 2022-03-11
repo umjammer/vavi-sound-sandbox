@@ -6,7 +6,11 @@
 
 package vavi.sound.midi.mocha;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
 
 import javax.sound.midi.MetaEventListener;
@@ -46,10 +50,13 @@ Debug.println("receiver: " + receiver);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
+//        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
+        String filename = "test.mid";
 
-        File file = new File(System.getProperty("grive.home"), "/Music/midi/" + filename);
-        Sequence seq = MidiSystem.getSequence(file);
+//        File file = new File(System.getProperty("gdrive.home"), "/Music/midi/" + filename);
+        Path file = Paths.get("src/test/resources/", filename);
+
+        Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
@@ -95,7 +102,7 @@ Debug.println("sequencer: " + sequencer);
 
         String filename = "Games/Super Mario Bros 2 - Overworld.mid";
 
-        File file = new File(System.getProperty("grive.home"), "/Music/midi/" + filename);
+        File file = new File(System.getProperty("gdrive.home"), "/Music/midi/" + filename);
         Sequence seq = MidiSystem.getSequence(file);
 
         CountDownLatch countDownLatch = new CountDownLatch(1);

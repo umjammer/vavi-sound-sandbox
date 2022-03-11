@@ -29,7 +29,6 @@ class IlbcTest {
     String outFile = "tmp/f17.vavi.outnpf";
     String correctFile = "src/test/resources/vavi/sound/ldcelp/f17.outnpf";
 
-    /** */
     @Test
     void test1() throws Exception {
         Ilbc.main(new String[] { "-d", inFile, outFile });
@@ -40,7 +39,6 @@ class IlbcTest {
     String outFile2 = "tmp/f17.vavi.outpf";
     String correctFile2 = "src/test/resources/vavi/sound/ldcelp/f17.outpf";
 
-    /** */
     @Test
     void test2() throws Exception {
         Ilbc.main(new String[] { "-dp", inFile, outFile2 });

@@ -60,7 +60,7 @@ public class Test1 {
         for (AudioFileFormat.Type type : AudioSystem.getAudioFileTypes()) {
             System.err.println(type);
         }
-//        Path file = Paths.get(System.getProperty("grive.home"), inFile);
+//        Path file = Paths.get(System.getProperty("gdrive.home"), inFile);
         Path file = Paths.get("src/test/resources", inFile);
 
 //        URL clipURL = new URL(args[0]);

@@ -22,7 +22,6 @@ import javax.sound.midi.Synthesizer;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
@@ -39,7 +38,6 @@ import static vavi.sound.midi.MidiUtil.volume;
  * @version 0.00 2020/10/03 umjammer initial version <br>
  */
 @EnabledOnOs(OS.MAC)
-@DisabledIfEnvironmentVariable(named = "GITHUB_WORKFLOW", matches = ".*")
 class RococoaSynthesizerTest {
 
     //
@@ -80,9 +78,12 @@ Debug.println("synthesizer: " + synthesizer);
 Debug.println("sequencer: " + sequencer);
 
 //        String filename = "Fusion/YMO - Firecracker.mid";
-        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
+//        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
+        String filename = "test.mid";
 
-        Path file = Paths.get(System.getProperty("grive.home"), "/Music/midi/", filename);
+//        Path file = Paths.get(System.getProperty("gdrive.home"), "/Music/midi/", filename);
+        Path file = Paths.get("src/test/resources/", filename);
+
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -127,9 +128,12 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-        String filename = "Games/Super Mario Bros 2 - overworld.mid";
+//        String filename = "Games/Super Mario Bros 2 - overworld.mid";
+        String filename = "test.mid";
 
-        Path file = Paths.get(System.getProperty("grive.home"), "/Music/midi/", filename);
+//        Path file = Paths.get(System.getProperty("gdrive.home"), "/Music/midi/", filename);
+        Path file = Paths.get("src/test/resources/", filename);
+
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
         CountDownLatch countDownLatch = new CountDownLatch(1);

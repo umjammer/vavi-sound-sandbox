@@ -45,7 +45,6 @@ class EqualizerTest {
         inFile = props.getProperty("equalizer.in.wav");
     }
 
-    /** */
     @Test
     void test1() throws Exception {
         Equalizer.main(new String[] { inFile, outFile });

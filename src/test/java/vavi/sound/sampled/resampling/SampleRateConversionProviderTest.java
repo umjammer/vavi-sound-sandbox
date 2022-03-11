@@ -96,13 +96,11 @@ Debug.println("thirdAis: " + thirdAis.getFormat());
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, resultAis.getFormat());
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(resultAis.getFormat());
-//        line.addLineListener(new LineListener() {
-//            public void update(LineEvent ev) {
+//        line.addLineListener(ev -> {
 //Debug.println(ev.getType());
 //                if (LineEvent.Type.STOP == ev.getType()) {
 //                    System.exit(0);
 //                }
-//            }
 //        });
         line.start();
         byte[] buf = new byte[1024];

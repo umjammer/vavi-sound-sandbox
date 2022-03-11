@@ -25,7 +25,6 @@ import javax.sound.midi.SysexMessage;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import vavi.util.Debug;
 
@@ -44,7 +43,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/05 umjammer initial version <br>
  */
-@DisabledIfEnvironmentVariable(named = "GITHUB_WORKFLOW", matches = ".*")
 class Opl3SynthesizerTest {
 
     static {
@@ -66,11 +64,12 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
+//        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
 //        String filename = "Games/リッジレーサー - Theme (GS).mid";
+        String filename = "test.mid";
 
-        Path file = Paths.get(System.getProperty("grive.home"), "/Music/midi/", filename);
-//        Path file = Paths.get("src/test/resources/", filename);
+//        Path file = Paths.get(System.getProperty("gdrive.home"), "/Music/midi/", filename);
+        Path file = Paths.get("src/test/resources/", filename);
 
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
@@ -113,10 +112,11 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.open();
 Debug.println("sequencer: " + sequencer + ", " + sequencer.getClass().getName());
 
-        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
+//        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
+        String filename = "test.mid";
 
-        Path file = Paths.get(System.getProperty("grive.home"), "/Music/midi/", filename);
-//        Path file = Paths.get("src/test/resources/", filename);
+//        Path file = Paths.get(System.getProperty("gdrive.home"), "/Music/midi/", filename);
+        Path file = Paths.get("src/test/resources/", filename);
 
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 

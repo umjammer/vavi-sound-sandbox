@@ -41,7 +41,6 @@ class PerfectResamplerTest {
     static String inFile = "src/test/resources/test.wav";
     static String outFile = "tmp/out.vavi.wav";
 
-//    @Disabled("not completed yet")
     @Test
     void test1() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
