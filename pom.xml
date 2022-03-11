@@ -134,10 +134,6 @@
       <name>GitHub umjammer Apache Maven Packages</name>
       <url>https://maven.pkg.github.com/umjammer/*</url>
     </repository>
-    <repository>
-      <id>maven.cyberduck.io-release</id>
-      <url>https://repo.maven.cyberduck.io.s3.amazonaws.com/releases</url>
-    </repository>
   </repositories>
 
   <dependencyManagement>
@@ -287,25 +283,25 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <!-- drogatkin -->
       <groupId>com.github.umjammer</groupId>
       <artifactId>JustFLAC</artifactId>
-      <version>0.0.2</version>
+      <version>0.0.3</version>
       <scope>test</scope>
     </dependency>
     <dependency>
+      <!-- net.sourceforge.jaadec:jaad -->
       <groupId>com.github.umjammer</groupId>
       <artifactId>JAADec</artifactId>
       <version>0.8.8</version>
       <scope>test</scope>
     </dependency>
 <!--
-      <groupId>net.sourceforge.jaadec</groupId>
-      <artifactId>jaad</artifactId>
  -->
     <dependency>
       <groupId>net.javazoom</groupId>
       <artifactId>mp3spi</artifactId>
-      <version>1.9.10</version>
+      <version>1.9.11</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
