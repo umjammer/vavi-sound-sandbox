@@ -1,6 +1,6 @@
-[![](https://jitpack.io/v/umjammer/vavi-sound-sandbox.svg)](https://jitpack.io/#umjammer/vavi-sound-sandbox)
-[![](https://jitci.com/gh/umjammer/vavi-sound-sandbox/svg)](https://jitci.com/gh/umjammer/vavi-sound-sandbox)
-[![Java CI](https://github.com/umjammer/vavi-sound-sandbox/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/umjammer/vavi-sound-sandbox/actions)
+[![Maven Package](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/maven-publish.yml)
+[![Java CI](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/maven.yml)
+[![CodeQL](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/codeql-analysis.yml)
 
 # vavi-sound-sandbox
 
