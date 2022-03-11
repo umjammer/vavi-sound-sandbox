@@ -44,7 +44,7 @@ import javax.sound.midi.SysexMessage;
 import javax.sound.midi.Track;
 import javax.sound.midi.Transmitter;
 
-import vavi.sound.midi.MidiConstants;
+import vavi.sound.midi.MidiConstants.MetaEvent;
 import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Synthesizer;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
@@ -136,6 +136,9 @@ public class MidPlayer extends Opl3Player implements Sequencer {
         public static FileType getFileType(InputStream is) {
             return Arrays.stream(values()).filter(e -> e.midiTypeFile.matchFormat(is)).findFirst().get();
         }
+        static int maxMarkSize(InputStream is) {
+            return Arrays.stream(values()).mapToInt(e -> e.midiTypeFile.markSize()).max().getAsInt();
+        }
     }
 
     public static abstract class MidiTypeFile {
@@ -214,7 +217,7 @@ Debug.println(Level.SEVERE, e);
 
     @Override
     public boolean matchFormat(InputStream bitStream) {
-logger.fine("\n" + StringUtil.getDump(bitStream, 0, 256));
+logger.finer("\n" + StringUtil.getDump(bitStream, 0, 64));
         try {
             type = FileType.getFileType(bitStream);
             return true;
@@ -417,6 +420,7 @@ logger.fine("type: " + type);
                             case 0xfd:
                             case 0xfe:
                             default:
+                                logger.fine(String.format("sysex: unhandled: %02x", v));
                                 break;
                             case 0xf2:
                                 data1 = takeBE(1);
@@ -636,7 +640,7 @@ logger.fine("type: " + type);
     /** the device information */
     protected static final MidiDevice.Info info =
         new MidiDevice.Info("OPL3 MIDI Sequencer",
-                            "Vavisoft",
+                            "vavi",
                             "Software sequencer for OPL3",
                             "Version " + version) {};
 

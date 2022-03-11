@@ -40,6 +40,7 @@ import vavi.sound.opl3.MidPlayer;
 import vavi.sound.opl3.MidPlayer.FileType;
 import vavi.sound.opl3.Opl3Player;
 import vavi.util.Debug;
+import vavi.util.StringUtil;
 
 
 /**
@@ -90,7 +91,7 @@ public class Opl3Synthesizer implements Synthesizer {
 
     private Adlib adlib;
 
-    private Opl3Soundbank soundBank = new Opl3Soundbank(Adlib.midi_fm_instruments);
+    private Opl3Soundbank soundBank;
 
     /** default {@link Adlib#midi_fm_instruments} */
     private Opl3Instrument[] instruments = new Opl3Instrument[128];
@@ -124,6 +125,8 @@ public class Opl3Synthesizer implements Synthesizer {
 Debug.println(Level.WARNING, "already open: " + hashCode());
             return;
         }
+
+        soundBank = (Opl3Soundbank) getDefaultSoundbank();
 
         for (int i = 0; i < MAX_CHANNEL; i++) {
             channels[i] = new Opl3MidiChannel(i);
@@ -317,12 +320,12 @@ Debug.println(line.getClass().getName());
 
     @Override
     public Soundbank getDefaultSoundbank() {
-        return soundBank;
+        return new Opl3Soundbank(Adlib.midi_fm_instruments);
     }
 
     @Override
     public Instrument[] getAvailableInstruments() {
-        return instruments;
+        return soundBank.getInstruments();
     }
 
     @Override
@@ -698,16 +701,32 @@ Debug.printf("unhandled short: %02X\n", command);
             } else if (message instanceof SysexMessage) {
                 SysexMessage sysexMessage = (SysexMessage) message;
                 byte[] data = sysexMessage.getData();
-//Debug.print("sysex:\n" + StringUtil.getDump(data));
-Debug.printf(Level.FINE, "sysex: %02x %02x %02x", data[1], data[2], data[3]);
+Debug.printf("sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data));
+                switch (data[0]) {
+                case 0x7f: { // Universal Realtime
+                    int c = data[1]; // 0x7f: Disregards channel
+                    // Sub-ID, Sub-ID2
+                    if (data[2] == 0x04 && data[3] == 0x01) { // Device Control / Master Volume
+                        float gain = ((data[4] & 0x7f) | ((data[5] & 0x7f) << 7)) / 16383f;
+Debug.printf("sysex volume: gain: %3.0f%n", gain * 127);
+                        for (c = 0; c < 16; c++) {
+                            voiceStatus[c].volume = (int) (gain * 127); // TODO doesn't work
+                        }
+                    }
+                }   break;
+                case 0x7d: { // test
+                    switch (data[1]) {
+                    case 0x10: // 7D 10 ch -- set an instrument to ch
+                        adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
 
-                if (data[1] == 0x7d && data[2] == 0x10 && data[3] < 16) {
-                    adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
+                        int c = data[2];
+                        channels[c].ins = MidPlayer.fromSysex(data);
 
-                    int c = data[3];
-                    channels[c].ins = MidPlayer.fromSysex(data);
+                        break;
+                    }
+                }   break;
                 }
-            } else if (message instanceof SysexMessage) {
+            } else if (message instanceof MetaMessage) {
                 MetaMessage metaMessage = (MetaMessage) message;
 Debug.printf("meta: %02x", metaMessage.getType());
                 switch (metaMessage.getType()) {
