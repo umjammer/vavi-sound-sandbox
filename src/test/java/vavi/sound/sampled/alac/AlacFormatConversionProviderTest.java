@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import vavi.sound.DebugInputStream;
 import vavi.util.Debug;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -97,7 +96,7 @@ Debug.println("OUT: " + outAudioFormat);
     void test1() throws Exception {
 
         Path path = Paths.get(AlacFormatConversionProviderTest.class.getResource(inFile).toURI());
-        AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new DebugInputStream(new BufferedInputStream(Files.newInputStream(path))));
+        AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new BufferedInputStream(Files.newInputStream(path)));
 
         AudioFormat inAudioFormat = sourceAis.getFormat();
 Debug.println("IN: " + inAudioFormat);
