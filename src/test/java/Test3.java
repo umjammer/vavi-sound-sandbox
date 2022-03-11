@@ -4,7 +4,13 @@
  * Programmed by Naohide Sano
  */
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -13,13 +19,19 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.sound.sampled.spi.AudioFileReader;
 
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import vavi.util.Debug;
 
 import static vavi.sound.SoundUtil.volume;
+
+import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
 
 
 /**
@@ -29,6 +41,11 @@ import static vavi.sound.SoundUtil.volume;
  * @version 0.00 2012/06/11 umjammer initial version <br>
  */
 class Test3 {
+
+    static {
+        System.setProperty("vavi.util.logging.VaviFormatter.extraClassMethod",
+                           "vavi\\.sound\\.DebugInputStream#\\w+");
+    }
 
 //    static final String inFile = "/Users/nsano/Music/0/Mists of Time - 4T.ogg";
 //    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.flac";
@@ -105,14 +122,48 @@ Debug.println("done");
     void test(String file) throws Exception {
 Debug.println("------------------------------------------ " + file + " ------------------------------------------------");
 try {
-        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File(file).toURI().toURL());
-        AudioFormat audioFormat = audioInputStream.getFormat();
+        InputStream is = new BufferedInputStream(Files.newInputStream(Paths.get(file)));
+        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(is);
+//        AudioInputStream audioInputStream = dummy(is);
         play(audioInputStream);
 } catch (Throwable t) {
-  Debug.println("file: " + t);
+  Debug.println("file: " + file);
   t.printStackTrace();
   throw t;
 }
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes", "restriction" })
+    AudioInputStream dummy(InputStream stream) throws UnsupportedAudioFileException, IOException {
+        List providers = com.sun.media.sound.JDK13Services.getProviders(AudioFileReader.class);
+providers.forEach(System.err::println);
+        AudioInputStream audioStream = null;
+
+        for(int i = 0; i < providers.size(); i++ ) {
+            AudioFileReader reader = (AudioFileReader) providers.get(i);
+Debug.println("--------- " + reader.getClass().getName());
+            try {
+                audioStream = reader.getAudioInputStream( stream ); // throws IOException
+                break;
+            } catch (UnsupportedAudioFileException e) {
+Debug.println("ERROR: " + e.getMessage());
+                continue;
+            }
+        }
+
+        if( audioStream==null ) {
+            throw new UnsupportedAudioFileException("could not get audio input stream from input stream");
+        } else {
+            return audioStream;
+        }
+    }
+
+    @Test
+    @Disabled("for just fix #7, not needed any more")
+    void test2() throws Exception {
+        InputStream is = new BufferedInputStream(Files.newInputStream(Paths.get("src/test/resources/test.mp3")));
+        AudioInputStream audioInputStream = new MpegAudioFileReader().getAudioInputStream(is);
+        play(audioInputStream);
     }
 }
 
