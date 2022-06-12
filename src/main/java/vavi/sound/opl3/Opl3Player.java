@@ -109,5 +109,5 @@ Debug.println("encoding: " + encoding);
 
     public abstract boolean update() throws IOException;
 
-    public abstract int getTotalMiliseconds();
+    public abstract int getTotalMilliseconds();
 }

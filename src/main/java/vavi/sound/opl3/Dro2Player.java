@@ -38,7 +38,7 @@ import vavi.util.Debug;
  * @author Wraithverge <liam82067@yahoo.com>
  */
 class Dro2Player extends Opl3Player {
-    private static Logger logger = Logger.getLogger(Dro2Player.class.getName());
+    private static final Logger logger = Logger.getLogger(Dro2Player.class.getName());
 
     private LittleEndianDataInputStream data;
     private int pos;
@@ -88,7 +88,7 @@ Debug.println(Level.SEVERE, e);
     }
 
     @Override
-    public int getTotalMiliseconds() {
+    public int getTotalMilliseconds() {
         return msTotal;
     }
 

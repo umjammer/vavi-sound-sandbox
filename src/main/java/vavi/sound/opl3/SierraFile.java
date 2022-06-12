@@ -34,12 +34,12 @@ class SierraFile extends MidiTypeFile {
                 dis.readUnsignedByte() != 0xf0;
     }
 
-    Opl3Instrument[] smyinsbank = new Opl3Instrument[128];
+    protected Opl3Instrument[] smyinsbank = new Opl3Instrument[128];
     // sierra instruments
-    int stins;
+    protected int stins;
 
-    boolean[] ons = new boolean[16];
-    int[] inums = new int[16];
+    private boolean[] ons = new boolean[16];
+    private int[] inums = new int[16];
 
     @Override
     void rewind(int subSong, MidPlayer player) throws IOException {

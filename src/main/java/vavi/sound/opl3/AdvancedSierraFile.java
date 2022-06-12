@@ -7,8 +7,8 @@
 package vavi.sound.opl3;
 
 import java.io.DataInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Logger;
 
@@ -24,7 +24,7 @@ import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
  */
 class AdvancedSierraFile extends SierraFile {
 
-    static Logger logger = Logger.getLogger(MidiFile.class.getName());
+    private static final Logger logger = Logger.getLogger(MidiFile.class.getName());
 
     int markSize() {
         return 3;
@@ -37,9 +37,9 @@ class AdvancedSierraFile extends SierraFile {
                 dis.readUnsignedByte() == 0xf0;
     }
 
-    int sierra_pos;
+    private int sierraPos;
 
-    static int[] fromSierra(int[] buf) {
+    private static int[] fromSierra(int[] buf) {
         int[] x = new int[11];
         x[0] = buf[9] * 0x80 + buf[10] * 0x40 + buf[5] * 0x20 + buf[11] * 0x10 + buf[1];
         x[1] = buf[22] * 0x80 + buf[23] * 0x40 + buf[18] * 0x20 + buf[24] * 0x10 + buf[14];
@@ -59,7 +59,7 @@ class AdvancedSierraFile extends SierraFile {
     private boolean loadSierraIns(Path path) throws IOException {
 
         Path patch = path.getParent().resolve("patch.003");
-        DataInputStream dis = new DataInputStream(new FileInputStream(patch.toFile()));
+        DataInputStream dis = new DataInputStream(Files.newInputStream(patch.toFile().toPath()));
         dis.skipBytes(2);
         stins = 0;
 
@@ -92,7 +92,7 @@ class AdvancedSierraFile extends SierraFile {
         }
 
         logger.info("next adv sierra section:");
-        player.pos = sierra_pos;
+        player.pos = sierraPos;
 
         int t = 0;
         for (int i = 0; i != 255; i = player.takeBE(1)) {
@@ -110,7 +110,7 @@ class AdvancedSierraFile extends SierraFile {
 
         player.takeBE(2);
         player.deltas = 32;
-        sierra_pos = player.pos;
+        sierraPos = player.pos;
         player.fwait = 0.0F;
         player.doing = true;
     }
@@ -120,10 +120,10 @@ class AdvancedSierraFile extends SierraFile {
         player.tins = stins;
         player.deltas = 32;
         player.takeBE(12); // worthless empty space and "stuff" :)
-        int o_sierra_pos = sierra_pos = player.pos;
+        int o_sierra_pos = sierraPos = player.pos;
         sierra_next_section(player);
 
-        while (player.peek(sierra_pos - 2) != 255) {
+        while (player.peek(sierraPos - 2) != 255) {
             sierra_next_section(player);
             ++player.subsongs;
         }
@@ -132,7 +132,7 @@ class AdvancedSierraFile extends SierraFile {
             subSong = 0;
         }
 
-        sierra_pos = o_sierra_pos;
+        sierraPos = o_sierra_pos;
         sierra_next_section(player);
 
         for (int i = 0; i != subSong; ++i) {

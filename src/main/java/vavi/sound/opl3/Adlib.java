@@ -18,7 +18,7 @@ public class Adlib {
     public static final int LUCAS_STYLE = 1;
     public static final int CMF_STYLE = 2;
     public static final int MIDI_STYLE = 4;
-    static final int SIERRA_STYLE = 8;
+    public static final int SIERRA_STYLE = 8;
 
     public static final int MELODIC = 0;
     public static final int RYTHM = 1;
@@ -181,7 +181,7 @@ public class Adlib {
         116, 117, 117, 118, 118, 119, 119, 120, 120, 121, 121, 122, 122,
         123, 123, 124, 124, 125, 125, 126, 126, 127
     };
-    static final int[] ops = { 32, 32, 64, 64, 96, 96, 128, 128, 224, 224, 192 };
+    private static final int[] ops = { 32, 32, 64, 64, 96, 96, 128, 128, 224, 224, 192 };
 
     public int style;
     public int mode;
@@ -208,7 +208,7 @@ public class Adlib {
     }
 
     /** for outer opl3 */
-    Writer writer;
+    private Writer writer;
 
     /** for outer opl3 */
     public Adlib(Writer writer) {
@@ -276,7 +276,7 @@ public class Adlib {
         write(0xc0 + opadd, 0xf0 | inst[10]);
     }
 
-    void volume(int voice, int volume) {
+    public void volume(int voice, int volume) {
         if ((style & SIERRA_STYLE) == 0) { // sierra likes it loud!
             int vol = volume >> 2;
             if ((style & LUCAS_STYLE) != 0) {
