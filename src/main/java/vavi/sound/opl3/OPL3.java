@@ -50,8 +50,8 @@ public final class OPL3 {
     private int[] registers = new int[0x200];
 
     private Operator[][] operators;
-    private channel2Op[][] channels2op;
-    private channel4Op[][] channels4op;
+    private Channel2Op[][] channels2op;
+    private Channel4Op[][] channels4op;
     private Channel[][] channels;
     private DisabledChannel disabledChannel;
 
@@ -88,7 +88,7 @@ public final class OPL3 {
             for (int channelNumber = 0; channelNumber < 9; channelNumber++) {
                 // Reads output from each OPL3 channel, and accumulates it in
                 // the output buffer:
-                channelOutput = channels[array][channelNumber].getChannelOutput(this);
+                channelOutput = channels[array][channelNumber].getChannelOutput();
                 for (int outputChannelNumber = 0; outputChannelNumber < 4; outputChannelNumber++)
                     outputBuffer[outputChannelNumber] += channelOutput[outputChannelNumber];
             }
@@ -158,17 +158,17 @@ public final class OPL3 {
             if ((address & 0xF0) == 0xB0 && address <= 0xB8) {
                 // If the address is in the second register array, adds 9 to the channel number.
                 // The channel number is given by the last four bits, like in A0,...,A8.
-                channels[array][address & 0x0F].update_2_KON1_BLOCK3_FNUMH2(this.nts);
+                channels[array][address & 0x0F].update_2_KON1_BLOCK3_FNUMH2();
                 break;
             }
             // 0xA0...0xA8 keeps fnum(l) for each channel.
             if ((address & 0xF0) == 0xA0 && address <= 0xA8)
-                channels[array][address & 0x0F].update_FNUML8(this.nts);
+                channels[array][address & 0x0F].update_FNUML8();
             break;
         // 0xC0...0xC8 keeps cha,chb,chc,chd,fb,cnt for each channel:
         case 0xC0:
             if (address <= 0xC8)
-                channels[array][address & 0x0F].update_CHD1_CHC1_CHB1_CHA1_FB3_CNT1(this.nts);
+                channels[array][address & 0x0F].update_CHD1_CHC1_CHB1_CHA1_FB3_CNT1();
             break;
 
         // Registers for each of the 36 Operators:
@@ -220,14 +220,14 @@ public final class OPL3 {
             for (int group = 0; group <= 0x10; group += 8)
                 for (int offset = 0; offset < 6; offset++) {
                     baseAddress = (array << 8) | (group + offset);
-                    operators[array][group + offset] = new Operator(baseAddress, registers);
+                    operators[array][group + offset] = new Operator(baseAddress);
                 }
 
         // Create specific operators to switch when in rhythm mode:
-        highHatOperator = new HighHatOperator(registers, topCymbalOperator, highHatOperator);
-        snareDrumOperator = new SnareDrumOperator(registers, highHatOperator);
-        tomTomOperator = new TomTomOperator(registers);
-        topCymbalOperator = new TopCymbalOperator(registers, highHatOperator);
+        highHatOperator = new HighHatOperator();
+        snareDrumOperator = new SnareDrumOperator();
+        tomTomOperator = new TomTomOperator();
+        topCymbalOperator = new TopCymbalOperator();
 
         // Save operators when they are in non-rhythm mode:
         // Channel 7:
@@ -241,21 +241,21 @@ public final class OPL3 {
     private void initChannels2op() {
         // The YMF262 has 18 2-op channels.
         // Each 2-op channel can be at a serial or parallel operator configuration:
-        channels2op = new channel2Op[2][9];
+        channels2op = new Channel2Op[2][9];
 
         for (int array = 0; array < 2; array++)
             for (int channelNumber = 0; channelNumber < 3; channelNumber++) {
                 int baseAddress = (array<<8) | channelNumber;
                 // Channels 1, 2, 3 -> Operator offsets 0x0,0x3; 0x1,0x4; 0x2,0x5
-                channels2op[array][channelNumber] = new channel2Op(baseAddress, registers,
+                channels2op[array][channelNumber] = new Channel2Op(baseAddress,
                         operators[array][channelNumber],
                         operators[array][channelNumber + 0x3]);
                 // Channels 4, 5, 6 -> Operator offsets 0x8,0xB; 0x9,0xC; 0xA,0xD
-                channels2op[array][channelNumber + 3] = new channel2Op(baseAddress + 3, registers,
+                channels2op[array][channelNumber + 3] = new Channel2Op(baseAddress + 3,
                         operators[array][channelNumber + 0x8],
                         operators[array][channelNumber + 0xB]);
                 // Channels 7, 8, 9 -> Operators 0x10,0x13; 0x11,0x14; 0x12,0x15
-                channels2op[array][channelNumber + 6] = new channel2Op(baseAddress + 6, registers,
+                channels2op[array][channelNumber + 6] = new Channel2Op(baseAddress + 6,
                         operators[array][channelNumber + 0x10],
                         operators[array][channelNumber + 0x13]);
             }
@@ -263,12 +263,12 @@ public final class OPL3 {
 
     private void initChannels4op() {
         // The YMF262 has 3 4-op channels in each array:
-        channels4op = new channel4Op[2][3];
+        channels4op = new Channel4Op[2][3];
         for (int array = 0; array < 2; array++)
             for (int channelNumber = 0; channelNumber < 3; channelNumber++) {
                 int baseAddress = (array << 8) | channelNumber;
                 // Channels 1, 2, 3 -> Operators 0x0,0x3,0x8,0xB; 0x1,0x4,0x9,0xC; 0x2,0x5,0xA,0xD;
-                channels4op[array][channelNumber] = new channel4Op(baseAddress, registers,
+                channels4op[array][channelNumber] = new Channel4Op(baseAddress,
                         operators[array][channelNumber],
                         operators[array][channelNumber + 0x3],
                         operators[array][channelNumber + 0x8],
@@ -277,7 +277,7 @@ public final class OPL3 {
     }
 
     private void initRhythmChannels() {
-        bassDrumChannel = new BassDrumChannel(registers);
+        bassDrumChannel = new BassDrumChannel();
         highHatSnareDrumChannel = new HighHatSnareDrumChannel(registers, highHatOperator, snareDrumOperator);
         tomTomTopCymbalChannel = new TomTomTopCymbalChannel(registers, tomTomOperator, topCymbalOperator);
     }
@@ -374,7 +374,7 @@ public final class OPL3 {
             for (int i = 0; i < 9; i++) {
                 int baseAddress = channels[array][i].channelBaseAddress;
                 registers[baseAddress + ChannelData.CHD1_CHC1_CHB1_CHA1_FB3_CNT1_Offset] |= 0xF0;
-                channels[array][i].update_CHD1_CHC1_CHB1_CHA1_FB3_CNT1(this.nts);
+                channels[array][i].update_CHD1_CHC1_CHB1_CHA1_FB3_CNT1();
             }
     }
 
@@ -398,14 +398,14 @@ public final class OPL3 {
                     if (connectionBit == 1) {
                         channels[array][i] = channels4op[array][i];
                         channels[array][i + 3] = disabledChannel;
-                        channels[array][i].updateChannel(this.nts);
+                        channels[array][i].updateChannel();
                         continue;
                     }
                 }
                 channels[array][i] = channels2op[array][i];
                 channels[array][i + 3] = channels2op[array][i + 3];
-                channels[array][i].updateChannel(this.nts);
-                channels[array][i + 3].updateChannel(this.nts);
+                channels[array][i].updateChannel();
+                channels[array][i + 3].updateChannel();
             }
     }
 
@@ -426,13 +426,13 @@ public final class OPL3 {
             operators[0][0x15] = topCymbalOperatorInNonRhythmMode;
         }
         for (int i = 6; i <= 8; i++)
-            channels[0][i].updateChannel(this.nts);
+            channels[0][i].updateChannel();
     }
 
     /**
      * Channels
      */
-    private abstract static class Channel {
+    private abstract class Channel {
         int channelBaseAddress;
 
         double[] feedback;
@@ -443,17 +443,14 @@ public final class OPL3 {
         // radians. The amplitude maximum is equivalent to 8*Pi radians.
         static final double toPhase = 4;
 
-        int[] registers;
-
-        Channel(int baseAddress,  int[] registers) {
+        Channel(int baseAddress) {
             channelBaseAddress = baseAddress;
             fNumL = fNumH = kon = block = chA = chB = chC = chD = fb = cnt = 0;
             feedback = new double[2];
             feedback[0] = feedback[1] = 0;
-            this.registers = registers;
         }
 
-        void update_2_KON1_BLOCK3_FNUMH2(int nts) {
+        void update_2_KON1_BLOCK3_FNUMH2() {
 
             int _2_kon1_block3_fnumh2 = registers[channelBaseAddress+ChannelData._2_KON1_BLOCK3_FNUMH2_Offset];
 
@@ -461,7 +458,7 @@ public final class OPL3 {
             // sets the Channel´s base frequency;
             block = (_2_kon1_block3_fnumh2 & 0x1C) >> 2;
             fNumH = _2_kon1_block3_fnumh2 & 0x03;
-            updateOperators(nts);
+            updateOperators();
 
             // Key On. If changed, calls Channel.keyOn() / keyOff().
             int newKon   = (_2_kon1_block3_fnumh2 & 0x20) >> 5;
@@ -474,14 +471,14 @@ public final class OPL3 {
             }
         }
 
-        void update_FNUML8(int nts) {
+        void update_FNUML8() {
             int fNumL8 = registers[channelBaseAddress+ChannelData.FNUML8_Offset];
             // Frequency Number, low register.
             fNumL = fNumL8&0xFF;
-            updateOperators(nts);
+            updateOperators();
         }
 
-        void update_CHD1_CHC1_CHB1_CHA1_FB3_CNT1(int nts) {
+        void update_CHD1_CHC1_CHB1_CHA1_FB3_CNT1() {
             int chd1_chc1_chb1_cha1_fb3_cnt1 = registers[channelBaseAddress+ChannelData.CHD1_CHC1_CHB1_CHA1_FB3_CNT1_Offset];
             chD = (chd1_chc1_chb1_cha1_fb3_cnt1 & 0x80) >> 7;
             chC = (chd1_chc1_chb1_cha1_fb3_cnt1 & 0x40) >> 6;
@@ -489,16 +486,16 @@ public final class OPL3 {
             chA = (chd1_chc1_chb1_cha1_fb3_cnt1 & 0x10) >> 4;
             fb  = (chd1_chc1_chb1_cha1_fb3_cnt1 & 0x0E) >> 1;
             cnt  = chd1_chc1_chb1_cha1_fb3_cnt1 & 0x01;
-            updateOperators(nts);
+            updateOperators();
         }
 
-        void updateChannel(int nts) {
-            update_2_KON1_BLOCK3_FNUMH2(nts);
-            update_FNUML8(nts);
-            update_CHD1_CHC1_CHB1_CHA1_FB3_CNT1(nts);
+        void updateChannel() {
+            update_2_KON1_BLOCK3_FNUMH2();
+            update_FNUML8();
+            update_CHD1_CHC1_CHB1_CHA1_FB3_CNT1();
         }
 
-        protected double[] getInFourChannels(double channelOutput, int _new) {
+        protected double[] getInFourChannels(double channelOutput) {
             double[] output = new double[4];
 
             if (_new == 0)
@@ -513,22 +510,22 @@ public final class OPL3 {
             return output;
         }
 
-        abstract double[] getChannelOutput(OPL3 opl);
+        abstract double[] getChannelOutput();
         protected abstract void keyOn();
         protected abstract void keyOff();
-        protected abstract void updateOperators(int nts);
+        protected abstract void updateOperators();
     }
 
-    private static class channel2Op extends Channel {
+    private class Channel2Op extends Channel {
         Operator op1, op2;
 
-        channel2Op(int baseAddress, int[] registers, Operator o1, Operator o2) {
-            super(baseAddress, registers);
+        Channel2Op(int baseAddress, Operator o1, Operator o2) {
+            super(baseAddress);
             op1 = o1;
             op2 = o2;
         }
 
-        double[] getChannelOutput(OPL3 opl) {
+        double[] getChannelOutput() {
             double channelOutput = 0, op1Output = 0, op2Output;
             double[] output;
             // The feedback uses the last two outputs from
@@ -539,24 +536,24 @@ public final class OPL3 {
             switch (cnt) {
             // CNT = 0, the operators are in series, with the first in feedback.
             case 0:
-                if (op2.envelopeGenerator.stage == EnvelopeGenerator.Stage.OFF)
-                    return getInFourChannels(0, opl._new);
-                op1Output = op1.getOperatorOutput(feedbackOutput, opl);
-                channelOutput = op2.getOperatorOutput(op1Output * toPhase, opl);
+                if (op2.envelopeGenerator.stage == Stage.OFF)
+                    return getInFourChannels(0);
+                op1Output = op1.getOperatorOutput(feedbackOutput);
+                channelOutput = op2.getOperatorOutput(op1Output * toPhase);
                 break;
             // CNT = 1, the operators are in parallel, with the first in feedback.
             case 1:
-                if (op1.envelopeGenerator.stage == EnvelopeGenerator.Stage.OFF &&
-                    op2.envelopeGenerator.stage == EnvelopeGenerator.Stage.OFF)
-                    return getInFourChannels(0, opl._new);
-                op1Output = op1.getOperatorOutput(feedbackOutput, opl);
-                op2Output = op2.getOperatorOutput(Operator.noModulator, opl);
+                if (op1.envelopeGenerator.stage == Stage.OFF &&
+                    op2.envelopeGenerator.stage == Stage.OFF)
+                    return getInFourChannels(0);
+                op1Output = op1.getOperatorOutput(feedbackOutput);
+                op2Output = op2.getOperatorOutput(Operator.noModulator);
                 channelOutput = (op1Output + op2Output) / 2;
             }
 
             feedback[0] = feedback[1];
             feedback[1] = (op1Output * ChannelData.feedback[fb])%1;
-            output = getInFourChannels(channelOutput, opl._new);
+            output = getInFourChannels(channelOutput);
             return output;
         }
 
@@ -571,7 +568,7 @@ public final class OPL3 {
             op2.keyOff();
         }
 
-        protected void updateOperators(int nts) {
+        protected void updateOperators() {
             // Key Scale Number, used in EnvelopeGenerator.setActualRates().
             int keyScaleNumber = block * 2 + ((fNumH >> nts) & 0x01);
             int f_number = (fNumH << 8) | fNumL;
@@ -590,78 +587,78 @@ public final class OPL3 {
         }
     }
 
-    private static class channel4Op extends Channel {
+    private class Channel4Op extends Channel {
         Operator op1, op2, op3, op4;
 
-        channel4Op(int baseAddress, int[] registers, Operator o1, Operator o2, Operator o3, Operator o4) {
-            super(baseAddress, registers);
+        Channel4Op(int baseAddress, Operator o1, Operator o2, Operator o3, Operator o4) {
+            super(baseAddress);
             op1 = o1;
             op2 = o2;
             op3 = o3;
             op4 = o4;
         }
 
-        double[] getChannelOutput(OPL3 opl) {
+        double[] getChannelOutput() {
             double channelOutput = 0,
-                   op1Output = 0, op2Output = 0, op3Output = 0, op4Output = 0;
+                   op1Output = 0, op2Output, op3Output, op4Output;
 
             double[] output;
 
             int secondChannelBaseAddress = channelBaseAddress+3;
-            int secondCnt = opl.registers[secondChannelBaseAddress+ChannelData.CHD1_CHC1_CHB1_CHA1_FB3_CNT1_Offset] & 0x1;
+            int secondCnt = registers[secondChannelBaseAddress+ChannelData.CHD1_CHC1_CHB1_CHA1_FB3_CNT1_Offset] & 0x1;
             int cnt4op = (cnt << 1) | secondCnt;
 
             double feedbackOutput = (feedback[0] + feedback[1]) / 2;
 
             switch (cnt4op) {
             case 0:
-                if (op4.envelopeGenerator.stage == EnvelopeGenerator.Stage.OFF)
-                    return getInFourChannels(0, opl._new);
+                if (op4.envelopeGenerator.stage == Stage.OFF)
+                    return getInFourChannels(0);
 
-                op1Output = op1.getOperatorOutput(feedbackOutput, opl);
-                op2Output = op2.getOperatorOutput(op1Output * toPhase, opl);
-                op3Output = op3.getOperatorOutput(op2Output * toPhase, opl);
-                channelOutput = op4.getOperatorOutput(op3Output * toPhase, opl);
+                op1Output = op1.getOperatorOutput(feedbackOutput);
+                op2Output = op2.getOperatorOutput(op1Output * toPhase);
+                op3Output = op3.getOperatorOutput(op2Output * toPhase);
+                channelOutput = op4.getOperatorOutput(op3Output * toPhase);
 
                 break;
             case 1:
-                if (op2.envelopeGenerator.stage == EnvelopeGenerator.Stage.OFF &&
-                    op4.envelopeGenerator.stage == EnvelopeGenerator.Stage.OFF)
-                    return getInFourChannels(0, opl._new);
+                if (op2.envelopeGenerator.stage == Stage.OFF &&
+                    op4.envelopeGenerator.stage == Stage.OFF)
+                    return getInFourChannels(0);
 
-                op1Output = op1.getOperatorOutput(feedbackOutput, opl);
-                op2Output = op2.getOperatorOutput(op1Output * toPhase, opl);
+                op1Output = op1.getOperatorOutput(feedbackOutput);
+                op2Output = op2.getOperatorOutput(op1Output * toPhase);
 
-                op3Output = op3.getOperatorOutput(Operator.noModulator, opl);
-                op4Output = op4.getOperatorOutput(op3Output * toPhase, opl);
+                op3Output = op3.getOperatorOutput(Operator.noModulator);
+                op4Output = op4.getOperatorOutput(op3Output * toPhase);
 
                 channelOutput = (op2Output + op4Output) / 2;
                 break;
             case 2:
-                if (op1.envelopeGenerator.stage == EnvelopeGenerator.Stage.OFF &&
-                    op4.envelopeGenerator.stage == EnvelopeGenerator.Stage.OFF)
-                    return getInFourChannels(0, opl._new);
+                if (op1.envelopeGenerator.stage == Stage.OFF &&
+                    op4.envelopeGenerator.stage == Stage.OFF)
+                    return getInFourChannels(0);
 
-                op1Output = op1.getOperatorOutput(feedbackOutput, opl);
+                op1Output = op1.getOperatorOutput(feedbackOutput);
 
-                op2Output = op2.getOperatorOutput(Operator.noModulator, opl);
-                op3Output = op3.getOperatorOutput(op2Output * toPhase, opl);
-                op4Output = op4.getOperatorOutput(op3Output * toPhase, opl);
+                op2Output = op2.getOperatorOutput(Operator.noModulator);
+                op3Output = op3.getOperatorOutput(op2Output * toPhase);
+                op4Output = op4.getOperatorOutput(op3Output * toPhase);
 
                 channelOutput = (op1Output + op4Output) / 2;
                 break;
             case 3:
-                if (op1.envelopeGenerator.stage == EnvelopeGenerator.Stage.OFF &&
-                    op3.envelopeGenerator.stage == EnvelopeGenerator.Stage.OFF &&
-                    op4.envelopeGenerator.stage == EnvelopeGenerator.Stage.OFF)
-                    return getInFourChannels(0, opl._new);
+                if (op1.envelopeGenerator.stage == Stage.OFF &&
+                    op3.envelopeGenerator.stage == Stage.OFF &&
+                    op4.envelopeGenerator.stage == Stage.OFF)
+                    return getInFourChannels(0);
 
-                op1Output = op1.getOperatorOutput(feedbackOutput, opl);
+                op1Output = op1.getOperatorOutput(feedbackOutput);
 
-                op2Output = op2.getOperatorOutput(Operator.noModulator, opl);
-                op3Output = op3.getOperatorOutput(op2Output * toPhase, opl);
+                op2Output = op2.getOperatorOutput(Operator.noModulator);
+                op3Output = op3.getOperatorOutput(op2Output * toPhase);
 
-                op4Output = op4.getOperatorOutput(Operator.noModulator, opl);
+                op4Output = op4.getOperatorOutput(Operator.noModulator);
 
                 channelOutput = (op1Output + op3Output + op4Output) / 3;
             }
@@ -669,7 +666,7 @@ public final class OPL3 {
             feedback[0] = feedback[1];
             feedback[1] = (op1Output * ChannelData.feedback[fb]) % 1;
 
-            output = getInFourChannels(channelOutput, opl._new);
+            output = getInFourChannels(channelOutput);
             return output;
         }
 
@@ -688,7 +685,7 @@ public final class OPL3 {
             op4.keyOff();
         }
 
-        protected void updateOperators(int nts) {
+        protected void updateOperators() {
             // Key Scale Number, used in EnvelopeGenerator.setActualRates().
             int keyScaleNumber = block * 2 + ((fNumH >> nts) & 0x01);
             int f_number = (fNumH <<8) | fNumL;
@@ -712,20 +709,20 @@ public final class OPL3 {
     }
 
     /** There's just one instance of this class, that fills the eventual gaps in the Channel array */
-    private static class DisabledChannel extends Channel {
+    private class DisabledChannel extends Channel {
         DisabledChannel(int[] registers) {
-            super(0, registers);
+            super(0);
         }
-        double[] getChannelOutput(OPL3 opl) { return getInFourChannels(0, opl._new); }
+        double[] getChannelOutput() { return getInFourChannels(0); }
         protected void keyOn() { }
         protected void keyOff() { }
-        protected void updateOperators(int nts) { }
+        protected void updateOperators() { }
     }
 
     /**
      * Operators
      */
-    private static class Operator {
+    private class Operator {
         PhaseGenerator phaseGenerator;
         EnvelopeGenerator envelopeGenerator;
 
@@ -737,13 +734,10 @@ public final class OPL3 {
 
         static final double noModulator = 0;
 
-        int[] registers;
-
-        Operator(int baseAddress, int[] registers) {
+        Operator(int baseAddress) {
             operatorBaseAddress = baseAddress;
             phaseGenerator = new PhaseGenerator();
             envelopeGenerator = new EnvelopeGenerator();
-            this.registers = registers;
 
             envelope = 0;
             am = vib = ksr = egt = mult = ksl = tl = ar = dr = sl = rr = ws = 0;
@@ -817,17 +811,17 @@ public final class OPL3 {
             ws =  _5_ws3 & 0x07;
         }
 
-        double getOperatorOutput(double modulator, OPL3 opl) {
-            if(envelopeGenerator.stage == EnvelopeGenerator.Stage.OFF) return 0;
+        double getOperatorOutput(double modulator) {
+            if(envelopeGenerator.stage == Stage.OFF) return 0;
 
-            double envelopeInDB = envelopeGenerator.getEnvelope(egt, am, opl.dam, opl.tremoloIndex);
+            double envelopeInDB = envelopeGenerator.getEnvelope(egt, am);
             envelope = Math.pow(10, envelopeInDB/10.0);
 
             // If it is in OPL2 mode, use first four waveforms only:
-            ws &= ((opl._new << 2) + 3);
+            ws &= ((_new << 2) + 3);
             double[] waveform = OperatorData.waveforms[ws];
 
-            phase = phaseGenerator.getPhase(vib, opl);
+            phase = phaseGenerator.getPhase(vib);
 
             return getOutput(modulator, phase, waveform);
         }
@@ -848,7 +842,7 @@ public final class OPL3 {
                 envelopeGenerator.keyOn();
                 phaseGenerator.keyOn();
             } else
-                envelopeGenerator.stage = EnvelopeGenerator.Stage.OFF;
+                envelopeGenerator.stage = Stage.OFF;
         }
 
         protected void keyOff() {
@@ -882,12 +876,13 @@ public final class OPL3 {
         }
     }
 
+    private enum Stage {ATTACK, DECAY, SUSTAIN, RELEASE, OFF}
+
     /**
      * Envelope Generator
      */
-    private static class EnvelopeGenerator {
+    private class EnvelopeGenerator {
 //        static final double[] INFINITY = null;
-        enum Stage {ATTACK, DECAY, SUSTAIN, RELEASE, OFF}
         Stage stage;
         int actualAttackRate, actualDecayRate, actualReleaseRate;
         double xAttackIncrement, xMinimumInAttack;
@@ -1002,7 +997,7 @@ public final class OPL3 {
             return actualRate;
         }
 
-        double getEnvelope(int egt, int am, int dam, int tremoloIndex) {
+        double getEnvelope(int egt, int am) {
             // The datasheets attenuation values
             // must be halved to match the real OPL3 output.
             double envelopeSustainLevel = sustainLevel / 2;
@@ -1096,18 +1091,6 @@ public final class OPL3 {
             if(stage != Stage.OFF) stage = Stage.RELEASE;
         }
 
-        private static double dBtoX(double dB) {
-            return OperatorData.log2(-dB);
-        }
-
-        private static double percentageToDB(double percentage) {
-            return Math.log10(percentage)*10d;
-        }
-
-        private static double percentageToX(double percentage) {
-            return dBtoX(percentageToDB(percentage));
-        }
-
         @Override
         public String toString() {
             double attackPeriodInSeconds = EnvelopeGeneratorData.attackTimeValuesTable[actualAttackRate][0] / 1000d;
@@ -1122,20 +1105,32 @@ public final class OPL3 {
         }
     }
 
+    private static double dBtoX(double dB) {
+        return OperatorData.log2(-dB);
+    }
+
+    private static double percentageToDB(double percentage) {
+        return Math.log10(percentage)*10d;
+    }
+
+    private static double percentageToX(double percentage) {
+        return dBtoX(percentageToDB(percentage));
+    }
+
     /**
      * Phase Generator
      */
-    private static class PhaseGenerator {
+    private class PhaseGenerator {
         double phase, phaseIncrement;
 
         PhaseGenerator() {
             phase = phaseIncrement = 0;
         }
 
-        void setFrequency(int f_number, int block, int mult) {
+        void setFrequency(int fNumber, int block, int mult) {
             // This frequency formula is derived from the following equation:
-            // f_number = baseFrequency * pow(2, 19) / sampleRate / pow(2, block - 1);
-            double baseFrequency = f_number * Math.pow(2, block - 1) * OPL3Data.sampleRate / Math.pow(2, 19);
+            // fNumber = baseFrequency * pow(2, 19) / sampleRate / pow(2, block - 1);
+            double baseFrequency = fNumber * Math.pow(2, block - 1) * OPL3Data.sampleRate / Math.pow(2, 19);
             double operatorFrequency = baseFrequency * OperatorData.multTable[mult];
 
             // phase goes from 0 to 1 at
@@ -1148,10 +1143,10 @@ public final class OPL3 {
             phaseIncrement = operatorFrequency/OPL3Data.sampleRate;
         }
 
-        double getPhase(int vib, OPL3 opl) {
+        double getPhase(int vib) {
             if (vib == 1)
                 // phaseIncrement = (operatorFrequency * vibrato) / sampleRate
-                phase += phaseIncrement * OPL3Data.vibratoTable[opl.dvb][opl.vibratoIndex];
+                phase += phaseIncrement * OPL3Data.vibratoTable[dvb][vibratoIndex];
             else
                 // phaseIncrement = operatorFrequency / sampleRate
                 phase += phaseIncrement;
@@ -1175,14 +1170,14 @@ public final class OPL3 {
      * The getOperatorOutput() method in TopCymbalOperator, HighHatOperator and SnareDrumOperator
      * were made through purely empyrical reverse engineering of the OPL3 output.
      */
-    private abstract static class RhythmChannel extends channel2Op {
+    private abstract class RhythmChannel extends Channel2Op {
 
-        RhythmChannel(int baseAddress, int[] registers, Operator o1, Operator o2) {
-            super(baseAddress, registers, o1, o2);
+        RhythmChannel(int baseAddress, Operator o1, Operator o2) {
+            super(baseAddress, o1, o2);
         }
 
         @Override
-        double[] getChannelOutput(OPL3 opl) {
+        double[] getChannelOutput() {
             double channelOutput = 0, op1Output = 0, op2Output = 0;
             double[] output;
 
@@ -1190,11 +1185,11 @@ public final class OPL3 {
             // we do not check to see if the Operator's envelopes are Off.
             // Instead, we always do the calculations,
             // to update the publicly available phase.
-            op1Output = op1.getOperatorOutput(Operator.noModulator, opl);
-            op2Output = op2.getOperatorOutput(Operator.noModulator, opl);
+            op1Output = op1.getOperatorOutput(Operator.noModulator);
+            op2Output = op2.getOperatorOutput(Operator.noModulator);
             channelOutput = (op1Output + op2Output) / 2;
 
-            output = getInFourChannels(channelOutput, opl._new);
+            output = getInFourChannels(channelOutput);
             return output;
         }
 
@@ -1206,54 +1201,51 @@ public final class OPL3 {
         protected void keyOff() {}
     }
 
-    private static class HighHatSnareDrumChannel extends RhythmChannel {
+    private class HighHatSnareDrumChannel extends RhythmChannel {
         static final int highHatSnareDrumChannelBaseAddress = 7;
 
         HighHatSnareDrumChannel(int[] registers, OPL3.Operator o1, OPL3.Operator o2) {
-            super(highHatSnareDrumChannelBaseAddress, registers, o1, o2);
+            super(highHatSnareDrumChannelBaseAddress, o1, o2);
         }
     }
 
-    private static class TomTomTopCymbalChannel extends RhythmChannel {
+    private class TomTomTopCymbalChannel extends RhythmChannel {
         static final int tomTomTopCymbalChannelBaseAddress = 8;
 
         TomTomTopCymbalChannel(int[] registers, OPL3.Operator o1, OPL3.Operator o2) {
-            super(tomTomTopCymbalChannelBaseAddress, registers, o1, o2);
+            super(tomTomTopCymbalChannelBaseAddress, o1, o2);
         }
     }
 
-    private static class TopCymbalOperator extends Operator {
+    private class TopCymbalOperator extends Operator {
         static final int topCymbalOperatorBaseAddress = 0x15;
 
-        HighHatOperator highHatOperator;
-
-        TopCymbalOperator(int baseAddress, int[] registers, HighHatOperator op) {
-            super(baseAddress, registers);
-            highHatOperator = op;
+        TopCymbalOperator(int baseAddress) {
+            super(baseAddress);
         }
 
-        TopCymbalOperator(int[] registers, HighHatOperator op) {
-            this(topCymbalOperatorBaseAddress, registers, op);
+        TopCymbalOperator() {
+            this(topCymbalOperatorBaseAddress);
         }
 
         @Override
-        double getOperatorOutput(double modulator, OPL3 opl) {
+        double getOperatorOutput(double modulator) {
             double highHatOperatorPhase = highHatOperator.phase * OperatorData.multTable[highHatOperator.mult];
             // The Top Cymbal operator uses his own phase together with the High Hat phase.
-            return getOperatorOutput(modulator, highHatOperatorPhase, opl);
+            return getOperatorOutput(modulator, highHatOperatorPhase);
         }
 
         // This method is used here with the HighHatOperator phase
         // as the externalPhase.
         // Conversely, this method is also used through inheritance by the HighHatOperator,
         // now with the TopCymbalOperator phase as the externalPhase.
-        protected double getOperatorOutput(double modulator, double externalPhase, OPL3 opl) {
-            double envelopeInDB = envelopeGenerator.getEnvelope(egt, am, opl.dam, opl.tremoloIndex);
+        protected double getOperatorOutput(double modulator, double externalPhase) {
+            double envelopeInDB = envelopeGenerator.getEnvelope(egt, am);
             envelope = Math.pow(10, envelopeInDB / 10.0);
 
-            phase = phaseGenerator.getPhase(vib, opl);
+            phase = phaseGenerator.getPhase(vib);
 
-            int waveIndex = ws & ((opl._new << 2) + 3);
+            int waveIndex = ws & ((_new << 2) + 3);
             double[] waveform = OperatorData.waveforms[waveIndex];
 
             // Empirically tested multiplied phase for the Top Cymbal:
@@ -1270,49 +1262,43 @@ public final class OPL3 {
         }
     }
 
-    private static class HighHatOperator extends TopCymbalOperator {
+    private class HighHatOperator extends TopCymbalOperator {
         static final int highHatOperatorBaseAddress = 0x11;
 
-        TopCymbalOperator topCymbalOperator;
-
-        HighHatOperator(int[] registers, TopCymbalOperator op1, HighHatOperator op2) {
-            super(highHatOperatorBaseAddress, registers, op2);
-            topCymbalOperator = op1;
+        HighHatOperator() {
+            super(highHatOperatorBaseAddress);
         }
 
         @Override
-        double getOperatorOutput(double modulator, OPL3 opl) {
+        double getOperatorOutput(double modulator) {
             double topCymbalOperatorPhase =
                 topCymbalOperator.phase * OperatorData.multTable[topCymbalOperator.mult];
             // The sound output from the High Hat resembles the one from
             // Top Cymbal, so we use the parent method and modifies his output
             // accordingly afterwards.
-            double operatorOutput = super.getOperatorOutput(modulator, topCymbalOperatorPhase, opl);
+            double operatorOutput = super.getOperatorOutput(modulator, topCymbalOperatorPhase);
             if (operatorOutput == 0)
                 operatorOutput = Math.random() * envelope;
             return operatorOutput;
         }
     }
 
-    private static class SnareDrumOperator extends Operator {
+    private class SnareDrumOperator extends Operator {
         static final int snareDrumOperatorBaseAddress = 0x14;
 
-        HighHatOperator highHatOperator;
-
-        SnareDrumOperator(int[] registers, HighHatOperator op) {
-            super(snareDrumOperatorBaseAddress, registers);
-            highHatOperator = op;
+        SnareDrumOperator() {
+            super(snareDrumOperatorBaseAddress);
         }
 
         @Override
-        double getOperatorOutput(double modulator, OPL3 opl) {
-            if(envelopeGenerator.stage == EnvelopeGenerator.Stage.OFF) return 0;
+        double getOperatorOutput(double modulator) {
+            if(envelopeGenerator.stage == Stage.OFF) return 0;
 
-            double envelopeInDB = envelopeGenerator.getEnvelope(egt, am, opl.dam, opl.tremoloIndex);
+            double envelopeInDB = envelopeGenerator.getEnvelope(egt, am);
             envelope = Math.pow(10, envelopeInDB / 10.0);
 
             // If it is in OPL2 mode, use first four waveforms only:
-            int waveIndex = ws & ((opl._new << 2) + 3);
+            int waveIndex = ws & ((_new << 2) + 3);
             double[] waveform = OperatorData.waveforms[waveIndex];
 
             phase = highHatOperator.phase * 2;
@@ -1334,30 +1320,28 @@ public final class OPL3 {
         }
     }
 
-    private static class TomTomOperator extends Operator {
+    private class TomTomOperator extends Operator {
         static final int tomTomOperatorBaseAddress = 0x12;
-        TomTomOperator(int[] registers) {
-            super(tomTomOperatorBaseAddress, registers);
+        TomTomOperator() {
+            super(tomTomOperatorBaseAddress);
         }
     }
 
-    private static class BassDrumChannel extends channel2Op {
+    private class BassDrumChannel extends Channel2Op {
         static final int bassDrumChannelBaseAddress = 6;
         static final int op1BaseAddress = 0x10;
         static final int op2BaseAddress = 0x13;
 
-        BassDrumChannel(int[] registers) {
-            super(bassDrumChannelBaseAddress, registers,
-                    new Operator(op1BaseAddress, registers),
-                    new Operator(op2BaseAddress, registers));
+        BassDrumChannel() {
+            super(bassDrumChannelBaseAddress, new Operator(op1BaseAddress), new Operator(op2BaseAddress));
         }
 
         @Override
-        double[] getChannelOutput(OPL3 opl) {
+        double[] getChannelOutput() {
             // Bass Drum ignores first operator, when it is in series.
             if (cnt == 1)
                 op1.ar = 0;
-            return super.getChannelOutput(opl);
+            return super.getChannelOutput();
         }
 
         // Key ON and OFF are unused in rhythm channels.

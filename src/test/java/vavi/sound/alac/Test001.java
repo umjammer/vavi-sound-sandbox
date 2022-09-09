@@ -8,6 +8,8 @@ package vavi.sound.alac;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -139,7 +141,7 @@ Debug.println(audioFormat);
 
     @Test
     void test2() throws Exception {
-        InputStream is = new FileInputStream(inFile);
+        InputStream is = Files.newInputStream(Paths.get(inFile));
 
         Alac decoder = new Alac(is);
         int num_channels = decoder.getNumChannels();

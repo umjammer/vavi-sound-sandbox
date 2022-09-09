@@ -37,13 +37,13 @@ public class OpusTest {
         String in = args[0];
         String out = args[1];
 
-        InputStream is = new FileInputStream(in);
+        InputStream is = Files.newInputStream(Paths.get(in));
         OpusEncoder encoder = new OpusEncoder(48000, 2, OpusApplication.OPUS_APPLICATION_AUDIO);
         encoder.setBitrate(96000);
         encoder.setSignalType(OpusSignal.OPUS_SIGNAL_MUSIC);
         encoder.setComplexity(10);
 
-        OutputStream os = new FileOutputStream(out);
+        OutputStream os = Files.newOutputStream(Paths.get(out));
         OpusInfo info = new OpusInfo();
         info.setNumChannels(2);
         info.setSampleRate(48000);

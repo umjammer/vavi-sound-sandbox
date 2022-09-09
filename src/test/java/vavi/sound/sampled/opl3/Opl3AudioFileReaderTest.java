@@ -82,7 +82,7 @@ if (!(originalAudioFormat.getEncoding() instanceof Opl3Encoding)) {
  volume(clip, .2d);
 }
         clip.start();
-if (Boolean.valueOf(System.getProperty("vavi.test"))) {
+if (Boolean.parseBoolean(System.getProperty("vavi.test"))) {
  Thread.sleep(10 * 1000);
  clip.stop();
  Debug.println("stop");
@@ -135,7 +135,7 @@ if (!(originalAudioFormat.getEncoding() instanceof Opl3Encoding)) {
  volume(clip, .2d);
 }
         clip.start();
-if (Boolean.valueOf(System.getProperty("vavi.test"))) {
+if (Boolean.parseBoolean(System.getProperty("vavi.test"))) {
  Thread.sleep(10 * 1000);
  clip.stop();
  Debug.println("stop");
@@ -185,7 +185,7 @@ if (!(originalAudioFormat.getEncoding() instanceof Opl3Encoding)) {
  volume(clip, .2d);
 }
         clip.start();
-if (Boolean.valueOf(System.getProperty("vavi.test"))) {
+if (Boolean.parseBoolean(System.getProperty("vavi.test"))) {
  Thread.sleep(10 * 1000);
  clip.stop();
  Debug.println("stop");
