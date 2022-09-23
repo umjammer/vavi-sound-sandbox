@@ -100,7 +100,7 @@ Debug.println("START");
 
         volume(receiver, .2f); // volume works?
 
-if (Boolean.valueOf(System.getProperty("vavi.test"))) {
+if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  sequencer.stop();
  Debug.println("STOP");
@@ -147,7 +147,7 @@ Debug.println("META: " + MetaEvent.valueOf(meta.getType()));
         sequencer.addMetaEventListener(mel);
 Debug.println("START");
         sequencer.start();
-if (Boolean.valueOf(System.getProperty("vavi.test"))) {
+if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  sequencer.stop();
  Debug.println("STOP");

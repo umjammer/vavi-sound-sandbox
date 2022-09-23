@@ -115,15 +115,15 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M5</version>
+        <version>3.0.0-M7</version>
         <configuration>
           <argLine>
             -Dvavi.util.logging.VaviFormatter.extraClassMethod="org\.tritonus\.share\.TDebug#out"
             -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
-            -Dgdrive.home="/Volumes/Google Drive/My Drive"
+            -Dgdrive.home="/Volumes/GoogleDrive/My Drive"
             -Dvavi.test.dev.null=${dev.null}
-            -Dvavi.test=true
           </argLine>
           <trimStackTrace>false</trimStackTrace>
           <forkMode>always</forkMode>
