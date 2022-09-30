@@ -1,7 +1,7 @@
-# vavi.sound.pcm
+# vavi.sound.pcm.sampled.alac
 
-ALAC の spi 実装のクラスを提供します．
+Apple Lossless Audio Codec spi.
 
 ## TODO
 
- * ~~完成させる~~
+ * ~~Complete~~
