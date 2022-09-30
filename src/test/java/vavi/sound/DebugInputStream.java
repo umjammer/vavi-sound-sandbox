@@ -25,7 +25,7 @@ import vavi.util.Debug;
  */
 public class DebugInputStream extends FilterInputStream {
 
-    static final boolean debug = false;
+    static final boolean debug = true;
 
     public DebugInputStream(InputStream in) {
         super(in);
@@ -57,7 +57,7 @@ if (debug)
 
     @Override
     public int read() throws IOException {
-if (debug)
+if (debug && false)
  printStackTrace(new Exception("@@@@@@@@@@@@@@@@@@@@ available: " + ava()));
         return super.read();
     }

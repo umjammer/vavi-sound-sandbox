@@ -64,12 +64,12 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-//        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
+        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
 //        String filename = "Games/リッジレーサー - Theme (GS).mid";
-        String filename = "test.mid";
+//        String filename = "test.mid";
 
-//        Path file = Paths.get(System.getProperty("gdrive.home"), "/Music/midi/", filename);
-        Path file = Paths.get("src/test/resources/", filename);
+        Path file = Paths.get(System.getProperty("gdrive.home"), "/Music/midi/", filename);
+//        Path file = Paths.get("src/test/resources/", filename);
 
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 

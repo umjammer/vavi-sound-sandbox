@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.sound.midi.Instrument;
+import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiMessage;
@@ -28,6 +29,9 @@ import vavi.util.Debug;
 import vavi.util.StringUtil;
 
 import vavix.rococoa.avfoundation.AVAudioEngine;
+import vavix.rococoa.avfoundation.AVAudioFormat;
+import vavix.rococoa.avfoundation.AVAudioMixerNode;
+import vavix.rococoa.avfoundation.AVAudioUnitEQ;
 import vavix.rococoa.avfoundation.AVAudioUnitMIDIInstrument;
 import vavix.rococoa.avfoundation.AudioComponentDescription;
 
@@ -60,6 +64,9 @@ public class RococoaSynthesizer implements Synthesizer {
     private AVAudioEngine engine;
 
     private AVAudioUnitMIDIInstrument midiSynth;
+
+    private AVAudioUnitEQ equalizer;
+    private AVAudioMixerNode mixer;
 
     private MidiChannel[] channels = new MidiChannel[MAX_CHANNEL];
 
@@ -106,9 +113,26 @@ Debug.println("AudioUnit: " + pair[0] + ":" + pair[1]);
         }
 Debug.println(midiSynth + ", " + midiSynth.name() + ", " + midiSynth.version() + ", " + midiSynth.manufacturerName());
 
+Debug.println("output: " + engine.outputNode());
+        this.equalizer = AVAudioUnitEQ.newInstance();
+Debug.println("equalizer: " + equalizer);
+        this.mixer = engine.mainMixerNode();
+Debug.println("mixer: " + mixer);
+
         engine.attachNode(midiSynth);
-        engine.connect_to_format(midiSynth, engine.mainMixerNode(), null);
+        engine.attachNode(equalizer);
+        AVAudioFormat format = engine.inputNode().outputFormatForBus(0);
+Debug.println("format: " + format);
+        engine.connect_to_format(midiSynth, equalizer, format);
+        engine.connect_to_format(equalizer, engine.outputNode(), format);
+
         engine.prepare();
+
+        mixer.setOutputVolume(0.1f);
+Debug.printf("out volume: %3.2f%n", mixer.outputVolume());
+        equalizer.setGlobalGain(-40);
+Debug.printf("equalizer gain: %+3.0f%n", equalizer.globalGain());
+
         boolean r = engine.start();
 Debug.println("stated: " + r + ", " + hashCode());
     }
@@ -462,10 +486,33 @@ Debug.printf("uncknown short: %02X\n", command);
                     SysexMessage sysexMessage = (SysexMessage) message;
                     byte[] data = sysexMessage.getData();
 Debug.printf("sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data));
-                    midiSynth.sendMIDISysExEvent(data);
+                    switch (data[0]) {
+                    case 0x7f: // Universal Realtime
+                        @SuppressWarnings("unused")
+                        int c = data[1]; // 0x7f: Disregards channel
+                        // Sub-ID, Sub-ID2
+                        if (data[2] == 0x04 && data[3] == 0x01) { // Device Control / Master Volume
+                                // TODO doesn't work
+                                float gain = ((data[4] & 0x7f) | ((data[5] & 0x7f) << 7)) / 16383f;
+                                float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0) * 4;
+Debug.printf("sysex volume: gain: %03.2f, dB: %-3.0f%n", gain, dB);
+//                                equalizer.setGlobalGain(-90);
+                        }
+                        break;
+                    default:
+                        break;
+                    }
+
+                    midiSynth.sendMIDISysExEvent(sysexMessage.getMessage());
+                } else if (message instanceof MetaMessage) {
+                    MetaMessage metaMessage = (MetaMessage) message;
+Debug.printf("meta: %02x", metaMessage.getType());
+                    switch (metaMessage.getType()) {
+                    case 0x2f:
+                        break;
+                    }
                 } else {
-                    // TODO meta message
-Debug.printf(message.getClass().getName());
+                    assert false;
                 }
             } else {
                 throw new IllegalStateException("receiver is not open");
