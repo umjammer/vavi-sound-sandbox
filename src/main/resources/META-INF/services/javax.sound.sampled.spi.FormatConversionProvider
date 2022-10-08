@@ -6,7 +6,6 @@
 # 0.00 111022 nsano initial version
 #
 
-vavi.sound.sampled.alac.AlacFormatConversionProvider
 vavi.sound.sampled.opus.OpusFormatConversionProvider
 #vavi.sound.sampled.rococoa.RococoaFormatConversionProvider
 vavi.sound.sampled.opl3.Opl3FormatConversionProvider
