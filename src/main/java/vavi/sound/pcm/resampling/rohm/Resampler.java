@@ -79,7 +79,7 @@ public class Resampler {
 
                 // 値代入.
                 short n = (short) dRes;
-                n += 128;
+                n = (short) (n + 128);
 
                 pbyNewPcm[i] = (byte) n;
             }
