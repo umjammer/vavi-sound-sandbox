@@ -1005,7 +1005,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
                          ((HAN_SIZE * 2) - 1);
                 w[l] = (float) (coef * m_dewin[l] * m_dxbuf[ch][l2]);
                 w[m] = (float) (coef * m_dewin[m] * m_dxbuf[ch][m2]);
-                coef *= -1.0;
+                coef = (float) (coef * -1.0);
             }
         }
 
