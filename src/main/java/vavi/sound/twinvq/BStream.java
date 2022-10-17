@@ -332,7 +332,7 @@ class BStream {
     long skipFrame(BFile bfp, long step) throws IOException {
 
         int numBits = twinVq.TvqGetNumFixedBitsPerFrame();
-        iframe += step;
+        iframe += (int) step;
         return bfp.bseek(numBits * step, BFile.BSEEK_CUR);
 
     }
