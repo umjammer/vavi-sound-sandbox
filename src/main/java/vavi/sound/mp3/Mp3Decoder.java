@@ -751,7 +751,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
 
         for (int sb = 1; sb < SB_SIZE; sb += 2) {
             for (int ss = 1; ss < SS_SIZE; ss += 2) {
-                samp[ss][sb] *= -1.0;
+                samp[ss][sb] = (float) (samp[ss][sb] * -1.0);
             }
         }
     }
