@@ -26,7 +26,7 @@ import vavi.sound.opl3.MidPlayer.MidiTypeFile;
  */
 class MidiFile extends MidiTypeFile {
 
-    private static Logger logger = Logger.getLogger(MidiFile.class.getName());
+    private static final Logger logger = Logger.getLogger(MidiFile.class.getName());
 
     @Override
     int markSize() {

@@ -88,15 +88,15 @@ public class OpusFormatConversionProvider extends FormatConversionProvider {
                     return sourceStream;
                 } else if (sourceFormat.getEncoding() instanceof OpusEncoding && targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
                     try {
-                        OpusFile opus = OpusFile.class.cast(sourceFormat.getProperty("opus"));
+                        OpusFile opus = (OpusFile) sourceFormat.getProperty("opus");
                         return new Opus2PcmAudioInputStream(opus, targetFormat, AudioSystem.NOT_SPECIFIED);
                     } catch (IOException e) {
                         throw new IllegalStateException(e);
                     }
                 } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof OpusEncoding) {
-                    throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+                    throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 } else {
-                    throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+                    throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat.toString());
                 }
             } else {
                 throw new IllegalArgumentException("target format not found");
@@ -117,15 +117,15 @@ public class OpusFormatConversionProvider extends FormatConversionProvider {
                 } else if (sourceFormat.getEncoding() instanceof OpusEncoding &&
                            targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
                     try {
-                        OpusFile opus = OpusFile.class.cast(sourceFormat.getProperty("opus"));
+                        OpusFile opus = (OpusFile) sourceFormat.getProperty("opus");
                         return new Opus2PcmAudioInputStream(opus, targetFormat, AudioSystem.NOT_SPECIFIED);
                     } catch (IOException e) {
                         throw new IllegalStateException(e);
                     }
                 } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof OpusEncoding) {
-                    throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+                    throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 } else {
-                    throw new IllegalArgumentException("unable to convert " + sourceFormat.toString() + " to " + targetFormat.toString());
+                    throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 }
             } else {
                 throw new IllegalArgumentException("target format not found");

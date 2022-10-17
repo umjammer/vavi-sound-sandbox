@@ -49,7 +49,7 @@ public class EditEnvelope1 extends JApplet {
     private SegmentedEnvelope envelope;
     private VariableRateDataReader envelopePlayer;
 
-    final int MAX_FRAMES = 16;
+    static final int MAX_FRAMES = 16;
     JButton hitme;
     JButton attackButton;
     JButton releaseButton;
@@ -58,7 +58,7 @@ public class EditEnvelope1 extends JApplet {
     private EnvelopePoints points;
 
     /* Can be run as either an application or as an applet. */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         EditEnvelope1 applet = new EditEnvelope1();
         JAppletFrame frame = new JAppletFrame("Test SynthEnvelope", applet);
         frame.setSize(440, 200);

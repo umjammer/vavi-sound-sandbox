@@ -14,7 +14,7 @@ package vavix.rococoa.avfoundation;
  * @version 0.00 2020/10/02 umjammer initial version <br>
  */
 public interface AVFoundation extends com.sun.jna.Library {
-    public static AVFoundation instance = com.sun.jna.Native.load("AVFoundation", AVFoundation.class);
+    AVFoundation instance = com.sun.jna.Native.load("AVFoundation", AVFoundation.class);
 }
 
 /* */

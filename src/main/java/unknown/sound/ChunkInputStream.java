@@ -45,7 +45,6 @@ public abstract class ChunkInputStream extends DataInputStream {
         if (readLength != dataBytes.length) {
             throw new InvalidMidiDataException("format");
         } else {
-            return;
         }
     }
 

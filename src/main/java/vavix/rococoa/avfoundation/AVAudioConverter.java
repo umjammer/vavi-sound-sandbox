@@ -17,13 +17,13 @@ public abstract class AVAudioConverter extends NSObject {
         endOfStream,
         error,
         haveData,
-        inputRanDry;
+        inputRanDry
     }
 
     enum AVAudioConverterInputStatus {
         haveData,
         noDataNow,
-        endOfStream;
+        endOfStream
     }
 
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("AVAudioConverter", _Class.class);

@@ -15,7 +15,7 @@ package vavix.rococoa.ituneslibrary;
  * @see "https://github.com/dpogue/Unofficial-Google-Music-API/wiki/Skyjam-API"
  */
 public interface ITunesLibrary extends com.sun.jna.Library {
-    public static ITunesLibrary instance = com.sun.jna.Native.load("iTunesLibrary", ITunesLibrary.class);
+    ITunesLibrary instance = com.sun.jna.Native.load("iTunesLibrary", ITunesLibrary.class);
 }
 
 //delegate void ITLibMediaEntityEnumerateValuesHandler (NSString property, NSObject value, out bool stop);

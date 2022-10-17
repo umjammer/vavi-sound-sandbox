@@ -30,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Calendar;
 import unknown.sound.converter.MIDIToMLDInputStream;
 import unknown.sound.converter.Preferences;
@@ -199,10 +200,10 @@ public class MTMWindow extends Frame {
                     if (dateCheckbox.getState()) {
                         if (dateTodayCheckbox.getState()) {
                             Calendar calendar = Calendar.getInstance();
-                            int l = calendar.get(1);
-                            int i1 = calendar.get(2);
+                            int l = calendar.get(Calendar.YEAR);
+                            int i1 = calendar.get(Calendar.MONTH);
                             String s3 = (i1 >= 10) ? "" : "0";
-                            int j2 = calendar.get(5);
+                            int j2 = calendar.get(Calendar.DATE);
                             String s6 = (j2 >= 10) ? "" : "0";
                             preferences.date = l + s3 + i1 + s6 + j2;
                         } else if (dateFileCheckbox.getState()) {
@@ -310,7 +311,7 @@ public class MTMWindow extends Frame {
                         k2++;
                     } while (true);
                     try {
-                        MIDIInputStream mis = new MIDIInputStream(new FileInputStream(file));
+                        MIDIInputStream mis = new MIDIInputStream(Files.newInputStream(file.toPath()));
                         MIDIToMLDInputStream m2mis = new MIDIToMLDInputStream(mis,
                                                                                              preferences);
                         FileOutputStream fos = new FileOutputStream(file1);
@@ -456,9 +457,9 @@ public class MTMWindow extends Frame {
                         titleUserText.setEnabled(flag);
                         titleUserText.setEditable(flag);
                         if (flag) {
-                            titleUserText.setCursor(new Cursor(2));
+                            titleUserText.setCursor(new Cursor(Cursor.TEXT_CURSOR));
                         } else {
-                            titleUserText.setCursor(new Cursor(0));
+                            titleUserText.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                         }
                     }
                 }
@@ -472,11 +473,11 @@ public class MTMWindow extends Frame {
                     if (titleFileCheckbox.getState()) {
                         titleUserText.setEnabled(false);
                         titleUserText.setEditable(false);
-                        titleUserText.setCursor(new Cursor(0));
+                        titleUserText.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                     } else {
                         titleUserText.setEnabled(true);
                         titleUserText.setEditable(true);
-                        titleUserText.setCursor(new Cursor(2));
+                        titleUserText.setCursor(new Cursor(Cursor.TEXT_CURSOR));
                     }
                 }
             });
@@ -488,11 +489,11 @@ public class MTMWindow extends Frame {
                     if (titleUserCheckbox.getState()) {
                         titleUserText.setEnabled(true);
                         titleUserText.setEditable(true);
-                        titleUserText.setCursor(new Cursor(2));
+                        titleUserText.setCursor(new Cursor(Cursor.TEXT_CURSOR));
                     } else {
                         titleUserText.setEnabled(false);
                         titleUserText.setEditable(false);
-                        titleUserText.setCursor(new Cursor(0));
+                        titleUserText.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                     }
                 }
             });
@@ -501,7 +502,7 @@ public class MTMWindow extends Frame {
         titleUserText.setBounds(75, 60, 150, 20);
         titleUserText.setEnabled(false);
         titleUserText.setEditable(false);
-        titleUserText.setCursor(new Cursor(0));
+        titleUserText.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         add(titleUserText);
 
         MTMVolumeListener mtmvolumelistener = new MTMVolumeListener();
@@ -557,7 +558,7 @@ public class MTMWindow extends Frame {
         filePathText = new TextArea("", 20, 2, 1);
         filePathText.setBounds(35, 370, 200, 40);
         filePathText.setEditable(false);
-        filePathText.setCursor(new Cursor(0));
+        filePathText.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         add(filePathText);
         fileButton = new Button("選択");
         fileButton.setBounds(35, 350, 40, 20);

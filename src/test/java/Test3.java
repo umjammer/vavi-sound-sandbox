@@ -147,7 +147,6 @@ Debug.println("--------- " + reader.getClass().getName());
                 break;
             } catch (UnsupportedAudioFileException e) {
 Debug.println("ERROR: " + e.getMessage());
-                continue;
             }
         }
 

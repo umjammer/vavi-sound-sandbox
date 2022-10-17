@@ -34,7 +34,7 @@ public interface AudioToolbox extends com.sun.jna.Library {
 
     enum AudioUnitPropertyID {
         kMusicDeviceProperty_SoundBankURL(1100);
-        int id;
+        final int id;
         AudioUnitPropertyID(int id) {
             this.id = id;
         }

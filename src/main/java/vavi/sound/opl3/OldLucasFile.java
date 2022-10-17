@@ -24,7 +24,7 @@ import vavi.sound.opl3.MidPlayer.MidiTypeFile;
  */
 class OldLucasFile extends MidiTypeFile {
 
-    private static Logger logger = Logger.getLogger(OldLucasFile.class.getName());
+    private static final Logger logger = Logger.getLogger(OldLucasFile.class.getName());
 
     int markSize() {
         return 6;

@@ -91,7 +91,7 @@ class HeaderManager {
     }
 
     /** チャンクの書式が正しくない */
-    class WrongChunkFormatException extends RuntimeException {
+    static class WrongChunkFormatException extends RuntimeException {
     }
 
     /** 通常チャンクを引き出す */
@@ -124,7 +124,7 @@ class HeaderManager {
 
             // TWINチャンクのヘッダを取得する
             theManager.chunkID = twinChunk.getID();
-            if (theManager.chunkID == "") {
+            if (theManager.chunkID.isEmpty()) {
                 return null;
             }
 
@@ -135,7 +135,7 @@ class HeaderManager {
     }
 
     /** チャンクの取得に失敗した */
-    class FailGetChunkException extends RuntimeException {
+    static class FailGetChunkException extends RuntimeException {
     }
 }
 
@@ -153,7 +153,7 @@ class UniStringInfo {
         S_JIS(2),
         JIS(3),
         EUC(4);
-        int value;
+        final int value;
 
         CharCode(int value) {
             this.value = value;
@@ -177,9 +177,9 @@ class UniStringInfo {
 
     private void putPrimaryInfo(StringChunk theChunk) {
         // ID をチェック
-        if (id == "") {
+        if (id.isEmpty()) {
             id = theChunk.getID();
-        } else if (id != theChunk.getID()) {
+        } else if (!id.equals(theChunk.getID())) {
             throw new IDException();
         }
 
@@ -189,9 +189,9 @@ class UniStringInfo {
 
     private void putSecondaryInfo(StringChunk theChunk) {
         // ID をチェック
-        if (id == "") {
+        if (id.isEmpty()) {
             id = theChunk.getID();
-        } else if (id != theChunk.getID()) {
+        } else if (!id.equals(theChunk.getID())) {
             throw new IDException();
         }
 
@@ -206,15 +206,15 @@ class UniStringInfo {
         primaryCharCode = secondary.charAt(0) - '0';
         secondaryCharCode = secondary.charAt(1) - '0';
 
-        secondary = secondary.substring(2, secondary.length());
+        secondary = secondary.substring(2);
     }
 
     /** 初期化の際、基本チャンクと補助チャンクの ID が食い違っている */
-    class IDException extends RuntimeException {
+    static class IDException extends RuntimeException {
     }
 
     /** 補助チャンクに文字コード情報がない */
-    class NoCharCodeException extends RuntimeException {
+    static class NoCharCodeException extends RuntimeException {
     }
 
     /** 基本文字列を返す */
@@ -283,7 +283,7 @@ class UniStringInfo {
     }
 
     /** コンストラクトの失敗 */
-    class FailConstructionException extends RuntimeException {
+    static class FailConstructionException extends RuntimeException {
     }
 }
 

@@ -37,7 +37,7 @@ public class SuperCutDataSource extends PushBufferDataSource {
 
     PushBufferDataSource ds;
 
-    SuperCutStream streams[];
+    SuperCutStream[] streams;
 
     /**
      * Creates special data source.
@@ -46,13 +46,13 @@ public class SuperCutDataSource extends PushBufferDataSource {
      * @param start in nano second
      * @param end in nano second
      */
-    public SuperCutDataSource(Processor p, MediaLocator ml, long start[], long end[]) {
+    public SuperCutDataSource(Processor p, MediaLocator ml, long[] start, long[] end) {
         this.p = p;
         this.ml = ml;
         this.ds = (PushBufferDataSource) p.getDataOutput();
 
-        TrackControl tcs[] = p.getTrackControls();
-        PushBufferStream pbs[] = ds.getStreams();
+        TrackControl[] tcs = p.getTrackControls();
+        PushBufferStream[] pbs = ds.getStreams();
 
         streams = new SuperCutStream[pbs.length];
         for (int i = 0; i < pbs.length; i++) {
@@ -107,15 +107,15 @@ public class SuperCutDataSource extends PushBufferDataSource {
     /**
      * Utility Source stream for the SuperCutDataSource.
      */
-    class SuperCutStream implements PushBufferStream, BufferTransferHandler {
+    static class SuperCutStream implements PushBufferStream, BufferTransferHandler {
 
         TrackControl tc;
 
         PushBufferStream pbs;
 
-        long start[], end[];
+        long[] start, end;
 
-        boolean startReached[], endReached[];
+        boolean[] startReached, endReached;
 
         int idx = 0;
 
@@ -138,7 +138,7 @@ public class SuperCutDataSource extends PushBufferDataSource {
 
         int bufferFilled = 0;
 
-        public SuperCutStream(TrackControl tc, PushBufferStream pbs, long start[], long end[]) {
+        public SuperCutStream(TrackControl tc, PushBufferStream pbs, long[] start, long[] end) {
             this.tc = tc;
             this.pbs = pbs;
             this.start = start;
@@ -270,6 +270,7 @@ public class SuperCutDataSource extends PushBufferDataSource {
             }
 
             if (!eos && !endReached[idx]) {
+                //noinspection AssignmentUsedAsCondition
                 if (endReached[idx] = checkEndTime(buf, end[idx])) {
                     idx++; // move on to the next set of start & end pts.
                     return true;

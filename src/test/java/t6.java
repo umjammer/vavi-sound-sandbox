@@ -76,7 +76,7 @@ System.err.println("END: " + args[0]);
         /** MIDI */
         Synthesizer synthesizer;
         Sequencer sequencer;
-        MidiChannel channels[]; 
+        MidiChannel[] channels;
 
         // Obtain information about all the installed synthesizers.
         List<MidiDevice.Info> synthInfos = new ArrayList<>();

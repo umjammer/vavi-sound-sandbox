@@ -8,6 +8,7 @@
 package vavi.sound.twinvq;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -102,7 +103,7 @@ class Player {
                 counter += line.write(buf, 0, frameSize * channels * 2 /* sizeof(short) */);
             }
 
-            wout_flag = wout_flag - 1 > 0 ? wout_flag - 1 : 0;
+            wout_flag = Math.max(wout_flag - 1, 0);
         }
         line.drain();
         line.stop();
@@ -135,7 +136,7 @@ class Player {
         byte[] lbuf = new byte[TwinVQ.BUFSIZ];
 
         getString(lbuf, TwinVQ.KEYWORD_BYTES, bfile);
-        if (lbuf.equals("DATA")) {
+        if (Arrays.equals(lbuf, "DATA".getBytes())) {
             throw new IllegalStateException("DEBUG: get_info . no 'DATA' chumk was found");
         }
 
@@ -150,7 +151,7 @@ class Player {
         return setupInfo;
     }
 
-    static void froat2buf(float out[], byte bufout[], int frameSize, int numChannels) {
+    static void froat2buf(float[] out, byte[] bufout, int frameSize, int numChannels) {
         int ismp, ich/* , uflag, lflag */;
         int ptr;
         float dtmp;

@@ -44,11 +44,11 @@ public class Test {
 //        }
 
         String infile = args[0];
-        final String outfile = args[1];
+        String outfile = args[1];
 
         CountDownLatch cdl = new CountDownLatch(1);
 
-        final Sequencer sequencer = MidiSystem.getSequencer();
+        Sequencer sequencer = MidiSystem.getSequencer();
 Debug.println(sequencer);
         sequencer.open();
         Sequence sequence = MidiSystem.getSequence(new File(infile));
@@ -61,7 +61,7 @@ Debug.println(sequencer);
                 case 1:  // テキスト・イベント 127 bytes
 //Debug.println(new String(meta.getData()));
                     String text = new String(meta.getData(), Charset.forName("MS932"));
-                    String parts[] = text.split(":");
+                    String[] parts = text.split(":");
 Debug.println(parts[0] + ":" + parts[1] + ":" + meta.getData().length);
                     sb.append(parts[2]);
                     break;

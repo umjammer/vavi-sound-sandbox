@@ -8,6 +8,7 @@
 package vavi.sound.twinvq;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import vavi.sound.twinvq.TwinVQ.BlockType;
 import vavi.sound.twinvq.TwinVQ.Index;
@@ -70,19 +71,16 @@ class BStream {
         getString(chunkID, TwinVQ.KEYWORD_BYTES + TwinVQ.VERSION_BYTES, bfp);
         TVQ_VERSION = twinVq.TvqCheckVersion(new String(chunkID));
         if (TVQ_VERSION == TwinVQ.TVQ_UNKNOWN_VERSION) {
-            System.err.printf("Header reading error: Unknown version (%s).\n", chunkID);
-            return null;
+            throw new IllegalArgumentException(String.format("Header reading error: Unknown version (%s).\n", (Object) chunkID));
         }
 
         if (bfp.getBStream(chunkSize, 0, TwinVQ.ELEM_BYTES * BFile.CHAR_BITS) <= 0) {
-            System.err.printf("Header reading error: Failed to get header size.\n");
-            return null;
+            throw new IllegalArgumentException("Header reading error: Failed to get header size.");
         }
 
         byte[] chunkData = new byte[chunkSize[0] + 1];
         if (getString(chunkData, chunkSize[0], bfp) < chunkSize[0]) {
-            System.err.printf("Header reading error: Failed to read header data.\n");
-            return null;
+            throw new IllegalArgumentException("Header reading error: Failed to read header data.");
         }
 
         ChunkChunk TwinChunk = new ChunkChunk(new String(chunkID));
@@ -101,16 +99,14 @@ class BStream {
 
         ChunkChunk twinChunk = loadTwinChunk(bfp);
         if (twinChunk == null) {
-            System.err.printf("Failed to read header. Check the bitstream file.\n");
-            return null;
+            throw new IllegalArgumentException("Failed to read header. Check the bitstream file.");
         }
 
         byte[] lbuf = new byte[TwinVQ.BUFSIZ];
         getString(lbuf, TwinVQ.KEYWORD_BYTES, bfp);
-        if (lbuf.equals("DATA")) {
-            System.err.printf("TwinVQ format error. No \"DATA\" chunk was found.\n");
-            System.out.printf("found %s chunk\n", lbuf);
-            return null;
+        if (Arrays.equals(lbuf, "DATA".getBytes())) {
+            throw new IllegalArgumentException(
+                    String.format("TwinVQ format error. No \"DATA\" chunk was found. found %s chunk", (Object) lbuf));
         }
 
         return twinChunk;
@@ -140,7 +136,7 @@ class BStream {
      *
      * @return number of bits read
      */
-    private int getVqInfo(ConfInfoSubBlock cfg, int bits0[], int bits1[], int variableBits, Index index, BFile bfp) throws IOException {
+    private int getVqInfo(ConfInfoSubBlock cfg, int[] bits0, int[] bits1, int variableBits, Index index, BFile bfp) throws IOException {
         int idiv;
         int bitcount = 0;
 
@@ -272,7 +268,7 @@ class BStream {
      * read bitstream frame
      *
      * @param index Output: quantization indexes
-     * @pram bitstream file pointer
+     * @param bfp file pointer
      * @return 1: successful reading, 0: imcompleted reading
      */
     int readBsFrame(Index index, BFile bfp) throws IOException {
@@ -290,31 +286,31 @@ class BStream {
         // Window type
         bitcount += bfp.getBStream(index.w_type, 0, cf.BITS_WTYPE);
         if (twinVq.TvqWtypeToBtype(index.w_type[0], index.btype) != 0) {
-            System.err.printf("Error: unknown window type: %d\n", index.w_type);
+            System.err.printf("Error: unknown window type: %d\n", (Object) index.w_type);
             return 0;
         }
         int btype = index.btype[0];
 
-        /*--- read block dependent factors ---*/
-        // set the block dependent paremeters table
+        // read block dependent factors
+        // set the block dependent parameters table
         cfg = cf.cfg[btype];
 
         bitcount += variableBits;
 
-        /* Interleaved vector quantization */
+        // Interleaved vector quantization
         bitcount += getVqInfo(cfg, bits_0[btype], bits_1[btype], variableBits, index, bfp);
 
-        /* Bark-scale envelope */
+        // Bark-scale envelope
         bitcount += getBseInfo(cf, cfg, index, bfp);
-        /* Gain */
+        // Gain
         bitcount += getGainInfo(cf, cfg, index, bfp);
-        /* LSP */
+        // LSP
         bitcount += getLspInfo(cf, index, bfp);
-        /* PPC */
+        // PPC
         if (cfg.ppc_enable != 0) {
             bitcount += getPpcInfo(cf, index, bfp);
         }
-        /* Energy Balance Calibration */
+        // Energy Balance Calibration
         if (cfg.ebc_enable != 0) {
             bitcount += getEbcInfo(cf, cfg, index, bfp);
         }
@@ -334,7 +330,6 @@ class BStream {
         int numBits = twinVq.TvqGetNumFixedBitsPerFrame();
         iframe += (int) step;
         return bfp.bseek(numBits * step, BFile.BSEEK_CUR);
-
     }
 
     /**
@@ -356,7 +351,7 @@ class BStream {
     }
 
     /** */
-    public static final BStream getInstance() {
+    public static BStream getInstance() {
         return instance;
     }
 }

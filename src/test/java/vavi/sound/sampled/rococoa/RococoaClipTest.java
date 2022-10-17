@@ -52,7 +52,7 @@ class RococoaClipTest {
         URI uri = RococoaClipTest.class.getResource(inFile).toURI();
         AVAudioPlayer player = AVAudioPlayer.init(uri);
         if (player == null) {
-            throw new FileNotFoundException(inFile.toString());
+            throw new FileNotFoundException(inFile);
         }
 Debug.println("player: " + player);
         boolean r = player.prepareToPlay();

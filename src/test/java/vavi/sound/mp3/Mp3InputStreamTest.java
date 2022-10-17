@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -68,7 +70,7 @@ class Mp3InputStreamTest {
             byteOrder.equals(ByteOrder.BIG_ENDIAN));
 Debug.println(format);
 
-        InputStream is = new Mp3InputStream(new BufferedInputStream(new FileInputStream(args[0])));
+        InputStream is = new Mp3InputStream(new BufferedInputStream(Files.newInputStream(Paths.get(args[0]))));
 Debug.println("available: " + is.available());
 
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);

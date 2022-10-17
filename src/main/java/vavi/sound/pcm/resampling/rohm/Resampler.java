@@ -55,7 +55,7 @@ public class Resampler {
             // インデックス値.
             double dIndex = (double) i * pbyPcmData.length / nNewSampleNum;
             int nIndex1 = (int) dIndex;
-            int nIndex2 = ((nIndex1 + 1) > pbyPcmData.length - 1) ? pbyPcmData.length - 1 : (nIndex1 + 1);
+            int nIndex2 = Math.min((nIndex1 + 1), pbyPcmData.length - 1);
 
             // 乗値算出.
             double dRat1 = dIndex - nIndex1;

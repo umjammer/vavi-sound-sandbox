@@ -11,6 +11,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import vavi.io.LittleEndianDataInputStream;
 import vavi.io.LittleEndianDataOutputStream;
@@ -36,11 +38,11 @@ class Normalizer {
         length = leis.readInt();
         leis.read(riff_type, 0, 4);
 
-        System.out.printf("RIFF Header\n");
-        System.out.printf("----------------------------\n");
+        System.out.print("RIFF Header\n");
+        System.out.print("----------------------------\n");
         System.out.printf("          Length: %d\n", length);
         System.out.printf("            Type: %s\n", new String(riff_type));
-        System.out.printf("----------------------------\n");
+        System.out.print("----------------------------\n");
 
         // Write RIFF Header
 
@@ -67,22 +69,22 @@ class Normalizer {
         fmt_chunk.setBlockSize(leis.readShort());
         fmt_chunk.setSamplingBits(leis.readShort());
 
-        System.out.printf("FMT Chunk\n");
-        System.out.printf("----------------------------\n");
+        System.out.print("FMT Chunk\n");
+        System.out.print("----------------------------\n");
         System.out.printf("          Length: %d\n", length);
-        System.out.printf("     Format Type: ");
+        System.out.print("     Format Type: ");
         if (fmt_chunk.getFormatId() == 0) {
-            System.out.printf("Mono\n");
+            System.out.print("Mono\n");
         } else if (fmt_chunk.getFormatId() == 1) {
-            System.out.printf("Stereo\n");
+            System.out.print("Stereo\n");
         } else {
-            System.out.printf("unknown\n");
+            System.out.print("unknown\n");
         }
 
         System.out.printf(" Channel Numbers: %d\n", fmt_chunk.getNumberChannels());
         System.out.printf("     Sample Rate: %d\n", fmt_chunk.getSamplingRate());
         System.out.printf("Bytes Per Second: %d\n", fmt_chunk.getBytesPerSecond());
-        System.out.printf("Bytes Per Sample: ");
+        System.out.print("Bytes Per Sample: ");
         if (fmt_chunk.getBlockSize()== 1) {
             System.out.printf("8 bit mono (%d)\n", fmt_chunk.getBlockSize());
         } else if (fmt_chunk.getBlockSize() == 2) {
@@ -92,7 +94,7 @@ class Normalizer {
         }
 
         System.out.printf(" Bits Per Sample: %d\n", fmt_chunk.getSamplingBits());
-        System.out.printf("----------------------------\n");
+        System.out.print("----------------------------\n");
 
         // Write FMT Chunk
 
@@ -126,11 +128,11 @@ class Normalizer {
         length = leis.readInt();
         in.mark(length); // TODO OutOfMemoryError
 
-        System.out.printf("DATA chunk\n");
-        System.out.printf("----------------------------\n");
+        System.out.print("DATA chunk\n");
+        System.out.print("----------------------------\n");
         System.out.printf("          Length: %d\n", length);
 
-        System.out.printf("Scanning for biggest/smallest peak\n");
+        System.out.print("Scanning for biggest/smallest peak\n");
 
         if (fmt_chunk.getSamplingBits() == 16) {
             for (t = 0; t < length / 2; t++) {
@@ -156,7 +158,7 @@ class Normalizer {
             return 0;
         }
 
-        System.out.printf("Creating new wave\n");
+        System.out.print("Creating new wave\n");
 
         in.reset();
 
@@ -194,7 +196,7 @@ class Normalizer {
         WAVE.fmt fmt_chunk = new WAVE.fmt();
 
         try {
-            in = new BufferedInputStream(new FileInputStream(inname));
+            in = new BufferedInputStream(Files.newInputStream(Paths.get(inname)));
         } catch (IOException e) {
             System.out.printf("Couldn't open file for reading: %s\n", inname);
             return -1;
@@ -202,7 +204,7 @@ class Normalizer {
 
         if (outname != null) {
             try {
-                out = new BufferedOutputStream(new FileOutputStream(outname));
+                out = new BufferedOutputStream(Files.newOutputStream(Paths.get(outname)));
             } catch (IOException e) {
                 in.close();
                 System.out.printf("Could not open file for writing: %s\n", outname);

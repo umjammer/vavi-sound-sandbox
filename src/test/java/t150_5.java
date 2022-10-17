@@ -24,7 +24,7 @@ public class t150_5 {
      * usage: java t150_5 mmf ...
      */
     public static void main(String[] args) throws Exception {
-        final Sequencer sequencer = SmafSystem.getSequencer();
+        Sequencer sequencer = SmafSystem.getSequencer();
         sequencer.open();
         for (int i = 0; i < args.length; i++) {
 Debug.println("START: " + args[i]);

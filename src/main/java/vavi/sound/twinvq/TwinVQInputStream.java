@@ -60,10 +60,10 @@ public class TwinVQInputStream extends FilterInputStream {
     /**
      */
     public TwinVQInputStream(InputStream in,
-                             final int samplesPerBlock,
-                             final int channels,
+                             int samplesPerBlock,
+                             int channels,
                              int blockSize,
-                             final ByteOrder byteOrder)
+                             ByteOrder byteOrder)
         throws IOException {
 
         super(new PipedInputStream());
@@ -77,17 +77,16 @@ Debug.println("byteOrder: " + this.byteOrder);
 
         //
 
-        final TwinVQ decoder = TwinVQ.getInstance();
+        TwinVQ decoder = TwinVQ.getInstance();
 
-        final InputStream is = new BufferedInputStream(in);
+        InputStream is = new BufferedInputStream(in);
 
-        final byte[] packet = new byte[blockSize];
-        final int[] samples = new int[channels * samplesPerBlock];
+        byte[] packet = new byte[blockSize];
+        int[] samples = new int[channels * samplesPerBlock];
 
         //
 
-        @SuppressWarnings("resource")
-        final PipedOutputStream pos =
+        @SuppressWarnings("resource") PipedOutputStream pos =
             new PipedOutputStream((PipedInputStream) this.in);
 
         Thread thread = new Thread(new Runnable() {
@@ -157,7 +156,7 @@ Debug.println(e);
     }
 
     /** */
-    public int read(byte b[], int off, int len) throws IOException {
+    public int read(byte[] b, int off, int len) throws IOException {
         if (b == null) {
             throw new NullPointerException("byte[]");
         } else if ((off < 0) || (off > b.length) || (len < 0) ||
@@ -200,7 +199,7 @@ e.printStackTrace(System.err);
      */
     public static void main(String[] args) throws Exception {
 
-        final boolean isTest = args[2].equals("test");
+        boolean isTest = args[2].equals("test");
         InputStream in = new BufferedInputStream(new FileInputStream(args[0]));
 
         //----

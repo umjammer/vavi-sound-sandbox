@@ -123,8 +123,8 @@ public class MidPlayer extends Opl3Player implements Sequencer {
         SIERRA(new SierraFile(), "Sierra On-Line EGA MIDI"),
         ADVSIERRA(new AdvancedSierraFile(), "Sierra On-Line VGA MIDI"),
         OLDLUCAS(new OldLucasFile(), "Lucasfilm Adlib MIDI");
-        public MidiTypeFile midiTypeFile;
-        String desc;
+        public final MidiTypeFile midiTypeFile;
+        final String desc;
         FileType(MidiTypeFile midiTypeFile, String desc) {
             this.midiTypeFile = midiTypeFile;
             this.desc = desc;

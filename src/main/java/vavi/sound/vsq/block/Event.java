@@ -121,7 +121,7 @@ Debug.println("unhandled param: " + pair[0]);
             noteOffMessage.setMessage(ShortMessage.NOTE_OFF, channel, note, 0);
             MidiEvent noteOffEvent = new MidiEvent(noteOnMessage, context.getCurrentTicks() + length);
 
-            Handle handle = Handle.class.cast(context.findHandle(track, lyricHandle));
+            Handle handle = (Handle) context.findHandle(track, lyricHandle);
             byte[] data = MidiUtil.getEncodedMessage(handle.getLyric());
             MetaMessage metaMessage = new MetaMessage();
             metaMessage.setMessage(MetaEvent.META_MACHINE_DEPEND.number(), data, data.length);

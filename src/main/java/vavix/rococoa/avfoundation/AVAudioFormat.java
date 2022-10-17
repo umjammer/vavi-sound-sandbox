@@ -12,7 +12,7 @@ public abstract class AVAudioFormat extends NSObject {
         pcmFormatFloat32,
         pcmFormatFloat64,
         pcmFormatInt16,
-        pcmFormatInt32;
+        pcmFormatInt32
     }
 
     @SuppressWarnings("hiding")

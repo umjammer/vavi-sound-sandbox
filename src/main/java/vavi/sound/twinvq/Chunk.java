@@ -118,7 +118,7 @@ class Chunk {
     }
 
     /** 例外 */
-    protected class FailPutException extends RuntimeException {
+    protected static class FailPutException extends RuntimeException {
     }
 
     /** コンストラクタ */
@@ -192,13 +192,13 @@ class StringChunk extends Chunk {
         return getRndString(0);
     }
 
-    public StringChunk(final Chunk parent) {
+    public StringChunk(Chunk parent) {
         super(parent);
     }
 
     public StringChunk(String ID, String data/* ="" */) {
         super(ID);
-        if (data != "")
+        if (!data.isEmpty())
             putData(data);
     }
 
@@ -224,7 +224,7 @@ class IntChunk extends Chunk {
         putNInt((int) data, m_dataSize);
     }
 
-    public IntChunk(final Chunk parent) {
+    public IntChunk(Chunk parent) {
         super(parent);
         m_dataSize = 8;
     }
@@ -247,7 +247,7 @@ class ChunkChunk extends Chunk {
     /** 次のチャンクを返す */
     public Chunk GetNextChunk(int idSize/* = 4 */) {
         String id;
-        if ((id = this.getRndString(idSize)) != "") {
+        if (!(id = this.getRndString(idSize)).isEmpty()) {
             Chunk subChunk = new Chunk(id);
 
             int size = (int) this.getNInt(8);
@@ -280,7 +280,7 @@ class ChunkChunk extends Chunk {
     }
 
     /** オブジェクトを種にする */
-    public ChunkChunk(final Chunk parent) {
+    public ChunkChunk(Chunk parent) {
         super(parent);
     }
 
@@ -292,11 +292,11 @@ class ChunkChunk extends Chunk {
     }
 
     /** チャンク取得に失敗 */
-    public class FailGetChunkException extends RuntimeException {
+    public static class FailGetChunkException extends RuntimeException {
     }
 
     /** チャンク書き込みに失敗 */
-    public class FailPutChunkException extends Exception {
+    public static class FailPutChunkException extends Exception {
     }
 
     public String toString() {
@@ -324,7 +324,7 @@ class CommChunk extends Chunk {
      * @param parent
      * @param version ="TWIN97012000"
      */
-    public CommChunk(final Chunk parent, String version) {
+    public CommChunk(Chunk parent, String version) {
         super(parent);
         this.version = version;
 
@@ -378,7 +378,7 @@ class CommChunk extends Chunk {
     }
 
     /** コンストラクションに失敗 */
-    class FailConstructionException extends Exception {
+    static class FailConstructionException extends Exception {
     }
 
     public String toString() {
@@ -410,7 +410,7 @@ class YearChunk extends Chunk {
         putNInt(month, 1);
     }
 
-    public YearChunk(final Chunk parent) {
+    public YearChunk(Chunk parent) {
         super(parent);
         rewindChunk();
         year = (int) getNInt(2);
@@ -479,7 +479,7 @@ class EncdChunk extends Chunk {
         putNInt(timeZone, 1);
     }
 
-    EncdChunk(final Chunk parent) {
+    EncdChunk(Chunk parent) {
         super(parent);
         rewindChunk();
         year = (int) getNInt(2);

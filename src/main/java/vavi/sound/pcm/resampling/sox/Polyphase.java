@@ -18,6 +18,7 @@
 
 package vavi.sound.pcm.resampling.sox;
 
+import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Level;
 
@@ -248,10 +249,10 @@ fail:
      * Calculate a Nuttall window of a given length. Buffer must already be
      * allocated to appropriate size.
      */
-    private final void nuttall(double[] buffer, int length) {
+    private void nuttall(double[] buffer, int length) {
 
         if (buffer == null || length <= 0) {
-            throw new IllegalArgumentException(String.format("Illegal buffer %p or length %d to nuttall.", buffer, length));
+            throw new IllegalArgumentException(String.format("Illegal buffer %s or length %d to nuttall.", Arrays.toString(buffer), length));
         }
 
         /* Initial variable setups. */
@@ -267,10 +268,10 @@ fail:
      * Calculate a Hamming window of given length. Buffer must already be
      * allocated to appropriate size.
      */
-    private final void hamming(double[] buffer, int length) {
+    private void hamming(double[] buffer, int length) {
 
         if (buffer == null || length <= 0) {
-            throw new IllegalArgumentException(String.format("Illegal buffer %p or length %d to hamming.", buffer, length));
+            throw new IllegalArgumentException(String.format("Illegal buffer %s or length %d to hamming.", Arrays.toString(buffer), length));
         }
 
         int N1 = length / 2;
@@ -280,7 +281,7 @@ fail:
     }
 
     /** Calculate the sinc function properly */
-    private final double sinc(double value) {
+    private double sinc(double value) {
         return Math.abs(value) < 1E-50 ? 1.0 : Math.sin(value) / value;
     }
 
@@ -291,10 +292,10 @@ fail:
      * 
      * buffer must already be allocated.
      */
-    private final void fir_design(double[] buffer, int length, double cutoff) {
+    private void fir_design(double[] buffer, int length, double cutoff) {
 
         if (buffer == null || length < 0 || cutoff < 0 || cutoff > Math.PI) {
-            throw new IllegalArgumentException(String.format("Illegal buffer %p, length %d, or cutoff %f.", buffer, length, cutoff));
+            throw new IllegalArgumentException(String.format("Illegal buffer %s, length %d, or cutoff %f.", Arrays.toString(buffer), length, cutoff));
         }
 
         // Use the user-option of window type
@@ -308,7 +309,7 @@ fail:
         // Design filter: windowed sinc function
         double sum = 0.0;
         for (int j = 0; j < length; j++) {
-            buffer[j] *= sinc((Math.PI * cutoff * (j - length / 2))); // center at length / 2
+            buffer[j] *= sinc((Math.PI * cutoff * (j - length / 2f))); // center at length / 2
 //Debug.printf(Level.FINE, "%.1f %.6f\n", (double) j, buffer[j]);
             sum += buffer[j];
         }
@@ -324,7 +325,7 @@ fail:
 //  private static final int RIBLEN = 2048;
 
     /** */
-    private final float st_gcd(float a, float b) {
+    private float st_gcd(float a, float b) {
         if (b == 0) {
             return a;
         } else {
@@ -333,7 +334,7 @@ fail:
     }
 
     /** parenthesize this way to avoid st_sample_t overflow in product term */
-    private final float st_lcm(float a, float b) {
+    private float st_lcm(float a, float b) {
         return a * (b / st_gcd(a, b));
     }
 
@@ -454,7 +455,7 @@ Debug.printf("Poly:  output samples %d, oskip %d\n", -1 /* size */, work.oskip);
      * REMARK: putting this in a separate subroutine improves gcc's optimization
      * </p>
      */
-    private final double st_prod(final double[] q, int qP, int qstep, final double[] p, int pP, int n) {
+    private double st_prod(double[] q, int qP, int qstep, double[] p, int pP, int n) {
 //Debug.printf("qP: %d, qstep: %d, pP: %d, n: %d, (%d)\n", qP, qstep, pP, n, q.length);
         double sum = 0;
         int p0 = pP - n; // p
@@ -469,7 +470,7 @@ Debug.printf("Poly:  output samples %d, oskip %d\n", -1 /* size */, work.oskip);
     }
 
     /** */
-    private final void polyphase(double[] output, int oP, PolyStage s) {
+    private void polyphase(double[] output, int oP, PolyStage s) {
         int up = s.up;
         int down = s.down;
         int f_len = s.filt_len;
@@ -489,7 +490,7 @@ Debug.printf("Poly:  output samples %d, oskip %d\n", -1 /* size */, work.oskip);
     }
 
     /** */
-    private final void update_hist(double[] hist, int hist_size, int in_size) {
+    private void update_hist(double[] hist, int hist_size, int in_size) {
         int p = 0; // hist;
         int p1 = hist_size;
         int q = in_size;
@@ -504,7 +505,7 @@ Debug.printf("Poly:  output samples %d, oskip %d\n", -1 /* size */, work.oskip);
     private static final int ST_SAMPLE_MIN = (-ST_SAMPLE_MAX - 1);
 
     /** TODO check */
-    private final int clipfloat(double sample) {
+    private int clipfloat(double sample) {
 //Debug.printf("%f\n", sample);
         if (sample > ST_SAMPLE_MAX) {
             return ST_SAMPLE_MAX;

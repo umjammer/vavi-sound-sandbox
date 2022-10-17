@@ -118,7 +118,7 @@ final class TwinVQ {
     }
 
     /* type definition of tvqConfInfoSubBlock */
-    class ConfInfoSubBlock {
+    static class ConfInfoSubBlock {
         /** subframe size */
         int sf_sz;
 
@@ -259,7 +259,7 @@ final class TwinVQ {
 
     // encoding
 
-    class EncSpecificInfo {
+    static class EncSpecificInfo {
         int N_CAN_GLOBAL;
     }
 
@@ -267,14 +267,14 @@ final class TwinVQ {
 
     native void TvqEncTerminate(Index index);
 
-    native void TvqEncGetVectorInfo(int bits0[][], int bits1[][]);
+    native void TvqEncGetVectorInfo(int[][] bits0, int[][] bits1);
 
     native void TvqEncResetFrameCounter();
 
     // TwinVQ encoder function
-    native void TvqEncodeFrame(float sig_in[], Index index);
+    native void TvqEncodeFrame(float[] sig_in, Index index);
 
-    native void TvqEncUpdateVectorInfo(int varbits, int ndiv, int bits0[], int bits1[]);
+    native void TvqEncUpdateVectorInfo(int varbits, int ndiv, int[] bits0, int[] bits1);
 
     native void TvqEncSetFrameCounter(int position);
 
@@ -307,16 +307,16 @@ final class TwinVQ {
 
     native void TvqTerminate(Index index);
 
-    native void TvqGetVectorInfo(int bits0[][], int bits1[][]);
+    native void TvqGetVectorInfo(int[][] bits0, int[][] bits1);
 
     native void TvqResetFrameCounter();
 
     // TwinVQ decoder function
-    native void TvqDecodeFrame(Index indexp, float out[]);
+    native void TvqDecodeFrame(Index indexp, float[] out);
 
     native int TvqWtypeToBtype(int w_type, int[] btype);
 
-    native void TvqUpdateVectorInfo(int varbits, int[] ndiv, int bits0[], int bits1[]);
+    native void TvqUpdateVectorInfo(int varbits, int[] ndiv, int[] bits0, int[] bits1);
 
     native void TvqSetFrameCounter(int position);
 
@@ -368,7 +368,7 @@ final class TwinVQ {
     private TwinVQ() {
     }
 
-    public static final TwinVQ getInstance() {
+    public static TwinVQ getInstance() {
         return instance;
     }
 }

@@ -66,12 +66,12 @@ Debug.println("IN: " + format);
         String inname;
         String outname;
 
-        System.out.printf("\nnormalize - Copyright 2002 Michael Kohn (mike@naken.cc)\n");
+        System.out.print("\nnormalize - Copyright 2002 Michael Kohn (mike@naken.cc)\n");
 
         int argc = argv.length;
         if (argc != 1 && argc != 2) {
-            System.out.printf("Usage: normalize <input filename.wav> <output filename.wav>\n");
-            System.out.printf("-- If you exclude the output filename normalize will only analyze\n\n");
+            System.out.print("Usage: normalize <input filename.wav> <output filename.wav>\n");
+            System.out.print("-- If you exclude the output filename normalize will only analyze\n\n");
             System.exit(1);
         }
 

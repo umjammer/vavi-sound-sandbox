@@ -62,11 +62,11 @@ public class Resampler {
     /**
      * performs constant resampling
      */
-    public int[] resample(int samples[]) {
+    public int[] resample(int[] samples) {
         int resampledLength = (int) (samples.length / sampleRateFactor);
 
         // create new samples
-        int results[] = new int[resampledLength];
+        int[] results = new int[resampledLength];
 
         // resampling indexing
         double oldIndex = 0;
@@ -104,7 +104,7 @@ public class Resampler {
     /**
      * performs variable resampling
      */
-    public int[] resample(int samples1[], int samples2[]) {
+    public int[] resample(int[] samples1, int[] samples2) {
 
         // calculate ressampled length
         int resampledLength = 0;
@@ -117,7 +117,7 @@ public class Resampler {
         }
 
         // create new samples
-        int results[] = new int[resampledLength];
+        int[] results = new int[resampledLength];
 
         // resampling indexing
         double oldIndex = 0;

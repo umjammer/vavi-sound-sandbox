@@ -1383,13 +1383,13 @@ public final class OPL3 {
             // The first array is used when DVB=0 and the second array is used when DVB=1.
             vibratoTable = new double[2][8192];
 
-            final double semitone = Math.pow(2, 1 / 12d);
+            double semitone = Math.pow(2, 1 / 12d);
             // A cent is 1/100 of a semitone:
-            final double cent = Math.pow(semitone, 1 / 100d);
+            double cent = Math.pow(semitone, 1 / 100d);
 
             // When dvb=0, the depth is 7 cents, when it is 1, the depth is 14 cents.
-            final double DVB0 = Math.pow(cent, 7);
-            final double DVB1 = Math.pow(cent, 14);
+            double DVB0 = Math.pow(cent, 7);
+            double DVB1 = Math.pow(cent, 14);
             int i;
             for (i = 0; i < 1024; i++)
                 vibratoTable[0][i] = vibratoTable[1][i] = 1;
@@ -1428,7 +1428,7 @@ public final class OPL3 {
             final double tremoloFrequency = 3.7;
 
             // The tremolo depth is -1 dB when DAM = 0, and -4.8 dB when DAM = 1.
-            final double[] tremoloDepth = { -1, -4.8 };
+            double[] tremoloDepth = { -1, -4.8 };
 
             //  According to the YMF278B manual's OPL3 section graph,
             //              the tremolo waveform is not
@@ -1436,7 +1436,7 @@ public final class OPL3 {
             //    \    /    Thus, the period to achieve the tremolo depth is T/2, and
             //     \  /     the increment in each T/2 section uses a frequency of 2*f.
             //      \/      Tremolo varies from 0 dB to depth, to 0 dB again, at frequency*2:
-            final double[] tremoloIncrement = {
+            double[] tremoloIncrement = {
                 calculateIncrement(tremoloDepth[0], 0, 1 / (2 * tremoloFrequency)),
                 calculateIncrement(tremoloDepth[1], 0, 1 / (2 * tremoloFrequency))
             };
@@ -1497,7 +1497,7 @@ public final class OPL3 {
             SL4_RR4_Offset = 0x80,
             _5_WS3_Offset = 0xE0;
 
-        enum Type {NO_MODULATION, CARRIER, FEEDBACK};
+        enum Type {NO_MODULATION, CARRIER, FEEDBACK}
 
         static final int waveLength = 1024;
 

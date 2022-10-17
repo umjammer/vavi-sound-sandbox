@@ -22,7 +22,7 @@ class VideoEncoder {
     int firstFrameNo, lastFrameNo;
 
     /** */
-    int orientation = +1;
+    int orientation = 1;
 
     /** */
     int timeDelay = 25;
@@ -106,11 +106,11 @@ class VideoEncoder {
 
     /** */
     public static void main(String[] args) {
-        final JFrame frm = new JFrame();
+        JFrame frm = new JFrame();
         frm.setLayout(new BorderLayout());
         frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        final VideoEncoder ve = new VideoEncoder(args[0]);
+        VideoEncoder ve = new VideoEncoder(args[0]);
         ve.addModelListener(new ModelListener() {
             public void updated() {
                 frm.setTitle("Movie Player - frame: " + ve.getPosition(1) + "/" + ve.getPosition(0));

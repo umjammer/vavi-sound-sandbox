@@ -73,9 +73,8 @@ Debug.println("readable: " + readable.length());
             ByteBuffer byteBuffer = ByteBuffer.allocate(8);
             byteBuffer.putLong((long) value);
             byte[] array = byteBuffer.array();
-            for (int i = 0; i < sample_size_byte; i++) {
-                listBuffer[i] = array[i - sample_size_byte + 8];
-            }
+            if (sample_size_byte >= 0)
+                System.arraycopy(array, 0 - sample_size_byte + 8, listBuffer, 0, sample_size_byte);
             listBufferIndex = 0;
         }
         int ret = Byte.toUnsignedInt(listBuffer[listBufferIndex++]);

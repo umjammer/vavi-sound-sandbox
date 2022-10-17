@@ -42,8 +42,8 @@ public abstract class AVAudioUnit extends AVAudioNode {
 
     public static AVAudioUnit instantiate(AudioComponentDescription audioComponentDescription,
                                    int options) {
-        class Wrapper { AVAudioUnit object; };
-        final Wrapper result = new Wrapper();
+        class Wrapper { AVAudioUnit object; }
+        Wrapper result = new Wrapper();
         CountDownLatch cdl = new CountDownLatch(1);
         Callback callback = new Callback() {
             @SuppressWarnings("unused")

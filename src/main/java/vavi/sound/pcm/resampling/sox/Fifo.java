@@ -75,7 +75,7 @@ Debug.printf("fifo: length: %d, start: %d, end: %d, point: %d, n: %08x", allocat
     }
 
     /** */
-    int write(int n, final double[] data) {
+    int write(int n, double[] data) {
         int s = reserve(n);
         if (data != null) {
             System.arraycopy(data, 0, this.data, s, n);

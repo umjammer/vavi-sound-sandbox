@@ -29,7 +29,7 @@ public class t150_4 {
      * usage: java t150_4 dir
      */
     public static void main(String[] args) throws Exception {
-        final Sequencer sequencer = MfiSystem.getSequencer();
+        Sequencer sequencer = MfiSystem.getSequencer();
         sequencer.open();
         FileDigger fileDigger = new RegexFileDigger(file -> {
 Debug.println("************ START ************* : " + file);

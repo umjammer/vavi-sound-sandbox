@@ -60,7 +60,7 @@ import vavi.util.StringUtil;
  */
 public class Opl3Synthesizer implements Synthesizer {
 
-    private static Logger logger = Logger.getLogger(Opl3Synthesizer.class.getName());
+    private static final Logger logger = Logger.getLogger(Opl3Synthesizer.class.getName());
 
     private static final String version = "1.0.4";
 
@@ -74,10 +74,10 @@ public class Opl3Synthesizer implements Synthesizer {
     // TODO != channel???
     private static final int MAX_CHANNEL = 16;
 
-    private Opl3MidiChannel[] channels = new Opl3MidiChannel[MAX_CHANNEL];
+    private final Opl3MidiChannel[] channels = new Opl3MidiChannel[MAX_CHANNEL];
 
     // TODO voice != channel ( = getMaxPolyphony())
-    private VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
+    private final VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
 
     private long timestump;
 
@@ -85,7 +85,7 @@ public class Opl3Synthesizer implements Synthesizer {
 
     private SourceDataLine line;
 
-    private AudioFormat audioFormat = Opl3Player.opl3;
+    private final AudioFormat audioFormat = Opl3Player.opl3;
 
     // ----
 
@@ -103,7 +103,7 @@ public class Opl3Synthesizer implements Synthesizer {
     }
 
     // ch percussion?
-    private Percussion[] percussions = new Percussion[18];
+    private final Percussion[] percussions = new Percussion[18];
 
     public class Context {
         public Adlib adlib() { return Opl3Synthesizer.this.adlib; }
@@ -177,7 +177,7 @@ Debug.println("type: " + type);
         }
     }
 
-    private ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
         Thread thread = new Thread(r);
         thread.setPriority(Thread.MAX_PRIORITY);
         return thread;
@@ -359,12 +359,12 @@ Debug.println(line.getClass().getName());
 
     public class Opl3MidiChannel implements MidiChannel {
 
-        private int channel;
+        private final int channel;
 
-        private int[] polyPressure = new int[128];
+        private final int[] polyPressure = new int[128];
         private int pressure;
         private int pitchBend;
-        private int[] control = new int[128];
+        private final int[] control = new int[128];
 
         // instrument number TODO public
         public int inum;
@@ -375,9 +375,7 @@ Debug.println(line.getClass().getName());
 
         public void setIns(Opl3Instrument instrument) { // TODO public
             int[] data = (int[]) instrument.getData();
-            for (int i = 0; i < 11; ++i) {
-                ins[i] = data[i];
-            }
+            System.arraycopy(data, 0, ins, 0, 11);
         }
 
         /** */
@@ -650,7 +648,7 @@ Debug.println(line.getClass().getName());
         }
     }
 
-    private List<Receiver> receivers = new ArrayList<>();
+    private final List<Receiver> receivers = new ArrayList<>();
 
     private class Opl3Receiver implements Receiver {
         @SuppressWarnings("hiding")

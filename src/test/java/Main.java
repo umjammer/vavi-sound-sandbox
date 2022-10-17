@@ -11,19 +11,19 @@ public final class Main {
      * This main class only runs a test to list the found ports by each
      * MidiDeviceProvider
      */
-    public static void main(final String[] args) {
-        final ServiceLoader<MidiDeviceProvider> serviceLoader =
+    public static void main(String[] args) {
+        ServiceLoader<MidiDeviceProvider> serviceLoader =
                 ServiceLoader.load(MidiDeviceProvider.class);
-        final Iterator<MidiDeviceProvider> iterator = serviceLoader.iterator();
+        Iterator<MidiDeviceProvider> iterator = serviceLoader.iterator();
         while (iterator.hasNext()) {
-            final MidiDeviceProvider midiDeviceProvider =
+            MidiDeviceProvider midiDeviceProvider =
                     iterator.next();
 
-            final Info[] deviceInfo = midiDeviceProvider.getDeviceInfo();
+            Info[] deviceInfo = midiDeviceProvider.getDeviceInfo();
             System.err.println(midiDeviceProvider.getClass().getName() + ": "
                     + deviceInfo.length);
             int i = 0;
-            for (final Info info : deviceInfo) {
+            for (Info info : deviceInfo) {
                 System.err.println("[" + i++ + "]: " + info.getName());
             }
             System.err.println("---------------");

@@ -127,7 +127,7 @@ System.err.println("bands: " + model.bands);
     }
 
     /** */
-    class Model {
+    static class Model {
         int bands;
         double[] band;
         double[] lgains;
