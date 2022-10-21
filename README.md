@@ -43,9 +43,16 @@
 | sampled | aac          | -  | -  | ✅ | [JAADec](https://github.com/umjammer/JAADec)                         |                                                                                                                              | |
 | sampled | vorbis       | -  | -  | ✅ | [tritonus-jorbis](https://github.com/umjammer/tritonus-jorbis)       |                                                                                                                              | |
 
-## Others
+## Features
 
- * [iTunes Library (rococoa)](https://github.com/umjammer/vavi-sound-sandbox/tree/master/src/main/java/vavix/rococoa/ituneslibrary)
+ * ~~ALAC Java sound SPI~~ ... ([graduated incubation](https://github.com/umjammer/vavi-sound-alac))
+ * OPAS Java sound SPI ... (candidate to graduate)
+ * sox polyphase resampler Java sound SPI ... (candidate to graduate)
+ * sox perfect resampler Java sound SPI ... (wip)
+ * Mac AudioUnit synthesizer Java MIDI SPI ... (candidate to graduate)
+ * JSyn synthesizer Java MIDI SPI ... (wip)
+ * OPL3 synthesizer Java MIDI SPI ... (wip)
+ * [iTunes Library (rococoa) ... Music.app Music Database](https://github.com/umjammer/vavi-sound-sandbox/tree/master/src/main/java/vavix/rococoa/ituneslibrary)
 
 ## Install
 
