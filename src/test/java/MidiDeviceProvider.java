@@ -3,25 +3,20 @@ import java.util.Iterator;
 import java.util.ServiceLoader;
 
 import javax.sound.midi.MidiDevice.Info;
-import javax.sound.midi.spi.MidiDeviceProvider;
 
-public final class Main {
+
+public class MidiDeviceProvider {
 
     /**
      * This main class only runs a test to list the found ports by each
      * MidiDeviceProvider
      */
     public static void main(String[] args) {
-        ServiceLoader<MidiDeviceProvider> serviceLoader =
-                ServiceLoader.load(MidiDeviceProvider.class);
-        Iterator<MidiDeviceProvider> iterator = serviceLoader.iterator();
-        while (iterator.hasNext()) {
-            MidiDeviceProvider midiDeviceProvider =
-                    iterator.next();
-
+        ServiceLoader<javax.sound.midi.spi.MidiDeviceProvider> serviceLoader =
+                ServiceLoader.load(javax.sound.midi.spi.MidiDeviceProvider.class);
+        for (javax.sound.midi.spi.MidiDeviceProvider midiDeviceProvider : serviceLoader) {
             Info[] deviceInfo = midiDeviceProvider.getDeviceInfo();
-            System.err.println(midiDeviceProvider.getClass().getName() + ": "
-                    + deviceInfo.length);
+            System.err.println(midiDeviceProvider.getClass().getName() + ": " + deviceInfo.length);
             int i = 0;
             for (Info info : deviceInfo) {
                 System.err.println("[" + i++ + "]: " + info.getName());

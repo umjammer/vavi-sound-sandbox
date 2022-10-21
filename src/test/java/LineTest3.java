@@ -12,12 +12,12 @@ import org.junit.jupiter.api.Test;
 
 
 /**
- * Test4.
+ * LineTest3.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/19 umjammer initial version <br>
  */
-public class Test4 {
+public class LineTest3 {
 
     @Test
     void test() throws Exception {

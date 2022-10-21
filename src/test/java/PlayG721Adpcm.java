@@ -5,15 +5,15 @@
  */
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.ByteOrder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.LineListener;
 import javax.sound.sampled.SourceDataLine;
 
 import vavi.sound.adpcm.ccitt.G721InputStream;
@@ -27,10 +27,10 @@ import static vavi.sound.SoundUtil.volume;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 030714 nsano initial version <br>
  */
-public class t150_2 {
+public class PlayG721Adpcm {
 
     /**
-     * usage: java t150_2 g721_file [sampleRate]
+     * usage: java PlayG721Adpcm g721_file [sampleRate]
      */
     public static void main(String[] args) throws Exception {
 
@@ -52,23 +52,21 @@ System.err.println("sampleRate: " + sampleRate);
             byteOrder.equals(ByteOrder.BIG_ENDIAN));
 System.err.println(format);
 
-        InputStream is = new G721InputStream(new BufferedInputStream(new FileInputStream(args[0])), byteOrder);
+        InputStream is = new G721InputStream(new BufferedInputStream(Files.newInputStream(Paths.get(args[0]))), byteOrder);
 // OutputStream os = new BufferedOutputStream(new FileOutputStream(args[1]));
 
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(format);
-        line.addLineListener(new LineListener() {
-            public void update(LineEvent ev) {
-                if (LineEvent.Type.STOP == ev.getType()) {
-                    System.exit(0);
-                }
+        line.addLineListener(ev -> {
+            if (LineEvent.Type.STOP == ev.getType()) {
+                System.exit(0);
             }
         });
         volume(line, .2d);
         line.start();
         byte[] buf = new byte[1024];
-        int l = 0;
+        int l;
 // System.err.println("before: " + is.available());
         while (is.available() > 0) {
             l = is.read(buf, 0, 1024);

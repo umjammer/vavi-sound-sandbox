@@ -18,10 +18,10 @@ import vavi.util.Debug;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 080421 nsano initial version <br>
  */
-public class t150_5 {
+public class PlaySMAF {
 
     /**
-     * usage: java t150_5 mmf ...
+     * usage: java PlaySMAF mmf ...
      */
     public static void main(String[] args) throws Exception {
         Sequencer sequencer = SmafSystem.getSequencer();

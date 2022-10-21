@@ -21,7 +21,7 @@ import vavi.util.StringUtil;
 
 
 /**
- * Test2.
+ * LineTest.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 080526 nsano initial version <br>
