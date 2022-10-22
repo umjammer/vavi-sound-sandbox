@@ -20,7 +20,7 @@ import vavi.sound.mfi.spi.MfiDeviceProvider;
 public class IttakeMfiDeviceProvider extends MfiDeviceProvider {
 
     /** */
-    private MfiDevice devices[];
+    private MfiDevice[] devices;
 
     /** */
     public IttakeMfiDeviceProvider() {

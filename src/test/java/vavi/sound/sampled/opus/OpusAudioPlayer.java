@@ -1,12 +1,13 @@
-package vavi.sound.sampled.opus;
 /*
  * https://github.com/lostromb/concentus
  */
 
+package vavi.sound.sampled.opus;
+
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -18,6 +19,7 @@ import org.concentus.OpusException;
 import org.gagravarr.ogg.OggFile;
 import org.gagravarr.opus.OpusAudioData;
 import org.gagravarr.opus.OpusFile;
+import vavi.util.Debug;
 
 
 /**
@@ -27,9 +29,9 @@ import org.gagravarr.opus.OpusFile;
  * @version 0.00 2017/11/18 umjammer initial version <br>
  */
 public class OpusAudioPlayer {
-    private static int BUFFER_SIZE = 1024 * 1024;
-    private static int INPUT_SAMPLERATE = 48000;
-    private static int OUTPUT_SAMPLERATE = 48000;
+    private static final int BUFFER_SIZE = 1024 * 1024;
+    private static final int INPUT_SAMPLERATE = 48000;
+    private static final int OUTPUT_SAMPLERATE = 48000;
 
     private OpusFile oggFile;
     private OpusDecoder decoder;
@@ -45,7 +47,7 @@ public class OpusAudioPlayer {
 
     public OpusAudioPlayer(File audioFile) throws IOException {
         try {
-            oggFile = new OpusFile(new OggFile(new FileInputStream(audioFile)));
+            oggFile = new OpusFile(new OggFile(Files.newInputStream(audioFile.toPath())));
             decoder = new OpusDecoder(INPUT_SAMPLERATE, 2);
             channels = oggFile.getInfo().getNumChannels();
         } catch (OpusException e) {
@@ -87,7 +89,7 @@ public class OpusAudioPlayer {
             }
             line.drain();
             line.close();
-            System.err.println(String.format("Decoded to %d bytes", totalDecodedBytes));
+Debug.printf("Decoded to %d bytes%n", totalDecodedBytes);
         } catch (LineUnavailableException | OpusException e) {
             throw new IOException(e);
        }

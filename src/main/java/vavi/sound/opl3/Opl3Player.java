@@ -47,9 +47,9 @@ public abstract class Opl3Player {
         MID(Opl3Encoding.MID, Opl3FileFormatType.MID, new MidPlayer()),
         DRO1(Opl3Encoding.DRO1, Opl3FileFormatType.DRO1, new DroPlayer()),
         DRO2(Opl3Encoding.DRO2, Opl3FileFormatType.DRO2, new Dro2Player());
-        AudioFormat.Encoding encoding;
-        AudioFileFormat.Type type;
-        Opl3Player player;
+        final AudioFormat.Encoding encoding;
+        final AudioFileFormat.Type type;
+        final Opl3Player player;
         FileType(AudioFormat.Encoding encoding, AudioFileFormat.Type type, Opl3Player player) {
             this.encoding = encoding;
             this.type = type;
@@ -109,5 +109,5 @@ Debug.println("encoding: " + encoding);
 
     public abstract boolean update() throws IOException;
 
-    public abstract int getTotalMiliseconds();
+    public abstract int getTotalMilliseconds();
 }

@@ -153,9 +153,7 @@ public class LdCelp {
                0.75f);
 
         if (levdur(acorr, temp, Constants.LPCLG) != 0) {
-            for (int i = 1; i <= Constants.LPCLG; i++) {
-                lpcoeff[i] = temp[i];
-            }
+            System.arraycopy(temp, 1, lpcoeff, 1, Constants.LPCLG);
             bw_expand1(lpcoeff, coeff, Constants.LPCLG, gain_p_vec);
         }
     }
@@ -322,7 +320,7 @@ public class LdCelp {
      * order coefficients for Postfilter, plus some speedup since this
      * is one of the longest routines in the algorithm.
      */
-    private int sf_levdur(float acorr[], float coeff[]) {
+    private int sf_levdur(float[] acorr, float[] coeff) {
 
         if (acorr[Constants.LPC] == 0) {
             return 0;
@@ -383,9 +381,7 @@ public class LdCelp {
                 coeff[float_pointer_qq] = t3;
             }
             if (m == 10) {
-                for (int jj = 0; jj <= 10; jj++) {
-                    a10[jj] = coeff[jj];
-                }
+                System.arraycopy(coeff, 0, a10, 0, 11);
             }
             E = (1 - K * K) * E;
             if (E < 0) {
@@ -448,7 +444,7 @@ public class LdCelp {
     /**
      * @args -d[p]|-e infile outfile
      */
-    public static final void main(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
 
         if (args.length < 2) {
             usage();
@@ -811,7 +807,7 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
     // Common ----
 
     /** */
-    private static final void RCOPY(float[] X, int xofs, float[] Y, int yofs, int N) {
+    private static void RCOPY(float[] X, int xofs, float[] Y, int yofs, int N) {
         System.arraycopy(Y, yofs, X, xofs, N);
     }
 
@@ -821,16 +817,16 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
     // Use hand-pipelined loops for higher speed on 21000
 
     /** */
-    private static final float CLIPP(float X, float LOW, float HIGH) {
-        return ((X) < (LOW) ? (LOW) : (X) > (HIGH) ? (HIGH) : (X));
+    private static float CLIPP(float X, float LOW, float HIGH) {
+        return ((X) < (LOW) ? (LOW) : Math.min((X), (HIGH)));
     }
 
     /** */
-    private static final void scaleSignals(float scale,
-                                        float[] a,
-                                        int offsetA,
-                                        float[] b,
-                                        int offsetB) {
+    private static void scaleSignals(float scale,
+                                     float[] a,
+                                     int offsetA,
+                                     float[] b,
+                                     int offsetB) {
         for (int i = 0; i < Constants.IDIM; i++) {
 // Debug.println("b: " + b.length);
 // Debug.println("bi: " + offsetB + ", " + (offsetB + i));
@@ -841,7 +837,7 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
     }
 
     /** */
-    private static final void sub_sig(float[] A, float[] B, float[] C) {
+    private static void sub_sig(float[] A, float[] B, float[] C) {
         for (int i = 0; i < Constants.IDIM; i++) {
             C[i] = A[i] - B[i];
         }
@@ -855,7 +851,7 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
 //  private static final float NGET = 9;
 
     /** */
-    private static final void ZARR(float[] A) {
+    private static void ZARR(float[] A) {
         for (int i = A.length - 1; i >= 0 ; i--) {
             A[i] = 0.0f;
         }
@@ -864,7 +860,7 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
     /**
      * Update obsoleted atomic array
      */
-    private final void UPDATE(float[] YYY, int name) {
+    private void UPDATE(float[] YYY, int name) {
         if (_obsolete_p[name] != 0) {
             for (int i = YYY.length - 1; i >= 0; i--) {
                 YYY[i] = _next[name][i];
@@ -877,7 +873,7 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
      * Copy L words to X from circular buffer CIRC *ending* at offset EOS.
      * CL is the size of circular buffe CIRC
      */
-    private static final void CIRCOPY(float[] X, float[] CIRC, int EOS, int L, int CL) {
+    private static void CIRCOPY(float[] X, float[] CIRC, int EOS, int L, int CL) {
         int i1;
         int i2;
         int lx = 0;
@@ -1169,31 +1165,31 @@ Debug.println("decoder_done");
     };
 
     /** */
-    static final float cb_gain[] = {
+    static final float[] cb_gain = {
         0.515625f,  .90234375f,  1.579101563f,  2.763427734f,
         -0.515625f, -.90234375f, -1.579101563f, -2.763427734f
     };
 
     /** Double Gains: */
-    static final float cb_gain2[] = {
+    static final float[] cb_gain2 = {
         1.031250f,  1.8046875f, 3.158203126f,  5.526855468f,
         -1.031250f, -1.8046875f, -3.158203126f, -5.526855468f
     };
 
     /** Midpoints: */
-    static final float cb_gain_mid[] = {
+    static final float[] cb_gain_mid = {
         0.708984375f,  1.240722656f,  2.171264649f, 0f,
         -0.708984375f, -1.240722656f, -2.171264649f, 0f
     };
 
     /** Squared Gains: */
-    static final float cb_gain_sq[] = {
+    static final float[] cb_gain_sq = {
         0.26586914f, 0.814224243f, 2.493561746f, 7.636532841f,
         0.26586914f, 0.814224243f, 2.493561746f, 7.636532841f
     };
 
     /** */
-    static final float hw_gain[] = {
+    static final float[] hw_gain = {
         0.583953857f, 0.605346680f, 0.627502441f, 0.650482178f, 0.674316406f,
         0.699005127f, 0.724578857f, 0.751129150f, 0.778625488f, 0.807128906f,
         0.836669922f, 0.867309570f, 0.899078369f, 0.932006836f, 0.961486816f,
@@ -1204,7 +1200,7 @@ Debug.println("decoder_done");
     };
 
     /** */
-    static final float hw_percw[] = {
+    static final float[] hw_percw = {
         0.581085205f, 0.591217041f, 0.601562500f, 0.612091064f, 0.622772217f,
         0.633666992f, 0.644744873f, 0.656005859f, 0.667480469f, 0.679138184f,
         0.691009521f, 0.703094482f, 0.715393066f, 0.727874756f, 0.740600586f,
@@ -1220,7 +1216,7 @@ Debug.println("decoder_done");
     };
 
     /** */
-    static final float hw_synth[] = {
+    static final float[] hw_synth = {
         0.602020264f, 0.606384277f, 0.610748291f, 0.615142822f, 0.619598389f,
         0.624084473f, 0.628570557f, 0.633117676f, 0.637695312f, 0.642272949f,
         0.646911621f, 0.651580811f, 0.656280518f, 0.661041260f, 0.665802002f,
@@ -1520,9 +1516,7 @@ Debug.println("decoder_done");
             }
             zirwiir[k] += temp[k];
         }
-        for (int i = 0; i < Constants.LPCW; i++) {
-            zirwfir[i] = statelpc[i];
-        }
+        System.arraycopy(statelpc, 0, zirwfir, 0, Constants.LPCW);
         for (int k = 0; k < Constants.IDIM; k++) {
             output[outofs + k] = statelpc[Constants.IDIM - 1 - k];
         }
@@ -1809,7 +1803,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
     /**
      * Compute sum of absolute values of vector V
      */
-    private float vec_abs(float v[], int offset) {
+    private float vec_abs(float[] v, int offset) {
         float r = Math.abs(v[offset]);
         for (int i = 1; i < Constants.IDIM; i++) {
             r += Math.abs(v[offset + i]);
@@ -1818,7 +1812,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
     }
 
     /** Inverse Filter */
-    void inv_filter(float input[], int offset) {
+    void inv_filter(float[] input, int offset) {
         int ip = Constants.IDIM;
         float[] mem1 = new float[SPORDER + Constants.NFRSZ];
 
@@ -1826,9 +1820,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
         for (int i = Constants.IDIM; i < SPORDER + Constants.IDIM; i++) {
             mem1[i - Constants.IDIM] = mem1[i];
         }
-        for (int i = 0; i< Constants.IDIM; i++) {
-            mem1[SPORDER + i] = input[offset + i];
-        }
+        System.arraycopy(input, offset + 0, mem1, 10, Constants.IDIM);
         for (int k = 0; k < Constants.IDIM; k++) {
             float tmp = mem1[SPORDER+k];
             for (int j = 1; j <= SPORDER; j++) {
@@ -1844,7 +1836,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
     }
 
     /** */
-    void postfilter(float input[], int inofs, float output[], int outofs) {
+    void postfilter(float[] input, int inofs, float[] output, int outofs) {
 
         // Output of long term filter
         float[] temp = new float[Constants.IDIM];
@@ -1882,7 +1874,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
     }
 
     /** */
-    private void longterm(float input[], int inofs, float output[], int outofs) {
+    private void longterm(float[] input, int inofs, float[] output, int outofs) {
 
         float[] lmemory = new float[Constants.KPMAX];
 
@@ -1899,16 +1891,14 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
         for (int i = 0; i < Constants.KPMAX - Constants.IDIM; i++) {
             lmemory[i] = lmemory[i + Constants.IDIM];
         }
-        for (int i = 0; i < Constants.IDIM; i++) {
-            lmemory[Constants.KPMAX - Constants.IDIM + i] = input[inofs + i];
-        }
+        System.arraycopy(input, inofs + 0, lmemory, 135, Constants.IDIM);
     }
 
     /**
      * Again, memories (shpmem, shzmem) are in reverse order,
      * i.e. [0] is the oldest.
      */
-    private void shortterm(float input[], float output[]) {
+    private void shortterm(float[] input, float[] output) {
 
         float[] shpmem = new float[SPORDER];
         float[] shzmem = new float[SPORDER];
@@ -1939,7 +1929,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
     /**
      * Postfilter Adapter
      */
-    void psf_adapter(float frame[]) {
+    void psf_adapter(float[] frame) {
 
         pitch_period = extract_pitch();
 
@@ -1951,9 +1941,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
             tap_mem[i] = tap_mem[i + Constants.NFRSZ];
         }
         // Shift new frame into memory
-        for (int i = 0; i < Constants.NFRSZ; i++) {
-            tap_mem[SHIFTSZ + i] = frame[i];
-        }
+        System.arraycopy(frame, 0, tap_mem, 225, Constants.NFRSZ);
 
         for (int i = Constants.KPMAX - pitch_period;
              i < (Constants.KPMAX - pitch_period + Constants.NPWSZ);
@@ -1990,7 +1978,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
     }
 
     /** */
-    private int best_period(float buffer[],
+    private int best_period(float[] buffer,
                             int buflen,
                             int pmin,
                             int pmax) {

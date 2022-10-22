@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2020 by Naohide Sano, All rights reserved.
+ *
+ * Programmed by Naohide Sano
+ */
 
 package vavix.rococoa.avfoundation;
 
@@ -6,6 +11,12 @@ import org.rococoa.ObjCClass;
 import com.sun.jna.Pointer;
 
 
+/**
+ * AVAudioIONode.
+ *
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
+ * @version 0.00 2020/??/?? nsano initial version <br>
+ */
 public abstract class AVAudioIONode extends AVAudioNode {
 
     @SuppressWarnings("unused")

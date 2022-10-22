@@ -34,7 +34,6 @@ import static vavi.sound.SoundUtil.volume;
  */
 class OpusFormatConversionProviderTest {
 
-
     static final String inFile = "/test.opus";
 
     @Test

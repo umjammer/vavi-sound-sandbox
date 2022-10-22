@@ -23,7 +23,7 @@ import vavi.sound.opl3.MidPlayer.MidiTypeFile;
  * @version 0.00 2020/10/25 umjammer initial version <br>
  */
 class CmfFile extends MidiTypeFile {
-    static Logger logger = Logger.getLogger(CmfFile.class.getName());
+    private static final Logger logger = Logger.getLogger(CmfFile.class.getName());
 
     int markSize() {
         return 4;
@@ -36,8 +36,8 @@ class CmfFile extends MidiTypeFile {
                 dis.readUnsignedByte() == 'F';
     }
 
-    int tins;
-    Opl3Instrument[] instruments;
+    private int tins;
+    private Opl3Instrument[] instruments;
 
     @Override
     void rewind(int subSong, MidPlayer player) throws IOException {

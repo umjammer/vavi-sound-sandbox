@@ -23,7 +23,8 @@ import com.sun.jna.ptr.IntByReference;
  * @version 0.00 2020/10/02 umjammer initial version <br>
  */
 public interface AudioToolbox extends com.sun.jna.Library {
-    public static AudioToolbox instance = com.sun.jna.Native.load("AudioToolbox", AudioToolbox.class);
+
+    AudioToolbox instance = com.sun.jna.Native.load("AudioToolbox", AudioToolbox.class);
 
     /**
      * @param inUnit AudioUnit
@@ -33,7 +34,7 @@ public interface AudioToolbox extends com.sun.jna.Library {
 
     enum AudioUnitPropertyID {
         kMusicDeviceProperty_SoundBankURL(1100);
-        int id;
+        final int id;
         AudioUnitPropertyID(int id) {
             this.id = id;
         }

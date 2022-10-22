@@ -46,9 +46,9 @@ import vavi.util.Debug;
  * <li> 10-jun-12: the DRO 1 format is finalized, but capturing is buggy.
  */
 class DroPlayer extends Opl3Player {
-    private static Logger logger = Logger.getLogger(DroPlayer.class.getName());
+    private static final Logger logger = Logger.getLogger(DroPlayer.class.getName());
 
-    static final String ID = "DBRAWOPL";
+    protected static final String ID = "DBRAWOPL";
 
     private LittleEndianDataInputStream data;
     private int pos;
@@ -96,7 +96,7 @@ Debug.println(Level.SEVERE, e);
     }
 
     @Override
-    public int getTotalMiliseconds() {
+    public int getTotalMilliseconds() {
         return mstotal;
     }
 

@@ -47,7 +47,7 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
     /** */
     static InputStream init(InputStream in) {
         AdvancedPipedInputStream source = new AdvancedPipedInputStream();
-        final AdvancedPipedInputStream.OutputStreamEx sink = source.getOutputStream();
+        AdvancedPipedInputStream.OutputStreamEx sink = source.getOutputStream();
         new Thread() {
             ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
             public void run() {

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2020 by Naohide Sano, All rights reserved.
+ *
+ * Programmed by Naohide Sano
+ */
 
 package vavix.rococoa.avfoundation;
 
@@ -9,6 +14,12 @@ import org.rococoa.cocoa.foundation.NSError;
 import org.rococoa.cocoa.foundation.NSURL;
 
 
+/**
+ * @interface AVAudioUnitSampler : AVAudioUnitMIDIInstrument
+ *
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
+ * @version 0.00 2020/??/?? umjammer initial version <br>
+ */
 public abstract class AVAudioUnitSampler extends AVAudioUnitMIDIInstrument {
 
     public static final int kAUSampler_DefaultPercussionBankMSB = 0x78;

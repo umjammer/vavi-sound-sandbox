@@ -154,7 +154,7 @@ public class DualOscilloscope extends JApplet {
     }
 
     /* Can be run as either an application or as an applet. */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         DualOscilloscope applet = new DualOscilloscope();
         JAppletFrame frame = new JAppletFrame("Dual Oscilloscope", applet);
         frame.setSize(640, 400);

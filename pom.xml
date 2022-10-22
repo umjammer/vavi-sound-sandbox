@@ -8,7 +8,7 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-sound-sandbox</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
 
   <name>Vavi Sound API (Sandbox)</name>
   <url>https://github.com/umjammer/vavi-sound-sandbox</url>
@@ -26,7 +26,6 @@
   </issueManagement>
 
   <properties>
-    <tritonus.groupId>org.tritonus</tritonus.groupId>
     <tritonus.version>0.3.11</tritonus.version>
     <rococoa.version>0.8.4</rococoa.version>
   </properties>
@@ -34,7 +33,6 @@
   <distributionManagement>
     <repository>
       <id>github</id>
-      <name>GitHub umjammer Apache Maven Packages</name>
       <url>https://maven.pkg.github.com/umjammer/vavi-sound-sandbox</url>
     </repository>
   </distributionManagement>
@@ -75,8 +73,9 @@
       <build>
         <plugins>
           <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
-            <version>2.10</version>
+            <version>3.3.0</version>
             <executions>
               <execution>
                 <id>copy</id>
@@ -107,7 +106,9 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.10.1</version>
         <configuration>
           <source>8</source>
           <target>8</target>
@@ -115,15 +116,15 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M5</version>
+        <version>3.0.0-M7</version>
         <configuration>
           <argLine>
             -Dvavi.util.logging.VaviFormatter.extraClassMethod="org\.tritonus\.share\.TDebug#out"
             -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
-            -Dgdrive.home="/Volumes/Google Drive/My Drive"
+            -Dgdrive.home="/Volumes/GoogleDrive/My Drive"
             -Dvavi.test.dev.null=${dev.null}
-            -Dvavi.test=true
           </argLine>
           <trimStackTrace>false</trimStackTrace>
           <forkMode>always</forkMode>
@@ -139,7 +140,6 @@
     </repository>
     <repository>
       <id>github</id>
-      <name>GitHub umjammer Apache Maven Packages</name>
       <url>https://maven.pkg.github.com/umjammer/*</url>
     </repository>
   </repositories>
@@ -149,7 +149,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.8.1</version>
+        <version>5.9.0</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -160,12 +160,12 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.6</version>
+      <version>1.1.7</version>
     </dependency>
     <dependency>
-      <groupId>com.github.umjammer</groupId>
+      <groupId>com.github.umjammer</groupId> <!-- com.github.umjammer -->
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.12</version>
+      <version>1.0.13</version>
       <exclusions>
         <exclusion>
           <groupId>com.github.umjammer</groupId>
@@ -176,7 +176,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-sound-alac</artifactId>
-      <version>0.3.1</version>
+      <version>0.3.2</version>
     </dependency>
 
     <dependency>
@@ -190,7 +190,7 @@
       <version>${rococoa.version}</version>
     </dependency>
     <dependency>
-      <groupId>${tritonus.groupId}</groupId>
+      <groupId>org.tritonus</groupId>
       <artifactId>tritonus-remaining</artifactId>
       <version>${tritonus.version}</version>
     </dependency>
@@ -230,6 +230,11 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-commons</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
       <scope>test</scope>
@@ -256,21 +261,21 @@
     </dependency>
 
     <dependency>
-      <groupId>${tritonus.groupId}</groupId>
+      <groupId>org.tritonus</groupId>
       <artifactId>tritonus-dsp</artifactId>
       <version>${tritonus.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>${tritonus.groupId}</groupId>
+      <groupId>org.tritonus</groupId>
       <artifactId>tritonus-cdda</artifactId>
       <version>${tritonus.version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>${tritonus.groupId}</groupId>
+      <groupId>org.tritonus</groupId>
       <artifactId>tritonus-jorbis</artifactId>
       <version>${tritonus.version}</version>
       <scope>test</scope>
@@ -329,7 +334,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-jdk14</artifactId>
-      <version>1.7.5</version>
+      <version>1.7.36</version>
       <scope>test</scope>
     </dependency>
 <!--

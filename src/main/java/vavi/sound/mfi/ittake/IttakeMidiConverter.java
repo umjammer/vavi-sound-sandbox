@@ -134,13 +134,13 @@ Debug.println("tickLength: " + sequence.getTickLength());
         int headerIndex = mfiTrack.size(); // TODO
 Debug.println("headerIndex: " + headerIndex);
         CuePointMessage biginning = new CuePointMessage(0, 0);
-        mfiTrack.add(new MfiEvent(biginning, 0l));
+        mfiTrack.add(new MfiEvent(biginning, 0L));
         int volume = 0;
         if (volume != 0) {
             for (int i = 0; i < 16; i++) {
                 if (trackUsed[i]) { // TODO
                     VolumeMessage sound = new VolumeMessage(0, 0xff, i, volume);
-                    mfiTrack.add(new MfiEvent(sound, 0l));
+                    mfiTrack.add(new MfiEvent(sound, 0L));
                 }
             }
         }
@@ -149,7 +149,7 @@ Debug.println("headerIndex: " + headerIndex);
         MfiEvent[] tempo = {
             null, null, null, null
         };
-        int prevVelocity[] = {
+        int[] prevVelocity = {
             -1, -1, -1, -1
         };
 
@@ -264,10 +264,10 @@ Debug.println("here: " + j + ", " + timeOver);
             MfiEvent mfiEvent = mfiTrack.get(i);
             MfiMessage mfiMessage = mfiEvent.getMessage();
             if (mfiMessage instanceof NoteMessage) {
-                long myAbs = ((NoteMessage) mfiMessage).getDelta();
+                long myAbs = mfiMessage.getDelta();
                 if (myAbs - prev > context.getLimitDeltaTime()) {
                     NoteMessage note = new NoteMessage(255, 0, 60, 0);
-                    insert(mfiTrack, new MfiEvent(note, 0l /* TODO */), i);
+                    insert(mfiTrack, new MfiEvent(note, 0L /* TODO */), i);
                     mfiTrack.add(new MfiEvent(note, prev + context.getLimitDeltaTime()));
                 } else {
                     mfiTrack.add(mfiEvent);

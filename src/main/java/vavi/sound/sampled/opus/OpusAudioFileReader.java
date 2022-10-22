@@ -8,10 +8,10 @@ package vavi.sound.sampled.opus;
 
 import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.logging.Level;
 
@@ -40,22 +40,15 @@ public class OpusAudioFileReader extends AudioFileReader {
 
     @Override
     public AudioFileFormat getAudioFileFormat(File file) throws UnsupportedAudioFileException, IOException {
-        InputStream inputStream = null;
-        try {
-            inputStream = new FileInputStream(file);
+        try (InputStream inputStream = Files.newInputStream(file.toPath())) {
             return getAudioFileFormat(inputStream, (int) file.length());
-        } finally {
-            inputStream.close();
         }
     }
 
     @Override
     public AudioFileFormat getAudioFileFormat(URL url) throws UnsupportedAudioFileException, IOException {
-        InputStream inputStream = url.openStream();
-        try {
+        try (InputStream inputStream = url.openStream()) {
             return getAudioFileFormat(inputStream);
-        } finally {
-            inputStream.close();
         }
     }
 
@@ -76,7 +69,7 @@ public class OpusAudioFileReader extends AudioFileReader {
      * @exception IOException if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
-Debug.println(Level.FINE, "enter avaiable: " + bitStream.available());
+Debug.println(Level.FINE, "enter available: " + bitStream.available());
         OpusFile opus;
         try {
             bitStream.mark(32);
@@ -97,7 +90,7 @@ Debug.println(Level.FINE, "enter avaiable: " + bitStream.available());
             } catch (IOException e) {
                 e.printStackTrace();
             }
-Debug.println(Level.FINE, "finally avaiable: " + bitStream.available());
+Debug.println(Level.FINE, "finally available: " + bitStream.available());
         }
         AudioFormat format = new AudioFormat(OpusEncoding.OPUS, opus.getInfo().getSampleRate(), AudioSystem.NOT_SPECIFIED, opus.getInfo().getNumChannels(), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true, new HashMap<String, Object>() {{ put("opus", opus); }});
         return new AudioFileFormat(OpusFileFormatType.OPUS, format, AudioSystem.NOT_SPECIFIED);
@@ -105,13 +98,10 @@ Debug.println(Level.FINE, "finally avaiable: " + bitStream.available());
 
     @Override
     public AudioInputStream getAudioInputStream(File file) throws UnsupportedAudioFileException, IOException {
-        InputStream inputStream = new FileInputStream(file);
+        InputStream inputStream = Files.newInputStream(file.toPath());
         try {
             return getAudioInputStream(inputStream, (int) file.length());
-        } catch (UnsupportedAudioFileException e) {
-            inputStream.close();
-            throw e;
-        } catch (IOException e) {
+        } catch (UnsupportedAudioFileException | IOException e) {
             inputStream.close();
             throw e;
         }
@@ -122,10 +112,7 @@ Debug.println(Level.FINE, "finally avaiable: " + bitStream.available());
         InputStream inputStream = url.openStream();
         try {
             return getAudioInputStream(inputStream);
-        } catch (UnsupportedAudioFileException e) {
-            inputStream.close();
-            throw e;
-        } catch (IOException e) {
+        } catch (UnsupportedAudioFileException | IOException e) {
             inputStream.close();
             throw e;
         }
@@ -142,15 +129,15 @@ Debug.println(Level.FINE, "finally avaiable: " + bitStream.available());
      *
      * @param inputStream the input stream from which the AudioInputStream
      *            should be constructed.
-     * @param medialength
+     * @param mediaLength
      * @return an AudioInputStream object based on the audio file data contained
      *         in the input stream.
      * @exception UnsupportedAudioFileException if the File does not point to a
      *                valid audio file data recognized by the system.
      * @exception IOException if an I/O exception occurs.
      */
-    protected AudioInputStream getAudioInputStream(InputStream inputStream, int medialength) throws UnsupportedAudioFileException, IOException {
-        AudioFileFormat audioFileFormat = getAudioFileFormat(inputStream, medialength);
+    protected AudioInputStream getAudioInputStream(InputStream inputStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
+        AudioFileFormat audioFileFormat = getAudioFileFormat(inputStream, mediaLength);
         return new AudioInputStream(inputStream, audioFileFormat.getFormat(), audioFileFormat.getFrameLength());
     }
 }

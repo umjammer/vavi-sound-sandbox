@@ -148,7 +148,7 @@ Debug.println(line.getClass().getName());
         while (isOpen) {
             try {
                 synchronized (mocha) {
-                    TimeLine clone = TimeLine.class.cast(timeline.clone());
+                    TimeLine clone = (TimeLine) timeline.clone();
                     mocha.init(clone);
                     timeline.clear();
                 }

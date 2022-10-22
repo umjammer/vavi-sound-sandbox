@@ -1,9 +1,20 @@
+/*
+ * Copyright (c) 2020 by Naohide Sano, All rights reserved.
+ *
+ * Programmed by Naohide Sano
+ */
 
 package vavix.rococoa.avfoundation;
 
 import org.rococoa.ObjCClass;
 
 
+/**
+ * @interface AVAudioPCMBuffer : AVAudioBuffer
+ *
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
+ * @version 0.00 2020/??/?? umjammer initial version <br>
+ */
 public abstract class AVAudioPCMBuffer extends AVAudioBuffer {
 
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("AVAudioPCMBuffer", _Class.class);

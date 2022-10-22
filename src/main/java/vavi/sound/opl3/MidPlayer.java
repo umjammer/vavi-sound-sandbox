@@ -113,7 +113,7 @@ import vavi.util.StringUtil;
  */
 public class MidPlayer extends Opl3Player implements Sequencer {
 
-    static Logger logger = Logger.getLogger(MidPlayer.class.getName());
+    private static final Logger logger = Logger.getLogger(MidPlayer.class.getName());
 
     /** midi like file types */
     public enum FileType {
@@ -123,8 +123,8 @@ public class MidPlayer extends Opl3Player implements Sequencer {
         SIERRA(new SierraFile(), "Sierra On-Line EGA MIDI"),
         ADVSIERRA(new AdvancedSierraFile(), "Sierra On-Line VGA MIDI"),
         OLDLUCAS(new OldLucasFile(), "Lucasfilm Adlib MIDI");
-        public MidiTypeFile midiTypeFile;
-        String desc;
+        public final MidiTypeFile midiTypeFile;
+        final String desc;
         FileType(MidiTypeFile midiTypeFile, String desc) {
             this.midiTypeFile = midiTypeFile;
             this.desc = desc;
@@ -164,7 +164,7 @@ Debug.println(Level.SEVERE, e);
         public abstract void init(Context context);
     }
 
-    static class MidiTrack {
+    public static class MidiTrack {
         int tend;
         int spos;
         int pos;
@@ -191,25 +191,25 @@ Debug.println(Level.SEVERE, e);
     private static final int MAX_CHANNELS = 16;
 
     // data length
-    int flen;
+    protected int flen;
     private DataInputStream data;
     // data pos
-    int pos;
+    protected int pos;
 
-    Opl3Soundbank soundBank = new Opl3Soundbank(Adlib.midi_fm_instruments);
+    private Opl3Soundbank soundBank = new Opl3Soundbank(Adlib.midi_fm_instruments);
 
     private FileType type;
-    int subsongs;
+    protected int subsongs;
 
-    MidiTrack[] tracks = new MidiTrack[MAX_CHANNELS];
+    protected MidiTrack[] tracks = new MidiTrack[MAX_CHANNELS];
 
-    int deltas;
-    int msqtr;
-    float fwait;
+    protected int deltas;
+    protected int msqtr;
+    protected float fwait;
     private int iwait;
-    boolean doing;
+    protected boolean doing;
     // number of instruments
-    int tins;
+    protected int tins;
 
     private Opl3Synthesizer synthesizer = new Opl3Synthesizer();
 
@@ -227,7 +227,7 @@ logger.finer("\n" + StringUtil.getDump(bitStream, 0, 64));
     }
 
     @Override
-    public int getTotalMiliseconds() {
+    public int getTotalMilliseconds() {
         return 0;
     }
 
@@ -505,6 +505,7 @@ logger.fine("type: " + type);
             for (int t = 0; t < MAX_CHANNELS; ++t) {
                 if (tracks[t].on && tracks[t].pos < tracks[t].tend) {
                     eos = true; // not yet...
+                    break;
                 }
             }
 
@@ -575,7 +576,7 @@ logger.fine("type: " + type);
 
     @Override
     public float getRefresh() {
-        return fwait > 0.01F ? fwait : 0.01F;
+        return Math.max(fwait, 0.01F);
     }
 
     @Override
@@ -610,7 +611,7 @@ logger.fine("type: " + type);
         }
     }
 
-    private class Opl3Transmitter implements Transmitter {
+    private static class Opl3Transmitter implements Transmitter {
         @SuppressWarnings("unused")
         private boolean isOpen;
         Receiver receiver;
@@ -685,7 +686,7 @@ logger.fine("type: " + type);
     @Override
     public List<Receiver> getReceivers() {
         if (transmitter.getReceiver() != null) {
-            return Arrays.asList(transmitter.getReceiver());
+            return Collections.singletonList(transmitter.getReceiver());
         } else {
             return Collections.emptyList();
         }
@@ -698,7 +699,7 @@ logger.fine("type: " + type);
 
     @Override
     public List<Transmitter> getTransmitters() {
-        return Arrays.asList(transmitter);
+        return Collections.singletonList(transmitter);
     }
 
     @Override
@@ -817,7 +818,7 @@ logger.fine("type: " + type);
 
     @Override
     public long getMicrosecondLength() {
-        return getTotalMiliseconds() / 10;
+        return getTotalMilliseconds() / 10;
     }
 
     @Override

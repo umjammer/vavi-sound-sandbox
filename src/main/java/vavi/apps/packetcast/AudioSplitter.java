@@ -63,9 +63,9 @@ import javax.media.protocol.PushBufferStream;
  */
 public class AudioSplitter {
 
-    SplitDataSource splitDS[];
+    SplitDataSource[] splitDS;
 
-    Object fileSync = new Object();
+    final Object fileSync = new Object();
 
     boolean allDone = false;
 
@@ -126,7 +126,7 @@ System.err.println("- Realize the processor for: " + inML);
         // Get the output data streams from the first processor.
         // Create a SplitDataSource for each of these elementary stream.
         PushBufferDataSource pbds = (PushBufferDataSource) p.getDataOutput();
-        PushBufferStream pbs[] = pbds.getStreams();
+        PushBufferStream[] pbs = pbds.getStreams();
         splitDS = new SplitDataSource[pbs.length];
 
         allDone = false;
@@ -169,7 +169,7 @@ System.err.print(".");
                 }
             }
         }
-        System.err.println("");
+        System.err.println();
     }
 
     /**
@@ -178,7 +178,7 @@ System.err.print(".");
      */
     void transcodeMPEGToRaw(Processor p) {
 
-        TrackControl tc[] = p.getTrackControls();
+        TrackControl[] tc = p.getTrackControls();
         AudioFormat af;
 
         for (int i = 0; i < tc.length; i++) {
@@ -229,7 +229,7 @@ System.err.println("tc[" + i + "]: " + tc[i].getFormat());
         try {
             Class<?> clazz = Class.forName("com.sun.media.MimeManager");
             Method method = clazz.getMethod("getMimeType", String.class);
-            return String.class.cast(method.invoke(null, name));
+            return (String) method.invoke(null, name);
         } catch (Exception e) {
             return null;
         }

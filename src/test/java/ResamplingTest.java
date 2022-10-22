@@ -20,10 +20,10 @@ import javax.sound.sampled.AudioSystem;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 051015 nsano initial version <br>
  */
-public class t150_0 {
+public class ResamplingTest {
 
     /**
-     * t150_0
+     * ResamplingTest
      */
     public static void main(String[] args) throws Exception {
 

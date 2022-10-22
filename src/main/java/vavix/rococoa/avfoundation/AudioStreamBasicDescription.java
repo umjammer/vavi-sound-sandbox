@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2020 by Naohide Sano, All rights reserved.
+ *
+ * Programmed by Naohide Sano
+ */
 
 package vavix.rococoa.avfoundation;
 
@@ -9,6 +14,12 @@ import com.sun.jna.Structure;
 import vavi.util.ByteUtil;
 
 
+/**
+ * AudioStreamBasicDescription.
+ *
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
+ * @version 0.00 2022/10/22 nsano initial version <br>
+ */
 public class AudioStreamBasicDescription extends Structure {
 
     enum AudioFileTypeID {
@@ -23,7 +34,7 @@ public class AudioStreamBasicDescription extends Structure {
         kAudioFileMPEG4Type("mp4f"),
         kAudioFileM4AType("m4af"),
         kAudioFileCAFType("caff");
-        int id;
+        final int id;
         AudioFileTypeID(String id) {
             this.id = ByteUtil.readBeInt(id.getBytes(), 0);
         }
@@ -57,14 +68,13 @@ public class AudioStreamBasicDescription extends Structure {
         kAudioFormatMPEG4AAC_HE_V2("aacp"),
         kAudioFormatMPEG4AAC_Spatial("aacs"),
         kAudioFormatAMR("samr");
-        int id;
+        final int id;
         AudioFormatID(String id) {
             this.id = ByteUtil.readBeInt(id.getBytes(), 0);
         }
     }
 
-    enum AudioFormatFlag
-    {
+    enum AudioFormatFlag {
         kAudioFormatFlagIsFloat                      (1 << 0),
         kAudioFormatFlagIsBigEndian                  (1 << 1),
         kAudioFormatFlagIsSignedInteger              (1 << 2),
@@ -87,7 +97,7 @@ public class AudioStreamBasicDescription extends Structure {
         kAppleLosslessFormatFlag_20BitSourceData    (2),
         kAppleLosslessFormatFlag_24BitSourceData    (3),
         kAppleLosslessFormatFlag_32BitSourceData    (4);
-        int value;
+        final int value;
         AudioFormatFlag(int value) {
             this.value = value;
         }

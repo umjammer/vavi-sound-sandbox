@@ -21,7 +21,7 @@ import vavi.util.StringUtil;
 
 
 /**
- * Test2.
+ * LineTest.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 080526 nsano initial version <br>
@@ -55,7 +55,7 @@ Debug.printf("%02X, %s\n", data[0], StringUtil.getDump(data));
 //Debug.println(new String(meta.getData()));
                     String text = new String(message.getData(), Charset.forName("MS932"));
                     if (!text.startsWith("DM")) {
-                        String parts[] = text.split(":");
+                        String[] parts = text.split(":");
 Debug.println(parts[0] + ":" + parts[1] + ":" + message.getData().length/* + "\n" + parts[2]*/);
                     }
                     break;

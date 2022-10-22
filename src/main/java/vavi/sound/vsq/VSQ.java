@@ -85,10 +85,10 @@ Debug.println("track[" + i + "]: " + tracks[i].size());
             Track track = sequence.createTrack();
             currentTrack = i;
 
-            EventList eventList = EventList.class.cast(findBlock(i, EventList.class));
+            EventList eventList = (EventList) findBlock(i, EventList.class);
             for (EventList.Pair pair : eventList.getEvents()) {
                 if (!"EOS".equals(pair.id)) {
-                    Event event = Event.class.cast(findEvent(i, pair.id));
+                    Event event = (Event) findEvent(i, pair.id);
                     currentTicks = pair.tick;
 
                     //
@@ -140,8 +140,8 @@ Debug.println("track[" + i + "]: " + tracks[i].size());
     /** */
     public Block findEvent(int trackNumber, String id) {
         for (Block block : tracks[trackNumber]) {
-            if (Event.class.isInstance(block)) {
-                if (Event.class.cast(block).getId().equals(id)) {
+            if (block instanceof Event) {
+                if (((Event) block).getId().equals(id)) {
                     return block;
                 }
             }
@@ -152,8 +152,8 @@ Debug.println("track[" + i + "]: " + tracks[i].size());
     /** */
     public Block findHandle(int trackNumber, String id) {
         for (Block block : tracks[trackNumber]) {
-            if (Handle.class.isInstance(block)) {
-                if (Handle.class.cast(block).getId().equals(id)) {
+            if (block instanceof Handle) {
+                if (((Handle) block).getId().equals(id)) {
                     return block;
                 }
             }
@@ -180,8 +180,8 @@ Debug.println("events[" + t + "]: " + track.size());
                     MidiEvent event = track.get(e);
                     MidiMessage message = event.getMessage();
 //Debug.println("message: " + message);
-                    if (MetaMessage.class.isInstance(message)) {
-                        MetaMessage meta = MetaMessage.class.cast(message);
+                    if (message instanceof MetaMessage) {
+                        MetaMessage meta = (MetaMessage) message;
 //Debug.println(meta.getType());
                         switch (meta.getType()) {
                         case 1:  // テキスト・イベント 127 bytes

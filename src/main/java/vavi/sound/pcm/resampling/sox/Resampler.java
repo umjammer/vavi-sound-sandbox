@@ -81,7 +81,7 @@ public class Resampler {
     //----
 
     /** */
-    private class ResampleWork {
+    private static class ResampleWork {
         /** factor = out / in sample rates */
         double factor;
         /** gcd-reduced input rates */
@@ -227,7 +227,7 @@ Debug.println("resample: rate ratio " + work.inRate + " : " + work.outRate + ", 
      * @param outRate
      * @return gcd rate
      */
-    private final float getGcdRate(float inRate, float outRate) {
+    private float getGcdRate(float inRate, float outRate) {
         if (outRate == 0) {
             return inRate;
         } else {
@@ -390,13 +390,13 @@ Debug.println("DRAIN: " + work.xOff);
     }
 
     /** linear interpolation */
-    private final double iprodUD(double[] imp,
-                                 double[] xp,
-                                 int xp_pointer,
-                                 int inc,
-                                 double t0,
-                                 int dhb,
-                                 int ct) {
+    private double iprodUD(double[] imp,
+                           double[] xp,
+                           int xp_pointer,
+                           int inc,
+                           double t0,
+                           int dhb,
+                           int ct) {
 
         final double f = 1.0f / (1 << LA);
 
@@ -422,7 +422,7 @@ Debug.println("DRAIN: " + work.xOff);
      * @param nx
      * @return the number of output samples
      */
-    private final int srcUD(int nx) {
+    private int srcUD(int nx) {
 
         // quadratic or linear interp
         double time = work.time;
@@ -477,13 +477,13 @@ Debug.println("DRAIN: " + work.xOff);
      * @param ct
      * @return ???
      */
-    private final double prodEX(double[] imp,
-                               double[] xp,
-                               int xp_pointer,
-                               int inc,
-                               int t0,
-                               int dhb,
-                               int ct) {
+    private double prodEX(double[] imp,
+                          double[] xp,
+                          int xp_pointer,
+                          int inc,
+                          int t0,
+                          int dhb,
+                          int ct) {
 
         // so double sum starts with smallest coef's
         int cp_pointer = (ct - 1) * dhb + t0;
@@ -502,7 +502,7 @@ Debug.println("DRAIN: " + work.xOff);
      * @param nx
      * @return the number of output samples
      */
-    private final int srcEX(int nx) {
+    private int srcEX(int nx) {
 
         int time = work.t;
         int a = (int) work.inRate;
@@ -533,7 +533,7 @@ Debug.println("DRAIN: " + work.xOff);
     /**
      * @throw IllegalArgumentException
      */
-    private final void makeFilter(boolean normalize) {
+    private void makeFilter(boolean normalize) {
 
         if (work.nWing > MAXNWING) {             // Check for valid parameters
             throw new IllegalArgumentException("nWing > " + MAXNWING);
@@ -567,9 +567,7 @@ Debug.println("DRAIN: " + work.xOff);
                 work.imp[i] = impR[i] * dcGain;
             }
         } else {
-            for (int i = 0; i < mWing; i++) {
-                work.imp[i] = impR[i];
-            }
+            if (mWing >= 0) System.arraycopy(impR, 0, work.imp, 0, mWing);
         }
 
         for (int i = mWing; i <= work.nWing; i++) {
@@ -591,7 +589,7 @@ Debug.println("DRAIN: " + work.xOff);
      * Computes the 0th order modified bessel function of the first kind.
      * (Needed to compute Kaiser window).
      */
-    private final double iZero(double x) {
+    private double iZero(double x) {
 
         double sum = 1;
         double u = 1;
@@ -638,7 +636,7 @@ Debug.println("DRAIN: " + work.xOff);
      * @param mWing half the window length in number of coeffs
      * @return array in which to store computed coeffs
      */
-    private final double[] lpFilter(int mWing) {
+    private double[] lpFilter(int mWing) {
 
         double[] c = new double[mWing];
 

@@ -15,6 +15,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.RandomAccessFile;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -62,7 +64,7 @@ class Equalizer {
     private static final int M = 15;
 
     /** */
-    private final int RINT(double x) {
+    private int RINT(double x) {
         return (int) (x >= 0 ? x + 0.5 : x - 0.5);
     }
 
@@ -138,7 +140,7 @@ System.err.println("property band." + c + " not found, break");
                 bandList.add(Double.parseDouble(bandString));
                 c++;
             }
-            bands = bandList.toArray(new Double[bandList.size()]);
+            bands = bandList.toArray(new Double[0]);
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }
@@ -155,7 +157,7 @@ System.err.println("property band." + c + " not found, break");
     }
 
     /** */
-    private final double alpha(double a) {
+    private double alpha(double a) {
         if (a <= 21) {
             return 0;
         }
@@ -166,7 +168,7 @@ System.err.println("property band." + c + " not found, break");
     }
 
     /** */
-    private final double izero(double x) {
+    private double izero(double x) {
         double ret = 1;
 
         for (int m = 1; m <= M; m++) {
@@ -218,31 +220,31 @@ System.err.println("property band." + c + " not found, break");
     }
 
     /** -(N - 1) / 2 <= n <= (N - 1) / 2 */
-    private final double win(double n, int N) {
+    private double win(double n, int N) {
         return izero(alpha(aa) * Math.sqrt(1 - 4 * n * n / ((N - 1) * (N - 1)))) / iza;
     }
 
     /** */
-    private final double sinc(double x) {
+    private double sinc(double x) {
         return x == 0 ? 1 : Math.sin(x) / x;
     }
 
     /** */
-    private final double hn_lpf(int n, double f, double fs) {
+    private double hn_lpf(int n, double f, double fs) {
         double t = 1 / fs;
         double omega = 2 * Math.PI * f;
         return 2 * f * t * sinc(n * omega * t);
     }
 
     /** */
-    private final double hn_imp(int n) {
+    private double hn_imp(int n) {
         return n == 0 ? 1.0 : 0.0;
     }
 
     /**
      * @param param2 TODO index 0 に何か意味あり？？？
      */
-    private final double hn(int n, List<Parameter> param2, double fs) {
+    private double hn(int n, List<Parameter> param2, double fs) {
         double ret, lhn;
 
         lhn = hn_lpf(n, param2.get(0).upper, fs);
@@ -431,7 +433,7 @@ for (Parameter pp : param2) {
         process_param(lbc, param, param2, fs, 0);
 
         for (i = 0; i < winlen; i++) {
-            irest[i] = hn(i - winlen / 2, param2, fs) * win(i - winlen / 2, winlen);
+            irest[i] = hn(i - winlen / 2, param2, fs) * win(i - winlen / 2f, winlen);
         }
 
         for (; i < tabsize; i++) {
@@ -453,7 +455,7 @@ for (Parameter pp : param2) {
         process_param(rbc, param, param2, fs, 1);
 
         for (i = 0; i < winlen; i++) {
-            irest[i] = hn(i - winlen / 2, param2, fs) * win(i - winlen / 2, winlen);
+            irest[i] = hn(i - winlen / 2, param2, fs) * win(i - winlen / 2f, winlen);
         }
 
         for (; i < tabsize; i++) {
@@ -779,7 +781,7 @@ for (Parameter pp : param2) {
      * @param isign
      * @param x
      */
-    private void rfft(int n, int isign, double x[]) {
+    private void rfft(int n, int isign, double[] x) {
         int ipsize = 0, wsize = 0;
         int[] ip = null;
         double[] w = null;
@@ -812,14 +814,14 @@ for (Parameter pp : param2) {
     }
 
     /** when bps = 16 */
-    private final void writeShort(byte[] buffer, int offset, int value) {
+    private void writeShort(byte[] buffer, int offset, int value) {
         // assume little endian
         buffer[offset * 2    ] = (byte)  (value       & 0xff);
         buffer[offset * 2 + 1] = (byte) ((value >> 8) & 0xff);
     }
 
     /** when bps = 16 */
-    private final int readShort(byte[] buffer, int offset) {
+    private int readShort(byte[] buffer, int offset) {
         // assume little endian
         int v =  (buffer[offset * 2    ] & 0xff) |
                 ((buffer[offset * 2 + 1] & 0xff) << 8);
@@ -902,7 +904,7 @@ Debug.println("---- init ----");
         }
 
         try {
-            fpi = new FileInputStream(argv[0]);
+            fpi = Files.newInputStream(Paths.get(argv[0]));
             fpo = new RandomAccessFile(argv[1], "rw");
         } catch (Exception e) {
             System.err.println(e);
@@ -987,7 +989,7 @@ Debug.println("---- init ----");
             this.raf = raf;
         }
         /** */
-        public final void write(int b) throws IOException {
+        public void write(int b) throws IOException {
             raf.write(b);
         }
     }

@@ -60,10 +60,10 @@ Debug.println(audioUnit);
      */
     public abstract AUAudioUnit initWithComponentDescription_options_error(AudioComponentDescription.ByValue desc, int options, ObjCObjectByReference error);
 
-    public static interface CompletionHandlerCallback extends Callback {
+    public interface CompletionHandlerCallback extends Callback {
         // completionHandler NSViewController
         @RunOnMainThread
-        public void completionHandler(Pointer completionHandler);
+        void completionHandler(Pointer completionHandler);
     }
 
     /**

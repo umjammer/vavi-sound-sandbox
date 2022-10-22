@@ -8,7 +8,7 @@ package vavi.sound.pcm.equalizing.sse;
 
 
 /**
- * Test1.
+ * ClipTest.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060419 nsano initial version <br>

@@ -23,9 +23,9 @@ class SplitDataSource extends PushBufferDataSource {
 
     PushBufferDataSource ds;
 
-    PushBufferStream pbss[];
+    PushBufferStream[] pbss;
 
-    SplitStream streams[];
+    SplitStream[] streams;
 
     int idx;
 
@@ -91,7 +91,7 @@ class SplitDataSource extends PushBufferDataSource {
     /**
      * Utility Source stream for the SplitDataSource.
      */
-    class SplitStream implements PushBufferStream, BufferTransferHandler {
+    static class SplitStream implements PushBufferStream, BufferTransferHandler {
 
         PushBufferStream pbs;
 

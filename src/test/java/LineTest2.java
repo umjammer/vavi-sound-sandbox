@@ -40,7 +40,7 @@ import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2012/06/11 umjammer initial version <br>
  */
-class Test3 {
+class LineTest2 {
 
     static {
         System.setProperty("vavi.util.logging.VaviFormatter.extraClassMethod",
@@ -63,7 +63,7 @@ class Test3 {
 System.err.println(type);
         }
         AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new File(inFile).toURI().toURL());
-        Test3 app = new Test3();
+        LineTest2 app = new LineTest2();
         app.play(originalAudioInputStream);
     }
 
@@ -147,7 +147,6 @@ Debug.println("--------- " + reader.getClass().getName());
                 break;
             } catch (UnsupportedAudioFileException e) {
 Debug.println("ERROR: " + e.getMessage());
-                continue;
             }
         }
 

@@ -23,13 +23,13 @@ import vavix.util.grep.RegexFileDigger;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 030714 nsano initial version <br>
  */
-public class t150_4 {
+public class AnalyzeMLD {
 
     /**
-     * usage: java t150_4 dir
+     * usage: java AnalyzeMLD dir
      */
     public static void main(String[] args) throws Exception {
-        final Sequencer sequencer = MfiSystem.getSequencer();
+        Sequencer sequencer = MfiSystem.getSequencer();
         sequencer.open();
         FileDigger fileDigger = new RegexFileDigger(file -> {
 Debug.println("************ START ************* : " + file);

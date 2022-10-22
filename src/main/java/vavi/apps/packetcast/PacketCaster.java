@@ -57,7 +57,7 @@ public class PacketCaster {
 //        String inputURL = args[0];
 
         // Generate the input and output media locators.
-        final MediaLocator iml = new MediaLocator(inputURL);
+        MediaLocator iml = new MediaLocator(inputURL);
 
         interval = Integer.parseInt(args[1]);
 
@@ -92,7 +92,7 @@ Debug.println("end: " + end);
      * @throws IOException
      * @throws MediaException
      */
-    public void doIt(MediaLocator inML, MediaLocator outML, long start[], long end[]) throws MediaException, IOException {
+    public void doIt(MediaLocator inML, MediaLocator outML, long[] start, long[] end) throws MediaException, IOException {
 
         Processor p;
 
@@ -192,7 +192,7 @@ System.err.println("  ...done cutting.");
             } catch (Exception e) {
             }
         }
-        System.err.println("");
+        System.err.println();
         return fileSuccess;
     }
 

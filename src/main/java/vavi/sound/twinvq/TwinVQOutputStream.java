@@ -41,7 +41,7 @@ public class TwinVQOutputStream extends FilterOutputStream {
 
     /**
      */
-    public TwinVQOutputStream(OutputStream out, final ByteOrder byteOrder)
+    public TwinVQOutputStream(OutputStream out, ByteOrder byteOrder)
         throws IOException {
 
         super(new ByteArrayOutputStream());
@@ -57,7 +57,7 @@ Debug.println("byteOrder: " + this.byteOrder);
      */
     public void close() throws IOException {
 
-        final TwinVQ encoder = TwinVQ.getInstance();
+        TwinVQ encoder = TwinVQ.getInstance();
 
         try {
             LittleEndianDataInputStream ledis = new LittleEndianDataInputStream(new ByteArrayInputStream(((ByteArrayOutputStream) out).toByteArray()));

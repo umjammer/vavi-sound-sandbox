@@ -11,6 +11,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 
 /**
@@ -153,7 +155,7 @@ public class Ilbc {
     }
 
     /** type definition encoder instance */
-    private class Encoder {
+    private static class Encoder {
         /** flag for frame size mode */
         int mode;
         /** basic parameters for different frame sizes */
@@ -176,7 +178,7 @@ public class Ilbc {
     }
 
     /** type definition decoder instance */
-    private class Decoder {
+    private static class Decoder {
         /** flag for frame size mode */
         int mode;
         /** basic parameters for different frame sizes */
@@ -882,18 +884,18 @@ public class Ilbc {
         // get arguments and open files
 
         if ((argv.length != 4) && (argv.length != 5)) {
-            System.err.printf("\n*-----------------------------------------------*\n");
+            System.err.print("\n*-----------------------------------------------*\n");
             System.err.printf("   %s <20,30> input encoded decoded (channel)\n\n", getClass().getName());
-            System.err.printf("   mode    : Frame size for the encoding/decoding\n");
-            System.err.printf("                 20 - 20 ms\n");
-            System.err.printf("                 30 - 30 ms\n");
-            System.err.printf("   input   : Speech for encoder (16-bit pcm file)\n");
-            System.err.printf("   encoded : Encoded bit stream\n");
-            System.err.printf("   decoded : Decoded speech (16-bit pcm file)\n");
-            System.err.printf("   channel : Packet loss pattern, optional (16-bit)\n");
-            System.err.printf("                  1 - Packet received correctly\n");
-            System.err.printf("                  0 - Packet Lost\n");
-            System.err.printf("*-----------------------------------------------*\n\n");
+            System.err.print("   mode    : Frame size for the encoding/decoding\n");
+            System.err.print("                 20 - 20 ms\n");
+            System.err.print("                 30 - 30 ms\n");
+            System.err.print("   input   : Speech for encoder (16-bit pcm file)\n");
+            System.err.print("   encoded : Encoded bit stream\n");
+            System.err.print("   decoded : Decoded speech (16-bit pcm file)\n");
+            System.err.print("   channel : Packet loss pattern, optional (16-bit)\n");
+            System.err.print("                  1 - Packet received correctly\n");
+            System.err.print("                  0 - Packet Lost\n");
+            System.err.print("*-----------------------------------------------*\n\n");
             return;
         }
         int mode = Integer.parseInt(argv[0]);
@@ -901,22 +903,22 @@ public class Ilbc {
             throw new IllegalArgumentException(String.format("Wrong mode %s, must be 20, or 30", argv[0]));
         }
         try {
-            iFile = new FileInputStream(argv[1]);
+            iFile = Files.newInputStream(Paths.get(argv[1]));
         } catch (IOException e) {
             throw new IllegalArgumentException(String.format("Cannot open input file %s", argv[1]));
         }
         try {
-            eFile = new FileOutputStream(argv[2]);
+            eFile = Files.newOutputStream(Paths.get(argv[2]));
         } catch (IOException e) {
             throw new IllegalArgumentException(String.format("Cannot open encoded file %s", argv[2]));
         }
         try {
-            oFile = new FileOutputStream(argv[3]);
+            oFile = Files.newOutputStream(Paths.get(argv[3]));
         } catch (IOException e) {
             throw new IllegalArgumentException(String.format("Cannot open decoded file %s", argv[3]));
         }
         if (argv.length == 5) {
-            if ((cFile = new FileInputStream(argv[4])) == null) {
+            if ((cFile = Files.newInputStream(Paths.get(argv[4]))) == null) {
                 throw new IllegalArgumentException(String.format("Cannot open channel file %s", argv[4]));
             }
         } else {
@@ -925,13 +927,13 @@ public class Ilbc {
 
         /* print info */
 
-        System.err.printf("\n");
-        System.err.printf("*---------------------------------------------------*\n");
-        System.err.printf("*                                                   *\n");
-        System.err.printf("*      iLBC test program                            *\n");
-        System.err.printf("*                                                   *\n");
-        System.err.printf("*                                                   *\n");
-        System.err.printf("*---------------------------------------------------*\n");
+        System.err.print("\n");
+        System.err.print("*---------------------------------------------------*\n");
+        System.err.print("*                                                   *\n");
+        System.err.print("*      iLBC test program                            *\n");
+        System.err.print("*                                                   *\n");
+        System.err.print("*                                                   *\n");
+        System.err.print("*---------------------------------------------------*\n");
         System.err.printf("\nMode           : %2d ms\n", mode);
         System.err.printf("Input file     : %s\n", argv[1]);
         System.err.printf("Encoded file   : %s\n", argv[2]);
@@ -939,7 +941,7 @@ public class Ilbc {
         if (argv.length == 5) {
             System.err.printf("Channel file   : %s\n", argv[4]);
         }
-        System.err.printf("\n");
+        System.err.print("\n");
 
         // Initialization
 
@@ -960,7 +962,7 @@ public class Ilbc {
 
             System.err.printf("--- Encoding block %d --- ", blockCount);
             len = encode(encoder, encoded_data, data);
-            System.err.printf("\n");
+            System.err.print("\n");
 
             // write byte file
 
@@ -992,7 +994,7 @@ public class Ilbc {
             System.err.printf("--- Decoding block %d --- ", blockCount);
 
             len = decode(decoder, decoded_data, encoded_data, pli);
-            System.err.printf("\n");
+            System.err.print("\n");
 
             // write output file
 
@@ -1006,7 +1008,7 @@ public class Ilbc {
         System.out.printf("\n\nLength of speech file: %.1f s\n", outtime);
         System.out.printf("Packet loss          : %.1f%%\n", 100.0 * packetLossCount / blockCount);
 
-        System.out.printf("Time to run iLBC     :");
+        System.out.print("Time to run iLBC     :");
         System.out.printf(" %.1f s (%.1f %% of realtime)\n\n", (double) runtime, (100 * runtime / outtime));
 
         // close files
@@ -2306,7 +2308,7 @@ public class Ilbc {
      * @param seq2 (i) second sequence
      * @param dim2 (i) dimension seq2
      */
-    private void mycorr1(double[] corr, int corrP, double[] seq1, int seq1P, int dim1, final double[] seq2, int seq2P, int dim2) {
+    private void mycorr1(double[] corr, int corrP, double[] seq1, int seq1P, int dim1, double[] seq2, int seq2P, int dim2) {
 
         for (int i = 0; i <= dim1 - dim2; i++) {
             corr[corrP+i] = 0.0;
@@ -2776,11 +2778,7 @@ public class Ilbc {
 
             enh_bufPtr1 = plc_blockl - 1; // plc_pred
 
-            if (lag > plc_blockl) {
-                start = plc_blockl;
-            } else {
-                start = lag;
-            }
+            start = Math.min(lag, plc_blockl);
 
             for (isample = start; isample > 0; isample--) {
                 plc_pred[enh_bufPtr1--] = in[inPtr--];
@@ -2974,10 +2972,10 @@ public class Ilbc {
         double[] fssqEn = new double[NSUB_MAX], bssqEn = new double[NSUB_MAX];
         int /* double * */pp;
         int n, l, max_ssqEn_n;
-        final double[] ssqEn_win = { // NSUB_MAX-1
+        double[] ssqEn_win = { // NSUB_MAX-1
             0.8, 0.9, 1.0, 0.9, 0.8
         };
-        final double[] sampEn_win = {
+        double[] sampEn_win = {
             1.0 / 6.0, 2.0 / 6.0, 3.0 / 6.0, 4.0 / 6.0, 5.0 / 6.0
         };
 
@@ -3301,7 +3299,7 @@ public class Ilbc {
      * @param N (i) length of data vector
      * @param order largest lag for calculated autocorrelations
      */
-    private void autocorr(double[] r, final double[] x, int N, int order) {
+    private void autocorr(double[] r, double[] x, int N, int order) {
 
         for (int lag = 0; lag <= order; lag++) {
             double sum = 0;
@@ -3320,7 +3318,7 @@ public class Ilbc {
      * @param y (i) the window
      * @param N (i) length of all vectors
      */
-    private void window(double[] z, final double[] x, final double[] y, int yP, int N) {
+    private void window(double[] z, double[] x, double[] y, int yP, int N) {
 
         for (int i = 0; i < N; i++) {
             z[i] = x[i] * y[yP + i];
@@ -3414,7 +3412,7 @@ public class Ilbc {
      * @param n_cb (i) the number of vectors in the codebook
      * @param dim (i) the dimension of all vectors
      */
-    private void vq(double[] Xq, int xqP, int[] index, int indexP, final double[] CB, int cbP, double[] X, int xP, int n_cb, int dim) {
+    private void vq(double[] Xq, int xqP, int[] index, int indexP, double[] CB, int cbP, double[] X, int xP, int n_cb, int dim) {
         double dist, tmp, mindist;
 
         int pos = 0;
@@ -3452,7 +3450,7 @@ public class Ilbc {
      * @param dim the dimension of X and qX
      * @param cbsize the number of vectors in the codebook
      */
-    private void SplitVQ(double[] qX, int qxP, int[] index, int indexP, double[] X, int xP, final double[] CB, int nsplit, final int[] dim, final int[] cbsize) {
+    private void SplitVQ(double[] qX, int qxP, int[] index, int indexP, double[] X, int xP, double[] CB, int nsplit, int[] dim, int[] cbsize) {
 
         int cb_pos = 0;
         int X_pos = 0;
@@ -3472,7 +3470,7 @@ public class Ilbc {
      * @param cb (i) the quantization codebook
      * @param cb_size (i) the size of the quantization codebook
      */
-    private void sort_sq(double[] xq, int[] index, double x, final double[] cb, int cb_size) {
+    private void sort_sq(double[] xq, int[] index, double x, double[] cb, int cb_size) {
 
         if (x <= cb[0]) {
             index[0] = 0;
@@ -4361,7 +4359,7 @@ public class Ilbc {
         // update memory
 
         if (iLBCenc_inst.mode == 30) {
-            System.arraycopy(lsf2, 0, lsfold, 0, length);
+            System.arraycopy(lsf, length, lsfold, 0, length);
             System.arraycopy(lsfdeq, lsfdeq2, lsfdeqold, 0, length);
         } else {
             System.arraycopy(lsf, 0, lsfold, 0, length);
@@ -4419,7 +4417,7 @@ public class Ilbc {
      * @param a (i) lpc coefficients
      */
     private void a2lsf(double[] freq, int freqP, double[] a) {
-        final double[] steps = { // LSF_NUMBER_OF_STEPS
+        double[] steps = { // LSF_NUMBER_OF_STEPS
             0.00635, 0.003175, 0.0015875, 0.00079375
         };
         double step;

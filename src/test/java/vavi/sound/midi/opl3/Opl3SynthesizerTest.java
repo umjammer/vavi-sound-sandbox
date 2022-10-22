@@ -84,7 +84,7 @@ System.err.println("META: " + meta.getType());
         sequencer.addMetaEventListener(mel);
 System.err.println("START");
         sequencer.start();
-if (Boolean.valueOf(System.getProperty("vavi.test"))) {
+if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  sequencer.stop();
  Debug.println("STOP");
@@ -138,7 +138,7 @@ System.err.println("START");
         Receiver receiver = synthesizer.getReceivers().get(0);
         receiver.send(sysex, -1);
 
-if (Boolean.valueOf(System.getProperty("vavi.test"))) {
+if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  sequencer.stop();
  Debug.println("STOP");

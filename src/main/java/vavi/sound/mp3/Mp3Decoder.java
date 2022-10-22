@@ -20,7 +20,7 @@ import vavi.util.StringUtil;
  */
 class Mp3Decoder {
     /** */
-    private class GrInfo {
+    private static class GrInfo {
         int length;
         int bigValues;
         int gain;
@@ -508,27 +508,27 @@ Debug.println(info[gr][ch]);
     };
 
     /** */
-    private static final int getPtr(int i) {
+    private static int getPtr(int i) {
         return huff_tbl_16[i];
     }
 
     /** */
-    private static final int getY(int i) {
+    private static int getY(int i) {
         return ((huff_tbl_16[i] & 0xff00) >> 8) & 0xff;
     }
 
     /** */
-    private static final int getX(int i) {
+    private static int getX(int i) {
         return ((huff_tbl_16[i] & 0xff0000) >> 16) & 0xff;
     }
 
     /** */
-    private static final int signBits(int i) {
+    private static int signBits(int i) {
         return ((huff_tbl_16[i] & 0xff000000) >> 24) & 0xff;
     }
 
     /** */
-    private static final int purgeBits(int i) {
+    private static int purgeBits(int i) {
         return huff_tbl_16[i] & 0xff;
     }
 
@@ -632,14 +632,14 @@ Debug.println(info[gr][ch]);
         if (m_bits < n) {
             while (m_bits <= 24) {
 Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
-                m_bitbuf = ((m_bitbuf << 8) & 0xffffffff) | (base[m_bs_ptr++] & 0xff);
+                m_bitbuf = ((m_bitbuf << 8)) | (base[m_bs_ptr++] & 0xff);
                 m_bits += 8;
             }
         }
 
         m_bits -= n;
-        int x = (int) ((m_bitbuf >> m_bits) & 0xffffffff);
-        m_bitbuf -= (x << m_bits);
+        int x = (int) ((m_bitbuf >> m_bits));
+        m_bitbuf -= ((long) x << m_bits);
 
         return x;
     }
@@ -649,14 +649,14 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
 
         if (m_bits < (n + 2)) {
             while (m_bits <= 24) {
-                m_bitbuf = ((m_bitbuf << 8) & 0xffffffff) | (base[m_bs_ptr++] & 0xff);
+                m_bitbuf = ((m_bitbuf << 8)) | (base[m_bs_ptr++] & 0xff);
                 m_bits += 8;
             }
         }
 
         m_bits -= n;
-        int x = (int) ((m_bitbuf >> m_bits) & 0xffffffff);
-        m_bitbuf -= (x << m_bits);
+        int x = (int) ((m_bitbuf >> m_bits));
+        m_bitbuf -= ((long) x << m_bits);
 
         return x;
     }
@@ -666,12 +666,12 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
 
         if (m_bits < (9 + 2)) {
             while (m_bits <= 24) {
-                m_bitbuf = ((m_bitbuf << 8) & 0xffffffff) | (base[m_bs_ptr++] & 0xff);
+                m_bitbuf = ((m_bitbuf << 8)) | (base[m_bs_ptr++] & 0xff);
                 m_bits += 8;
             }
         }
 
-        int x = (int) ((m_bitbuf >> (m_bits - n)) & 0xffffffff);
+        int x = (int) ((m_bitbuf >> (m_bits - n)));
 
         return x;
     }
@@ -679,15 +679,15 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
     /** */
     private void mac_bitget_purge(int n) {
         m_bits -= n;
-        m_bitbuf -= (((m_bitbuf >> m_bits) << m_bits) & 0xffffffff);
+        m_bitbuf -= (((m_bitbuf >> m_bits) << m_bits));
     }
 
     /** */
     private int mac_bitget_1bit() {
 
         m_bits--;
-        int code = (int) ((m_bitbuf >> m_bits) & 0xffffffff);
-        m_bitbuf -= (code << m_bits);
+        int code = (int) ((m_bitbuf >> m_bits));
+        m_bitbuf -= ((long) code << m_bits);
 
         return code;
     }
@@ -751,7 +751,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
 
         for (int sb = 1; sb < SB_SIZE; sb += 2) {
             for (int ss = 1; ss < SS_SIZE; ss += 2) {
-                samp[ss][sb] *= -1.0;
+                samp[ss][sb] = (float) (samp[ss][sb] * -1.0);
             }
         }
     }
@@ -768,7 +768,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
         for (int m = 0; m < n; m++) {
             for (int k = 0; k < (n / 2); k++) {
                 m_imdctcos[k][m] = (float) Math.cos((((2 * k) + 1) * ((2 * m) +
-                                                    1 + (n / 2)) * Math.PI) / (2 * n));
+                                                    1 + (n / 2f)) * Math.PI) / (2 * n));
                 m_imdcttbl[k][m] = m_imdctwin[m] * m_imdctcos[k][m];
             }
         }
@@ -792,7 +792,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
     /** */
     private float[][] m_dsbcostbl = new float[SB_SIZE][SCALE_RANGE];
 
-    /** init table */
+    /* init table */
     {
         m_dxoff[0] = m_dxoff[1] = 0;
 
@@ -1005,7 +1005,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
                          ((HAN_SIZE * 2) - 1);
                 w[l] = (float) (coef * m_dewin[l] * m_dxbuf[ch][l2]);
                 w[m] = (float) (coef * m_dewin[m] * m_dxbuf[ch][m2]);
-                coef *= -1.0;
+                coef = (float) (coef * -1.0);
             }
         }
 

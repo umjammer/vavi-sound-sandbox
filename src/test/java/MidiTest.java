@@ -31,7 +31,7 @@ import vavi.util.Debug;
  * @version 0.00 020703 nsano initial version <br>
  * @see "https://stackoverflow.com/a/45119638/6102938"
  */
-public class t6 {
+public class MidiTest {
 
     static {
 //        System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
@@ -50,12 +50,10 @@ public class t6 {
         Sequence sequence = MidiSystem.getSequence(new File(args[0]));
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        MetaEventListener mel = new MetaEventListener() {
-            public void meta(MetaMessage meta) {
+        MetaEventListener mel = meta -> {
 System.err.println("META: " + meta.getType());
-                if (meta.getType() == 47) {
-                    countDownLatch.countDown();
-                }
+            if (meta.getType() == 47) {
+                countDownLatch.countDown();
             }
         };
         Sequencer sequencer = MidiSystem.getSequencer(true);
@@ -76,7 +74,7 @@ System.err.println("END: " + args[0]);
         /** MIDI */
         Synthesizer synthesizer;
         Sequencer sequencer;
-        MidiChannel channels[]; 
+        MidiChannel[] channels;
 
         // Obtain information about all the installed synthesizers.
         List<MidiDevice.Info> synthInfos = new ArrayList<>();
@@ -287,7 +285,7 @@ System.err.println("END");
      * The program entry.
      */
     public static void main(String[] args) throws Exception {
-        t6 app = new t6();
+        MidiTest app = new MidiTest();
 //        app.t0(args);
         app.t3(args);
 //        app.t4(args);

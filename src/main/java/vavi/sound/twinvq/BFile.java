@@ -99,7 +99,7 @@ class BFile {
         long fs_ret;
 
         if (!this.mode.equals("w")) {
-            System.err.printf("bseek(): No seek support in write mode.\n");
+            System.err.print("bseek(): No seek support in write mode.\n");
             return 2;
         }
 

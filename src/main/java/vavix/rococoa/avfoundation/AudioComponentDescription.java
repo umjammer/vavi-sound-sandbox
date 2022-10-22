@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2020 by Naohide Sano, All rights reserved.
+ *
+ * Programmed by Naohide Sano
+ */
 
 package vavix.rococoa.avfoundation;
 
@@ -9,6 +14,12 @@ import com.sun.jna.Structure;
 import vavi.util.ByteUtil;
 
 
+/**
+ * AudioComponentDescription.
+ *
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
+ * @version 0.00 2020/??/?? nsano initial version <br>
+ */
 public class AudioComponentDescription extends Structure {
 
     public static final int kAudioUnitType_Output = ByteUtil.readBeInt("auou".getBytes());

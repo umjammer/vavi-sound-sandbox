@@ -1,6 +1,7 @@
 [![Maven Package](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/maven-publish.yml)
 [![Java CI](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/maven.yml)
 [![CodeQL](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/codeql-analysis.yml)
+![Java](https://img.shields.io/badge/Java-8-b07219)
 
 # vavi-sound-sandbox
 
@@ -8,46 +9,56 @@
 
 ## Status
 
-| **SPI** |  **Codec** | **IN Status** | **OUT Status** | **SPI Status** | **project** | **Description** | **Comment** |
-|:--------|:-----------|:--------------|:---------------|:---------------|:------------|:----------------|:------------|
-| midi    | unknown    | 🚫 | 🚫 | - | this | MFi by [unknown]() | |
-| midi    | ittake     | 🚫 | 🚫 | - | this | MFi by [ittake](https://web.archive.org/web/20090515001654/http://tokyo.cool.ne.jp/ittake/java/MIDIToMLDv013/MIDIToMLD.html) | |
-| sampled | ilbc       | 🚫 | 🚫 | - | this | [c](http://www.ilbcfreeware.org/) | |
-| sampled | ldcelp     | 🚫 | 🚫 | - | this | [c](ftp://svr-ftp.eng.cam.ac.uk/pub/comp.speech/coding/ldcelp-2.0.tar.gz) | |
-| sampled | mp3        | 🚫 | -  | -  | this | [mp3](https://github.com/umjammer/vavi-sound-sandbox/tree/master/src/main/java/vavi/sound/mp3) | need to deal tags |
-| sampled | sse        | 🚫 | -  | 🚫 | this | [sse](http://shibatch.sourceforge.net/download/) | |
-| sampled | resampling | ✅ | -  | -  | this | [laoe](http://www.oli4.ch/laoe/home.html) | |
-| sampled | resampling | ✅ | -  | -  | this | [rohm](https://en.wikipedia.org/wiki/Rohm) | |
-| sampled | polyphase  | ✅ | -  | 🚧 | this | [sox](http://sox.sourceforge.net/) resampling | |
-| sampled | resampler  | ✅ | -  | - | this | [sox](http://sox.sourceforge.net/) resampling | |
-| sampled | perfect    | 🚧 | -  | - | this | [sox](http://sox.sourceforge.net/) resampling | |
-| sampled | monauralize | ✅ | - | ✅ | [tritonus-remaining](https://github.com/umjammer/tritonus-remaining) | `PCM2PCMConversionProvider` | works but not suitable for resampling |
-| sampled | alac       | ✅ | -  | ✅ | [Apple Lossless Audio Decoder](https://github.com/umjammer/Java-Apple-Lossless-decoder) | | |
-| ~~sampled~~ | ~~QTKit~~  | ~~✅~~ | -  | ? | ~~this~~ | ~~[rococoa](https://github.com/umjammer/rococoa)~~ | deprecated |
-| sampled | AVFoundation | 🚧 | - | 🚧 | this | [rococoa](https://github.com/umjammer/rococoa) | use `AVAudioConverter` how to return objc value in callback? |
-| sampled | twinvq     | 🚫 | 🚫 | - | this | | TODO use ffmpeg |
-| midi    | vsq        | 🚧 | -  | 🚧 | this | | YAMAHA Vocaloid |
-| sampled | opus       | ✅ | 🚫 | ✅ | this | [concentus](https://github.com/lostromb/concentus) | |
-| midi    | AudioUnit  | ✅ | - | ✅ | this | [rococoa](https://github.com/umjammer/rococoa) | use `AVAudioUnitMIDIInstrument/kAudioUnitSubType_DLSSynth` |
-| midi    | AudioUnit  | ✅ | - | 🚫 | this | [rococoa](https://github.com/umjammer/rococoa) | use `AVAudioUnitSampler`, how to adjust sf2 patch? |
-| midi    | JSyn       | ✅ | -  | ✅ | this | [JSyn](https://github.com/philburk/jsyn) | looking for good drums |
-| midi    | OPL3       | ✅ | - | ✅ | this | [adplug](https://github.com/adplug/adplug) | [opl3-player](http://opl3.cozendey.com/) |
-| midi    | ?          | -  | -  | -  | this |  | opl, ma |
-| midi    | CoreMIDI   | ✅ | ?  | ✅ | [osxmidi4j](https://github.com/locurasoft/osxmidi4j) | rococoa | iac ✓, network ✓, bluetooth ? |
-| midi    | CoreMIDI   | ✅ | ?  | ✅ | [CoreMidi4J](https://github.com/DerekCook/CoreMidi4J) | jni | iac ✓, network ✓, bluetooth ? |
-| sampled | speex      | ✅ | -  | ✅ | [jspeex](http://jspeex.sourceforge.net/) | | sample rate is limited to convert |
-| sampled | flac       | ✅ | -  | ✅ | [jFLAC](http://jflac.sourceforge.net/) | | |
-| sampled | aac        | -  | -  | ✅ | [JAADec](https://github.com/umjammer/JAADec) | | |
-| sampled | vorbis     | -  | -  | ✅ | [tritonus-jorbis](https://github.com/umjammer/tritonus-jorbis) | | |
+| **SPI** | **Codec**    | **IN Status** | **OUT Status** | **SPI Status** | **project**                                                          | **Description**                                                                                                              | **Comment** |
+|:--------|:-------------|:--------------|:---------------|:---------------|:---------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------|:------------|
+| midi    | unknown      | 🚫 | 🚫 | - | this                                                                 | MFi by [unknown]()                                                                                                           | |
+| midi    | ittake       | 🚫 | 🚫 | - | this                                                                 | MFi by [ittake](https://web.archive.org/web/20090515001654/http://tokyo.cool.ne.jp/ittake/java/MIDIToMLDv013/MIDIToMLD.html) | |
+| sampled | ilbc         | 🚫 | 🚫 | - | this                                                                 | [c](http://www.ilbcfreeware.org/)                                                                                            | |
+| sampled | ldcelp       | 🚫 | 🚫 | - | this                                                                 | [c](ftp://svr-ftp.eng.cam.ac.uk/pub/comp.speech/coding/ldcelp-2.0.tar.gz)                                                    | |
+| sampled | mp3          | 🚫 | -  | -  | this                                                                 | [mp3](https://github.com/umjammer/vavi-sound-sandbox/tree/master/src/main/java/vavi/sound/mp3)                               | need to deal tags |
+| sampled | mp3          | ✅ | -  | ✅ | [mp3spi](https://github.com/umjammer/mp3spi)                         | [jlayer](https://github.com/umjammer/jlayer)                                                                                     | |
+| sampled | sse          | 🚫 | -  | 🚫 | this                                                                 | [sse](http://shibatch.sourceforge.net/download/)                                                                             | |
+| sampled | resampling   | ✅ | -  | -  | this                                                                 | [laoe](http://www.oli4.ch/laoe/home.html)                                                                                    | |
+| sampled | resampling   | ✅ | -  | -  | this                                                                 | [rohm](https://en.wikipedia.org/wiki/Rohm)                                                                                   | |
+| sampled | polyphase    | ✅ | -  | 🚧 | this                                                                 | [sox](http://sox.sourceforge.net/) resampling                                                                                | |
+| sampled | resampler    | ✅ | -  | - | this                                                                 | [sox](http://sox.sourceforge.net/) resampling                                                                                | |
+| sampled | perfect      | 🚧 | -  | - | this                                                                 | [sox](http://sox.sourceforge.net/) resampling                                                                                | |
+| sampled | monauralize  | ✅ | - | ✅ | [tritonus-remaining](https://github.com/umjammer/tritonus-remaining) | `PCM2PCMConversionProvider`                                                                                                  | works but not suitable for resampling |
+| sampled | alac         | ✅ | -  | ✅ | [vavi-sound-alac](https://github.com/umjammer/vavi-sound-alac)       |                                                                                                                              | |
+| ~~sampled~~ | ~~QTKit~~    | ~~✅~~ | -  | ? | ~~this~~                                                             | ~~[rococoa](https://github.com/umjammer/rococoa)~~                                                                           | deprecated |
+| sampled | AVFoundation | 🚧 | - | 🚧 | this                                                                 | [rococoa](https://github.com/umjammer/rococoa)                                                                               | use `AVAudioConverter` how to return objc value in callback? |
+| sampled | twinvq       | 🚫 | 🚫 | - | this                                                                 |                                                                                                                              | TODO use ffmpeg |
+| midi    | vsq          | 🚧 | -  | 🚧 | this                                                                 |                                                                                                                              | YAMAHA Vocaloid |
+| sampled | opus         | ✅ | 🚫 | ✅ | this                                                                 | [concentus](https://github.com/lostromb/concentus)                                                                           | |
+| midi    | AudioUnit    | ✅ | - | ✅ | this                                                                 | [rococoa](https://github.com/umjammer/rococoa)                                                                               | use `AVAudioUnitMIDIInstrument/kAudioUnitSubType_DLSSynth` |
+| midi    | AudioUnit    | ✅ | - | 🚫 | this                                                                 | [rococoa](https://github.com/umjammer/rococoa)                                                                               | use `AVAudioUnitSampler`, how to adjust sf2 patch? |
+| midi    | JSyn         | ✅ | -  | ✅ | this                                                                 | [JSyn](https://github.com/philburk/jsyn)                                                                                     | looking for good drums |
+| midi    | OPL3         | ✅ | - | ✅ | this                                                                 | [adplug](https://github.com/adplug/adplug)                                                                                   | [opl3-player](http://opl3.cozendey.com/) |
+| midi    | ?            | -  | -  | -  | this                                                                 |                                                                                                                              | opl, ma |
+| midi    | CoreMIDI     | ✅ | ?  | ✅ | [osxmidi4j](https://github.com/umjammer/osxmidi4j)                   | rococoa                                                                                                                      | iac ✓, network ✓, bluetooth ? |
+| midi    | CoreMIDI     | ✅ | ?  | ✅ | [CoreMidi4J](https://github.com/DerekCook/CoreMidi4J)                | jni                                                                                                                          | iac ✓, network ✓, bluetooth ? |
+| sampled | speex        | ✅ | -  | ✅ | [jspeex](http://jspeex.sourceforge.net/)                             |                                                                                                                              | sample rate is limited to convert |
+| sampled | flac         | ✅ | -  | ✅ | [JustFLAC](https://github.com/umjammer/JustFLAC)                     |                                                                                                                              | |
+| sampled | flac         | ✅ | -  | ✅ | [jFLAC](http://jflac.sourceforge.net/)                               |                                                                                                                              | |
+| sampled | aac          | -  | -  | ✅ | [JAADec](https://github.com/umjammer/JAADec)                         |                                                                                                                              | |
+| sampled | vorbis       | -  | -  | ✅ | [tritonus-jorbis](https://github.com/umjammer/tritonus-jorbis)       |                                                                                                                              | |
 
-## Others
+## Features
 
- * [iTunes Library (rococoa)](https://github.com/umjammer/vavi-sound-sandbox/tree/master/src/main/java/vavix/rococoa/ituneslibrary)
+ * ~~ALAC Java sound SPI~~ ... ([graduated incubation](https://github.com/umjammer/vavi-sound-alac))
+ * OPAS Java sound SPI ... (candidate to graduate)
+ * sox polyphase resampler Java sound SPI ... (candidate to graduate)
+ * sox perfect resampler Java sound SPI ... (wip)
+ * Mac AudioUnit synthesizer Java MIDI SPI ... (candidate to graduate)
+ * JSyn synthesizer Java MIDI SPI ... (wip)
+ * OPL3 synthesizer Java MIDI SPI ... (wip)
+ * [iTunes Library (rococoa) ... Music.app Music Database](https://github.com/umjammer/vavi-sound-sandbox/tree/master/src/main/java/vavix/rococoa/ituneslibrary)
 
 ## Install
 
-  * [jitpack](https://jitpack.io/#umjammer/vavi-sound-sandbox)
-  * plain JitPack cannot retrieve GitHub Packages, please choose green marked version made by JitCI like `f49ed0f0`
+ * https://github.com/umjammer/vavi-sound-sandbox/packages/1298964
+ * this project uses github packages. add a personal access token to `~/.m2/settings.xml`
+ * see https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry
 
 ## Tech Know
 
@@ -113,5 +124,6 @@
 ## References
 
  * [Gervill](https://github.com/bluenote10/gervill)
+   * https://github.com/HectorRicardo/final-gervill
 
 

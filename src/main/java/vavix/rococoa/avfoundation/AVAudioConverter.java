@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2020 by Naohide Sano, All rights reserved.
+ *
+ * Programmed by Naohide Sano
+ */
 
 package vavix.rococoa.avfoundation;
 
@@ -11,19 +16,25 @@ import com.sun.jna.Callback;
 import com.sun.jna.ptr.IntByReference;
 
 
+/**
+ * AVAudioConverter.
+ *
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
+ * @version 0.00 2020/??/?? nsano initial version <br>
+ */
 public abstract class AVAudioConverter extends NSObject {
 
     enum AVAudioConverterOutputStatus {
         endOfStream,
         error,
         haveData,
-        inputRanDry;
+        inputRanDry
     }
 
     enum AVAudioConverterInputStatus {
         haveData,
         noDataNow,
-        endOfStream;
+        endOfStream
     }
 
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("AVAudioConverter", _Class.class);
