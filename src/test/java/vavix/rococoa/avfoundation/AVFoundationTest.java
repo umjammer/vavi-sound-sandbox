@@ -329,7 +329,7 @@ Debug.println("AudioUnit: " + audioUnit.description());
 
     @Test
     void test8() throws Exception {
-        for (float f = .0f; f <= 1.1f; f += .1) {
+        for (float f = .0f; f <= 1.1f; f += .1f) {
             float dB = (float) (Math.log(f) / Math.log(10.0) * 20.0);
             System.out.printf("gain: %03.2f, dB: %03.0f%n", f, dB);
         }
