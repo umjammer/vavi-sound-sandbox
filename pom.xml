@@ -26,7 +26,7 @@
   </issueManagement>
 
   <properties>
-    <tritonus.version>0.3.11</tritonus.version>
+    <tritonus.version>0.3.12</tritonus.version>
     <rococoa.version>0.8.4</rococoa.version>
   </properties>
 
@@ -149,7 +149,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.9.0</version>
+        <version>5.9.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -160,7 +160,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.7</version>
+      <version>1.1.8</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- com.github.umjammer -->
@@ -250,7 +250,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons-sandbox</artifactId>
-      <version>0.4.1</version>
+      <version>0.4.2</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
