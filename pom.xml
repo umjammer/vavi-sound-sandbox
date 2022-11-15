@@ -39,37 +39,12 @@
 
   <profiles>
     <profile>
-      <id>unix</id>
-      <activation>
-        <os>
-          <family>unix</family>
-        </os>
-      </activation>
-      <properties>
-        <dev.null>/dev/null</dev.null>
-      </properties>
-    </profile>
-    <profile>
-      <id>windows</id>
-      <activation>
-        <os>
-          <family>windows</family>
-        </os>
-      </activation>
-      <properties>
-        <dev.null>NUL</dev.null>
-      </properties>
-    </profile>
-    <profile>
       <id>mac</id>
       <activation>
         <os>
           <family>mac</family>
         </os>
       </activation>
-      <properties>
-        <dev.null>/dev/null</dev.null>
-      </properties>
       <build>
         <plugins>
           <plugin>
@@ -115,6 +90,27 @@
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>properties-maven-plugin</artifactId>
+        <version>1.0.0</version>
+        <executions>
+          <execution>
+            <id>read-properties</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>read-project-properties</goal>
+            </goals>
+            <configuration>
+              <files>
+                <file>local.properties</file>
+              </files>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -123,8 +119,7 @@
           <argLine>
             -Dvavi.util.logging.VaviFormatter.extraClassMethod="org\.tritonus\.share\.TDebug#out"
             -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
-            -Dgdrive.home="/Volumes/GoogleDrive/My Drive"
-            -Dvavi.test.dev.null=${dev.null}
+            -Dgdrive.home="${gdrive.home}"
           </argLine>
           <trimStackTrace>false</trimStackTrace>
           <forkMode>always</forkMode>
