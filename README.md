@@ -115,6 +115,8 @@
    * https://github.com/onitama/mucom88
    * https://github.com/BouKiCHi/mucom88
    * https://github.com/kuma4649/MDPlayer
+ * ~~mml (cmd sing)~~
+    * [thanks](http://asamomiji.jp/contents/mml-player)
 
 #### ebml
 
