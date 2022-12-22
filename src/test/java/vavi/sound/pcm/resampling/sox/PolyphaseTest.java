@@ -47,11 +47,7 @@ public class PolyphaseTest {
     static String inFile = "src/test/resources/test.wav";
     static String outFile = "tmp/out.vavi.wav";
 
-    static boolean isGui;
-
-    static {
-        isGui = Boolean.valueOf(System.getProperty("eclipse.editor", "false"));
-    }
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
 
     @BeforeAll
     static void setup() throws IOException {
@@ -130,7 +126,7 @@ Debug.println("OUT: " + audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(audioFormat);
         line.start();
-        if (isGui) {
+        if ("ide".equals(System.getProperty("vavi.test"))) {
             int l = 0;
             while (l < dest.length) {
                 l += line.write(dest, l, dest.length);
@@ -198,7 +194,7 @@ Debug.println("\n" + StringUtil.getDump(out, 512));
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, outFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(outFormat);
-        volume(line, .2d);
+        volume(line, volume);
         line.start();
 //        byte[] buf = new byte[line.getBufferSize()];
         int l = 0;
@@ -257,7 +253,7 @@ Debug.println(audioFormat);
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(audioFormat);
-        volume(line, .2d);
+        volume(line, volume);
         line.start();
         byte[] buf = new byte[line.getBufferSize()];
         int l;
@@ -304,7 +300,7 @@ Debug.println("OUT: " + outFormat);
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, outFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(outFormat);
-        volume(line, .2d);
+        volume(line, volume);
         line.start();
         byte[] buf = new byte[line.getBufferSize()];
         while (true) {

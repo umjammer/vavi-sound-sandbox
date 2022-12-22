@@ -18,9 +18,13 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineEvent;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import vavi.sound.DebugInputStream;
 import vavi.sound.sampled.opl3.Opl3Encoding;
 import vavi.util.Debug;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 
 import static vavi.sound.SoundUtil.volume;
 
@@ -33,6 +37,7 @@ import static vavi.sound.SoundUtil.volume;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2012/06/11 umjammer initial version <br>
  */
+@PropsEntity(url = "file:local.properties")
 public class ClipTest {
 
     static {
@@ -43,27 +48,39 @@ public class ClipTest {
 //        TDebug.TraceAudioFileReader = true;
     }
 
-//    static final String inFile = "/Music/midi/Fusion/YMO - Firecracker.mid";
-//    static final String inFile = "/Music/misc/ハッピーイレイロ.mp3";
-//    static final String inFile = "/Music/midi/Games/Ace Combat 4 - Blockade (GM).mid";
-//    static final String inFile = System.getProperty("user.home") + "/Music/midi/1/thexder.mid";
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
 
-    static final String inFile = "test.flac";
-//    static final String inFile = "Music/ - Blockade.m4a"; // ALAC
-//    static final String inFile = "tmp/female_scrub.spx";
-//    static final String inFile = "tmp/hoshiF.opus";
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
+    @Property(name = "clip.test")
+    String clipTest = "src/test/resources/test.flac";
+
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
+    }
+
+    @Test
+    void test1() throws Exception {
+        main(new String[] {clipTest});
+    }
 
     /**
-     * @param args
+     * @param args 0: clip in
      */
     public static void main(String[] args) throws Exception {
+        String inFile = args[0];
+
         for (AudioFileFormat.Type type : AudioSystem.getAudioFileTypes()) {
             System.err.println(type);
         }
-//        Path file = Paths.get(System.getProperty("gdrive.home"), inFile);
-        Path file = Paths.get("src/test/resources", inFile);
+        Path file = Paths.get(inFile);
 
-//        URL clipURL = new URL(args[0]);
+//        URL clipURL = new URL(inFile);
 //        AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(clipURL);
 //        AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new File(inFile).toURI().toURL());
         AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new DebugInputStream(new BufferedInputStream(Files.newInputStream(file))));
@@ -94,10 +111,16 @@ Debug.println("done");
         clip.open(audioInputStream);
 if (!(originalAudioFormat.getEncoding() instanceof Opl3Encoding)) {
 // Debug.println("down volume: " + originalAudioFormat.getEncoding());
- volume(clip, .2d);
+ volume(clip, volume);
 }
         clip.start();
+if (!System.getProperty("vavi.test", "").equals("ide")) {
+ Thread.sleep(10 * 1000);
+ clip.stop();
+ Debug.println("Interrupt");
+} else {
         countDownLatch.await();
+}
         clip.close();
     }
 }

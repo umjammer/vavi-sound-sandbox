@@ -19,6 +19,7 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,8 @@ import org.junit.jupiter.api.condition.OS;
 
 import vavi.sound.midi.MidiConstants.MetaEvent;
 import vavi.util.Debug;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 
 import static vavi.sound.midi.MidiUtil.volume;
 
@@ -38,6 +41,7 @@ import static vavi.sound.midi.MidiUtil.volume;
  * @version 0.00 2020/10/03 umjammer initial version <br>
  */
 @EnabledOnOs(OS.MAC)
+@PropsEntity(url = "file:local.properties")
 class RococoaSynthesizerTest {
 
     //
@@ -60,8 +64,25 @@ class RococoaSynthesizerTest {
 //        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "NiSc:nK1v");
 //        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "Ftcr:mc5p"); // Kairatune
 //        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "VmbA:Srge");
+
         System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
         System.setProperty("javax.sound.midi.Synthesizer", "#Rococoa MIDI Synthesizer");
+    }
+
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
+
+    static float volume = (float) Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
+    @Property(name = "rococoa.test")
+    String rococoaTest = "src/test/resources/test.mid";
+
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
     }
 
     @Test
@@ -77,12 +98,7 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-//        String filename = "Fusion/YMO - Firecracker.mid";
-//        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
-        String filename = "test.mid";
-
-//        Path file = Paths.get(System.getProperty("gdrive.home"), "/Music/midi/", filename);
-        Path file = Paths.get("src/test/resources/", filename);
+        Path file = Paths.get(rococoaTest);
 
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
@@ -98,7 +114,7 @@ Debug.println("META: " + MetaEvent.valueOf(meta.getType()));
 Debug.println("START");
         sequencer.start();
 
-        volume(receiver, .2f); // volume works?
+        volume(receiver, volume); // volume works?
 
 if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
@@ -128,11 +144,7 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-//        String filename = "Games/Super Mario Bros 2 - overworld.mid";
-        String filename = "test.mid";
-
-//        Path file = Paths.get(System.getProperty("gdrive.home"), "/Music/midi/", filename);
-        Path file = Paths.get("src/test/resources/", filename);
+        Path file = Paths.get(rococoaTest);
 
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 

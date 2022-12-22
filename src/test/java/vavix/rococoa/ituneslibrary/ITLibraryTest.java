@@ -73,7 +73,7 @@ class ITLibraryTest {
         ITLibrary library = ITLibrary.libraryWithAPIVersion("1.1");
         library.getMediaItems().stream()
             .filter(t -> t.mediaKind() == 2)
-            .filter(t -> t.artist().name().contains("a-ha"))
+            .filter(t -> t.artist().name().contains("Prince"))
             .forEach(t -> System.err.println(t.artist().name() + " - " + t.title() + " [" + t.composer() + "] " + t.addedDate()));
     }
 

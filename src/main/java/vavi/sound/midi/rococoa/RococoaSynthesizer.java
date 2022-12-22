@@ -456,7 +456,7 @@ Debug.println("stated: " + r + ", " + hashCode());
                         channels[channel].setPitchBend(data1 | (data2 << 7));
                         break;
                     default:
-Debug.printf("uncknown short: %02X\n", command);
+Debug.printf("unknown short: %02X\n", command);
                     }
                 } else if (message instanceof SysexMessage) {
                     SysexMessage sysexMessage = (SysexMessage) message;

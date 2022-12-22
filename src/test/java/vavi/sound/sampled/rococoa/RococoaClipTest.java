@@ -46,6 +46,8 @@ import vavix.rococoa.avfoundation.AVAudioPlayer;
 @EnabledOnOs(OS.MAC)
 class RococoaClipTest {
 
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
     static final String inFile = "/test.caf";
 
     public static void main(String[] args) throws Exception {
@@ -122,6 +124,7 @@ Debug.println("done");
         });
         AudioInputStream stream = new AudioInputStream(new BufferedInputStream(Files.newInputStream(path)), RococoaClip.info.getFormats()[0], Files.size(path));
         clip.open(stream);
+//        volume(clip, volume); // this clip doesn't support volume
 Debug.println(clip.getFormat());
         clip.start();
         countDownLatch.await();

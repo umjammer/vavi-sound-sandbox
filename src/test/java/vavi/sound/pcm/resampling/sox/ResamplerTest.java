@@ -46,6 +46,8 @@ public class ResamplerTest {
     static String inFile = "src/test/resources/test.wav";
     static String outFile = "tmp/out.vavi.wav";
 
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
     @BeforeAll
     static void setup() throws IOException {
         Files.createDirectories(Paths.get("tmp"));
@@ -114,7 +116,7 @@ Debug.println(audioFormat);
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(audioFormat);
-        volume(line, .2d);
+        volume(line, volume);
         line.start();
         int l = 0;
         while (l < dest.length) {
@@ -175,7 +177,7 @@ Debug.println(audioFormat);
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(audioFormat);
-        volume(line, .2d);
+        volume(line, volume);
         line.start();
         byte[] buf = new byte[line.getBufferSize()];
         int l;
@@ -232,7 +234,7 @@ Debug.println(audioFormat);
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(audioFormat);
-        volume(line, .2d);
+        volume(line, volume);
         line.start();
         byte[] buf = new byte[line.getBufferSize()];
         int l;

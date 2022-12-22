@@ -39,6 +39,8 @@ class Opl3AudioFileReaderTest {
         System.setProperty("vavi.sound.opl3.MidiFile", "false");
     }
 
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
     @ParameterizedTest
     @ValueSource(strings = {
         "/opl3/ice_thnk.sci",
@@ -79,7 +81,7 @@ Debug.println("done");
         clip.open(audioInputStream);
 if (!(originalAudioFormat.getEncoding() instanceof Opl3Encoding)) {
 // Debug.println("down volume: " + originalAudioFormat.getEncoding());
- volume(clip, .2d);
+ volume(clip, volume);
 }
         clip.start();
 if (!System.getProperty("vavi.test", "").equals("ide")) {
@@ -132,7 +134,7 @@ System.err.println("done");
         clip.open(audioInputStream);
 if (!(originalAudioFormat.getEncoding() instanceof Opl3Encoding)) {
 // Debug.println("down volume: " + originalAudioFormat.getEncoding());
- volume(clip, .2d);
+ volume(clip, volume);
 }
         clip.start();
 if (!System.getProperty("vavi.test", "").equals("ide")) {
@@ -182,7 +184,7 @@ Debug.println("done");
         clip.open(audioInputStream);
 if (!(originalAudioFormat.getEncoding() instanceof Opl3Encoding)) {
 // Debug.println("down volume: " + originalAudioFormat.getEncoding());
- volume(clip, .2d);
+ volume(clip, volume);
 }
         clip.start();
 if (!System.getProperty("vavi.test", "").equals("ide")) {

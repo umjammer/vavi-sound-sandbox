@@ -42,7 +42,7 @@ import vavix.rococoa.avfoundation.AudioStreamBasicDescription.AudioFormatID;
 class AVFoundationTest {
 
     static {
-        AVFoundation.instance.toString();
+        AVFoundation.instance.toString(); // to make sure library is loaded
     }
 
     /** {@link AVAudioFormat#init(AudioStreamBasicDescription)} */

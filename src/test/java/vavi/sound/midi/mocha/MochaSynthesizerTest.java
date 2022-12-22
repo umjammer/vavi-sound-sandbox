@@ -7,12 +7,10 @@
 package vavi.sound.midi.mocha;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
-
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
@@ -20,9 +18,11 @@ import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import vavi.util.Debug;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 
 
 /**
@@ -31,11 +31,26 @@ import vavi.util.Debug;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/30 umjammer initial version <br>
  */
+@PropsEntity(url = "file:local.properties")
 public class MochaSynthesizerTest {
 
     static {
         System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
         System.setProperty("javax.sound.midi.Synthesizer", "#Mocha MIDI Synthesizer");
+    }
+
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
+
+    @Property(name = "mocha.test")
+    String mochaTest = "src/test/resources/test.mid";
+
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
     }
 
     @Test
@@ -50,11 +65,7 @@ Debug.println("receiver: " + receiver);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-//        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
-        String filename = "test.mid";
-
-//        File file = new File(System.getProperty("gdrive.home"), "/Music/midi/" + filename);
-        Path file = Paths.get("src/test/resources/", filename);
+        Path file = Paths.get(mochaTest);
 
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
@@ -87,9 +98,11 @@ System.err.println("END");
     // ----
 
     /**
-     * @param args
+     * @param args 0: midi in
      */
     public static void main(String[] args) throws Exception {
+        String filename = args[0];
+
         MidiDevice synthesizer = MidiSystem.getSynthesizer();
         synthesizer.open();
         Receiver receiver = synthesizer.getReceiver();
@@ -100,10 +113,7 @@ Debug.println("receiver: " + receiver);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
-
-        File file = new File(System.getProperty("gdrive.home"), "/Music/midi/" + filename);
-        Sequence seq = MidiSystem.getSequence(file);
+        Sequence seq = MidiSystem.getSequence(Paths.get(filename).toFile());
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
         MetaEventListener mel = meta -> {

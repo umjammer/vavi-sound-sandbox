@@ -41,6 +41,8 @@ public class SampleRateConversionProviderTest {
     String inFile = "src/test/resources/test.wav";
     String outFile = "tmp/out.wav";
 
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
     @BeforeAll
     static void setup() throws IOException {
         Files.createDirectories(Paths.get("tmp"));
@@ -105,7 +107,7 @@ Debug.println("thirdAis: " + thirdAis.getFormat());
         line.start();
         byte[] buf = new byte[1024];
         int l = 0;
-        volume(line, .2d);
+        volume(line, volume);
 
         while (resultAis.available() > 0) {
             l = resultAis.read(buf, 0, 1024);

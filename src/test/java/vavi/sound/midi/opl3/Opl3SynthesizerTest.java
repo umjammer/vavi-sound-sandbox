@@ -12,7 +12,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
-
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
@@ -22,11 +21,13 @@ import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
 import javax.sound.midi.SysexMessage;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import vavi.util.Debug;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -43,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/05 umjammer initial version <br>
  */
+@PropsEntity(url = "file:local.properties")
 class Opl3SynthesizerTest {
 
     static {
@@ -50,7 +52,19 @@ class Opl3SynthesizerTest {
         System.setProperty("javax.sound.midi.Synthesizer", "#OPL3 MIDI Synthesizer");
     }
 
-    static String base;
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
+
+    @Property(name = "opl3.test")
+    String opl3test = "src/test/resources/test.mid";
+
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
+    }
 
     @Test
     @DisplayName("direct")
@@ -64,12 +78,7 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-//        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
-//        String filename = "Games/リッジレーサー - Theme (GS).mid";
-        String filename = "test.mid";
-
-//        Path file = Paths.get(System.getProperty("gdrive.home"), "/Music/midi/", filename);
-        Path file = Paths.get("src/test/resources/", filename);
+        Path file = Paths.get(opl3test);
 
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
@@ -112,11 +121,7 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.open();
 Debug.println("sequencer: " + sequencer + ", " + sequencer.getClass().getName());
 
-//        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
-        String filename = "test.mid";
-
-//        Path file = Paths.get(System.getProperty("gdrive.home"), "/Music/midi/", filename);
-        Path file = Paths.get("src/test/resources/", filename);
+        Path file = Paths.get(opl3test);
 
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 

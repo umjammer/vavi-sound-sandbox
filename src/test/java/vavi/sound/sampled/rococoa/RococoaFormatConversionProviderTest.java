@@ -42,6 +42,8 @@ public class RococoaFormatConversionProviderTest {
 
     static final String inFile = "/test.caf";
 
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
     @Test
     @Disabled("not implemented yet")
     @DisplayName("directly")
@@ -70,7 +72,7 @@ Debug.println("OUT: " + outAudioFormat);
         line.addLineListener(ev -> Debug.println(ev.getType()));
         line.start();
 
-        volume(line, .2d);
+        volume(line, volume);
 
         byte[] buf = new byte[1024];
         while (true) {
@@ -113,7 +115,7 @@ Debug.println("OUT: " + outAudioFormat);
         line.addLineListener(ev -> Debug.println(ev.getType()));
         line.start();
 
-        volume(line, .2d);
+        volume(line, volume);
 
         byte[] buf = new byte[1024];
         while (true) {

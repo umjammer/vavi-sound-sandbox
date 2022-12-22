@@ -48,6 +48,8 @@ public class Test2 {
     String inFile;
     String outFile = "tmp/out.vavi.wav";
 
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
     /** */
     public static void main(String[] args) throws Exception {
 System.setOut(new PrintStream("NUL")); // shut fuckin' j-ogg's mouth
@@ -308,7 +310,7 @@ System.err.println(format);
                     DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
                     SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
                     line.open(format);
-                    volume(line, .2d);
+                    volume(line, volume);
                     line.start();
                     byte[] buf = new byte[1024];
                     int l;
