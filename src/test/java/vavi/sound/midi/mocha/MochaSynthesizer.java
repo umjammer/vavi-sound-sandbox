@@ -80,7 +80,7 @@ public class MochaSynthesizer implements Synthesizer {
 
     private final MochaSoundbank soundBank = new MochaSoundbank();
 
-    MochaAudioInpuStream mocha;
+    final MochaAudioInpuStream mocha;
 
     TimeLine timeline = new TimeLine();
 
@@ -89,6 +89,15 @@ public class MochaSynthesizer implements Synthesizer {
     @Override
     public Info getDeviceInfo() {
         return info;
+    }
+
+    /** */
+    public MochaSynthesizer() {
+        try {
+            mocha = new MochaAudioInpuStream(timeline);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
@@ -123,8 +132,6 @@ Debug.println("already open: " + hashCode());
     /** */
     private void init() throws MidiUnavailableException {
         try {
-            mocha = new MochaAudioInpuStream(timeline);
-
             //
             DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, mocha.getFormat(), AudioSystem.NOT_SPECIFIED);
             line = (SourceDataLine) AudioSystem.getLine(lineInfo);
