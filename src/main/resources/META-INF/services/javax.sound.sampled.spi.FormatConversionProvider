@@ -1,11 +1,3 @@
-#
-# Copyright (c) 2011 by Naohide Sano, All rights reserved.
-#
-# FormatConversionProvider
-#
-# 0.00 111022 nsano initial version
-#
-
 vavi.sound.sampled.opus.OpusFormatConversionProvider
 #vavi.sound.sampled.rococoa.RococoaFormatConversionProvider
 vavi.sound.sampled.opl3.Opl3FormatConversionProvider

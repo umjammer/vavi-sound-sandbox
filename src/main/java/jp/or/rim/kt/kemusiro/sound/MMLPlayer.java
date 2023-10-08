@@ -39,9 +39,8 @@ public class MMLPlayer implements Runnable {
         player.volume(0.02f);
     }
 
-    private static void usage() {
-        System.out.println("java MMLPlayer MML1 [MML2 [MML3]]");
-        System.exit(1);
+    public void setVolume(float gain) {
+        player.volume(gain);
     }
 
     /**
@@ -71,7 +70,9 @@ public class MMLPlayer implements Runnable {
         }
         player.drain();
         player.stop();
-}
+
+        in.close();
+    }
 
     public void start() {
         thread = new Thread(this);
@@ -95,41 +96,5 @@ public class MMLPlayer implements Runnable {
 
     public void setMML(String[] mmls) throws IOException {
         this.mmls = mmls;
-    }
-
-    /**
-     * 引数で与えられたMML文字列を演奏する。
-     *
-     * @param args [-f instr.txt] mml1.mml [mm2.mml [mm3.mml]]
-     */
-    public static void main(String[] args) throws Exception {
-        if (args.length == 0) {
-            usage();
-        }
-        if (args[0].equals("-f")) {
-            FMGeneralInstrument.readParameter(new FileReader(args[1]));
-            String[] new_args = new String[args.length - 2];
-            for (int i = 2; i < args.length; i++) {
-                new_args[i - 2] = args[i];
-            }
-            args = new_args;
-        } else {
-            FMGeneralInstrument.readParameterByResource();
-        }
-        CountDownLatch cdl = new CountDownLatch(1);
-        MMLPlayer p = new MMLPlayer(e -> {
-            if (e.getType() == LineEvent.Type.STOP) cdl.countDown();
-        });
-        String[] mmls = new String[args.length];
-        int i = 0;
-        for (String arg : args) {
-            mmls[i++] = String.join("", Files.readAllLines(Paths.get(arg)));
-        }
-        p.setMML(mmls);
-        p.start();
-        cdl.await();
-Debug.println("here");
-        p.stop();
-Thread.getAllStackTraces().keySet().forEach(System.err::println);
     }
 }
