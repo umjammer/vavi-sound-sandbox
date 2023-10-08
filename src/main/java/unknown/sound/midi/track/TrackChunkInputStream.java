@@ -25,6 +25,7 @@ public class TrackChunkInputStream extends MIDIChunkInputStream {
         return trackAbsoluteTime;
     }
 
+    @Override
     public Message readMessage()
         throws InvalidMidiDataException, IOException {
         try {
@@ -150,6 +151,7 @@ label0:
         }
     }
 
+    @Override
     public Message getChunkHeader() {
         return new TrackChunkHeader(getDataByteArray().length);
     }

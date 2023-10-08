@@ -38,6 +38,7 @@ import unknown.sound.midi.MIDIInputStream;
 
 public class MTMWindow extends Frame {
     public static class MTMMIDIFileFilter implements FilenameFilter {
+        @Override
         public boolean accept(File file, String s) {
             int i = s.lastIndexOf('.');
             if ((i > 0) && (i < (s.length() - 1))) {
@@ -51,6 +52,7 @@ public class MTMWindow extends Frame {
     }
 
     public class MTMVolumeListener implements ItemListener, TextListener {
+        @Override
         public void itemStateChanged(ItemEvent itemevent) {
             boolean flag = volumeCheckbox.getState();
             volumeVelocityCheckbox.setEnabled(flag);
@@ -90,6 +92,7 @@ public class MTMWindow extends Frame {
             }
         }
 
+        @Override
         public void textValueChanged(TextEvent textevent) {
             checkText(volumeCh1Text);
             checkText(volumeCh2Text);
@@ -97,7 +100,7 @@ public class MTMWindow extends Frame {
             checkText(volumeCh4Text);
         }
 
-        private void checkText(TextComponent textcomponent) {
+        private static void checkText(TextComponent textcomponent) {
             try {
                 int i = Integer.decode(textcomponent.getText());
                 if ((i < 0) || (i > 63)) {
@@ -109,6 +112,7 @@ public class MTMWindow extends Frame {
     }
 
     class MTMFileButtonListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent actionevent) {
             FileDialog filedialog = new FileDialog(MTMWindow.this,
                                                    "MIDIファイルを選択してください", 0);
@@ -136,6 +140,7 @@ public class MTMWindow extends Frame {
     }
 
     class MTMMLDButtonListener implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent actionevent) {
             String[] as;
             if (midiFile.isDirectory()) {
@@ -325,6 +330,7 @@ public class MTMWindow extends Frame {
     }
 
     public class MTMDateListener implements ItemListener {
+        @Override
         public void itemStateChanged(ItemEvent itemevent) {
             boolean flag = dateCheckbox.getState();
             dateTodayCheckbox.setEnabled(flag);
@@ -343,6 +349,7 @@ public class MTMWindow extends Frame {
     }
 
     public class MTMRightListener implements ItemListener {
+        @Override
         public void itemStateChanged(ItemEvent itemevent) {
             boolean flag = rightCheckbox.getState();
             rightNoneCheckbox.setEnabled(flag);
@@ -361,6 +368,7 @@ public class MTMWindow extends Frame {
     }
 
     public class MTMInformationListener implements ItemListener {
+        @Override
         public void itemStateChanged(ItemEvent itemevent) {
             boolean flag = informationCheckbox.getState();
             informationFileCheckbox.setEnabled(flag);
@@ -378,6 +386,7 @@ public class MTMWindow extends Frame {
     }
 
     public class MTMVersionListener implements ItemListener {
+        @Override
         public void itemStateChanged(ItemEvent itemevent) {
             boolean flag = versionCheckbox.getState();
             versionDefaultCheckbox.setEnabled(flag);
@@ -399,6 +408,7 @@ public class MTMWindow extends Frame {
         setLayout(null);
         setBackground(new Color(0xeeeeee));
         addWindowListener(new WindowAdapter() {
+                @Override
                 public void windowClosing(WindowEvent windowevent) {
                     System.exit(0);
                 }
@@ -673,6 +683,7 @@ public class MTMWindow extends Frame {
         setVisible(true);
     }
 
+    @Override
     public void paint(Graphics g) {
         g.setColor(Color.gray);
         g.drawRect(25, 30, 220, 60);

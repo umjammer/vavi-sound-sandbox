@@ -4,6 +4,7 @@ import unknown.sound.Message;
 
 
 public class SongPointerMessage extends SystemMessage {
+    @Override
     public byte[] toBytes() {
         byte[] byteData = Message.arrayCopy(super.toBytes(), 3);
         int index = byteData.length - 2;

@@ -23,18 +23,18 @@ public class RococoaFormatConversionProvider extends FormatConversionProvider {
 
     @Override
     public AudioFormat.Encoding[] getSourceEncodings() {
-        return new AudioFormat.Encoding[] { RcococaEncoding.ROCOCOA };
+        return new AudioFormat.Encoding[] {RcococaEncoding.ROCOCOA};
     }
 
     @Override
     public AudioFormat.Encoding[] getTargetEncodings() {
-        return new AudioFormat.Encoding[] { AudioFormat.Encoding.PCM_SIGNED };
+        return new AudioFormat.Encoding[] {AudioFormat.Encoding.PCM_SIGNED};
     }
 
     @Override
     public AudioFormat.Encoding[] getTargetEncodings(AudioFormat sourceFormat) {
         if (sourceFormat.getEncoding() instanceof RcococaEncoding) {
-            return new AudioFormat.Encoding[] { AudioFormat.Encoding.PCM_SIGNED };
+            return new AudioFormat.Encoding[] {AudioFormat.Encoding.PCM_SIGNED};
         } else {
             return new AudioFormat.Encoding[0];
         }
@@ -44,12 +44,12 @@ public class RococoaFormatConversionProvider extends FormatConversionProvider {
     public AudioFormat[] getTargetFormats(AudioFormat.Encoding targetEncoding, AudioFormat sourceFormat) {
         if (sourceFormat.getEncoding() instanceof RcococaEncoding && targetEncoding.equals(AudioFormat.Encoding.PCM_SIGNED)) {
             return new AudioFormat[] {
-                // TODO signed, endian should be free (means add more 3 patterns)
-                new AudioFormat(sourceFormat.getSampleRate(),
-                                16,         // sample size in bits
-                                sourceFormat.getChannels(),
-                                true,       // signed
-                                false)      // little endian (for PCM wav)
+                    // TODO signed, endian should be free (means add more 3 patterns)
+                    new AudioFormat(sourceFormat.getSampleRate(),
+                            16,         // sample size in bits
+                            sourceFormat.getChannels(),
+                            true,       // signed
+                            false)      // little endian (for PCM wav)
             };
         } else {
             return new AudioFormat[0];
@@ -68,18 +68,18 @@ public class RococoaFormatConversionProvider extends FormatConversionProvider {
                 } else if (sourceFormat.getEncoding() instanceof RcococaEncoding && targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
                     return new Rococoa2PcmAudioInputStream(sourceStream, targetFormat, -1);
                 } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof RcococaEncoding) {
-Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+                    Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
                     throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 } else {
-Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+                    Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
                     throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 }
             } else {
-Debug.println("target format not found");
+                Debug.println("target format not found");
                 throw new IllegalArgumentException("target format not found");
             }
         } else {
-Debug.println("conversion not supported");
+            Debug.println("conversion not supported");
             throw new IllegalArgumentException("conversion not supported");
         }
     }
@@ -93,21 +93,21 @@ Debug.println("conversion not supported");
                 if (sourceFormat.equals(targetFormat)) {
                     return sourceStream;
                 } else if (sourceFormat.getEncoding() instanceof RcococaEncoding &&
-                           targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
+                        targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
                     return new Rococoa2PcmAudioInputStream(sourceStream, targetFormat, -1);
                 } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof RcococaEncoding) {
-Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+                    Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
                     throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 } else {
-Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+                    Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
                     throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 }
             } else {
-Debug.println("target format not found");
+                Debug.println("target format not found");
                 throw new IllegalArgumentException("target format not found");
             }
         } else {
-Debug.println("conversion not supported");
+            Debug.println("conversion not supported");
             throw new IllegalArgumentException("conversion not supported");
         }
     }

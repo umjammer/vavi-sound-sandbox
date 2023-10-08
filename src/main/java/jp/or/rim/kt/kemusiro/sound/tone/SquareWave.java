@@ -24,7 +24,7 @@ public class SquareWave implements WaveGeneratable {
         }
     }
 
-    private double normalize(double frequency, double time) {
+    private static double normalize(double frequency, double time) {
         return time - Math.floor(time * frequency) / frequency;
     }
 

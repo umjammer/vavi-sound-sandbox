@@ -68,6 +68,7 @@ public abstract class DeltaTimedMessage extends Message {
         return bytes;
     }
 
+    @Override
     public byte[] toBytes() {
         return getDeltaTimeAsBytes();
     }

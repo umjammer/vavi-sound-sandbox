@@ -34,7 +34,7 @@ class Opus2PcmAudioInputStream extends AudioInputStream {
     /**
      * Constructor.
      *
-     * @param in the underlying input stream.
+     * @param in     the underlying input stream.
      * @param format the target format of this stream's audio data.
      * @param length the length in sample frames of the data in this stream.
      */
@@ -68,7 +68,7 @@ class Opus2PcmAudioInputStream extends AudioInputStream {
             this.channels = channels;
         }
 
-        /** */
+        @Override
         public void initialize(OutputStream out) throws IOException {
             if (this.out != null) {
                 throw new IOException("Already initialized");
@@ -83,7 +83,7 @@ class Opus2PcmAudioInputStream extends AudioInputStream {
         /** */
         private final ByteBuffer decodeBuffer = ByteBuffer.allocate(BUFFER_SIZE);
 
-        /** */
+        @Override
         public void execute() throws IOException {
             if (out == null) {
                 throw new IOException("Not yet initialized");
@@ -115,7 +115,7 @@ class Opus2PcmAudioInputStream extends AudioInputStream {
             }
         }
 
-        /** */
+        @Override
         public void finish() throws IOException {
             in.close();
         }

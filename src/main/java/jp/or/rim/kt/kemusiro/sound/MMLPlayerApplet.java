@@ -55,6 +55,7 @@ public class MMLPlayerApplet extends JApplet {
     private JLabel messageLabel;
     private Logger printer;
 
+    @Override
     public void init() {
         player = new MMLPlayer(e -> {
             if (e.getType() == LineEvent.Type.STOP) {

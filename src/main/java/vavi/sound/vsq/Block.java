@@ -8,7 +8,6 @@ package vavi.sound.vsq;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -38,7 +37,7 @@ public interface Block {
                     return (Block) methods.get(label).invoke(null, label, params);
                 } catch (Exception e) {
 Debug.printStackTrace(e);
-                    throw (RuntimeException) new IllegalStateException(label, e);
+                    throw new IllegalStateException(label, e);
                 }
             } else {
                 String wildcardLabel1 = label.replaceAll("#\\d+", "*");
@@ -47,7 +46,7 @@ Debug.printStackTrace(e);
                         return (Block) methods.get(wildcardLabel1).invoke(null, label, params);
                     } catch (Exception e) {
 Debug.printStackTrace(e);
-                        throw (RuntimeException) new IllegalStateException(wildcardLabel1, e);
+                        throw new IllegalStateException(wildcardLabel1, e);
                     }
                 } else {
                     if (label.matches("\\w+BPList") && methods.containsKey("*BPList")) {
@@ -55,7 +54,7 @@ Debug.printStackTrace(e);
                             return (Block) methods.get("*BPList").invoke(null, label, params);
                         } catch (Exception e) {
 Debug.printStackTrace(e);
-                            throw (RuntimeException) new IllegalStateException("*BPList", e);
+                            throw new IllegalStateException("*BPList", e);
                         }
                     } else {
 Debug.println(Level.SEVERE, "error block: " + label);

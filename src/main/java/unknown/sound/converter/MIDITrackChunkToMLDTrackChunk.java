@@ -1,6 +1,5 @@
 package unknown.sound.converter;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,7 @@ import unknown.sound.midi.track.TextMessage;
  * @version 0.00 040911 nsano initial version <br>
  */
 public class MIDITrackChunkToMLDTrackChunk {
-    public int toMLDNote(int midiNote) {
+    public static int toMLDNote(int midiNote) {
         return midiNote - 33;
     }
 

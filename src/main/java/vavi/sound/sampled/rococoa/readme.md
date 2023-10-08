@@ -4,8 +4,8 @@ Rococoa の spi 実装のクラスを提供します．
 
 ## TODO
 
- * ~~完成させる~~
+* ~~完成させる~~
 
 ## References
 
- [rococoa](https://github.com/iterate-ch/rococoa)
+[rococoa](https://github.com/iterate-ch/rococoa)

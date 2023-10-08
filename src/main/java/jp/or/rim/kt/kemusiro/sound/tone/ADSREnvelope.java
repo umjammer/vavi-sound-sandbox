@@ -34,6 +34,7 @@ public class ADSREnvelope extends Envelope {
         maxLevel = ml;
     }
 
+    @Override
     public double getValueInPressing() {
         double attackingTime = maxLevel / attackRate;
         if (time < attackingTime) {
@@ -47,6 +48,7 @@ public class ADSREnvelope extends Envelope {
                 0.0);
     }
 
+    @Override
     public double getValueInReleasing() {
         return Math.max(level - time * releaseRate, 0.0);
     }

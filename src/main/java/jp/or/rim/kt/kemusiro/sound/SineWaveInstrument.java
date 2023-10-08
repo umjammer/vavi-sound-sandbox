@@ -27,6 +27,7 @@ public class SineWaveInstrument extends Instrument {
         this.envelope = envelope;
     }
 
+    @Override
     public String getName() {
         return toString();
     }

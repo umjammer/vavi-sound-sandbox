@@ -12,6 +12,7 @@ public class CuepMessage extends InformationMessage {
         messageCuep = cuep;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] cuepBytes = getCuep();
         byte[] data = {

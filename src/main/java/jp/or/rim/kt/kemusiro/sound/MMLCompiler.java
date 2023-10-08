@@ -39,7 +39,7 @@ public class MMLCompiler {
         }
     }
 
-    private int getNumber(StringBuilder buf) {
+    private static int getNumber(StringBuilder buf) {
         int number = 0;
         char c;
 
@@ -51,7 +51,7 @@ public class MMLCompiler {
         return number;
     }
 
-    private int getNoteNumber(int octave, char noteName) throws MMLException {
+    private static int getNoteNumber(int octave, char noteName) throws MMLException {
         int number = octave * 12 + 12;
 
         // noteName must be a lower-case character

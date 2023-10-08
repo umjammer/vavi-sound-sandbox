@@ -12,6 +12,7 @@ public class TrackChunkHeader extends Message {
         return messageDataLength;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] bytes = {
                            77, 84, 114, 107, (byte) (getDataLength() >> 24),

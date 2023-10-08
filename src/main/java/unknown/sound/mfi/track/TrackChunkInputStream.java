@@ -17,6 +17,7 @@ public class TrackChunkInputStream extends MLDChunkInputStream {
         return trackAbsoluteTime;
     }
 
+    @Override
     public Message readMessage()
         throws InvalidMidiDataException, IOException {
         int deltaTime = read();
@@ -73,6 +74,7 @@ public class TrackChunkInputStream extends MLDChunkInputStream {
         return message;
     }
 
+    @Override
     public Message getChunkHeader() {
         return new TrackChunkHeader(getDataByteArray().length);
     }

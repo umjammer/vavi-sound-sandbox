@@ -23,7 +23,7 @@ class HeaderManager {
     private String chunkID;
 
     /** チャンクバンクからIDでチャンクを引き出す */
-    Chunk getChunk(Map<String, Chunk> chunkBank, String id) {
+    static Chunk getChunk(Map<String, Chunk> chunkBank, String id) {
 
         // チャンクのあるなしを問い合わせる。
         if (chunkBank.containsKey(id)) {
@@ -42,7 +42,7 @@ class HeaderManager {
      * @param inputChunk 入力チャンク
      * Chunk型のチャンクからサブチャンクを取り出しチャンクバンクに登録する
      */
-    private void PickUpSubChunks(Map<String, Chunk> chunkBank, ChunkChunk inputChunk) {
+    private static void PickUpSubChunks(Map<String, Chunk> chunkBank, ChunkChunk inputChunk) {
         // 準備
         // チャンク ID のサイズ（４文字）
         final int idSize = 4;

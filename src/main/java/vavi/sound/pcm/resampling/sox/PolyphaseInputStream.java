@@ -49,7 +49,7 @@ class PolyphaseInputStream extends FilterInputStream {
             this.resampler = new Polyphase(in, out);
         }
 
-        /** */
+        @Override
         public void initialize(OutputStream out) throws IOException {
             if (this.out != null) {
                 throw new IOException("Already initialized");
@@ -60,7 +60,7 @@ class PolyphaseInputStream extends FilterInputStream {
 
         private final byte[] sample = new byte[44100 * 2];
 
-        /** */
+        @Override
         public void execute() throws IOException {
             if (out == null) {
                 throw new IOException("Not yet initialized");
@@ -85,7 +85,7 @@ Debug.println(r / 2 + ", " + resamples.length);
             }
         }
 
-        /** */
+        @Override
         public void finish() throws IOException {
             in.close();
         }

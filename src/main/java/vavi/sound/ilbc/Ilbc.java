@@ -1027,7 +1027,7 @@ public class Ilbc {
      * @param encoder (i/o) Encoder instance
      * @param mode frame size mode
      */
-    private int initEncode(Encoder encoder, int mode) {
+    private static int initEncode(Encoder encoder, int mode) {
         encoder.mode = mode;
         if (mode == 30) {
             encoder.blockl = BLOCKL_30MS;
@@ -1249,8 +1249,9 @@ public class Ilbc {
 
             for (n = 0; n < Nback; n++) {
                 for (k = 0; k < SUBL; k++) {
-                    reverseResidual[n * SUBL + k] = residual[(start[0] - 1) * SUBL - 1 - n * SUBL - k];
-                    reverseDecresidual[n * SUBL + k] = decresidual[(start[0] - 1) * SUBL - 1 - n * SUBL - k];
+                    int i1 = (start[0] - 1) * SUBL - 1 - n * SUBL - k;
+                    reverseResidual[n * SUBL + k] = residual[i1];
+                    reverseDecresidual[n * SUBL + k] = decresidual[i1];
                 }
             }
 
@@ -1374,7 +1375,7 @@ public class Ilbc {
      * @param mode frame size mode
      * @param use_enhancer 1 to use enhancer 0 to run without enhancer
      */
-    private int initDecode(Decoder decoder, int mode, int use_enhancer) {
+    private static int initDecode(Decoder decoder, int mode, int use_enhancer) {
 
         decoder.mode = mode;
 
@@ -1841,7 +1842,7 @@ public class Ilbc {
      * @param Out [o] Filtered signal
      * @param mem (i/o) Filter state
      */
-    private void anaFilter(double[] In, int inP, double[] a, int aP, int len, double[] Out, int outP, double[] mem) {
+    private static void anaFilter(double[] In, int inP, double[] a, int aP, int len, double[] Out, int outP, double[] mem) {
         int /* double * */po, pi, pm, pa;
 
         po = outP; // Out
@@ -1892,7 +1893,7 @@ public class Ilbc {
      * @param mem Buffer to create codebook vector from
      * @param lMem Length of buffer
      */
-    private void filteredCBvecs(double[] cbvectors, double[] mem, int memP, int lMem) {
+    private static void filteredCBvecs(double[] cbvectors, double[] mem, int memP, int lMem) {
         int /* double * */pp, pp1;
         double[] tempbuff2 = new double[CB_MEML + CB_FILTERLEN];
         int /* double * */pos;
@@ -1938,7 +1939,7 @@ public class Ilbc {
      * @param energy [o] Energy of augmented codebook vectors
      * @param invenergy [o] Inv energy of augmented codebook vectors
      */
-    private void searchAugmentedCB(int low, int high, int stage, int startIndex, double[] target, double[] buffer, int bufferP, double[] max_measure, int[] best_index, double[] gain, double[] energy, double[] invenergy) {
+    private static void searchAugmentedCB(int low, int high, int stage, int startIndex, double[] target, double[] buffer, int bufferP, double[] max_measure, int[] best_index, double[] gain, double[] energy, double[] invenergy) {
         int icount, ilow, j, tmpIndex;
         int /* double * */pp, ppo, ppi, ppe;
         double crossDot, alfa;
@@ -2030,7 +2031,7 @@ public class Ilbc {
      *            construction
      * @param cbVec [o] The construced codebook vector
      */
-    private void createAugmentedVec(int index, double[] buffer, int bufferP, double[] cbVec) {
+    private static void createAugmentedVec(int index, double[] buffer, int bufferP, double[] cbVec) {
         int /* double * */pp, ppo, ppi;
 
         int ilow = index - 5;
@@ -2074,7 +2075,7 @@ public class Ilbc {
      * @param bLen length of buffer
      * @param sRange correlation search length
      */
-    private void compCorr(double[] cc, double[] gc, double[] pm, double[] buffer, int lag, int bLen, int sRange) {
+    private static void compCorr(double[] cc, double[] gc, double[] pm, double[] buffer, int lag, int bLen, int sRange) {
 
         // Guard against getting outside buffer
         if ((bLen - sRange - lag) < 0) {
@@ -2113,7 +2114,7 @@ public class Ilbc {
      * @param inlag pitch lag
      * @param iLBCdec_inst (i/o) decoder instance
      */
-    private void doThePLC(double[] PLCresidual, double[] PLClpc, int PLI, double[] decresidual, double[] lpc, int lpcP, int inlag, Decoder iLBCdec_inst) {
+    private static void doThePLC(double[] PLCresidual, double[] PLClpc, int PLI, double[] decresidual, double[] lpc, int lpcP, int inlag, Decoder iLBCdec_inst) {
         int lag = 20, randlag;
         double[] gain = new double[1];
         double[] maxcc = new double[1];
@@ -2266,7 +2267,7 @@ public class Ilbc {
      * @param value value
      * @param arlength dimension of data array
      */
-    private void NearestNeighbor(int[] index, int indexP, double[] array, double value, int arlength) {
+    private static void NearestNeighbor(int[] index, int indexP, double[] array, double value, int arlength) {
 
         double crit = array[0] - value;
         double bestcrit = crit * crit;
@@ -2291,7 +2292,7 @@ public class Ilbc {
      * @param seq2 second sequence
      * @param dim2 dimension seq2
      */
-    private void mycorr1(double[] corr, int corrP, double[] seq1, int seq1P, int dim1, double[] seq2, int seq2P, int dim2) {
+    private static void mycorr1(double[] corr, int corrP, double[] seq1, int seq1P, int dim1, double[] seq2, int seq2P, int dim2) {
 
         for (int i = 0; i <= dim1 - dim2; i++) {
             corr[corrP+i] = 0.0;
@@ -2309,7 +2310,7 @@ public class Ilbc {
      * @param dim1 dimension seq1
      * @param hfl polyphase filter length=2*hfl+1
      */
-    private void enh_upsample(double[] useq1, double[] seq1, int dim1, int hfl) {
+    private static void enh_upsample(double[] useq1, double[] seq1, int dim1, int hfl) {
         int /* double * */pu, ps;
         int i, j, k, q, filterlength, hfl2;
         int[] polyp = new int[ENH_UPS0]; // pointers to, ENH_UPS0 polyphase columns
@@ -2391,7 +2392,7 @@ public class Ilbc {
      * @param estSegPos estimated beginning other segment
      * @param period estimated pitch period
      */
-    private void refiner(double[] seg, int segP, double[] updStartPos, int uP, double[] idata, int idatal, int centerStartPos, double estSegPos, double period) {
+    private static void refiner(double[] seg, int segP, double[] updStartPos, int uP, double[] idata, int idatal, int centerStartPos, double estSegPos, double period) {
         int estSegPosRounded, searchSegStartPos, searchSegEndPos, corrdim;
         int tloc, tloc2, i, st, en, fraction;
         double[] vect = new double[ENH_VECTL], corrVec = new double[ENH_CORRDIM];
@@ -2469,7 +2470,7 @@ public class Ilbc {
      * @param hl 2*hl+1 is sseq dimension
      * @param alpha0 max smoothing energy fraction
      */
-    private void smath(double[] odata, int odataP, double[] sseq, int hl, double alpha0) {
+    private static void smath(double[] odata, int odataP, double[] sseq, int hl, double alpha0) {
         double w00, w10, w11, A, B, C, err, errs;
         int /* double * */psseq;
         double[] surround = new double[BLOCKL_MAX]; // shape contributed by other than current
@@ -2564,7 +2565,7 @@ public class Ilbc {
      * @param periodl dimension period array
      * @param hl 2*hl+1 is the number of sequences
      */
-    private void getsseq(double[] sseq, double[] idata, int idatal, int centerStartPos, double[] period, double[] plocs, int periodl, int hl) {
+    private static void getsseq(double[] sseq, double[] idata, int idatal, int centerStartPos, double[] period, double[] plocs, int periodl, int hl) {
         int i, centerEndPos, q;
         double[] blockStartPos = new double[2 * ENH_HL + 1];
         int[] lagBlock = new int[2 * ENH_HL + 1];
@@ -2650,7 +2651,7 @@ public class Ilbc {
      * @param regressor second array
      * @param subl dimension arrays
      */
-    private double xCorrCoef(double[] target, int targetP, double[] regressor, int regressorP, int subl) {
+    private static double xCorrCoef(double[] target, int targetP, double[] regressor, int regressorP, int subl) {
 
         double ftmp1 = 0.0;
         double ftmp2 = 0.0;
@@ -2830,7 +2831,7 @@ public class Ilbc {
      * @param lengthInOut number of input/output samples
      * @param orderCoef number of filter coefficients
      */
-    private void AllPoleFilter(double[] InOut, int iop, double[] Coef, int coefP, int lengthInOut, int orderCoef) {
+    private static void AllPoleFilter(double[] InOut, int iop, double[] Coef, int coefP, int lengthInOut, int orderCoef) {
         for (int n = 0; n < lengthInOut; n++) {
             for (int k = 1; k <= orderCoef; k++) {
                 InOut[iop] -= Coef[coefP + k] * InOut[iop - k];
@@ -2851,7 +2852,7 @@ public class Ilbc {
      *            filter state, on exit Out[0] to Out[lengthInOut-1] contain
      *            filtered samples
      */
-    private void AllZeroFilter(double[] In, int ip, double[] Coef, int lengthInOut, int orderCoef, double[] Out, int op) {
+    private static void AllZeroFilter(double[] In, int ip, double[] Coef, int lengthInOut, int orderCoef, double[] Out, int op) {
         for (int n = 0; n < lengthInOut; n++) {
             Out[op] = Coef[0] * In[ip + 0];
             for (int k = 1; k <= orderCoef; k++) {
@@ -2877,8 +2878,8 @@ public class Ilbc {
      *            all-pole section. On exit Out[0] to Out[lengthInOut-1] contain
      *            filtered samples
      */
-    private void ZeroPoleFilter(double[] In, int inP, double[] ZeroCoef, double[] PoleCoef, int poleCoefP, int lengthInOut,
-                        int orderCoef, double[] Out, int outP) {
+    private static void ZeroPoleFilter(double[] In, int inP, double[] ZeroCoef, double[] PoleCoef, int poleCoefP, int lengthInOut,
+                                       int orderCoef, double[] Out, int outP) {
         AllZeroFilter(In, inP, ZeroCoef, lengthInOut, orderCoef, Out, outP);
         AllPoleFilter(Out, outP, PoleCoef, poleCoefP, lengthInOut, orderCoef);
     }
@@ -2892,7 +2893,7 @@ public class Ilbc {
      * @param state filter state
      * @param Out [o] downsampled output
      */
-    private void DownSample(double[] In, int inP, double[] Coef, int lengthIn, double[] state, double[] Out) {
+    private static void DownSample(double[] In, int inP, double[] Coef, int lengthIn, double[] state, double[] Out) {
         int /* double * */Out_ptr = 0; // Out
         int /* double * */Coef_ptr, In_ptr;
         int /* double * */state_ptr;
@@ -2950,7 +2951,7 @@ public class Ilbc {
      * @param iLBCenc_inst (i/o) the encoder state structure
      * @param residual lpc residual signal
      */
-    private int FrameClassify(Encoder iLBCenc_inst, double[] residual) {
+    private static int FrameClassify(Encoder iLBCenc_inst, double[] residual) {
         double max_ssqEn;
         double[] fssqEn = new double[NSUB_MAX], bssqEn = new double[NSUB_MAX];
         int /* double * */pp;
@@ -3024,8 +3025,9 @@ public class Ilbc {
         for (n = 2; n < iLBCenc_inst.nsub; n++) {
 
             l++;
-            if ((fssqEn[n - 1] + bssqEn[n]) * ssqEn_win[l] > max_ssqEn) {
-                max_ssqEn = (fssqEn[n - 1] + bssqEn[n]) * ssqEn_win[l];
+            double v = (fssqEn[n - 1] + bssqEn[n]) * ssqEn_win[l];
+            if (v > max_ssqEn) {
+                max_ssqEn = v;
                 max_ssqEn_n = n;
             }
         }
@@ -3044,7 +3046,7 @@ public class Ilbc {
      * @param cblen number of quantization indices
      * @param index [o] quantization index
      */
-    private double gainquant(double in, double maxIn, int cblen, int[] index, int indexP) {
+    private static double gainquant(double in, double maxIn, int cblen, int[] index, int indexP) {
         double[] cb;
 
         // ensure a lower bound on the scaling factor
@@ -3093,7 +3095,7 @@ public class Ilbc {
      * @param maxIn maximum of unquantized gain
      * @param cblen number of quantization indices
      */
-    private double gaindequant(int index, double maxIn, int cblen) {
+    private static double gaindequant(int index, double maxIn, int cblen) {
 
         // obtain correct scale factor
 
@@ -3127,7 +3129,7 @@ public class Ilbc {
      * @param lMem Length of codebook buffer
      * @param cbveclen Codebook vector length
      */
-    private void getCBvec(double[] cbvec, double[] mem, int memP, int index, int lMem, int cbveclen) {
+    private static void getCBvec(double[] cbvec, double[] mem, int memP, int index, int lMem, int cbveclen) {
         int j, k, n, memInd, sFilt;
         double[] tmpbuf = new double[CB_MEML];
         int base_size;
@@ -3277,7 +3279,7 @@ public class Ilbc {
      * @param N length of data vector
      * @param order largest lag for calculated autocorrelations
      */
-    private void autocorr(double[] r, double[] x, int N, int order) {
+    private static void autocorr(double[] r, double[] x, int N, int order) {
 
         for (int lag = 0; lag <= order; lag++) {
             double sum = 0;
@@ -3296,7 +3298,7 @@ public class Ilbc {
      * @param y the window
      * @param N length of all vectors
      */
-    private void window(double[] z, double[] x, double[] y, int yP, int N) {
+    private static void window(double[] z, double[] x, double[] y, int yP, int N) {
 
         for (int i = 0; i < N; i++) {
             z[i] = x[i] * y[yP + i];
@@ -3311,7 +3313,7 @@ public class Ilbc {
      * @param r autocorrelation vector
      * @param order order of lpc filter
      */
-    private void levdurb(double[] a, double[] k, double[] r, int order) {
+    private static void levdurb(double[] a, double[] k, double[] r, int order) {
         double sum, alpha;
         int m, m_h, i;
 
@@ -3353,7 +3355,7 @@ public class Ilbc {
      * @param coef interpolation weights
      * @param length length of all vectors
      */
-    private void interpolate(double[] out, double[] in1, double[] in2, int in2P, double coef, int length) {
+    private static void interpolate(double[] out, double[] in1, double[] in2, int in2P, double coef, int length) {
 
         double invcoef = 1.0 - coef;
         for (int i = 0; i < length; i++) {
@@ -3369,7 +3371,7 @@ public class Ilbc {
      * @param coef the bandwidth expansion factor
      * @param length the length of lpc coefficient vectors
      */
-    private void bwexpand(double[] out, int outP, double[] in, double coef, int length) {
+    private static void bwexpand(double[] out, int outP, double[] in, double coef, int length) {
 
         double chirp = coef;
 
@@ -3390,7 +3392,7 @@ public class Ilbc {
      * @param n_cb the number of vectors in the codebook
      * @param dim the dimension of all vectors
      */
-    private void vq(double[] Xq, int xqP, int[] index, int indexP, double[] CB, int cbP, double[] X, int xP, int n_cb, int dim) {
+    private static void vq(double[] Xq, int xqP, int[] index, int indexP, double[] CB, int cbP, double[] X, int xP, int n_cb, int dim) {
         double dist, tmp, mindist;
 
         int pos = 0;
@@ -3428,7 +3430,7 @@ public class Ilbc {
      * @param dim the dimension of X and qX
      * @param cbsize the number of vectors in the codebook
      */
-    private void SplitVQ(double[] qX, int qxP, int[] index, int indexP, double[] X, int xP, double[] CB, int nsplit, int[] dim, int[] cbsize) {
+    private static void SplitVQ(double[] qX, int qxP, int[] index, int indexP, double[] X, int xP, double[] CB, int nsplit, int[] dim, int[] cbsize) {
 
         int cb_pos = 0;
         int X_pos = 0;
@@ -3448,7 +3450,7 @@ public class Ilbc {
      * @param cb the quantization codebook
      * @param cb_size the size of the quantization codebook
      */
-    private void sort_sq(double[] xq, int[] index, double x, double[] cb, int cb_size) {
+    private static void sort_sq(double[] xq, int[] index, double x, double[] cb, int cb_size) {
 
         if (x <= cb[0]) {
             index[0] = 0;
@@ -3477,7 +3479,7 @@ public class Ilbc {
      * @param dim the dimension of each lsf vector
      * @param NoAn the number of lsf vectors in the table
      */
-    private int LSF_check(double[] lsf, int dim, int NoAn) {
+    private static int LSF_check(double[] lsf, int dim, int NoAn) {
         int Nit = 2, change = 0;
         final double eps = 0.039; /* 50 Hz */
         final double eps2 = 0.0195;
@@ -3531,7 +3533,7 @@ public class Ilbc {
      * @param Out [o] the resulting filtered vector
      * @param mem (i/o) the filter state
      */
-    private void hpInput(double[] In, int len, double[] Out, double[] mem) {
+    private static void hpInput(double[] In, int len, double[] Out, double[] mem) {
 
         // all-zero section
 
@@ -3572,7 +3574,7 @@ public class Ilbc {
      * @param Out [o] the resulting filtered vector
      * @param mem (i/o) the filter state
      */
-    private void hpOutput(double[] In, int len, double[] Out, double[] mem) {
+    private static void hpOutput(double[] In, int len, double[] Out, double[] mem) {
 
         // all-zero section
 
@@ -3610,7 +3612,7 @@ public class Ilbc {
      *
      * @param index (i/o) Codebook indexes
      */
-    private void index_conv_enc(int[] index) {
+    private static void index_conv_enc(int[] index) {
 
         for (int k = 1; k < CB_NSTAGES; k++) {
 
@@ -3627,7 +3629,7 @@ public class Ilbc {
     /**
      * @param index (i/o) Codebook indexes
      */
-    private void index_conv_dec(int[] index) {
+    private static void index_conv_dec(int[] index) {
 
         for (int k = 1; k < CB_NSTAGES; k++) {
 
@@ -3652,7 +3654,7 @@ public class Ilbc {
      * @param veclen Length of vector
      * @param nStages Number of codebook stages
      */
-    private void iCBConstruct(double[] decvector, int decvectorP, int[] index, int indexP, int[] gain_index, int gain_indexP, double[] mem, int memP, int lMem, int veclen, int nStages) {
+    private static void iCBConstruct(double[] decvector, int decvectorP, int[] index, int indexP, int[] gain_index, int gain_indexP, double[] mem, int memP, int lMem, int veclen, int nStages) {
 
         double[] gain = new double[CB_NSTAGES];
         double[] cbvec = new double[SUBL];
@@ -3700,11 +3702,11 @@ public class Ilbc {
      * @param weightState weighting filter state
      * @param block the sub-block number
      */
-    private void iCBSearch(Encoder encoder,
-                           int[] index, int indexP, int[] gain_index, int gain_indexP,
-                           double[] intarget, int intargetP, double[] mem, int memP, int lMem,
-                           int lTarget, int nStages,
-                           double[] weightDenum, int weightDenumP, double[] weightState, int block) {
+    private static void iCBSearch(Encoder encoder,
+                                  int[] index, int indexP, int[] gain_index, int gain_indexP,
+                                  double[] intarget, int intargetP, double[] mem, int memP, int lMem,
+                                  int lTarget, int nStages,
+                                  double[] weightDenum, int weightDenumP, double[] weightState, int block) {
         int i, j, icount, stage;
         int[] best_index = new int[1];
         int range, counter;
@@ -4118,7 +4120,7 @@ public class Ilbc {
      * @param coef interpolation weight
      * @param length length of lsf vectors
      */
-    private void LSFinterpolate2a_dec(double[] a, double[] lsf1, double[] lsf2, int lsf2P, double coef, int length) {
+    private static void LSFinterpolate2a_dec(double[] a, double[] lsf1, double[] lsf2, int lsf2P, double coef, int length) {
         double[] lsftmp = new double[LPC_FILTERORDER];
 
         interpolate(lsftmp, lsf1, lsf2, lsf2P, coef, length);
@@ -4132,7 +4134,7 @@ public class Ilbc {
      * @param index quantization index
      * @param lpc_n number of LPCs
      */
-    private void SimplelsfDEQ(double[] lsfdeq, int[] index, int lpc_n) {
+    private static void SimplelsfDEQ(double[] lsfdeq, int[] index, int lpc_n) {
 
         // decode first LSF
 
@@ -4224,7 +4226,7 @@ public class Ilbc {
      * @param data new data vector
      * @param iLBCenc_inst (i/o) the encoder state structure
      */
-    private void SimpleAnalysis(double[] lsf, double[] data, Encoder iLBCenc_inst) {
+    private static void SimpleAnalysis(double[] lsf, double[] data, Encoder iLBCenc_inst) {
         double[] temp = new double[BLOCKL_MAX], lp = new double[LPC_FILTERORDER + 1];
         double[] lp2 = new double[LPC_FILTERORDER + 1];
         double[] r = new double[LPC_FILTERORDER + 1];
@@ -4266,7 +4268,7 @@ public class Ilbc {
      * @param coef weighting coefficient to use between lsf1 and lsf2
      * @param length length of coefficient vectors
      */
-    private void LSFinterpolate2a_enc(double[] a, double[] lsf1, double[] lsf2, int lsf2P, double coef, int length) {
+    private static void LSFinterpolate2a_enc(double[] a, double[] lsf1, double[] lsf2, int lsf2P, double coef, int length) {
         double[] lsftmp = new double[LPC_FILTERORDER];
 
         interpolate(lsftmp, lsf1, lsf2, lsf2P, coef, length);
@@ -4390,7 +4392,7 @@ public class Ilbc {
      * @param freq [o] lsf coefficients
      * @param a lpc coefficients
      */
-    private void a2lsf(double[] freq, int freqP, double[] a) {
+    private static void a2lsf(double[] freq, int freqP, double[] a) {
         double[] steps = { // LSF_NUMBER_OF_STEPS
             0.00635, 0.003175, 0.0015875, 0.00079375
         };
@@ -4517,7 +4519,7 @@ public class Ilbc {
      * @param a_coef [o] lpc coefficients
      * @param freq lsf coefficients
      */
-    private void lsf2a(double[] a_coef, double[] freq) {
+    private static void lsf2a(double[] a_coef, double[] freq) {
         double hlp;
         double[] p = new double[LPC_HALFORDER], q = new double[LPC_HALFORDER];
         double[] a = new double[LPC_HALFORDER + 1], a1 = new double[LPC_HALFORDER], a2 = new double[LPC_HALFORDER];
@@ -4615,7 +4617,7 @@ public class Ilbc {
      * @param bitno_firstpart number of bits in most significant part
      * @param bitno_total number of bits in full range of value
      */
-    private void packsplit(int[] index, int indexP, int[] firstpart, int[] rest, int restP, int bitno_firstpart, int bitno_total) {
+    private static void packsplit(int[] index, int indexP, int[] firstpart, int[] rest, int restP, int bitno_firstpart, int bitno_total) {
         int bitno_rest = bitno_total - bitno_firstpart;
 
         firstpart[0] = index[indexP+0] >> (bitno_rest);
@@ -4630,7 +4632,7 @@ public class Ilbc {
      * @param rest the lsb value
      * @param bitno_rest the number of bits in the lsb part
      */
-    private void packcombine(int[] index, int indexP, int rest, int bitno_rest) {
+    private static void packcombine(int[] index, int indexP, int rest, int bitno_rest) {
         index[indexP+0] = index[indexP+0] << bitno_rest;
         index[indexP+0] += rest;
     }
@@ -4645,7 +4647,7 @@ public class Ilbc {
      * @param bitno the number of bits that the value will fit within
      * @param pos (i/o) write position in the current byte
      */
-    private void dopack(byte[] bitstream, int bP, int index, int bitno, int[] pos) {
+    private static void dopack(byte[] bitstream, int bP, int index, int bitno, int[] pos) {
         int posLeft;
 
         // Clear the bits before starting in a new byte
@@ -4692,7 +4694,7 @@ public class Ilbc {
      * @param bitno number of bits used to represent the value
      * @param pos (i/o) read position in the current byte
      */
-    private void unpack(byte[] bitstream, int bP, int[] index, int bitno, int[] pos) {
+    private static void unpack(byte[] bitstream, int bP, int[] index, int bitno, int[] pos) {
         int BitsLeft;
 
         index[0] = 0;
@@ -4800,7 +4802,7 @@ public class Ilbc {
      * @param len length of vector to encode and vector of quantizer indexes
      * @param state_first position of start state in the 80 vec
      */
-    private void AbsQuantW(Encoder iLBCenc_inst, double[] in, int inP, double[] syntDenum, int syntDenumP, double[] weightDenum, int weightDenumP, int[] out, int len, int state_first) {
+    private static void AbsQuantW(Encoder iLBCenc_inst, double[] in, int inP, double[] syntDenum, int syntDenumP, double[] weightDenum, int weightDenumP, int[] out, int len, int state_first) {
         int /* double * */syntOut;
         double[] syntOutBuf = new double[LPC_FILTERORDER + STATE_SHORT_LEN_30MS];
         double toQ;
@@ -4958,7 +4960,7 @@ public class Ilbc {
      * @param len Length of signal
      * @param mem (i/o) Filter state
      */
-    private void syntFilter(double[] Out, int oP, double[] a, int aP, int len, double[] mem) {
+    private static void syntFilter(double[] Out, int oP, double[] a, int aP, int len, double[] mem) {
         int /* double * */po, pi, pa, pm;
 
         po = oP; // Out

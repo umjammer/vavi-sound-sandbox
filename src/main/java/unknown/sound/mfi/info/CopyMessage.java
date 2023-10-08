@@ -12,6 +12,7 @@ public class CopyMessage extends InformationMessage {
         messageDate = copy;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] copyBytes = getCopy().getBytes();
         byte[] data = {

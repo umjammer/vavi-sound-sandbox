@@ -13,13 +13,11 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.concurrent.CountDownLatch;
 
-import javax.sound.midi.ControllerEventListener;
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
-import javax.sound.midi.ShortMessage;
 
 import vavi.util.Debug;
 
@@ -55,6 +53,7 @@ Debug.println(sequencer);
         sequencer.setSequence(sequence);
         sequencer.addMetaEventListener(new MetaEventListener() {
             final StringBuilder sb = new StringBuilder();
+            @Override
             public void meta(MetaMessage meta) {
 //Debug.println(meta.getType());
                 switch (meta.getType()) {

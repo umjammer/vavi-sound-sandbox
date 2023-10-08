@@ -13,6 +13,7 @@ public class SetTempoMessage extends MetaEventMessage {
         return messageTempo;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] byteData = MetaEventMessage.arrayCopy(super.toBytes(), 3);
         int index = byteData.length - 3;

@@ -36,7 +36,7 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
     /**
      * Constructor.
      *
-     * @param in the underlying input stream.
+     * @param in     the underlying input stream.
      * @param format the target format of this stream's audio data.
      * @param length the length in sample frames of the data in this stream.
      */
@@ -44,12 +44,14 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
         super(init(in), format, length);
     }
 
-    /** */
+    /**  */
     static InputStream init(InputStream in) {
         AdvancedPipedInputStream source = new AdvancedPipedInputStream();
         AdvancedPipedInputStream.OutputStreamEx sink = source.getOutputStream();
         new Thread() {
             final ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
+
+            @Override
             public void run() {
                 try {
                     OutputStream out = new InputEngineOutputStream(new TempFileInputEngine(sink));
@@ -75,11 +77,11 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
         return source;
     }
 
-    /** */
+    /**  */
     static class TempFileInputEngine implements InputEngine {
 
-        InputStream in; 
-        OutputStream out; 
+        InputStream in;
+        OutputStream out;
         Path file;
 
         TempFileInputEngine(OutputStream out) throws IOException {
@@ -88,6 +90,7 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
             this.out = Files.newOutputStream(file);
         }
 
+        @Override
         public void initialize(InputStream in) throws IOException {
             if (this.in != null) {
                 throw new IOException("Already initialized");
@@ -98,6 +101,7 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
 
         ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
 
+        @Override
         public void execute() throws IOException {
             if (in == null) {
                 throw new IOException("Not yet initialized");
@@ -117,6 +121,7 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
             }
         }
 
+        @Override
         public void finish() throws IOException {
             out.flush();
             out.close();

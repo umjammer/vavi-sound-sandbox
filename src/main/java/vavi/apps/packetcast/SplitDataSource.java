@@ -40,9 +40,11 @@ class SplitDataSource extends PushBufferDataSource {
         streams[0] = new SplitStream(pbss[idx]);
     }
 
+    @Override
     public void connect() throws IOException {
     }
 
+    @Override
     public PushBufferStream[] getStreams() {
         return streams;
     }
@@ -51,39 +53,48 @@ class SplitDataSource extends PushBufferDataSource {
         return pbss[idx].getFormat();
     }
 
+    @Override
     public void start() throws IOException {
         p.start();
         ds.start();
     }
 
+    @Override
     public void stop() throws IOException {
     }
 
+    @Override
     public Object getControl(String name) {
         // No controls
         return null;
     }
 
+    @Override
     public Object[] getControls() {
         // No controls
         return new Control[0];
     }
 
+    @Override
     public Time getDuration() {
         return ds.getDuration();
     }
 
+    @Override
     public void disconnect() {
     }
 
+    @Override
     public String getContentType() {
         return ContentDescriptor.RAW;
     }
 
+    @Override
     public MediaLocator getLocator() {
         return ds.getLocator();
     }
 
+    @Override
     public void setLocator(MediaLocator ml) {
         System.err.println("Not interested in a media locator");
     }
@@ -104,40 +115,49 @@ class SplitDataSource extends PushBufferDataSource {
             pbs.setTransferHandler(this);
         }
 
+        @Override
         public void read(Buffer buf) /* throws IOException */ {
             // This wouldn't be used.
         }
 
+        @Override
         public ContentDescriptor getContentDescriptor() {
             return new ContentDescriptor(ContentDescriptor.RAW);
         }
 
+        @Override
         public boolean endOfStream() {
             return pbs.endOfStream();
         }
 
+        @Override
         public long getContentLength() {
             return LENGTH_UNKNOWN;
         }
 
+        @Override
         public Format getFormat() {
             return pbs.getFormat();
         }
 
+        @Override
         public void setTransferHandler(BufferTransferHandler bth) {
             this.bth = bth;
         }
 
+        @Override
         public Object getControl(String name) {
             // No controls
             return null;
         }
 
+        @Override
         public Object[] getControls() {
             // No controls
             return new Control[0];
         }
 
+        @Override
         public synchronized void transferData(PushBufferStream pbs) {
             if (bth != null) {
                 bth.transferData(pbs);

@@ -50,6 +50,7 @@ public class AudioComponentDescription extends Structure {
         setAlignType(ALIGN_GNUC);
     }
 
+    @Override
     protected List<String> getFieldOrder() {
         return Arrays.asList("componentType",
                              "componentSubType",

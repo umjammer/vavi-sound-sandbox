@@ -29,8 +29,9 @@ public class DebugInputStream extends FilterInputStream {
 
     public DebugInputStream(InputStream in) {
         super(in);
-if (debug)
+if (debug) {
  Debug.println("@@@@@@@@@@@@@@@@@@@@ available: " + ava());
+}
     }
 
     int ava() {
@@ -43,43 +44,49 @@ if (debug)
 
     @Override
     public synchronized void mark(int readlimit) {
-if (debug)
+if (debug) {
  Debug.println("@@@@@@@@@@@@@@@@@@@@ available: " + ava() + ", mark: " + readlimit);
+}
         super.mark(readlimit);
     }
 
     @Override
     public boolean markSupported() {
-if (debug)
+if (debug) {
  printStackTrace(new Exception("@@@@@@@@@@@@@@@@@@@@ available: " + ava() + ", markSupported: " + super.markSupported()));
+}
         return super.markSupported();
     }
 
     @Override
     public int read() throws IOException {
-if (debug)
+if (debug) {
  printStackTrace(new Exception("@@@@@@@@@@@@@@@@@@@@ available: " + ava()));
+}
         return super.read();
     }
 
     @Override
     public int read(byte[] b) throws IOException {
-if (debug)
+if (debug) {
  printStackTrace(new Exception("@@@@@@@@@@@@@@@@@@@@ available: " + ava()));
+}
         return super.read(b);
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-if (debug)
+if (debug) {
  printStackTrace(new Exception("@@@@@@@@@@@@@@@@@@@@ available: " + ava()));
+}
         return super.read(b, off, len);
     }
 
     @Override
     public void close() throws IOException {
-if (debug)
+if (debug) {
  printStackTrace(new Exception("@@@@@@@@@@@@@@@@@@@@ close"));
+}
         super.close();
     }
 

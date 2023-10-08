@@ -17,6 +17,7 @@ public class TempoMessage extends SystemMessage {
         return messageTempo;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] bytes = {
                            (byte) getDeltaTime(), -1,

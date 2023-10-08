@@ -57,7 +57,7 @@ public class Mp3InputStream extends FilterInputStream {
         }
 
         // find first sync
-        int firstSyncAddress = decoder.findSync(buf, 0, readBytes);
+        int firstSyncAddress = Mp3Decoder.findSync(buf, 0, readBytes);
 Debug.printf("firstSyncAddress: %08x", firstSyncAddress);
         decodeInfo = decoder.getInfo(buf, firstSyncAddress, readBytes - firstSyncAddress);
 Debug.println(StringUtil.paramStringDeep(decodeInfo, 2));
@@ -104,6 +104,7 @@ Debug.println("totalSeconds: " + totalSeconds + " [s]");
      * @see java.io.InputStream#available()
      * @throws IOException
      */
+    @Override
     public int available() throws IOException {
 Debug.println("wave available: " + in.available() + ", " + decodeInfo.inputSize + ", " + decodeInfo.outputSize);
         return in.available() / decodeInfo.inputSize * decodeInfo.outputSize;
@@ -112,6 +113,7 @@ Debug.println("wave available: " + in.available() + ", " + decodeInfo.inputSize 
     /**
      * @throws UnsupportedOperationException
      */
+    @Override
     public int read() throws IOException {
         throw new UnsupportedOperationException("use #read(byte[], int, int)");
     }
@@ -120,6 +122,7 @@ Debug.println("wave available: " + in.available() + ", " + decodeInfo.inputSize 
      * @see java.io.InputStream#read(byte[], int, int)
      * @throws IllegalArgumentException When length is shorter than DecodeInfo#outputSize to be thrown.
      */
+    @Override
     public int read(byte[] data, int offset, int length) throws IOException {
 
         if (!skipNextSync()) {
@@ -193,7 +196,7 @@ Debug.println("mp3:\n" + StringUtil.getDump(param.inputBuf, 16));
             }
 
             try {
-                int syncAddress = decoder.findSync(buf, 0, readBytes);
+                int syncAddress = Mp3Decoder.findSync(buf, 0, readBytes);
                 in.reset();
                 int length = syncAddress;
                 int l = 0;

@@ -43,7 +43,7 @@ class BStream {
      *
      * @return none
      */
-    private int getString(byte[] buf, int nbytes, BFile bfp) throws IOException {
+    private static int getString(byte[] buf, int nbytes, BFile bfp) throws IOException {
         int ichar, ibit;
         int[] c = new int[1];
 
@@ -158,7 +158,7 @@ class BStream {
      *
      * @return number of bits read
      */
-    private int getBseInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
+    private static int getBseInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
         int i_sup, isf, itmp, idiv;
         int bitcount = 0;
 
@@ -184,7 +184,7 @@ class BStream {
      *
      * @return number of bits read
      */
-    private int getGainInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
+    private static int getGainInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
         int i_sup, iptop, isf;
         int bitcount = 0;
 
@@ -204,7 +204,7 @@ class BStream {
      *
      * @return number of bits read
      */
-    private int getLspInfo(ConfInfo cf, Index index, BFile bfp) throws IOException {
+    private static int getLspInfo(ConfInfo cf, Index index, BFile bfp) throws IOException {
         int i_sup, itmp;
         int bitcount = 0;
 
@@ -227,7 +227,7 @@ class BStream {
      *
      * @return number of bits read
      */
-    private int getPpcInfo(ConfInfo cf, Index index, BFile bfp) throws IOException {
+    private static int getPpcInfo(ConfInfo cf, Index index, BFile bfp) throws IOException {
         int idiv, i_sup;
         int bitcount = 0;
 
@@ -248,7 +248,7 @@ class BStream {
      *
      * @return number of bits read
      */
-    private int getEbcInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
+    private static int getEbcInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
         int i_sup, isf, itmp;
         int bitcount = 0;
 

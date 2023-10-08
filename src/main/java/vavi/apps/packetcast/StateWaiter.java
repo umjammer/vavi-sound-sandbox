@@ -26,6 +26,7 @@ class StateWaiter {
     StateWaiter(Processor p) {
         this.p = p;
         p.addControllerListener(new ControllerListener() {
+            @Override
             public void controllerUpdate(ControllerEvent ce) {
                 if (ce instanceof ControllerErrorEvent) {
                     error = true;

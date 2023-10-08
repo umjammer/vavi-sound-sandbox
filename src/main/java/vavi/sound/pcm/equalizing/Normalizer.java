@@ -28,7 +28,7 @@ import vavi.util.win32.WAVE;
 class Normalizer {
 
     /** */
-    int parse_header(InputStream in, OutputStream out) throws IOException {
+    static int parse_header(InputStream in, OutputStream out) throws IOException {
         int length;
         byte[] riff_type = new byte[4];
 
@@ -55,7 +55,7 @@ class Normalizer {
     }
 
     /** */
-    int parse_fmt(InputStream in, WAVE.fmt fmt_chunk, OutputStream out) throws IOException {
+    static int parse_fmt(InputStream in, WAVE.fmt fmt_chunk, OutputStream out) throws IOException {
         int length;
 
         LittleEndianDataInputStream leis = new LittleEndianDataInputStream(in); 
@@ -112,7 +112,7 @@ class Normalizer {
     }
 
     /** */
-    int parse_data(InputStream in, WAVE.fmt fmt_chunk, OutputStream out) throws IOException {
+    static int parse_data(InputStream in, WAVE.fmt fmt_chunk, OutputStream out) throws IOException {
         int length;
         int deepest;
         int t;
@@ -187,7 +187,7 @@ class Normalizer {
     }
 
     /** */
-    int normalize(String inname, String outname) throws IOException {
+    static int normalize(String inname, String outname) throws IOException {
         InputStream in;
         OutputStream out;
         byte[] chunk_name = new byte[4];

@@ -12,6 +12,7 @@ public abstract class InformationMessage extends Message {
         return informationTag;
     }
 
+    @Override
     public abstract byte[] toBytes();
 
     private String informationTag;

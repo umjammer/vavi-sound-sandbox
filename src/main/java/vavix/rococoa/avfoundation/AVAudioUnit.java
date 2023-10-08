@@ -71,5 +71,6 @@ public abstract class AVAudioUnit extends AVAudioNode {
 
     public abstract int version();
 
+    @Override
     public abstract AUAudioUnit AUAudioUnit();
 }

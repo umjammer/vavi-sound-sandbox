@@ -28,6 +28,7 @@ public class HeaderMessage extends Message {
         return headerResolution;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] bytes = {
                            (byte) (getFormatType() >> 8), (byte) getFormatType(),

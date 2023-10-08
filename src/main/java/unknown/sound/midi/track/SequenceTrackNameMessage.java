@@ -9,6 +9,7 @@ public class SequenceTrackNameMessage extends MetaEventMessage {
         return messageTrackName;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] textData = getTrackName().getBytes();
         byte[] byteData = MetaEventMessage.arrayCopy(super.toBytes(),

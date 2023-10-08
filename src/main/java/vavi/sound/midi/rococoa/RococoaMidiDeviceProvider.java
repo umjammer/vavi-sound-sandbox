@@ -29,11 +29,13 @@ public class RococoaMidiDeviceProvider extends MidiDeviceProvider {
     private static final MidiDevice.Info[] infos = new MidiDevice.Info[] { RococoaSynthesizer.info };
 
     /* */
+    @Override
     public MidiDevice.Info[] getDeviceInfo() {
         return infos;
     }
 
     /** */
+    @Override
     public MidiDevice getDevice(MidiDevice.Info info)
         throws IllegalArgumentException {
 

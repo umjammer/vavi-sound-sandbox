@@ -129,6 +129,7 @@ public class AudioStreamBasicDescription extends Structure {
         setAlignType(ALIGN_GNUC);
     }
 
+    @Override
     protected List<String> getFieldOrder() {
         return Arrays.asList("mSampleRate",
                              "mFormatID",

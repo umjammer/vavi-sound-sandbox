@@ -23,10 +23,11 @@ import javax.sound.sampled.Mixer;
 public class RococoaMixer implements Mixer {
 
     public static Mixer.Info mixerInfo = new Mixer.Info(
-        "Rococoa Mixer",
-        "vavi",
-        "Mixer for Rococoa",
-        "0.0.1") {};
+            "Rococoa Mixer",
+            "vavi",
+            "Mixer for Rococoa",
+            "0.0.1") {
+    };
 
     /** TODO how about multiple clips */
     private final RococoaClip clip = new RococoaClip();
@@ -89,7 +90,7 @@ public class RococoaMixer implements Mixer {
     @Override
     public javax.sound.sampled.Line.Info[] getTargetLineInfo() {
         return new javax.sound.sampled.Line.Info[] {
-            clip.getLineInfo()
+                clip.getLineInfo()
         };
     }
 
@@ -140,7 +141,7 @@ public class RococoaMixer implements Mixer {
     public Line[] getTargetLines() {
         if (isOpen()) {
             return new Line[] {
-                clip
+                    clip
             };
         } else {
             return new Line[0];
@@ -150,13 +151,13 @@ public class RococoaMixer implements Mixer {
     @Override
     public void synchronize(Line[] lines, boolean maintainSync) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void unsynchronize(Line[] lines) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override

@@ -66,11 +66,11 @@ System.err.println(type);
         }
         AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new File(inFile).toURI().toURL());
         LineTest2 app = new LineTest2();
-        app.play(originalAudioInputStream);
+        LineTest2.play(originalAudioInputStream);
     }
 
     /** */
-    void play(AudioInputStream originalAudioInputStream) throws Exception {
+    static void play(AudioInputStream originalAudioInputStream) throws Exception {
         AudioFormat originalAudioFormat = originalAudioInputStream.getFormat();
 Debug.println(originalAudioFormat);
         AudioFormat targetAudioFormat = new AudioFormat( //PCM
@@ -136,7 +136,7 @@ try {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes", "restriction" })
-    AudioInputStream dummy(InputStream stream) throws UnsupportedAudioFileException, IOException {
+    static AudioInputStream dummy(InputStream stream) throws UnsupportedAudioFileException, IOException {
         List providers = com.sun.media.sound.JDK13Services.getProviders(AudioFileReader.class);
 providers.forEach(System.err::println);
         AudioInputStream audioStream = null;

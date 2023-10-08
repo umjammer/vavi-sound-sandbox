@@ -26,10 +26,12 @@ class OldLucasFile extends MidiTypeFile {
 
     private static final Logger logger = Logger.getLogger(OldLucasFile.class.getName());
 
+    @Override
     int markSize() {
         return 6;
     }
 
+    @Override
     boolean matchFormatImpl(DataInputStream dis) throws IOException {
         dis.skipBytes(4);
         return dis.readUnsignedByte() == 'A' &&

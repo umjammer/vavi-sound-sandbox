@@ -113,7 +113,7 @@ class Player {
     /**
      * 
      */
-    HeaderInfo getInfo(BFile bfile, int marker) throws IOException {
+    HeaderInfo getInfo(BFile bfile, byte[] marker) throws IOException {
         byte[] chunkID = new byte[TwinVQ.KEYWORD_BYTES + TwinVQ.VERSION_BYTES + 1];
         System.arraycopy(marker, 0, chunkID, 0, 4);
         bfile.io.read(chunkID, 4, TwinVQ.VERSION_BYTES);
@@ -178,7 +178,7 @@ class Player {
         }
     }
 
-    private int getString(byte[] buf, int nbytes, BFile bfile) throws IOException {
+    private static int getString(byte[] buf, int nbytes, BFile bfile) throws IOException {
         int ichar, ibit;
         int[] c = new int[1];
 
@@ -194,7 +194,7 @@ class Player {
         return ichar;
     }
 
-    private int getStandardChunkInfo(HeaderManager theManager, HeaderInfo setupInfo) {
+    private static int getStandardChunkInfo(HeaderManager theManager, HeaderInfo setupInfo) {
         setupInfo = new HeaderInfo();
         setupInfo.id = theManager.getID().getBytes();
         CommChunk commChunk = new CommChunk(theManager.getPrimaryChunk("COMM"), "TWIN97012000");

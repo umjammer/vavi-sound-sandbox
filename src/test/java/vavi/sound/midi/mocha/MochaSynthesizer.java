@@ -133,7 +133,7 @@ Debug.println(line.getClass().getName());
 
             line.open();
             line.start();
-        } catch (LineUnavailableException | IOException e) {
+        } catch (LineUnavailableException e) {
             throw (MidiUnavailableException) new MidiUnavailableException().initCause(e);
         }
 

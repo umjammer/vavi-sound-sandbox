@@ -164,7 +164,7 @@ Debug.println("track[" + i + "]: " + tracks[i].size());
     /**
      * @throws IllegalArgumentException sequence has not "Voice#"
      */
-    private String[] getData(Sequence sequence) throws IOException {
+    private static String[] getData(Sequence sequence) throws IOException {
         Track[] tracks = sequence.getTracks();
 Debug.println("tracks: " + tracks.length);
         String[] results = new String[tracks.length - 1];

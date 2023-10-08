@@ -23,6 +23,7 @@ public class FMAlgorithm4 extends FMAlgorithm {
         setParameter(p);
     }
 
+    @Override
     public double getValue(int number, double time) {
         return 0.5 * (getOperator(1).getValue(number, time) +
                 getOperator(3).getValue(number, time));

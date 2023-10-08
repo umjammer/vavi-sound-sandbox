@@ -9,6 +9,7 @@ public class RightMessage extends MetaEventMessage {
         return messageRightText;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] textData = getRightText().getBytes();
         byte[] byteData = MetaEventMessage.arrayCopy(super.toBytes(),

@@ -29,6 +29,7 @@ public class NoteMessage extends TrackMessage {
         return ((getChannel() << 6) & 0xc0) + (getNote() & 0x3f);
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] bytes = {
                            (byte) getDeltaTime(), (byte) getChannelNote(),

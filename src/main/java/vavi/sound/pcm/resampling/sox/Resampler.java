@@ -6,6 +6,8 @@
 
 package vavi.sound.pcm.resampling.sox;
 
+import java.util.logging.Level;
+
 import vavi.util.Debug;
 
 
@@ -227,7 +229,7 @@ Debug.println("resample: rate ratio " + work.inRate + " : " + work.outRate + ", 
      * @param outRate
      * @return gcd rate
      */
-    private float getGcdRate(float inRate, float outRate) {
+    private static float getGcdRate(float inRate, float outRate) {
         if (outRate == 0) {
             return inRate;
         } else {
@@ -286,13 +288,13 @@ Debug.println("nx " + nx + ", nProc: " + nProc);
             nOut = srcEX(nProc);
 Debug.println("nProc " + nProc + " --> " + nOut);
             // Move converter nProc samples back in time
-            work.t -= nProc * work.outRate;
+            work.t -= (int) (nProc * work.outRate);
             // Advance by number of samples processed
             work.xp += nProc;
             // Calc time accumulation in Time
             int creep = (int) (work.t / work.outRate - work.xOff);
             if (creep != 0) {
-                work.t -= creep * work.outRate; // Remove time accumulation
+                work.t -= (int) (creep * work.outRate); // Remove time accumulation
                 work.xp += creep; // and add it to read pointer
 Debug.println("nProc " + nProc + ", creep " + creep);
             }
@@ -357,13 +359,13 @@ Debug.println("DRAIN: " + work.xOff);
      * quadratic interpolation
      * over 90% of CPU time spent in this iprodUD() function
      */
-    private double qprodUD(double[] imp,
-                           double[] xp,
-                           int xp_pointer,
-                           int inc,
-                           double t0,
-                           int dhb,
-                           int ct) {
+    private static double qprodUD(double[] imp,
+                                  double[] xp,
+                                  int xp_pointer,
+                                  int inc,
+                                  double t0,
+                                  int dhb,
+                                  int ct) {
 
         final double f = 1.0f / (1 << LA);
 
@@ -390,13 +392,13 @@ Debug.println("DRAIN: " + work.xOff);
     }
 
     /** linear interpolation */
-    private double iprodUD(double[] imp,
-                           double[] xp,
-                           int xp_pointer,
-                           int inc,
-                           double t0,
-                           int dhb,
-                           int ct) {
+    private static double iprodUD(double[] imp,
+                                  double[] xp,
+                                  int xp_pointer,
+                                  int inc,
+                                  double t0,
+                                  int dhb,
+                                  int ct) {
 
         final double f = 1.0f / (1 << LA);
 
@@ -477,13 +479,13 @@ Debug.println("DRAIN: " + work.xOff);
      * @param ct
      * @return ???
      */
-    private double prodEX(double[] imp,
-                          double[] xp,
-                          int xp_pointer,
-                          int inc,
-                          int t0,
-                          int dhb,
-                          int ct) {
+    private static double prodEX(double[] imp,
+                                 double[] xp,
+                                 int xp_pointer,
+                                 int inc,
+                                 int t0,
+                                 int dhb,
+                                 int ct) {
 
         // so double sum starts with smallest coef's
         int cp_pointer = (ct - 1) * dhb + t0;
@@ -522,7 +524,7 @@ Debug.println("DRAIN: " + work.xOff);
             if (work.factor < 1) {
                 v *= work.factor;
             }
-            work.y[y++] = v;                   // Deposit output
+            work.y[y++] = v;                // Deposit output
             time += a;                      // Move to next sample by time increment
         }
         work.t = time;
@@ -560,7 +562,7 @@ Debug.println("DRAIN: " + work.xOff);
                 dcGain += impR[i];
             }
             dcGain = 2 * dcGain + impR[0];  // DC gain of real coefficients
-// Debug.println("dCgain err=%.12f", dCgain - 1.0);
+Debug.printf(Level.FINER, "dCgain err=%.12f", dcGain - 1.0);
 
             dcGain = 1.0f / dcGain;
             for (int i = 0; i < mWing; i++) {
@@ -589,7 +591,7 @@ Debug.println("DRAIN: " + work.xOff);
      * Computes the 0th order modified bessel function of the first kind.
      * (Needed to compute Kaiser window).
      */
-    private double iZero(double x) {
+    private static double iZero(double x) {
 
         double sum = 1;
         double u = 1;

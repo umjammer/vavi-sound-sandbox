@@ -316,6 +316,7 @@ Debug.println("AVAudioUnitComponent: " + c.audioComponentDescription() + ", " + 
         AUAudioUnit audioUnit = AUAudioUnit.initWithComponentDescription(description);
 Debug.println("AudioUnit: " + audioUnit.description());
         AUAudioUnit.CompletionHandlerCallback callback = new AUAudioUnit.CompletionHandlerCallback() {
+            @Override
             @RunOnMainThread
             public void completionHandler(Pointer outCompletionHandler) {
 //                NSViewController viewControler = outCompletionHandler.getValueAs(NSViewController.class);

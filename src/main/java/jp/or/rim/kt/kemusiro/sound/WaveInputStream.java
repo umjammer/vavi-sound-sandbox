@@ -130,6 +130,7 @@ public class WaveInputStream extends InputStream {
         return buffer.length;
     }
 
+    @Override
     public int read() throws IOException {
         if (buffer == null || pos == buffer.length) {
             if (fillBuffer() <= 0) {

@@ -29,7 +29,7 @@ public class IttakeMfiDeviceProvider extends MfiDeviceProvider {
         };
     }
 
-    /** */
+    @Override
     public boolean isDeviceSupported(MfiDevice.Info info) {
         for (MfiDevice device : devices) {
             if (device.getDeviceInfo().equals(info)) {
@@ -39,7 +39,7 @@ public class IttakeMfiDeviceProvider extends MfiDeviceProvider {
         return false;
     }
 
-    /** */
+    @Override
     public MfiDevice.Info[] getDeviceInfo() {
         MfiDevice.Info[] infos = new MfiDevice.Info[devices.length];
         for (int i = 0; i < devices.length; i++) {
@@ -49,7 +49,7 @@ public class IttakeMfiDeviceProvider extends MfiDeviceProvider {
         return infos;
     }
 
-    /** */
+    @Override
     public MfiDevice getDevice(MfiDevice.Info info)
         throws IllegalArgumentException {
 

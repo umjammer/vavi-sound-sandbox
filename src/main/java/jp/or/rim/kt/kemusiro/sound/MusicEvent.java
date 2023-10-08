@@ -15,6 +15,7 @@ public abstract class MusicEvent implements Comparable<MusicEvent> {
     protected int tick;
     protected int channel;
 
+    @Override
     public int compareTo(MusicEvent o) {
         if (o != null) {
             return Integer.compare(this.tick, o.tick);

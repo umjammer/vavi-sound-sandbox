@@ -19,10 +19,12 @@ import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
  * @version 0.00 2020/10/25 umjammer initial version <br>
  */
 class LucasFile extends MidiFile {
+    @Override
     int markSize() {
         return 3;
     }
 
+    @Override
     boolean matchFormatImpl(DataInputStream dis) throws IOException {
         return dis.readUnsignedByte() == 'A' &&
             dis.readUnsignedByte() == 'D' &&

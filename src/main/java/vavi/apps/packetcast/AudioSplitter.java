@@ -176,7 +176,7 @@ System.err.print(".");
      * Transcode the MPEG audio to linear and video to JPEG so we can do the
      * splitting.
      */
-    void transcodeMPEGToRaw(Processor p) {
+    static void transcodeMPEGToRaw(Processor p) {
 
         TrackControl[] tc = p.getTrackControls();
         AudioFormat af;
@@ -196,7 +196,7 @@ System.err.println("tc[" + i + "]: " + tc[i].getFormat());
      * Convert a file name to a content type. The extension is parsed to
      * determine the content type.
      */
-    ContentDescriptor fileExtToCD(String name) {
+    static ContentDescriptor fileExtToCD(String name) {
 
         String ext;
         int p;
@@ -225,7 +225,7 @@ System.err.println("tc[" + i + "]: " + tc[i].getFormat());
         return new FileTypeDescriptor(type);
     }
 
-    String getMimeType(String name) {
+    static String getMimeType(String name) {
         try {
             Class<?> clazz = Class.forName("com.sun.media.MimeManager");
             Method method = clazz.getMethod("getMimeType", String.class);
@@ -331,6 +331,7 @@ System.err.println("- name: " + name);
         /**
          * Controller Listener.
          */
+        @Override
         public void controllerUpdate(ControllerEvent evt) {
 
             if (evt instanceof ControllerErrorEvent) {
@@ -344,6 +345,7 @@ System.err.println("- name: " + name);
         /**
          * Event handler for the file writer.
          */
+        @Override
         public void dataSinkUpdate(DataSinkEvent evt) {
 
             if (evt instanceof EndOfStreamEvent || evt instanceof DataSinkErrorEvent) {
@@ -362,7 +364,7 @@ System.err.println("- name: " + name);
         /**
          * Create the DataSink.
          */
-        DataSink createDataSink(Processor p, MediaLocator outML) {
+        static DataSink createDataSink(Processor p, MediaLocator outML) {
 
             DataSource ds;
 

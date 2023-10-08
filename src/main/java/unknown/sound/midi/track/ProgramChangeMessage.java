@@ -12,6 +12,7 @@ public class ProgramChangeMessage extends ChannelMessage {
         return messageProgram;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] byteData = Message.arrayCopy(super.toBytes(), 1);
         int index = byteData.length - 1;

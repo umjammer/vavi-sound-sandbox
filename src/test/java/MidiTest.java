@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import javax.sound.midi.MetaEventListener;
-import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
@@ -46,7 +45,7 @@ public class MidiTest {
     }
 
     /** plain */
-    void tP(String[] args) throws Exception {
+    static void tP(String[] args) throws Exception {
         Sequence sequence = MidiSystem.getSequence(new File(args[0]));
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -70,7 +69,7 @@ System.err.println("END: " + args[0]);
     }
 
     /** info */
-    void t0(String[] args) throws Exception {
+    static void t0(String[] args) throws Exception {
         // MIDI
         Synthesizer synthesizer;
         Sequencer sequencer;
@@ -118,7 +117,7 @@ System.err.println("default transmitter: " + transmitter);
     }
 
     /** sf2 by spi: work */
-    void t1(String[] args) throws Exception {
+    static void t1(String[] args) throws Exception {
         Sequence sequence = MidiSystem.getSequence(new File(args[0]));
 
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
@@ -171,7 +170,7 @@ System.err.println("END: " + args[0]);
 
     /** sf2 direct: work */
     @SuppressWarnings("restriction")
-    void t2(String[] args) throws Exception {
+    static void t2(String[] args) throws Exception {
         com.sun.media.sound.SoftSynthesizer synthesizer = new com.sun.media.sound.SoftSynthesizer();
         synthesizer.open();
 Debug.println("synthesizer: " + synthesizer);
@@ -208,7 +207,7 @@ System.err.println("END: " + args[0]);
         synthesizer.close();
     }
 
-    void t3(String[] args) throws Exception {
+    static void t3(String[] args) throws Exception {
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
         synthesizer.open();
 Debug.println("synthesizer: " + synthesizer);
@@ -253,7 +252,7 @@ System.err.println("END");
     }
 
     /** midi network session test, [1] seemed "session1" */
-    void t4(String[] args) throws Exception {
+    static void t4(String[] args) throws Exception {
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
 Debug.println("synthesizer: " + synthesizer.getClass().getName());
         synthesizer.open();
@@ -281,7 +280,7 @@ System.err.println("END");
     public static void main(String[] args) throws Exception {
         MidiTest app = new MidiTest();
 //        app.t0(args);
-        app.t3(args);
+        MidiTest.t3(args);
 //        app.t4(args);
     }
 }

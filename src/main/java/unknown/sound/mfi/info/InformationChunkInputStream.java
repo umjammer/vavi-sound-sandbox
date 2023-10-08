@@ -41,6 +41,7 @@ public class InformationChunkInputStream extends MLDChunkInputStream {
         return melodyTrackCount;
     }
 
+    @Override
     public Message readMessage()
         throws InvalidMidiDataException, IOException {
         SourceMessage message = null;
@@ -53,6 +54,7 @@ public class InformationChunkInputStream extends MLDChunkInputStream {
         return message;
     }
 
+    @Override
     public Message getChunkHeader() {
         return new InformationChunkHeader((int) getMelodyLength(),
                                          getDataByteArray().length,

@@ -525,6 +525,7 @@ public final class OPL3 {
             op2 = o2;
         }
 
+        @Override
         double[] getChannelOutput() {
             double channelOutput = 0, op1Output = 0, op2Output;
             double[] output;
@@ -557,17 +558,20 @@ public final class OPL3 {
             return output;
         }
 
+        @Override
         protected void keyOn() {
             op1.keyOn();
             op2.keyOn();
             feedback[0] = feedback[1] = 0;
         }
 
+        @Override
         protected void keyOff() {
             op1.keyOff();
             op2.keyOff();
         }
 
+        @Override
         protected void updateOperators() {
             // Key Scale Number, used in EnvelopeGenerator.setActualRates().
             int keyScaleNumber = block * 2 + ((fNumH >> nts) & 0x01);
@@ -598,6 +602,7 @@ public final class OPL3 {
             op4 = o4;
         }
 
+        @Override
         double[] getChannelOutput() {
             double channelOutput = 0,
                    op1Output = 0, op2Output, op3Output, op4Output;
@@ -670,6 +675,7 @@ public final class OPL3 {
             return output;
         }
 
+        @Override
         protected void keyOn() {
             op1.keyOn();
             op2.keyOn();
@@ -678,6 +684,7 @@ public final class OPL3 {
             feedback[0] = feedback[1] = 0;
         }
 
+        @Override
         protected void keyOff() {
             op1.keyOff();
             op2.keyOff();
@@ -685,6 +692,7 @@ public final class OPL3 {
             op4.keyOff();
         }
 
+        @Override
         protected void updateOperators() {
             // Key Scale Number, used in EnvelopeGenerator.setActualRates().
             int keyScaleNumber = block * 2 + ((fNumH >> nts) & 0x01);
@@ -713,9 +721,13 @@ public final class OPL3 {
         DisabledChannel(int[] registers) {
             super(0);
         }
+        @Override
         double[] getChannelOutput() { return getInFourChannels(0); }
+        @Override
         protected void keyOn() { }
+        @Override
         protected void keyOff() { }
+        @Override
         protected void updateOperators() { }
     }
 
@@ -985,7 +997,7 @@ public final class OPL3 {
             dBreleaseIncrement = OPL3Data.calculateIncrement(percentageToDB(0.1), percentageToDB(0.9), period10to90inSeconds);
         }
 
-        private int calculateActualRate(int rate, int ksr, int keyScaleNumber) {
+        private static int calculateActualRate(int rate, int ksr, int keyScaleNumber) {
             int rof = EnvelopeGeneratorData.rateOffset[ksr][keyScaleNumber];
             int actualRate = rate * 4 + rof;
             // If, as an example at the maximum, rate is 15 and the rate offset is

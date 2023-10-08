@@ -12,6 +12,7 @@ public class DateMessage extends InformationMessage {
         messageDate = date;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] dateBytes = getDate().getBytes();
         byte[] data = {

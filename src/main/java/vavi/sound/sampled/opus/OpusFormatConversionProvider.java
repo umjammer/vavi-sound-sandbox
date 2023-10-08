@@ -26,20 +26,20 @@ public class OpusFormatConversionProvider extends FormatConversionProvider {
 
     @Override
     public AudioFormat.Encoding[] getSourceEncodings() {
-        return new AudioFormat.Encoding[] { OpusEncoding.OPUS, AudioFormat.Encoding.PCM_SIGNED };
+        return new AudioFormat.Encoding[] {OpusEncoding.OPUS, AudioFormat.Encoding.PCM_SIGNED};
     }
 
     @Override
     public AudioFormat.Encoding[] getTargetEncodings() {
-        return new AudioFormat.Encoding[] { OpusEncoding.OPUS, AudioFormat.Encoding.PCM_SIGNED };
+        return new AudioFormat.Encoding[] {OpusEncoding.OPUS, AudioFormat.Encoding.PCM_SIGNED};
     }
 
     @Override
     public AudioFormat.Encoding[] getTargetEncodings(AudioFormat sourceFormat) {
         if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
-            return new AudioFormat.Encoding[] { OpusEncoding.OPUS };
+            return new AudioFormat.Encoding[] {OpusEncoding.OPUS};
         } else if (sourceFormat.getEncoding() instanceof OpusEncoding) {
-            return new AudioFormat.Encoding[] { AudioFormat.Encoding.PCM_SIGNED };
+            return new AudioFormat.Encoding[] {AudioFormat.Encoding.PCM_SIGNED};
         } else {
             return new AudioFormat.Encoding[0];
         }
@@ -48,29 +48,29 @@ public class OpusFormatConversionProvider extends FormatConversionProvider {
     @Override
     public AudioFormat[] getTargetFormats(AudioFormat.Encoding targetEncoding, AudioFormat sourceFormat) {
         if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) &&
-            targetEncoding instanceof OpusEncoding) {
+                targetEncoding instanceof OpusEncoding) {
             if (sourceFormat.getChannels() > 2 ||
-                sourceFormat.getChannels() <= 0 ||
-                sourceFormat.isBigEndian()) {
+                    sourceFormat.getChannels() <= 0 ||
+                    sourceFormat.isBigEndian()) {
                 return new AudioFormat[0];
             } else {
                 return new AudioFormat[] {
-                    new AudioFormat(targetEncoding,
-                                    sourceFormat.getSampleRate(),
-                                    -1,     // sample size in bits
-                                    sourceFormat.getChannels(),
-                                    -1,     // frame size
-                                    -1,     // frame rate
-                                    false)  // little endian
+                        new AudioFormat(targetEncoding,
+                                sourceFormat.getSampleRate(),
+                                -1,     // sample size in bits
+                                sourceFormat.getChannels(),
+                                -1,     // frame size
+                                -1,     // frame rate
+                                false)  // little endian
                 };
             }
         } else if (sourceFormat.getEncoding() instanceof OpusEncoding && targetEncoding.equals(AudioFormat.Encoding.PCM_SIGNED)) {
             return new AudioFormat[] {
-                new AudioFormat(sourceFormat.getSampleRate(),
-                                16,         // sample size in bits
-                                sourceFormat.getChannels(),
-                                true,       // signed
-                                false)      // little endian (for PCM wav)
+                    new AudioFormat(sourceFormat.getSampleRate(),
+                            16,         // sample size in bits
+                            sourceFormat.getChannels(),
+                            true,       // signed
+                            false)      // little endian (for PCM wav)
             };
         } else {
             return new AudioFormat[0];
@@ -115,7 +115,7 @@ public class OpusFormatConversionProvider extends FormatConversionProvider {
                 if (sourceFormat.equals(targetFormat)) {
                     return sourceStream;
                 } else if (sourceFormat.getEncoding() instanceof OpusEncoding &&
-                           targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
+                        targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
                     try {
                         OpusFile opus = (OpusFile) sourceFormat.getProperty("opus");
                         return new Opus2PcmAudioInputStream(opus, targetFormat, AudioSystem.NOT_SPECIFIED);

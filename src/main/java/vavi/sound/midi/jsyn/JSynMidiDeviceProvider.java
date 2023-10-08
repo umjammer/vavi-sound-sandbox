@@ -29,11 +29,13 @@ public class JSynMidiDeviceProvider extends MidiDeviceProvider {
     private static final MidiDevice.Info[] infos = new MidiDevice.Info[] { JSynSynthesizer.info };
 
     /* */
+    @Override
     public MidiDevice.Info[] getDeviceInfo() {
         return infos;
     }
 
     /** */
+    @Override
     public MidiDevice getDevice(MidiDevice.Info info)
         throws IllegalArgumentException {
 

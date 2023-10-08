@@ -55,6 +55,7 @@ Debug.println("byteOrder: " + this.byteOrder);
     /**
      * 必ず呼んでね。
      */
+    @Override
     public void close() throws IOException {
 
         TwinVQ encoder = TwinVQ.getInstance();

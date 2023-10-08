@@ -143,7 +143,7 @@ Debug.println(StringUtil.paramString(this));
      * searches nearest sync address.
      * @return relative address from offset
      */
-    public int findSync(byte[] buf, int offset, int size) {
+    public static int findSync(byte[] buf, int offset, int size) {
         size -= 3;
 
         if (size <= 0) {
@@ -303,7 +303,7 @@ Debug.println(StringUtil.paramString(this));
     /**
      * dequantum
      */
-    private void l3dequantum(int[] samp, float[] spec, GrInfo gr_info) {
+    private static void l3dequantum(int[] samp, float[] spec, GrInfo gr_info) {
         float xs = (float) Math.pow(2.0, (gr_info.gain - 210.0) / 4);
 
         for (int i = 0; i < GR_SIZE; i++) {

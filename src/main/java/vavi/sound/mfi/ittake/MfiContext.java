@@ -17,7 +17,7 @@ package vavi.sound.mfi.ittake;
 public class MfiContext {
 
     /** */
-    public int toMLDNote(int midiNote) {
+    public static int toMLDNote(int midiNote) {
         return midiNote - 33;
     }
 

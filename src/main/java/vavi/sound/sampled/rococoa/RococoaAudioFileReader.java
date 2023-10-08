@@ -53,10 +53,10 @@ public class RococoaAudioFileReader extends AudioFileReader {
      * @param bitStream
      * @param mediaLength
      * @return an AudioInputStream object based on the audio file data contained
-     *         in the input stream.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
+     * in the input stream.
+     * @throws UnsupportedAudioFileException if the File does not point to a
+     *                                       valid audio file data recognized by the system.
+     * @throws IOException                   if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
         // TODO determine rococoa is able to decode ot not
@@ -95,15 +95,15 @@ public class RococoaAudioFileReader extends AudioFileReader {
     /**
      * Obtains an audio input stream from the input stream provided. The stream
      * must point to valid audio file data.
-     * 
+     *
      * @param inputStream the input stream from which the AudioInputStream
-     *            should be constructed.
+     *                    should be constructed.
      * @param mediaLength
      * @return an AudioInputStream object based on the audio file data contained
-     *         in the input stream.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
+     * in the input stream.
+     * @throws UnsupportedAudioFileException if the File does not point to a
+     *                                       valid audio file data recognized by the system.
+     * @throws IOException                   if an I/O exception occurs.
      */
     protected AudioInputStream getAudioInputStream(InputStream inputStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
         AudioFileFormat audioFileFormat = getAudioFileFormat(inputStream, mediaLength);

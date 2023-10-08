@@ -44,6 +44,7 @@ public class InformationChunkHeader extends Message {
         return informationTrackCount;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] bytes = {
                            109, 101, 108, 111, (byte) (getMelodyLength() >> 24),
