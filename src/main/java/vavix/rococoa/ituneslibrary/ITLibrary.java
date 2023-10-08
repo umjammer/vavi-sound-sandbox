@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.rococoa.ObjCClass;
+import org.rococoa.ObjCObjectByReference;
 import org.rococoa.cocoa.foundation.NSArray;
 import org.rococoa.cocoa.foundation.NSError;
 import org.rococoa.cocoa.foundation.NSObject;
@@ -26,7 +27,7 @@ import org.rococoa.cocoa.foundation.NSURL;
 public abstract class ITLibrary extends NSObject {
 
     static {
-        ITunesLibrary.instance.toString();
+        ITunesLibrary.instance.toString(); // to make sure library is loaded
         CLASS = org.rococoa.Rococoa.createClass("ITLibrary", _Class.class);
     }
 
@@ -34,20 +35,20 @@ public abstract class ITLibrary extends NSObject {
     private static final _Class CLASS;
 
     public interface _Class extends ObjCClass {
-        ITLibrary libraryWithAPIVersion_error(String requestedAPIVersion, NSError error);
+        ITLibrary libraryWithAPIVersion_error(String requestedAPIVersion, ObjCObjectByReference error);
 
         /**
          * @param options ITLibInitOptions
          * @return NullAllowed
          */
-        ITLibrary libraryWithAPIVersion_options_error(String requestedAPIVersion, int options, NSError error);
+        ITLibrary libraryWithAPIVersion_options_error(String requestedAPIVersion, int options, ObjCObjectByReference error);
 
-        ITLibrary initWithAPIVersion_error(String requestedAPIVersion, NSError error);
+        ITLibrary initWithAPIVersion_error(String requestedAPIVersion, ObjCObjectByReference error);
 
         /**
          * @param options ITLibInitOptions
          */
-        ITLibrary initWithAPIVersion_options_error(String requestedAPIVersion, int options, NSError error);
+        ITLibrary initWithAPIVersion_options_error(String requestedAPIVersion, int options, ObjCObjectByReference error);
     }
 
     public abstract String applicationVersion();
@@ -99,10 +100,11 @@ public abstract class ITLibrary extends NSObject {
     public abstract void unloadData();
 
     public static ITLibrary libraryWithAPIVersion(String requestedAPIVersion) {
-        NSError error = NSError.CLASS.alloc();
-        ITLibrary library = CLASS.libraryWithAPIVersion_error(requestedAPIVersion, error);
-        if (library == null) {
-            throw new IllegalStateException();
+        ObjCObjectByReference errorRef = new ObjCObjectByReference();
+        ITLibrary library = CLASS.libraryWithAPIVersion_error(requestedAPIVersion, errorRef);
+        NSError error = errorRef.getValueAs(NSError.class);
+        if (library == null || error != null) {
+            throw new IllegalStateException(error != null ? error.description() : requestedAPIVersion);
         }
         return library;
     }
@@ -111,19 +113,21 @@ public abstract class ITLibrary extends NSObject {
      * @param options ITLibInitOptions
      */
     public static ITLibrary libraryWithAPIVersion(String requestedAPIVersion, int options) {
-        NSError error = NSError.CLASS.alloc();
-        ITLibrary library = CLASS.libraryWithAPIVersion_options_error(requestedAPIVersion, options, error);
-        if (library == null) {
-            throw new IllegalStateException();
+        ObjCObjectByReference errorRef = new ObjCObjectByReference();
+        ITLibrary library = CLASS.libraryWithAPIVersion_options_error(requestedAPIVersion, options, errorRef);
+        NSError error = errorRef.getValueAs(NSError.class);
+        if (library == null || error != null) {
+            throw new IllegalStateException(error != null ? error.description() : requestedAPIVersion);
         }
         return library;
     }
 
     public static ITLibrary initWithAPIVersion(String requestedAPIVersion) {
-        NSError error = NSError.CLASS.alloc();
-        ITLibrary library = CLASS.initWithAPIVersion_error(requestedAPIVersion, error);
-        if (library == null) {
-            throw new IllegalStateException();
+        ObjCObjectByReference errorRef = new ObjCObjectByReference();
+        ITLibrary library = CLASS.initWithAPIVersion_error(requestedAPIVersion, errorRef);
+        NSError error = errorRef.getValueAs(NSError.class);
+        if (library == null || error != null) {
+            throw new IllegalStateException(error != null ? error.description() : requestedAPIVersion);
         }
         return library;
     }
@@ -132,10 +136,11 @@ public abstract class ITLibrary extends NSObject {
      * @param options ITLibInitOptions
      */
     public static ITLibrary initWithAPIVersion(String requestedAPIVersion, int options) {
-        NSError error = NSError.CLASS.alloc();
-        ITLibrary library = CLASS.initWithAPIVersion_options_error(requestedAPIVersion, options, error);
-        if (library == null) {
-            throw new IllegalStateException();
+        ObjCObjectByReference errorRef = new ObjCObjectByReference();
+        ITLibrary library = CLASS.initWithAPIVersion_options_error(requestedAPIVersion, options, errorRef);
+        NSError error = errorRef.getValueAs(NSError.class);
+        if (library == null || error != null) {
+            throw new IllegalStateException(error != null ? error.description() : requestedAPIVersion);
         }
         return library;
     }

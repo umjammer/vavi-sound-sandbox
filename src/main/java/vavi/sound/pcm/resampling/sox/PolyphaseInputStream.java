@@ -35,13 +35,13 @@ class PolyphaseInputStream extends FilterInputStream {
     private static class PolyphaseOutputEngine implements OutputEngine {
 
         /** */
-        private InputStream in;
+        private final InputStream in;
 
         /** */
         private DataOutputStream out;
 
         /** */
-        private Polyphase resampler;
+        private final Polyphase resampler;
 
         /** */
         public PolyphaseOutputEngine(InputStream is, float in, float out) throws IOException {
@@ -58,7 +58,7 @@ class PolyphaseInputStream extends FilterInputStream {
             }
         }
 
-        private byte[] sample = new byte[44100 * 2];
+        private final byte[] sample = new byte[44100 * 2];
 
         /** */
         public void execute() throws IOException {

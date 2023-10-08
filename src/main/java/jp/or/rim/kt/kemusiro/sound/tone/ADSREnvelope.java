@@ -12,12 +12,12 @@ package jp.or.rim.kt.kemusiro.sound.tone;
  */
 public class ADSREnvelope extends Envelope {
 
-    private double attackRate;
-    private double decayRate;
-    private double sustainRate;
-    private double releaseRate;
-    private double sustainLevel;
-    private double maxLevel;
+    private final double attackRate;
+    private final double decayRate;
+    private final double sustainRate;
+    private final double releaseRate;
+    private final double sustainLevel;
+    private final double maxLevel;
     private double level;
 
     public ADSREnvelope(double ar,

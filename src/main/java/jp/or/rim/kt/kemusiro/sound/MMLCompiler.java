@@ -17,14 +17,14 @@ public class MMLCompiler {
 
     private MusicScore score;
     private int tickPerBeat = 240;
-    private int maxAmplitude = 127;
-    private int currentTempo = 60;
-    private int initialOctave = 4;
-    private int[] currentOctave;
+    private final int maxAmplitude = 127;
+    private final int currentTempo = 60;
+    private final int initialOctave = 4;
+    private final int[] currentOctave;
     private int currentVolume = 8;
     private int currentTick = tickPerBeat;
-    private int initialQuantity = 8;
-    private int[] currentQuantity;
+    private final int initialQuantity = 8;
+    private final int[] currentQuantity;
     private int tick = 0;
     private String mml;
     private int position;
@@ -43,7 +43,7 @@ public class MMLCompiler {
         int number = 0;
         char c;
 
-        while (buf.length() > 0 && Character.isDigit(buf.charAt(0))) {
+        while (!buf.isEmpty() && Character.isDigit(buf.charAt(0))) {
             number *= 10;
             number += Character.digit(buf.charAt(0), 10);
             buf.deleteCharAt(0);
@@ -90,13 +90,13 @@ public class MMLCompiler {
         tick = currentTick;
         getLength:
         {
-            if (buf.length() == 0) {
+            if (buf.isEmpty()) {
                 break getLength;
             }
             c = buf.charAt(0);
             if (Character.isDigit(c)) {
                 tick = tickPerBeat * 4 / getNumber(buf);
-                if (buf.length() == 0) {
+                if (buf.isEmpty()) {
                     break getLength;
                 }
                 c = buf.charAt(0);
@@ -112,7 +112,7 @@ public class MMLCompiler {
     private void processNote(StringBuilder buf, int channel, char noteName) throws MMLException {
         int number = getNoteNumber(currentOctave[channel], noteName);
 
-        if (buf.length() > 0) {
+        if (!buf.isEmpty()) {
             char c = buf.charAt(0);
             if (c == '+' || c == '-') {
                 if (c == '+') {
@@ -137,25 +137,18 @@ public class MMLCompiler {
         char c = buf.charAt(0);
 
         buf.deleteCharAt(0);
-        switch (c) {
-        case 'a':
-            inst = new SquareWaveInstrument();
-            break;
-        case 'b':
-            inst = new SineWaveInstrument();
-            break;
-        case 'c':
-            inst = new FMGeneralInstrument(getNumber(buf));
-            break;
-        default:
-            throw new MMLException("invalid program name");
-        }
+        inst = switch (c) {
+            case 'a' -> new SquareWaveInstrument();
+            case 'b' -> new SineWaveInstrument();
+            case 'c' -> new FMGeneralInstrument(getNumber(buf));
+            default -> throw new MMLException("invalid program name");
+        };
         score.add(new ChangeInstrument(tick, channel, inst));
     }
 
     public void compile(MusicScore newScore, String[] mml) throws MMLException {
         for (int ch = 0; ch < mml.length; ch++) {
-            if (mml[ch] != null && mml[ch].length() > 0) {
+            if (mml[ch] != null && !mml[ch].isEmpty()) {
                 compile(newScore, ch, mml[ch]);
             }
         }
@@ -168,7 +161,7 @@ Debug.println("mml: " + mml);
 
         score = newScore;
         tick = 0;
-        while (buf.length() > 0) {
+        while (!buf.isEmpty()) {
             c = buf.charAt(0);
             buf.deleteCharAt(0);
 

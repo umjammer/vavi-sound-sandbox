@@ -12,8 +12,8 @@ package jp.or.rim.kt.kemusiro.sound;
  */
 public class NoteOff extends MusicEvent {
 
-    private int number;        // 0 - 127
-    private int velocity;    // 0 - 127 (0 means note-off)
+    private final int number;        // 0 - 127
+    private final int velocity;    // 0 - 127 (0 means note-off)
 
     public NoteOff(int newTick, int newChannel, int newNumber, int newVelocity) {
         tick = newTick;

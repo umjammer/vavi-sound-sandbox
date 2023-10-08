@@ -26,7 +26,7 @@ import vavi.util.Debug;
 public class TwinVQOutputStream extends FilterOutputStream {
 
     /** */
-    private ByteOrder byteOrder;
+    private final ByteOrder byteOrder;
 
     /**
      */
@@ -37,7 +37,7 @@ public class TwinVQOutputStream extends FilterOutputStream {
     }
 
     /** */
-    private OutputStream realOut;
+    private final OutputStream realOut;
 
     /**
      */

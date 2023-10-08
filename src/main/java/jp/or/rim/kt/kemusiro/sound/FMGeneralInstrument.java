@@ -33,7 +33,7 @@ import jp.or.rim.kt.kemusiro.sound.tone.FMParameter;
  */
 public class FMGeneralInstrument extends Instrument {
 
-    private static List<FMParameter> parameters = new ArrayList<>();
+    private static final List<FMParameter> parameters = new ArrayList<>();
 
     public FMGeneralInstrument(int number) {
         FMParameter p = findParameter(number);

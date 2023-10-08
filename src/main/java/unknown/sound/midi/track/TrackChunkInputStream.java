@@ -101,37 +101,29 @@ label0:
 
                     int dataType = read();
                     int dataLength2 = readDeltaTime();
-                    switch (dataType) {
-                    case 0: //
-                        message = new SequenceNoMessage(deltaTime, dataType,
-                                                        readMessageBytes(dataLength2));
-                        break;
-                    case 1: //
-                        message = new TextMessage(deltaTime, dataType,
-                                                  readMessageBytes(dataLength2));
-                        break;
-                    case 2: //
-                        message = new RightMessage(deltaTime, dataType,
-                                                   readMessageBytes(dataLength2));
-                        break;
-                    case 3: //
-                        message = new SequenceTrackNameMessage(deltaTime,
-                                                               dataType,
-                                                               readMessageBytes(dataLength2));
-                        break;
-                    case 47: //
-                        message = new EndOfTrackMessage(deltaTime, dataType,
-                                                        readMessageBytes(dataLength2));
-                        break;
-                    case 81: //
-                        message = new SetTempoMessage(deltaTime, dataType,
-                                                      readMessageBytes(dataLength2));
-                        break;
-                    default:
-                        message = new UnknownMessage(deltaTime, dataType,
-                                                     readMessageBytes(dataLength2));
-                        break;
-                    }
+                    message = switch (dataType) {
+                        case 0 -> //
+                                new SequenceNoMessage(deltaTime, dataType,
+                                        readMessageBytes(dataLength2));
+                        case 1 -> //
+                                new TextMessage(deltaTime, dataType,
+                                        readMessageBytes(dataLength2));
+                        case 2 -> //
+                                new RightMessage(deltaTime, dataType,
+                                        readMessageBytes(dataLength2));
+                        case 3 -> //
+                                new SequenceTrackNameMessage(deltaTime,
+                                        dataType,
+                                        readMessageBytes(dataLength2));
+                        case 47 -> //
+                                new EndOfTrackMessage(deltaTime, dataType,
+                                        readMessageBytes(dataLength2));
+                        case 81 -> //
+                                new SetTempoMessage(deltaTime, dataType,
+                                        readMessageBytes(dataLength2));
+                        default -> new UnknownMessage(deltaTime, dataType,
+                                readMessageBytes(dataLength2));
+                    };
                     break;
                 case 4: //
                 case 5: //

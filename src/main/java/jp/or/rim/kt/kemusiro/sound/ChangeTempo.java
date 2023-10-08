@@ -11,7 +11,7 @@ package jp.or.rim.kt.kemusiro.sound;
  * @version $Revision: 1.2 $
  */
 public class ChangeTempo extends MusicEvent {
-    private int tempo;
+    private final int tempo;
 
     public ChangeTempo(int newTick, int newChannel, int newTempo) {
         tick = newTick;

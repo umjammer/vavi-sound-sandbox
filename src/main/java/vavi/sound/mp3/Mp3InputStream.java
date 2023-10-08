@@ -17,7 +17,7 @@ import vavi.util.StringUtil;
 
 /**
  * Mp3InputStream.
- * <li> TODO 今のところ {@link #read()} を使用してはいけません。
+ * <li> TODO don't use {@link #read()} currently
  * 
  * @author 小杉 篤史 (Kosugi Atsushi)
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
@@ -27,10 +27,10 @@ import vavi.util.StringUtil;
 public class Mp3InputStream extends FilterInputStream {
 
     /** */
-    private Mp3Decoder.MpegDecodeInfo decodeInfo;
+    private final Mp3Decoder.MpegDecodeInfo decodeInfo;
 
     /** */
-    private Mp3Decoder decoder = new Mp3Decoder();
+    private final Mp3Decoder decoder = new Mp3Decoder();
 
     /**
      * @throws IOException
@@ -46,7 +46,7 @@ public class Mp3InputStream extends FilterInputStream {
         in.mark(4096);
 
         // read temporary
-        byte[] buf = new byte[4096]; // TODO 4096 byte までに firstSync があると仮定している 
+        byte[] buf = new byte[4096]; // TODO assume there is firstSync in 4096 byte
         int readBytes = 0;
         while (readBytes < buf.length) {
              int l = in.read(buf, readBytes, buf.length - readBytes);
@@ -58,16 +58,16 @@ public class Mp3InputStream extends FilterInputStream {
 
         // find first sync
         int firstSyncAddress = decoder.findSync(buf, 0, readBytes);
-System.err.println("firstSyncAddress: " + StringUtil.toHex8(firstSyncAddress));
+Debug.printf("firstSyncAddress: %08x", firstSyncAddress);
         decodeInfo = decoder.getInfo(buf, firstSyncAddress, readBytes - firstSyncAddress);
-System.err.println(StringUtil.paramStringDeep(decodeInfo, 2));
+Debug.println(StringUtil.paramStringDeep(decodeInfo, 2));
 
         //
         in.reset();
-System.err.println("mp3 in.available(): " + in.available());
+Debug.println("mp3 in.available(): " + in.available());
         int length = firstSyncAddress;
 //      int length = firstSyncAddress + 4 + (decodeInfo.header.mode != 3 ? 32 : 17);
-System.err.println("skip length: " + length);
+Debug.println("skip length: " + length);
         int skipBytes = 0;
         while (skipBytes < length) {
             int l  = (int) in.skip(length - skipBytes);
@@ -88,16 +88,16 @@ System.err.println("skip length: " + length);
         int totalSamples = (frames * decodeInfo.outputSize * 8) / 16 / decodeInfo.channels;
         int totalSeconds = totalSamples / decodeInfo.frequency;
 
-System.err.println("---- mp3 ----");
-System.err.println("size        : " + size);
-System.err.println("dataSize    : " + dataSize);
+Debug.println("---- mp3 ----");
+Debug.println("size        : " + size);
+Debug.println("dataSize    : " + dataSize);
 
-System.err.println("channels    : " + channels);
-System.err.println("frequency   : " + frequency + " [Hz]");
-System.err.println("bitRate     : " + bitRate + " [bit/s]");
-System.err.println("totalFrames : " + totalFrames);
-System.err.println("totalSamples: " + totalSamples);
-System.err.println("totalSeconds: " + totalSeconds + " [s]");
+Debug.println("channels    : " + channels);
+Debug.println("frequency   : " + frequency + " [Hz]");
+Debug.println("bitRate     : " + bitRate + " [bit/s]");
+Debug.println("totalFrames : " + totalFrames);
+Debug.println("totalSamples: " + totalSamples);
+Debug.println("totalSeconds: " + totalSeconds + " [s]");
     }
 
     /**
@@ -105,7 +105,7 @@ System.err.println("totalSeconds: " + totalSeconds + " [s]");
      * @throws IOException
      */
     public int available() throws IOException {
-System.err.println("wave available: " + in.available() + ", " + decodeInfo.inputSize + ", " + decodeInfo.outputSize);
+Debug.println("wave available: " + in.available() + ", " + decodeInfo.inputSize + ", " + decodeInfo.outputSize);
         return in.available() / decodeInfo.inputSize * decodeInfo.outputSize;
     }
 
@@ -118,7 +118,7 @@ System.err.println("wave available: " + in.available() + ", " + decodeInfo.input
 
     /**
      * @see java.io.InputStream#read(byte[], int, int)
-     * @throws IllegalArgumentException When length is short than DecodeInfo#outputSize to be thrown.
+     * @throws IllegalArgumentException When length is shorter than DecodeInfo#outputSize to be thrown.
      */
     public int read(byte[] data, int offset, int length) throws IOException {
 

@@ -6,6 +6,7 @@ package vavi.sound.ldcelp;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 import vavi.util.Debug;
 
@@ -27,12 +28,12 @@ import vavi.util.Debug;
 public class LdCelp {
 
     /** Arrays for band widening: zeros and */
-    private float[] pwf_z_vec = new float[Constants.LPCW + 1];
+    private final float[] pwf_z_vec = new float[Constants.LPCW + 1];
     /** poles */
-    private float[] pwf_p_vec = new float[Constants.LPCW + 1];
-    private float[] pwf_old_input = new float[Constants.LPCW + Constants.NFRSZ + Constants.NONRW];
+    private final float[] pwf_p_vec = new float[Constants.LPCW + 1];
+    private final float[] pwf_old_input = new float[Constants.LPCW + Constants.NFRSZ + Constants.NONRW];
     /** Recursive Part */
-    private float[] pwf_rec = new float[Constants.LPCW + 1];
+    private final float[] pwf_rec = new float[Constants.LPCW + 1];
 
     /**
      * @param z_out zero coefficients
@@ -83,10 +84,10 @@ public class LdCelp {
 
     // Backward Synthesis Filter Adapter --------------------------------------
 
-    private float[] facv = new float[Constants.LPC + 1];
+    private final float[] facv = new float[Constants.LPC + 1];
 
-    private float[] bsf_old_input = new float[Constants.LPC + Constants.NFRSZ + Constants.NONR];
-    private float[] bsf_rec = new float[Constants.LPC + 1];
+    private final float[] bsf_old_input = new float[Constants.LPC + Constants.NFRSZ + Constants.NONR];
+    private final float[] bsf_rec = new float[Constants.LPC + 1];
 
     /** */
     void bsf_adapter(float[] input, float[] p_out) {
@@ -131,8 +132,8 @@ public class LdCelp {
     };
 
     /** Recursive part for Hybrid Window */
-    private float[] g_rec = new float[Constants.LPCLG + 1];
-    private float[] g_old_input = new float[Constants.LPCLG + Constants.NUPDATE + Constants.NONRLG];
+    private final float[] g_rec = new float[Constants.LPCLG + 1];
+    private final float[] g_old_input = new float[Constants.LPCLG + Constants.NUPDATE + Constants.NONRLG];
 
     /** recompute lpc_coeff */
     void gain_adapter(float[] log_gain, float[] coeff) {
@@ -310,7 +311,7 @@ public class LdCelp {
     }
 
     /** */
-    private float[] a10 = new float[11];
+    private final float[] a10 = new float[11];
     /** */
     private float k10;
 
@@ -438,11 +439,11 @@ public class LdCelp {
 
     /** Index of the end of the decoded speech */
     private int dec_end;
-    /** */
-//  private int encoder_done = 0;
+//    /** */
+//    private int encoder_done = 0;
 
     /**
-     * @args -d[p]|-e infile outfile
+     * @param args -d[p]|-e infile outfile
      */
     public static void main(String[] args) throws Exception {
 
@@ -479,7 +480,7 @@ public class LdCelp {
     }
 
     /** */
-    private float[] thequeue = new float[QSIZE];
+    private final float[] thequeue = new float[QSIZE];
     /** */
     private int float_pointer_vector_end;
 
@@ -487,9 +488,7 @@ public class LdCelp {
     void encoder() throws IOException {
 
         init_encoder();
-        for (int i = 0; i < QSIZE; i++) {
-            thequeue[i] = 0;
-        }
+        Arrays.fill(thequeue, 0);
         for (int vnum = 0; read_sound_buffer(Constants.IDIM, thequeue, (vnum * Constants.IDIM) % QSIZE) > 0; vnum++) {
             float_pointer_vector_end = (vnum * Constants.IDIM) % QSIZE + Constants.IDIM;
             encode_vector(false);
@@ -845,10 +844,10 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
 
     // Circular Buffer Register numbers for ADSP21000
 
-    /** */
-//  private static final float NPUT = 8;
-    /** */
-//  private static final float NGET = 9;
+//    /** */
+//    private static final float NPUT = 8;
+//    /** */
+//    private static final float NGET = 9;
 
     /** */
     private static void ZARR(float[] A) {
@@ -892,7 +891,7 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
         }
     }
 
-    /** get queue index of the most recent vector */
+//    /** get queue index of the most recent vector */
 //    private float QINDEX() {
 //        int qx = float_pointer_vector_end;
 //        return qx != 0 ? QSIZE - Constants.IDIM : qx - Constants.IDIM;
@@ -917,9 +916,7 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
 
     /** */
     void decoder() throws IOException {
-        for (int i = 0; i < QSIZE; i++) {
-            thequeue[i] = 0;
-        }
+        Arrays.fill(thequeue, 0);
         init_decoder();
         for (w_vec_start = 0; !decoder_done; w_vec_start += Constants.IDIM) {
             if (w_vec_start >= QSIZE) {
@@ -1406,9 +1403,9 @@ Debug.println("decoder_done");
     // Filters ----
 
     /** */
-    private float[] firmem = new float[Constants.LPCW + Constants.IDIM];
+    private final float[] firmem = new float[Constants.LPCW + Constants.IDIM];
     /** */
-    private float[] iirmem = new float[Constants.LPCW + Constants.IDIM];
+    private final float[] iirmem = new float[Constants.LPCW + Constants.IDIM];
 
     /** */
     void pwfilter2(float[] input, int offset, float[] output) {
@@ -1524,7 +1521,7 @@ Debug.println("decoder_done");
 
     // The Gain Predictor
 
-    private float[] gain_input = new float[Constants.LPCLG];
+    private final float[] gain_input = new float[Constants.LPCLG];
 
     /** */
     private float log_rms(float[] input, int offset) {
@@ -1575,9 +1572,7 @@ Debug.println("decoder_done");
     /** */
     void init_gain_buf() {
 
-        for (int i = 0; i < Constants.LPCLG; i++) {
-            gain_input[i] = -Constants.GOFF;
-        }
+        Arrays.fill(gain_input, -Constants.GOFF);
         for (int i = 0; i < QSIZE / Constants.IDIM; i++) {
             log_gains[i] = -Constants.GOFF;
         }
@@ -1751,7 +1746,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
     private static final int SHIFTSZ = (Constants.KPMAX + Constants.NPWSZ - Constants.NFRSZ + Constants.IDIM);
 
     /** Post-Filter Memory for syn. sp. */
-    private float[] tap_mem = new float[Constants.KPMAX + Constants.NPWSZ + Constants.IDIM];
+    private final float[] tap_mem = new float[Constants.KPMAX + Constants.NPWSZ + Constants.IDIM];
 
     /** */
     int pitch_period = 50;
@@ -1793,12 +1788,12 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
     };
 
     /** Short Term Filter (Poles/IIR) Coefficients */
-    private float[] shpcoef = new float[SPORDER + 1];
+    private final float[] shpcoef = new float[SPORDER + 1];
     /** Short Term Filter (Zeros/FIR) Coefficients */
-    private float[] shzcoef = new float[SPORDER + 1];
+    private final float[] shzcoef = new float[SPORDER + 1];
     private float tiltz;
     /** Post-Filter Memory for residual */
-    private float[] fil_mem = new float[PMSIZE];
+    private final float[] fil_mem = new float[PMSIZE];
 
     /**
      * Compute sum of absolute values of vector V
@@ -2052,11 +2047,11 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
             fil_out_mem[2] = tmp;
         }
 
-        // Find best Correlation in decimated domain:
+        // Find the best Correlation in decimated domain:
 
         best_dper = best_period(fil_decim_mem, PDMSIZE, DPERMIN, DPERMAX);
 
-        // Now fine-tune best correlation on undecimated  domain
+        // Now fine-tune the best correlation on undecimated  domain
 
         permin = best_dper * DECIM - DECIM + 1;
         permax = best_dper * DECIM + DECIM - 1;
@@ -2085,7 +2080,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
         permax = old_per + Constants.KPDELTA;
         if (best_per > permax) {
 
-            // Now compute best period around the old period
+            // Now compute the best period around the old period
 
             permin = old_per - Constants.KPDELTA;
             if (permin < Constants.KPMIN) {

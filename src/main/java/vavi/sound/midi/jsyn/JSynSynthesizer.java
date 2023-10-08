@@ -61,12 +61,12 @@ public class JSynSynthesizer implements Synthesizer {
     private MidiSynthesizer midiSynthesizer;
     private LineOut lineOut;
 
-    private JSynSoundbank soundBank = new JSynSoundbank();
+    private final JSynSoundbank soundBank = new JSynSoundbank();
 
-    private MidiChannel[] channels = new MidiChannel[MAX_CHANNEL];
+    private final MidiChannel[] channels = new MidiChannel[MAX_CHANNEL];
 
     // TODO voice != channel ( = getMaxPolyphony())
-    private VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
+    private final VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
 
     private long timestump;
 
@@ -251,12 +251,12 @@ Debug.println(Level.WARNING, "already open: " + hashCode());
 
     private class JSynMidiChannel implements MidiChannel {
 
-        private int channel;
+        private final int channel;
 
-        private int[] polyPressure = new int[128];
+        private final int[] polyPressure = new int[128];
         private int pressure;
         private int pitchBend;
-        private int[] control = new int[128];
+        private final int[] control = new int[128];
 
         /** */
         public JSynMidiChannel(int channel) {
@@ -412,7 +412,7 @@ Debug.println(Level.WARNING, "already open: " + hashCode());
         }
     }
 
-    private List<Receiver> receivers = new ArrayList<>();
+    private final List<Receiver> receivers = new ArrayList<>();
 
     private class JSynReceiver implements Receiver {
         private boolean isOpen;
@@ -426,8 +426,7 @@ Debug.println(Level.WARNING, "already open: " + hashCode());
         public void send(MidiMessage message, long timeStamp) {
             timestump = timeStamp;
             if (isOpen) {
-                if (message instanceof ShortMessage) {
-                    ShortMessage shortMessage = (ShortMessage) message;
+                if (message instanceof ShortMessage shortMessage) {
                     int channel = shortMessage.getChannel();
                     int command = shortMessage.getCommand();
                     int data1 = shortMessage.getData1();
@@ -457,8 +456,7 @@ Debug.println(Level.WARNING, "already open: " + hashCode());
                     default:
 Debug.printf(Level.FINE, "%02X\n", command);
                     }
-                } else if (message instanceof SysexMessage) {
-                    SysexMessage sysexMessage = (SysexMessage) message;
+                } else if (message instanceof SysexMessage sysexMessage) {
                     byte[] data = sysexMessage.getData();
 Debug.printf(Level.FINE, "sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data));
                     switch (data[0]) {

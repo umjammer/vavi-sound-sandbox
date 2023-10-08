@@ -71,7 +71,7 @@ class BStream {
         getString(chunkID, TwinVQ.KEYWORD_BYTES + TwinVQ.VERSION_BYTES, bfp);
         TVQ_VERSION = twinVq.TvqCheckVersion(new String(chunkID));
         if (TVQ_VERSION == TwinVQ.TVQ_UNKNOWN_VERSION) {
-            throw new IllegalArgumentException(String.format("Header reading error: Unknown version (%s).\n", (Object) chunkID));
+            throw new IllegalArgumentException(String.format("Header reading error: Unknown version (%s).\n", chunkID));
         }
 
         if (bfp.getBStream(chunkSize, 0, TwinVQ.ELEM_BYTES * BFile.CHAR_BITS) <= 0) {
@@ -106,7 +106,7 @@ class BStream {
         getString(lbuf, TwinVQ.KEYWORD_BYTES, bfp);
         if (Arrays.equals(lbuf, "DATA".getBytes())) {
             throw new IllegalArgumentException(
-                    String.format("TwinVQ format error. No \"DATA\" chunk was found. found %s chunk", (Object) lbuf));
+                    String.format("TwinVQ format error. No \"DATA\" chunk was found. found %s chunk", lbuf));
         }
 
         return twinChunk;
@@ -286,7 +286,7 @@ class BStream {
         // Window type
         bitcount += bfp.getBStream(index.w_type, 0, cf.BITS_WTYPE);
         if (twinVq.TvqWtypeToBtype(index.w_type[0], index.btype) != 0) {
-            System.err.printf("Error: unknown window type: %d\n", (Object) index.w_type);
+            System.err.printf("Error: unknown window type: %d\n", index.w_type);
             return 0;
         }
         int btype = index.btype[0];

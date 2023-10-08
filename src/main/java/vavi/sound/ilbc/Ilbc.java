@@ -6,13 +6,12 @@
 
 package vavi.sound.ilbc;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 
 /**
@@ -84,7 +83,7 @@ public class Ilbc {
      */
     private static final int ENH_SLOP = 2;
     /**
-     * pitch-estimates and pitch- locations
+     * pitch-estimates and pitch-locations
      * buffer length
      */
     private static final int ENH_PLOCSL = 20;
@@ -784,8 +783,8 @@ public class Ilbc {
      *
      * @return Number of bytes encoded
      * @param encoder (i/o) Encoder instance
-     * @param encoded_data (o) The encoded bytes
-     * @param data (i) The signal block to encode
+     * @param encoded_data [o] The encoded bytes
+     * @param data The signal block to encode
      */
     int encode(Encoder encoder, byte[] encoded_data, byte[] data) {
         double[] block = new double[BLOCKL_MAX];
@@ -808,9 +807,9 @@ public class Ilbc {
      *
      * @return Number of decoded samples
      * @param decoder (i/o) Decoder instance
-     * @param decoded_data (o) Decoded signal block
-     * @param encoded_data (i) Encoded bytes
-     * @param mode (i) 0=PL, 1=Normal
+     * @param decoded_data [o] Decoded signal block
+     * @param encoded_data Encoded bytes
+     * @param mode 0=PL, 1=Normal
      */
     int decode(Decoder decoder, byte[] decoded_data, byte[] encoded_data, int mode) {
         double[] decblock = new double[BLOCKL_MAX];
@@ -1024,9 +1023,9 @@ public class Ilbc {
     // A.3. iLBC_encode.c
 
     /**
-     * @return (o) Number of bytes encoded
+     * @return [o] Number of bytes encoded
      * @param encoder (i/o) Encoder instance
-     * @param mode (i) frame size mode
+     * @param mode frame size mode
      */
     private int initEncode(Encoder encoder, int mode) {
         encoder.mode = mode;
@@ -1055,8 +1054,7 @@ public class Ilbc {
             throw new IllegalArgumentException("mode: " + mode);
         }
 
-        for (int xx = 0; xx < LPC_FILTERORDER; xx++)
-            encoder.anaMem[xx] = 0;
+        Arrays.fill(encoder.anaMem, 0);
         System.arraycopy(lsfmeanTbl, 0, encoder.lsfold, 0, LPC_FILTERORDER);
         System.arraycopy(lsfmeanTbl, 0, encoder.lsfdeqold, 0, LPC_FILTERORDER);
         for (int xx = 0; xx < LPC_LOOKBACK + BLOCKL_MAX; xx++)
@@ -1069,8 +1067,8 @@ public class Ilbc {
 
     /**
      * main encoder function
-     * @param bytes (o) encoded data bits iLBC
-     * @param block (o) speech vector to encode
+     * @param bytes [o] encoded data bits iLBC
+     * @param block [o] speech vector to encode
      * @param encoder  (i/o) the general encoder state
      */
     private void iLBC_encode(byte[] bytes, double[] block, Encoder encoder) {
@@ -1161,8 +1159,6 @@ public class Ilbc {
             for (int xx = 0; xx < CB_MEML - encoder.state_short_len; xx++)
                 mem[xx] = 0;
             System.arraycopy(decresidual, start_pos, mem, CB_MEML - encoder.state_short_len, encoder.state_short_len);
-            for (int xx = 0; xx < LPC_FILTERORDER; xx++)
-                weightState[xx] = 0;
 
             // encode sub-frames
 
@@ -1188,8 +1184,6 @@ public class Ilbc {
             }
             for (int xx = 0; xx < CB_MEML - k; xx++)
                 mem[xx] = 0;
-            for (int xx = 0; xx < LPC_FILTERORDER; xx++)
-                weightState[xx] = 0;
 
             // encode sub-frames
 
@@ -1221,8 +1215,7 @@ public class Ilbc {
             for (int xx = 0; xx < CB_MEML - STATE_LEN; xx++)
                 mem[xx] = 0;
             System.arraycopy(decresidual, (start[0] - 1) * SUBL, mem, CB_MEML - STATE_LEN, STATE_LEN);
-            for (int xx = 0; xx < LPC_FILTERORDER; xx++)
-                weightState[xx] = 0;
+            Arrays.fill(weightState, 0);
 
             // loop over sub-frames to encode
 
@@ -1240,8 +1233,7 @@ public class Ilbc {
 
                 System.arraycopy(mem, SUBL, mem, 0, (CB_MEML - SUBL));
                 System.arraycopy(decresidual, (start[0] + 1 + subframe) * SUBL, mem, CB_MEML - SUBL, SUBL);
-                for (int xx = 0; xx < LPC_FILTERORDER; xx++)
-                    weightState[xx] = 0;
+                Arrays.fill(weightState, 0);
 
                 subcount++;
             }
@@ -1274,8 +1266,7 @@ public class Ilbc {
             }
             for (int xx = 0; xx < CB_MEML - k; xx++)
                 mem[xx] = 0;
-            for (int xx = 0; xx < LPC_FILTERORDER; xx++)
-                weightState[xx] = 0;
+            Arrays.fill(weightState, 0);
 
             // loop over sub-frames to encode
 
@@ -1293,8 +1284,7 @@ public class Ilbc {
 
                 System.arraycopy(mem, SUBL, mem, 0, (CB_MEML - SUBL));
                 System.arraycopy(reverseDecresidual, subframe * SUBL, mem, CB_MEML - SUBL, SUBL);
-                for (int xx = 0; xx < LPC_FILTERORDER; xx++)
-                    weightState[xx] = 0;
+                Arrays.fill(weightState, 0);
 
                 subcount++;
 
@@ -1381,8 +1371,8 @@ public class Ilbc {
     /**
      * @return Number of decoded samples
      * @param decoder (i/o) Decoder instance
-     * @param mode (i) frame size mode
-     * @param use_enhancer (i) 1 to use enhancer 0 to run without enhancer
+     * @param mode frame size mode
+     * @param use_enhancer 1 to use enhancer 0 to run without enhancer
      */
     private int initDecode(Decoder decoder, int mode, int use_enhancer) {
 
@@ -1412,8 +1402,7 @@ public class Ilbc {
             throw new IllegalArgumentException("mode: " + mode);
         }
 
-        for (int xx = 0; xx < LPC_FILTERORDER; xx++)
-            decoder.syntMem[xx] = 0;
+        Arrays.fill(decoder.syntMem, 0);
         System.arraycopy(lsfmeanTbl, 0, decoder.lsfdeqold, 0, LPC_FILTERORDER);
 
         for (int xx = 0; xx < (LPC_FILTERORDER + 1) * NSUB_MAX; xx++)
@@ -1438,10 +1427,8 @@ public class Ilbc {
             decoder.hpomem[xx] = 0;
 
         decoder.use_enhancer = use_enhancer;
-        for (int xx = 0; xx < ENH_BUFL; xx++)
-            decoder.enh_buf[xx] = 0;
-        for (int i = 0; i < ENH_NBLOCKS_TOT; i++)
-            decoder.enh_period[i] = 40.0;
+        Arrays.fill(decoder.enh_buf, 0);
+        Arrays.fill(decoder.enh_period, 40.0);
 
         decoder.prev_enh_pl = 0;
 
@@ -1452,17 +1439,17 @@ public class Ilbc {
      * frame residual decoder function (subrutine to iLBC_decode)
      *
      * @param decoder (i/o) the decoder state structure
-     * @param decresidual (o) decoded residual frame
-     * @param start (i) location of start state
-     * @param idxForMax (i) codebook index for the maximum value
-     * @param idxVec (i) codebook indexes for the samples in the start state
-     * @param syntdenum (i) the decoded synthesis filter coefficients
-     * @param cb_index (i) the indexes for the adaptive codebook
-     * @param gain_index (i) the indexes for the corresponding gains
-     * @param extra_cb_index (i) the indexes for the adaptive codebook part of
+     * @param decresidual [o] decoded residual frame
+     * @param start location of start state
+     * @param idxForMax codebook index for the maximum value
+     * @param idxVec codebook indexes for the samples in the start state
+     * @param syntdenum the decoded synthesis filter coefficients
+     * @param cb_index the indexes for the adaptive codebook
+     * @param gain_index the indexes for the corresponding gains
+     * @param extra_cb_index the indexes for the adaptive codebook part of
      *            start state
-     * @param extra_gain_index (i) the indexes for the corresponding gains
-     * @param state_first (i) 1 if non adaptive part of start state comes first
+     * @param extra_gain_index the indexes for the corresponding gains
+     * @param state_first 1 if non adaptive part of start state comes first
      *            0 if that part comes last
      */
     private void decode(Decoder decoder, double[] decresidual, int start, int idxForMax, int[] idxVec, double[] syntdenum, int[] cb_index, int[] gain_index, int[] extra_cb_index, int[] extra_gain_index, int state_first) {
@@ -1603,10 +1590,10 @@ public class Ilbc {
     /**
      * main decoder function.
      *
-     * @param decblock (o) decoded signal block
-     * @param bytes (i) encoded signal bits
+     * @param decblock [o] decoded signal block
+     * @param bytes encoded signal bits
      * @param decoder (i/o) the decoder state structure
-     * @param mode (i) 0: bad packet, PLC, 1: normal
+     * @param mode 0: bad packet, PLC, 1: normal
      */
     private void iLBC_decode(double[] decblock, byte[] bytes, Decoder decoder, int mode) {
         double[] data = new double[BLOCKL_MAX];
@@ -1761,10 +1748,6 @@ public class Ilbc {
 
             // packet loss conceal
 
-            for (int xx = 0; xx < BLOCKL_MAX; xx++) {
-                zeros[xx] = 0;
-            }
-
             one[0] = 1;
             for (int xx = 0; xx < LPC_FILTERORDER; xx++) {
                 one[xx + 1] = 0;
@@ -1852,10 +1835,10 @@ public class Ilbc {
     /**
      * LP analysis filter.
      *
-     * @param In (i) Signal to be filtered
-     * @param a (i) LP parameters
-     * @param len (i) Length of signal
-     * @param Out (o) Filtered signal
+     * @param In Signal to be filtered
+     * @param a LP parameters
+     * @param len Length of signal
+     * @param Out [o] Filtered signal
      * @param mem (i/o) Filter state
      */
     private void anaFilter(double[] In, int inP, double[] a, int aP, int len, double[] Out, int outP, double[] mem) {
@@ -1905,9 +1888,9 @@ public class Ilbc {
      * buffer. This vector is then used to expand the codebook with an
      * additional section.
      *
-     * @param cbvectors (o) Codebook vectors for the higher section
-     * @param mem (i) Buffer to create codebook vector from
-     * @param lMem (i) Length of buffer
+     * @param cbvectors [o] Codebook vectors for the higher section
+     * @param mem Buffer to create codebook vector from
+     * @param lMem Length of buffer
      */
     private void filteredCBvecs(double[] cbvectors, double[] mem, int memP, int lMem) {
         int /* double * */pp, pp1;
@@ -1942,18 +1925,18 @@ public class Ilbc {
     /**
      * Search the augmented part of the codebook to find the best measure.
      *
-     * @param low (i) Start index for the search
-     * @param high (i) End index for the search
-     * @param stage (i) Current stage
-     * @param startIndex (i) Codebook index for the first aug vector
-     * @param target (i) Target vector for encoding
-     * @param buffer (i) Pointer to the end of the buffer for augmented codebook
+     * @param low Start index for the search
+     * @param high End index for the search
+     * @param stage Current stage
+     * @param startIndex Codebook index for the first aug vector
+     * @param target Target vector for encoding
+     * @param buffer Pointer to the end of the buffer for augmented codebook
      *            construction
      * @param max_measure (i/o) Currently maximum measure
-     * @param best_index (o) Currently the best index
-     * @param gain (o) Currently the best gain
-     * @param energy (o) Energy of augmented codebook vectors
-     * @param invenergy (o) Inv energy of augmented codebook vectors
+     * @param best_index [o] Currently the best index
+     * @param gain [o] Currently the best gain
+     * @param energy [o] Energy of augmented codebook vectors
+     * @param invenergy [o] Inv energy of augmented codebook vectors
      */
     private void searchAugmentedCB(int low, int high, int stage, int startIndex, double[] target, double[] buffer, int bufferP, double[] max_measure, int[] best_index, double[] gain, double[] energy, double[] invenergy) {
         int icount, ilow, j, tmpIndex;
@@ -2042,10 +2025,10 @@ public class Ilbc {
     /**
      * Recreate a specific codebook vector from the augmented part.
      *
-     * @param index (i) Index for the augmented vector to be created
-     * @param buffer (i) Pointer to the end of the buffer for augmented codebook
+     * @param index Index for the augmented vector to be created
+     * @param buffer Pointer to the end of the buffer for augmented codebook
      *            construction
-     * @param cbVec (o) The construced codebook vector
+     * @param cbVec [o] The construced codebook vector
      */
     private void createAugmentedVec(int index, double[] buffer, int bufferP, double[] cbVec) {
         int /* double * */pp, ppo, ppi;
@@ -2083,13 +2066,13 @@ public class Ilbc {
      * Compute cross correlation and pitch gain for pitch prediction of last
      * subframe at given lag.
      *
-     * @param cc (o) cross correlation coefficient
-     * @param gc (o) gain
+     * @param cc [o] cross correlation coefficient
+     * @param gc [o] gain
      * @param pm
-     * @param buffer (i) signal buffer
-     * @param lag (i) pitch lag
-     * @param bLen (i) length of buffer
-     * @param sRange (i) correlation search length
+     * @param buffer signal buffer
+     * @param lag pitch lag
+     * @param bLen length of buffer
+     * @param sRange correlation search length
      */
     private void compCorr(double[] cc, double[] gc, double[] pm, double[] buffer, int lag, int bLen, int sRange) {
 
@@ -2122,12 +2105,12 @@ public class Ilbc {
      * Packet loss concealment routine. Conceals a residual signal and LP
      * parameters. If no packet loss, update state.
      *
-     * @param PLCresidual (o) concealed residual
-     * @param PLClpc (o) concealed LP parameters
-     * @param PLI (i) packet loss indicator 0 - no PL, 1 = PL
-     * @param decresidual (i) decoded residual
-     * @param lpc (i) decoded LPC (only used for no PL)
-     * @param inlag (i) pitch lag
+     * @param PLCresidual [o] concealed residual
+     * @param PLClpc [o] concealed LP parameters
+     * @param PLI packet loss indicator 0 - no PL, 1 = PL
+     * @param decresidual decoded residual
+     * @param lpc decoded LPC (only used for no PL)
+     * @param inlag pitch lag
      * @param iLBCdec_inst (i/o) decoder instance
      */
     private void doThePLC(double[] PLCresidual, double[] PLClpc, int PLI, double[] decresidual, double[] lpc, int lpcP, int inlag, Decoder iLBCdec_inst) {
@@ -2278,10 +2261,10 @@ public class Ilbc {
      * element of said array closest to "value" according to the squared-error
      * criterion.
      *
-     * @param index (o) index of array element closest to value
-     * @param array (i) data array
-     * @param value (i) value
-     * @param arlength (i) dimension of data array
+     * @param index [o] index of array element closest to value
+     * @param array data array
+     * @param value value
+     * @param arlength dimension of data array
      */
     private void NearestNeighbor(int[] index, int indexP, double[] array, double value, int arlength) {
 
@@ -2302,11 +2285,11 @@ public class Ilbc {
     /**
      * compute cross correlation between sequences.
      *
-     * @param corr (o) correlation of seq1 and seq2
-     * @param seq1 (i) first sequence
-     * @param dim1 (i) dimension first seq1
-     * @param seq2 (i) second sequence
-     * @param dim2 (i) dimension seq2
+     * @param corr [o] correlation of seq1 and seq2
+     * @param seq1 first sequence
+     * @param dim1 dimension first seq1
+     * @param seq2 second sequence
+     * @param dim2 dimension seq2
      */
     private void mycorr1(double[] corr, int corrP, double[] seq1, int seq1P, int dim1, double[] seq2, int seq2P, int dim2) {
 
@@ -2321,10 +2304,10 @@ public class Ilbc {
     /**
      * upsample finite array assuming zeros outside bounds.
      *
-     * @param useq1 (o) upsampled output sequence
-     * @param seq1 (i) unupsampled sequence
-     * @param dim1 (i) dimension seq1
-     * @param hfl (i) polyphase filter length=2*hfl+1
+     * @param useq1 [o] upsampled output sequence
+     * @param seq1 unupsampled sequence
+     * @param dim1 dimension seq1
+     * @param hfl polyphase filter length=2*hfl+1
      */
     private void enh_upsample(double[] useq1, double[] seq1, int dim1, int hfl) {
         int /* double * */pu, ps;
@@ -2395,18 +2378,18 @@ public class Ilbc {
     }
 
     /**
-     * find segment starting near idata+estSegPos that has highest correlation
+     * find segment starting near idata+estSegPos that has the highest correlation
      * with idata+centerStartPos through idata+centerStartPos+ENH_BLOCKL-1
      * segment is found at a resolution of ENH_UPSO times the original of the
      * original sampling rate
      *
-     * @param seg (o) segment array
-     * @param updStartPos (o) updated start point
-     * @param idata (i) original data buffer
-     * @param idatal (i) dimension of idata
-     * @param centerStartPos (i) beginning center segment
-     * @param estSegPos (i) estimated beginning other segment
-     * @param period (i) estimated pitch period
+     * @param seg [o] segment array
+     * @param updStartPos [o] updated start point
+     * @param idata original data buffer
+     * @param idatal dimension of idata
+     * @param centerStartPos beginning center segment
+     * @param estSegPos estimated beginning other segment
+     * @param period estimated pitch period
      */
     private void refiner(double[] seg, int segP, double[] updStartPos, int uP, double[] idata, int idatal, int centerStartPos, double estSegPos, double period) {
         int estSegPosRounded, searchSegStartPos, searchSegEndPos, corrdim;
@@ -2481,10 +2464,10 @@ public class Ilbc {
     /**
      * find the smoothed output data
      *
-     * @param odata (o) smoothed output
-     * @param sseq (i) said second sequence of waveforms
-     * @param hl (i) 2*hl+1 is sseq dimension
-     * @param alpha0 (i) max smoothing energy fraction
+     * @param odata [o] smoothed output
+     * @param sseq said second sequence of waveforms
+     * @param hl 2*hl+1 is sseq dimension
+     * @param alpha0 max smoothing energy fraction
      */
     private void smath(double[] odata, int odataP, double[] sseq, int hl, double alpha0) {
         double w00, w10, w11, A, B, C, err, errs;
@@ -2572,14 +2555,14 @@ public class Ilbc {
     /**
      * get the pitch-synchronous sample sequence
      *
-     * @param sseq (o) the pitch-synchronous sequence
-     * @param idata (i) original data
-     * @param idatal (i) dimension of data
-     * @param centerStartPos (i) where current block starts
-     * @param period (i) rough-pitch-period array
-     * @param plocs (i) where periods of period array are taken
-     * @param periodl (i) dimension period array
-     * @param hl (i) 2*hl+1 is the number of sequences
+     * @param sseq [o] the pitch-synchronous sequence
+     * @param idata original data
+     * @param idatal dimension of data
+     * @param centerStartPos where current block starts
+     * @param period rough-pitch-period array
+     * @param plocs where periods of period array are taken
+     * @param periodl dimension period array
+     * @param hl 2*hl+1 is the number of sequences
      */
     private void getsseq(double[] sseq, double[] idata, int idatal, int centerStartPos, double[] period, double[] plocs, int periodl, int hl) {
         int i, centerEndPos, q;
@@ -2639,14 +2622,14 @@ public class Ilbc {
      * perform enhancement on idata+centerStartPos through
      * idata+centerStartPos+ENH_BLOCKL-1
      *
-     * @param odata (o) smoothed block, dimension blockl
-     * @param idata (i) data buffer used for enhancing
-     * @param idatal (i) dimension idata
-     * @param centerStartPos (i) first sample current block within idata
-     * @param alpha0 (i) max correction-energy-fraction (in [0,1])
-     * @param period (i) pitch period array
-     * @param plocs (i) locations where period array values valid
-     * @param periodl (i) dimension of period and plocs
+     * @param odata [o] smoothed block, dimension blockl
+     * @param idata data buffer used for enhancing
+     * @param idatal dimension idata
+     * @param centerStartPos first sample current block within idata
+     * @param alpha0 max correction-energy-fraction (in [0,1])
+     * @param period pitch period array
+     * @param plocs locations where period array values valid
+     * @param periodl dimension of period and plocs
      */
     private void enhancer(double[] odata, int odataP, double[] idata, int idatal, int centerStartPos, double alpha0, double[] period, double[] plocs, int periodl) {
         double[] sseq = new double[(2 * ENH_HL + 1) * ENH_BLOCKL];
@@ -2663,9 +2646,9 @@ public class Ilbc {
     /**
      * cross correlation
      *
-     * @param target (i) first array
-     * @param regressor (i) second array
-     * @param subl (i) dimension arrays
+     * @param target first array
+     * @param regressor second array
+     * @param subl dimension arrays
      */
     private double xCorrCoef(double[] target, int targetP, double[] regressor, int regressorP, int subl) {
 
@@ -2686,9 +2669,9 @@ public class Ilbc {
     /**
      * interface for enhancer
      *
-     * @param out (o) enhanced signal
-     * @param in (i) unenhanced signal
-     * @param iLBCdec_inst (i) buffers etc
+     * @param out [o] enhanced signal
+     * @param in unenhanced signal
+     * @param iLBCdec_inst buffers etc
      */
     private int enhancerInterface(double[] out, double[] in, Decoder iLBCdec_inst) {
         double[] enh_buf, enh_period;
@@ -2843,9 +2826,9 @@ public class Ilbc {
      *            InOut[lengthInOut-1] contain the filter input, on en exit
      *            InOut[-orderCoef] to InOut[-1] is unchanged and InOut[0] to
      *            InOut[lengthInOut-1] contain filtered samples
-     * @param Coef (i) filter coefficients, Coef[0] is assumed to be 1.0
-     * @param lengthInOut (i) number of input/output samples
-     * @param orderCoef (i) number of filter coefficients
+     * @param Coef filter coefficients, Coef[0] is assumed to be 1.0
+     * @param lengthInOut number of input/output samples
+     * @param orderCoef number of filter coefficients
      */
     private void AllPoleFilter(double[] InOut, int iop, double[] Coef, int coefP, int lengthInOut, int orderCoef) {
         for (int n = 0; n < lengthInOut; n++) {
@@ -2860,10 +2843,10 @@ public class Ilbc {
     /**
      * all-zero filter.
      *
-     * @param In (i) In[0] to In[lengthInOut-1] contain filter input samples
-     * @param Coef (i) filter coefficients (Coef[0] is assumed to be 1.0)
-     * @param lengthInOut (i) number of input/output samples
-     * @param orderCoef (i) number of filter coefficients
+     * @param In In[0] to In[lengthInOut-1] contain filter input samples
+     * @param Coef filter coefficients (Coef[0] is assumed to be 1.0)
+     * @param lengthInOut number of input/output samples
+     * @param orderCoef number of filter coefficients
      * @param Out (i/o) on entrance Out[-orderCoef] to Out[-1] contain the
      *            filter state, on exit Out[0] to Out[lengthInOut-1] contain
      *            filtered samples
@@ -2882,14 +2865,14 @@ public class Ilbc {
     /**
      * pole-zero filter
      *
-     * @param In (i) In[0] to In[lengthInOut-1] contain filter input samples
+     * @param In In[0] to In[lengthInOut-1] contain filter input samples
      *            In[-orderCoef] to In[-1] contain state of all-zero section
-     * @param ZeroCoef (i) filter coefficients for all-zero section (ZeroCoef[0]
+     * @param ZeroCoef filter coefficients for all-zero section (ZeroCoef[0]
      *            is assumed to be 1.0)
-     * @param PoleCoef (i) filter coefficients for all-pole section (ZeroCoef[0]
+     * @param PoleCoef filter coefficients for all-pole section (ZeroCoef[0]
      *            is assumed to be 1.0)
-     * @param lengthInOut (i) number of input/output samples
-     * @param orderCoef (i) number of filter coefficients
+     * @param lengthInOut number of input/output samples
+     * @param orderCoef number of filter coefficients
      * @param Out (i/o) on entrance Out[-orderCoef] to Out[-1] contain state of
      *            all-pole section. On exit Out[0] to Out[lengthInOut-1] contain
      *            filtered samples
@@ -2903,11 +2886,11 @@ public class Ilbc {
     /**
      * downsample (LP filter and decimation)
      *
-     * @param In (i) input samples
-     * @param Coef (i) filter coefficients
-     * @param lengthIn (i) number of input samples
-     * @param state (i) filter state
-     * @param Out (o) downsampled output
+     * @param In input samples
+     * @param Coef filter coefficients
+     * @param lengthIn number of input samples
+     * @param state filter state
+     * @param Out [o] downsampled output
      */
     private void DownSample(double[] In, int inP, double[] Coef, int lengthIn, double[] state, double[] Out) {
         int /* double * */Out_ptr = 0; // Out
@@ -2965,7 +2948,7 @@ public class Ilbc {
      *
      * @return index to the max-energy sub-frame
      * @param iLBCenc_inst (i/o) the encoder state structure
-     * @param residual (i) lpc residual signal
+     * @param residual lpc residual signal
      */
     private int FrameClassify(Encoder iLBCenc_inst, double[] residual) {
         double max_ssqEn;
@@ -2980,11 +2963,6 @@ public class Ilbc {
         };
 
         // init the front and back energies to zero
-
-        for (int xx = 0; xx < NSUB_MAX; xx++)
-            fssqEn[xx] = 0;
-        for (int xx = 0; xx < NSUB_MAX; xx++)
-            bssqEn[xx] = 0;
 
         // Calculate front of first seqence
 
@@ -3061,10 +3039,10 @@ public class Ilbc {
      * quantizer for the gain in the gain-shape coding of residual
      *
      * @return quantized gain value
-     * @param in (i) gain value
-     * @param maxIn (i) maximum of gain value
-     * @param cblen (i) number of quantization indices
-     * @param index (o) quantization index
+     * @param in gain value
+     * @param maxIn maximum of gain value
+     * @param cblen number of quantization indices
+     * @param index [o] quantization index
      */
     private double gainquant(double in, double maxIn, int cblen, int[] index, int indexP) {
         double[] cb;
@@ -3111,9 +3089,9 @@ public class Ilbc {
      * decoder for quantized gains in the gain-shape coding of residual
      *
      * @return quantized gain value
-     * @param index (i) quantization index
-     * @param maxIn (i) maximum of unquantized gain
-     * @param cblen (i) number of quantization indices
+     * @param index quantization index
+     * @param maxIn maximum of unquantized gain
+     * @param cblen number of quantization indices
      */
     private double gaindequant(int index, double maxIn, int cblen) {
 
@@ -3143,11 +3121,11 @@ public class Ilbc {
     /**
      * Construct codebook vector for given index.
      *
-     * @param cbvec (o) Constructed codebook vector
-     * @param mem (i) Codebook buffer
-     * @param index (i) Codebook index
-     * @param lMem (i) Length of codebook buffer
-     * @param cbveclen (i) Codebook vector length
+     * @param cbvec [o] Constructed codebook vector
+     * @param mem Codebook buffer
+     * @param index Codebook index
+     * @param lMem Length of codebook buffer
+     * @param cbveclen Codebook vector length
      */
     private void getCBvec(double[] cbvec, double[] mem, int memP, int index, int lMem, int cbveclen) {
         int j, k, n, memInd, sFilt;
@@ -3294,9 +3272,9 @@ public class Ilbc {
     /**
      * calculation of auto correlation
      *
-     * @param r (o) autocorrelation vector
-     * @param x (i) data vector
-     * @param N (i) length of data vector
+     * @param r [o] autocorrelation vector
+     * @param x data vector
+     * @param N length of data vector
      * @param order largest lag for calculated autocorrelations
      */
     private void autocorr(double[] r, double[] x, int N, int order) {
@@ -3313,10 +3291,10 @@ public class Ilbc {
     /**
      * window multiplication
      *
-     * @param z (o) the windowed data
-     * @param x (i) the original data vector
-     * @param y (i) the window
-     * @param N (i) length of all vectors
+     * @param z [o] the windowed data
+     * @param x the original data vector
+     * @param y the window
+     * @param N length of all vectors
      */
     private void window(double[] z, double[] x, double[] y, int yP, int N) {
 
@@ -3328,10 +3306,10 @@ public class Ilbc {
     /**
      * levinson-durbin solution for lpc coefficients
      *
-     * @param a (o) lpc coefficient vector starting with 1.0
-     * @param k (o) reflection coefficients
-     * @param r (i) autocorrelation vector
-     * @param order (i) order of lpc filter
+     * @param a [o] lpc coefficient vector starting with 1.0
+     * @param k [o] reflection coefficients
+     * @param r autocorrelation vector
+     * @param order order of lpc filter
      */
     private void levdurb(double[] a, double[] k, double[] r, int order) {
         double sum, alpha;
@@ -3369,11 +3347,11 @@ public class Ilbc {
     /**
      * interpolation between vectors
      *
-     * @param out (o) the interpolated vector
-     * @param in1 (i) the first vector for the interpolation
-     * @param in2 (i) the second vector for the interpolation
-     * @param coef (i) interpolation weights
-     * @param length (i) length of all vectors
+     * @param out [o] the interpolated vector
+     * @param in1 the first vector for the interpolation
+     * @param in2 the second vector for the interpolation
+     * @param coef interpolation weights
+     * @param length length of all vectors
      */
     private void interpolate(double[] out, double[] in1, double[] in2, int in2P, double coef, int length) {
 
@@ -3386,10 +3364,10 @@ public class Ilbc {
     /**
      * lpc bandwidth expansion
      *
-     * @param out (o) the bandwidth expanded lpc coefficients
-     * @param in (i) the lpc coefficients before bandwidth expansion
-     * @param coef (i) the bandwidth expansion factor
-     * @param length (i) the length of lpc coefficient vectors
+     * @param out [o] the bandwidth expanded lpc coefficients
+     * @param in the lpc coefficients before bandwidth expansion
+     * @param coef the bandwidth expansion factor
+     * @param length the length of lpc coefficient vectors
      */
     private void bwexpand(double[] out, int outP, double[] in, double coef, int length) {
 
@@ -3405,12 +3383,12 @@ public class Ilbc {
     /**
      * vector quantization
      *
-     * @param Xq (o) the quantized vector
-     * @param index (o) the quantization index
-     * @param CB (i) the vector quantization codebook
-     * @param X (i) the vector to quantize
-     * @param n_cb (i) the number of vectors in the codebook
-     * @param dim (i) the dimension of all vectors
+     * @param Xq [o] the quantized vector
+     * @param index [o] the quantization index
+     * @param CB the vector quantization codebook
+     * @param X the vector to quantize
+     * @param n_cb the number of vectors in the codebook
+     * @param dim the dimension of all vectors
      */
     private void vq(double[] Xq, int xqP, int[] index, int indexP, double[] CB, int cbP, double[] X, int xP, int n_cb, int dim) {
         double dist, tmp, mindist;
@@ -3441,11 +3419,11 @@ public class Ilbc {
     /**
      * split vector quantization
      *
-     * @param qX (o) the quantized vector
-     * @param index (o) a vector of indexes for all vector codebooks in the
+     * @param qX [o] the quantized vector
+     * @param index [o] a vector of indexes for all vector codebooks in the
      *            split
-     * @param X (i) the vector to quantize
-     * @param CB (i) the quantizer codebook
+     * @param X the vector to quantize
+     * @param CB the quantizer codebook
      * @param nsplit the number of vector splits
      * @param dim the dimension of X and qX
      * @param cbsize the number of vectors in the codebook
@@ -3464,11 +3442,11 @@ public class Ilbc {
     /**
      * scalar quantization
      *
-     * @param xq (o) the quantized value
-     * @param index (o) the quantization index
-     * @param x (i) the value to quantize
-     * @param cb (i) the quantization codebook
-     * @param cb_size (i) the size of the quantization codebook
+     * @param xq [o] the quantized value
+     * @param index [o] the quantization index
+     * @param x the value to quantize
+     * @param cb the quantization codebook
+     * @param cb_size the size of the quantization codebook
      */
     private void sort_sq(double[] xq, int[] index, double x, double[] cb, int cb_size) {
 
@@ -3494,10 +3472,10 @@ public class Ilbc {
     /**
      * check for stability of lsf coefficients
      *
-     * @return (o) 1 for stable lsf vectors and 0 for nonstable ones
-     * @param lsf (i) a table of lsf vectors
-     * @param dim (i) the dimension of each lsf vector
-     * @param NoAn (i) the number of lsf vectors in the table
+     * @return [o] 1 for stable lsf vectors and 0 for nonstable ones
+     * @param lsf a table of lsf vectors
+     * @param dim the dimension of each lsf vector
+     * @param NoAn the number of lsf vectors in the table
      */
     private int LSF_check(double[] lsf, int dim, int NoAn) {
         int Nit = 2, change = 0;
@@ -3548,9 +3526,9 @@ public class Ilbc {
     /**
      * Input high-pass filter
      *
-     * @param In (i) vector to filter
-     * @param len (i) length of vector to filter
-     * @param Out (o) the resulting filtered vector
+     * @param In vector to filter
+     * @param len length of vector to filter
+     * @param Out [o] the resulting filtered vector
      * @param mem (i/o) the filter state
      */
     private void hpInput(double[] In, int len, double[] Out, double[] mem) {
@@ -3589,9 +3567,9 @@ public class Ilbc {
     /**
      * Output high-pass filter
      *
-     * @param In (i) vector to filter
-     * @param len (i) length of vector to filter
-     * @param Out (o) the resulting filtered vector
+     * @param In vector to filter
+     * @param len length of vector to filter
+     * @param Out [o] the resulting filtered vector
      * @param mem (i/o) the filter state
      */
     private void hpOutput(double[] In, int len, double[] Out, double[] mem) {
@@ -3666,13 +3644,13 @@ public class Ilbc {
     /**
      * Construct decoded vector from codebook and gains.
      *
-     * @param decvector (o) Decoded vector
-     * @param index (i) Codebook indices
-     * @param gain_index (i) Gain quantization indices
-     * @param mem (i) Buffer for codevector construction
-     * @param lMem (i) Length of buffer
-     * @param veclen (i) Length of vector
-     * @param nStages (i) Number of codebook stages
+     * @param decvector [o] Decoded vector
+     * @param index Codebook indices
+     * @param gain_index Gain quantization indices
+     * @param mem Buffer for codevector construction
+     * @param lMem Length of buffer
+     * @param veclen Length of vector
+     * @param nStages Number of codebook stages
      */
     private void iCBConstruct(double[] decvector, int decvectorP, int[] index, int indexP, int[] gain_index, int gain_indexP, double[] mem, int memP, int lMem, int veclen, int nStages) {
 
@@ -3710,17 +3688,17 @@ public class Ilbc {
     /**
      * Search routine for codebook encoding and gain quantization.
      *
-     * @param encoder (i) the encoder state structure
-     * @param index (o) Codebook indices
-     * @param gain_index (o) Gain quantization indices
-     * @param intarget (i) Target vector for encoding
-     * @param mem (i) Buffer for codebook construction
-     * @param lMem (i) Length of buffer
-     * @param lTarget (i) Length of vector
-     * @param nStages (i) Number of codebook stages
-     * @param weightDenum (i) weighting filter coefficients
-     * @param weightState (i) weighting filter state
-     * @param block (i) the sub-block number
+     * @param encoder the encoder state structure
+     * @param index [o] Codebook indices
+     * @param gain_index [o] Gain quantization indices
+     * @param intarget Target vector for encoding
+     * @param mem Buffer for codebook construction
+     * @param lMem Length of buffer
+     * @param lTarget Length of vector
+     * @param nStages Number of codebook stages
+     * @param weightDenum weighting filter coefficients
+     * @param weightState weighting filter state
+     * @param block the sub-block number
      */
     private void iCBSearch(Encoder encoder,
                            int[] index, int indexP, int[] gain_index, int gain_indexP,
@@ -3744,10 +3722,6 @@ public class Ilbc {
         double[] cvec = new double[SUBL];
         double[] aug_vec = new double[SUBL];
         double[] bufP;
-
-        for (int xx = 0; xx < SUBL; xx++) {
-            cvec[xx] = 0;
-        }
 
         // Determine size of codebook sections
 
@@ -4138,11 +4112,11 @@ public class Ilbc {
     /**
      * interpolation of lsf coefficients for the decoder
      *
-     * @param a (o) lpc coefficients for a sub-frame
-     * @param lsf1 (i) first lsf coefficient vector
-     * @param lsf2 (i) second lsf coefficient vector
-     * @param coef (i) interpolation weight
-     * @param length (i) length of lsf vectors
+     * @param a [o] lpc coefficients for a sub-frame
+     * @param lsf1 first lsf coefficient vector
+     * @param lsf2 second lsf coefficient vector
+     * @param coef interpolation weight
+     * @param length length of lsf vectors
      */
     private void LSFinterpolate2a_dec(double[] a, double[] lsf1, double[] lsf2, int lsf2P, double coef, int length) {
         double[] lsftmp = new double[LPC_FILTERORDER];
@@ -4154,9 +4128,9 @@ public class Ilbc {
     /**
      * obtain dequantized lsf coefficients from quantization index
      *
-     * @param lsfdeq (o) dequantized lsf coefficients
-     * @param index (i) quantization index
-     * @param lpc_n (i) number of LPCs
+     * @param lsfdeq [o] dequantized lsf coefficients
+     * @param index quantization index
+     * @param lpc_n number of LPCs
      */
     private void SimplelsfDEQ(double[] lsfdeq, int[] index, int lpc_n) {
 
@@ -4191,11 +4165,11 @@ public class Ilbc {
     /**
      * obtain synthesis and weighting filters form lsf coefficients
      *
-     * @param syntdenum (o) synthesis filter coefficients
-     * @param weightdenum (o) weighting denumerator coefficients
-     * @param lsfdeq (i) dequantized lsf coefficients
-     * @param length (i) length of lsf coefficient vector
-     * @param iLBCdec_inst (i) the decoder state structure
+     * @param syntdenum [o] synthesis filter coefficients
+     * @param weightdenum [o] weighting denumerator coefficients
+     * @param lsfdeq dequantized lsf coefficients
+     * @param length length of lsf coefficient vector
+     * @param iLBCdec_inst the decoder state structure
      */
     private void DecoderInterpolateLSF(double[] syntdenum, double[] weightdenum, double[] lsfdeq, int length, Decoder iLBCdec_inst) {
         int pos, lp_length;
@@ -4246,8 +4220,8 @@ public class Ilbc {
     /**
      * lpc analysis (subrutine to LPCencode)
      *
-     * @param lsf (o) lsf coefficients
-     * @param data (i) new data vector
+     * @param lsf [o] lsf coefficients
+     * @param data new data vector
      * @param iLBCenc_inst (i/o) the encoder state structure
      */
     private void SimpleAnalysis(double[] lsf, double[] data, Encoder iLBCenc_inst) {
@@ -4286,11 +4260,11 @@ public class Ilbc {
      * lsf interpolator and conversion from lsf to a coefficients (subrutine to
      * SimpleInterpolateLSF)
      *
-     * @param a (o) lpc coefficients
-     * @param lsf1 (i) first set of lsf coefficients
-     * @param lsf2 (i) second set of lsf coefficients
-     * @param coef (i) weighting coefficient to use between lsf1 and lsf2
-     * @param length (i) length of coefficient vectors
+     * @param a [o] lpc coefficients
+     * @param lsf1 first set of lsf coefficients
+     * @param lsf2 second set of lsf coefficients
+     * @param coef weighting coefficient to use between lsf1 and lsf2
+     * @param length length of coefficient vectors
      */
     private void LSFinterpolate2a_enc(double[] a, double[] lsf1, double[] lsf2, int lsf2P, double coef, int length) {
         double[] lsftmp = new double[LPC_FILTERORDER];
@@ -4302,17 +4276,17 @@ public class Ilbc {
     /**
      * lsf interpolator (subrutine to LPCencode)
      *
-     * @param syntdenum (o) the synthesis filter denominator resulting from the
+     * @param syntdenum [o] the synthesis filter denominator resulting from the
      *            quantized interpolated lsf
-     * @param weightdenum (o) the weighting filter denominator resulting from
+     * @param weightdenum [o] the weighting filter denominator resulting from
      *            the unquantized interpolated lsf
-     * @param lsf (i) the unquantized lsf coefficients
-     * @param lsfdeq (i) the dequantized lsf coefficients
-     * @param lsfold (i) the unquantized lsf coefficients of the previous signal
+     * @param lsf the unquantized lsf coefficients
+     * @param lsfdeq the dequantized lsf coefficients
+     * @param lsfold the unquantized lsf coefficients of the previous signal
      *            frame
-     * @param lsfdeqold (i) the dequantized lsf coefficients of the previous
+     * @param lsfdeqold the dequantized lsf coefficients of the previous
      *            signal frame
-     * @param length (i) should equate LPC_FILTERORDER
+     * @param length should equate LPC_FILTERORDER
      * @param iLBCenc_inst (i/o) the encoder state structure
      */
     private void SimpleInterpolateLSF(double[] syntdenum, double[] weightdenum, double[] lsf, double[] lsfdeq, double[] lsfold, double[] lsfdeqold, int length, Encoder iLBCenc_inst) {
@@ -4370,11 +4344,11 @@ public class Ilbc {
     /**
      * lsf quantizer (subrutine to LPCencode)
      *
-     * @param lsfdeq (o) dequantized lsf coefficients (dimension FILTERORDER)
-     * @param index (o) quantization index
-     * @param lsf (i) the lsf coefficient vector to be quantized (dimension
+     * @param lsfdeq [o] dequantized lsf coefficients (dimension FILTERORDER)
+     * @param index [o] quantization index
+     * @param lsf the lsf coefficient vector to be quantized (dimension
      *            FILTERORDER )
-     * @param lpc_n (i) number of lsf sets to quantize
+     * @param lpc_n number of lsf sets to quantize
      */
     private void SimplelsfQ(double[] lsfdeq, int[] index, double[] lsf, int lpc_n) {
         // Quantize first LSF with memoryless split VQ
@@ -4393,8 +4367,8 @@ public class Ilbc {
      *            encoding
      * @param weightdenum (i/o) weighting denumerator coefficients before/after
      *            encoding
-     * @param lsf_index (o) lsf quantization index
-     * @param data (i) lsf coefficients to quantize
+     * @param lsf_index [o] lsf quantization index
+     * @param data lsf coefficients to quantize
      * @param iLBCenc_inst (i/o) the encoder state structure
      */
     private void LPCencode(double[] syntdenum, double[] weightdenum, int[] lsf_index, double[] data, Encoder iLBCenc_inst) {
@@ -4413,8 +4387,8 @@ public class Ilbc {
     /**
      * conversion from lpc coefficients to lsf coefficients
      *
-     * @param freq (o) lsf coefficients
-     * @param a (i) lpc coefficients
+     * @param freq [o] lsf coefficients
+     * @param a lpc coefficients
      */
     private void a2lsf(double[] freq, int freqP, double[] a) {
         double[] steps = { // LSF_NUMBER_OF_STEPS
@@ -4540,8 +4514,8 @@ public class Ilbc {
     /**
      * conversion from lsf coefficients to lpc coefficients
      *
-     * @param a_coef (o) lpc coefficients
-     * @param freq (i) lsf coefficients
+     * @param a_coef [o] lpc coefficients
+     * @param freq lsf coefficients
      */
     private void lsf2a(double[] a_coef, double[] freq) {
         double hlp;
@@ -4576,18 +4550,6 @@ public class Ilbc {
             }
         }
 
-        for (int xx = 0; xx < LPC_HALFORDER; xx++) {
-            a1[xx] = 0;
-        }
-        for (int xx = 0; xx < LPC_HALFORDER; xx++) {
-            a2[xx] = 0;
-        }
-        for (int xx = 0; xx < LPC_HALFORDER; xx++) {
-            b1[xx] = 0;
-        }
-        for (int xx = 0; xx < LPC_HALFORDER; xx++) {
-            b2[xx] = 0;
-        }
         for (int xx = 0; xx < LPC_HALFORDER + 1; xx++) {
             a[xx] = 0;
         }
@@ -4647,11 +4609,11 @@ public class Ilbc {
      * splitting an integer into first most significant bits and remaining least
      * significant bits
      *
-     * @param index (i) the value to split
-     * @param firstpart (o) the value specified by most significant bits
-     * @param rest (o) the value specified by least significant bits
-     * @param bitno_firstpart (i) number of bits in most significant part
-     * @param bitno_total (i) number of bits in full range of value
+     * @param index the value to split
+     * @param firstpart [o] the value specified by most significant bits
+     * @param rest [o] the value specified by least significant bits
+     * @param bitno_firstpart number of bits in most significant part
+     * @param bitno_total number of bits in full range of value
      */
     private void packsplit(int[] index, int indexP, int[] firstpart, int[] rest, int restP, int bitno_firstpart, int bitno_total) {
         int bitno_rest = bitno_total - bitno_firstpart;
@@ -4665,8 +4627,8 @@ public class Ilbc {
      * lsb's
      *
      * @param index (i/o) the msb value in the combined value out
-     * @param rest (i) the lsb value
-     * @param bitno_rest (i) the number of bits in the lsb part
+     * @param rest the lsb value
+     * @param bitno_rest the number of bits in the lsb part
      */
     private void packcombine(int[] index, int indexP, int rest, int bitno_rest) {
         index[indexP+0] = index[indexP+0] << bitno_rest;
@@ -4679,8 +4641,8 @@ public class Ilbc {
      * @param bitstream (i/o) on entrance pointer to place in bitstream to pack
      *            new data, on exit pointer to place in bitstream to pack future
      *            data
-     * @param index (i) the value to pack
-     * @param bitno (i) the number of bits that the value will fit within
+     * @param index the value to pack
+     * @param bitno the number of bits that the value will fit within
      * @param pos (i/o) write position in the current byte
      */
     private void dopack(byte[] bitstream, int bP, int index, int bitno, int[] pos) {
@@ -4726,8 +4688,8 @@ public class Ilbc {
      * @param bitstream (i/o) on entrance pointer to place in bitstream to
      *            unpack new data from, on exit pointer to place in bitstream to
      *            unpack future data from
-     * @param index (o) resulting value
-     * @param bitno (i) number of bits used to represent the value
+     * @param index [o] resulting value
+     * @param bitno number of bits used to represent the value
      * @param pos (i/o) read position in the current byte
      */
     private void unpack(byte[] bitstream, int bP, int[] index, int bitno, int[] pos) {
@@ -4771,11 +4733,11 @@ public class Ilbc {
     /**
      * decoding of the start state
      *
-     * @param idxForMax (i) 6-bit index for the quantization of max amplitude
-     * @param idxVec (i) vector of quantization indexes
-     * @param syntDenum (i) synthesis filter denumerator
-     * @param out (o) the decoded state vector
-     * @param len (i) length of a state vector
+     * @param idxForMax 6-bit index for the quantization of max amplitude
+     * @param idxVec vector of quantization indexes
+     * @param syntDenum synthesis filter denumerator
+     * @param out [o] the decoded state vector
+     * @param len length of a state vector
      */
     private void StateConstructW(int idxForMax, int[] idxVec, double[] syntDenum, int syntDenumP, double[] out, int outP, int len) {
         double maxVal;
@@ -4830,13 +4792,13 @@ public class Ilbc {
      * predictive noise shaping encoding of scaled start state (subrutine for
      * StateSearchW)
      *
-     * @param iLBCenc_inst (i) Encoder instance
-     * @param in (i) vector to encode
-     * @param syntDenum (i) denominator of synthesis filter
-     * @param weightDenum (i) denominator of weighting filter
-     * @param out (o) vector of quantizer indexes
-     * @param len (i) length of vector to encode and vector of quantizer indexes
-     * @param state_first (i) position of start state in the 80 vec
+     * @param iLBCenc_inst Encoder instance
+     * @param in vector to encode
+     * @param syntDenum denominator of synthesis filter
+     * @param weightDenum denominator of weighting filter
+     * @param out [o] vector of quantizer indexes
+     * @param len length of vector to encode and vector of quantizer indexes
+     * @param state_first position of start state in the 80 vec
      */
     private void AbsQuantW(Encoder iLBCenc_inst, double[] in, int inP, double[] syntDenum, int syntDenumP, double[] weightDenum, int weightDenumP, int[] out, int len, int state_first) {
         int /* double * */syntOut;
@@ -4906,14 +4868,14 @@ public class Ilbc {
     /**
      * encoding of start state
      *
-     * @param iLBCenc_inst (i) Encoder instance
-     * @param residual (i) target residual vector
-     * @param syntDenum (i) lpc synthesis filter
-     * @param weightDenum (i) weighting filter denuminator
-     * @param idxForMax (o) quantizer index for maximum amplitude
-     * @param idxVec (o) vector of quantization indexes
-     * @param len (i) length of all vectors
-     * @param state_first (i) position of start state in the 80 vec
+     * @param iLBCenc_inst Encoder instance
+     * @param residual target residual vector
+     * @param syntDenum lpc synthesis filter
+     * @param weightDenum weighting filter denuminator
+     * @param idxForMax [o] quantizer index for maximum amplitude
+     * @param idxVec [o] vector of quantization indexes
+     * @param len length of all vectors
+     * @param state_first position of start state in the 80 vec
      */
     private void StateSearchW(Encoder iLBCenc_inst, double[] residual, int residualP, double[] syntDenum, int syntDenumP, double[] weightDenum, int weightDenumP, int[] idxForMax, int[] idxVec, int len, int state_first) {
         double[] dtmp = new double[1];
@@ -4992,8 +4954,8 @@ public class Ilbc {
      * LP synthesis filter.
      *
      * @param Out (i/o) Signal to be filtered
-     * @param a (i) LP parameters
-     * @param len (i) Length of signal
+     * @param a LP parameters
+     * @param len Length of signal
      * @param mem (i/o) Filter state
      */
     private void syntFilter(double[] Out, int oP, double[] a, int aP, int len, double[] mem) {

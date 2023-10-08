@@ -36,13 +36,13 @@ public class LaoeInputStream extends FilterInputStream {
     private static class LaoeOutputEngine implements OutputEngine {
 
         /** */
-        private InputStream in;
+        private final InputStream in;
 
         /** */
         private DataOutputStream out;
 
         /** */
-        private Resampler resampler;
+        private final Resampler resampler;
 
         /** */
         public LaoeOutputEngine(InputStream is, float in, float out) throws IOException {

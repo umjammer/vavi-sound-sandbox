@@ -6,8 +6,6 @@ package vavi.sound.pcm.equalizing;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -220,15 +218,14 @@ class Normalizer {
             }
 
             String type = new String(chunk_name);
-            if (type.equals("RIFF")) {
-                parse_header(in, out);
-            } else if (type.equals("fmt ")) {
-                parse_fmt(in, fmt_chunk, out);
-            } else if (type.equals("data")) {
-                parse_data(in, fmt_chunk, out);
-            } else {
+            switch (type) {
+            case "RIFF" -> parse_header(in, out);
+            case "fmt " -> parse_fmt(in, fmt_chunk, out);
+            case "data" -> parse_data(in, fmt_chunk, out);
+            default -> {
                 System.out.printf("Unknown chunk: '%s'\n", type);
                 return -1;
+            }
             }
         }
 

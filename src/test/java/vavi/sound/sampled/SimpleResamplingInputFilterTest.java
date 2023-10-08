@@ -43,7 +43,7 @@ public class SimpleResamplingInputFilterTest {
 
     @Test
     public void test1() throws Exception {
-        // source: any any Hz, any bit, any, any bytes/frame, any
+        // source: any Hz, any bit, any, any bytes/frame, any
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
 Debug.println("IN: " + sourceAis.getFormat());
         final int outSamplingRate = 8000;

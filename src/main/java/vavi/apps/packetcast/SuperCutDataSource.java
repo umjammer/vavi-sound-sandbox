@@ -134,7 +134,7 @@ public class SuperCutDataSource extends PushBufferDataSource {
         Format format;
 
         // Single buffer Queue.
-        Buffer buffer;
+        final Buffer buffer;
 
         int bufferFilled = 0;
 
@@ -216,8 +216,8 @@ public class SuperCutDataSource extends PushBufferDataSource {
          */
         public void read(Buffer rdBuf) throws IOException {
 
-            /**
-             * Check if there's any buffer in the Q to read.
+            /*
+              Check if there's any buffer in the Q to read.
              */
             synchronized (buffer) {
                 while (bufferFilled == 0) {
@@ -350,9 +350,8 @@ public class SuperCutDataSource extends PushBufferDataSource {
          * Compute the length based on the duration and format of the audio.
          */
         public int computeLength(long duration, Format fmt) {
-            if (!(fmt instanceof AudioFormat))
+            if (!(fmt instanceof AudioFormat af))
                 return -1;
-            AudioFormat af = (AudioFormat) fmt;
             // Multiplication is done is stages to avoid overflow.
             return (int) ((((duration / 1000) * (af.getChannels() * af.getSampleSizeInBits())) / 1000) * af.getSampleRate() / 8000);
         }

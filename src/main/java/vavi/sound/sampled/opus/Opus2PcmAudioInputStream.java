@@ -49,13 +49,13 @@ class Opus2PcmAudioInputStream extends AudioInputStream {
         private DataOutputStream out;
 
         /** */
-        private OpusDecoder decoder;
+        private final OpusDecoder decoder;
 
         /** OGG only */
-        private OpusFile in;
+        private final OpusFile in;
 
         /** */
-        private int channels;
+        private final int channels;
 
         /** */
         public OpusOutputEngine(OpusFile in, float sampleRate, int channels) throws IOException {
@@ -78,10 +78,10 @@ class Opus2PcmAudioInputStream extends AudioInputStream {
         }
 
         /** */
-        private static int BUFFER_SIZE = 1024 * 1024;
+        private static final int BUFFER_SIZE = 1024 * 1024;
 
         /** */
-        private ByteBuffer decodeBuffer = ByteBuffer.allocate(BUFFER_SIZE);
+        private final ByteBuffer decodeBuffer = ByteBuffer.allocate(BUFFER_SIZE);
 
         /** */
         public void execute() throws IOException {

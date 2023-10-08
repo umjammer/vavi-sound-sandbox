@@ -64,9 +64,9 @@ public class MochaSynthesizer implements Synthesizer {
     // TODO != channel???
     private static final int MAX_CHANNEL = 16;
 
-    private MochaMidiChannel[] channels = new MochaMidiChannel[MAX_CHANNEL];
+    private final MochaMidiChannel[] channels = new MochaMidiChannel[MAX_CHANNEL];
 
-    private VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
+    private final VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
 
     private long timestump;
 
@@ -78,7 +78,7 @@ public class MochaSynthesizer implements Synthesizer {
 
     long startTime;
 
-    private MochaSoundbank soundBank = new MochaSoundbank();
+    private final MochaSoundbank soundBank = new MochaSoundbank();
 
     MochaAudioInpuStream mocha;
 
@@ -114,7 +114,7 @@ Debug.println("already open: " + hashCode());
         startTime = System.currentTimeMillis();
     }
 
-    private ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
         Thread thread = new Thread(r);
         thread.setPriority(Thread.MAX_PRIORITY);
         return thread;
@@ -129,7 +129,7 @@ Debug.println("already open: " + hashCode());
             DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, mocha.getFormat(), AudioSystem.NOT_SPECIFIED);
             line = (SourceDataLine) AudioSystem.getLine(lineInfo);
 Debug.println(line.getClass().getName());
-            line.addLineListener(event -> { Debug.println(event.getType()); });
+            line.addLineListener(event -> Debug.println(event.getType()));
 
             line.open();
             line.start();
@@ -303,12 +303,12 @@ Debug.println(line.getClass().getName());
 
     public class MochaMidiChannel implements MidiChannel {
 
-        private int channel;
+        private final int channel;
 
-        private int[] polyPressure = new int[128];
+        private final int[] polyPressure = new int[128];
         private int pressure;
         private int pitchBend;
-        private int[] control = new int[128];
+        private final int[] control = new int[128];
 
         Instrumental instrument;
 
@@ -462,7 +462,7 @@ Debug.println(line.getClass().getName());
         }
     }
 
-    private List<Receiver> receivers = new ArrayList<>();
+    private final List<Receiver> receivers = new ArrayList<>();
 
     private class MochaReceiver implements Receiver {
         private boolean isOpen;
@@ -478,8 +478,7 @@ Debug.println(line.getClass().getName());
                 throw new IllegalStateException("receiver is not open");
             }
 
-            if (message instanceof ShortMessage) {
-                ShortMessage shortMessage = (ShortMessage) message;
+            if (message instanceof ShortMessage shortMessage) {
                 int channel = shortMessage.getChannel();
                 int command = shortMessage.getCommand();
                 int data1 = shortMessage.getData1();
@@ -509,15 +508,13 @@ Debug.println(line.getClass().getName());
                 default:
 Debug.printf("unhandled short: %02X\n", command);
                 }
-            } else if (message instanceof SysexMessage) {
-                SysexMessage sysexMessage = (SysexMessage) message;
+            } else if (message instanceof SysexMessage sysexMessage) {
                 byte[] data = sysexMessage.getData();
 //Debug.print("sysex:\n" + StringUtil.getDump(data));
 Debug.printf(Level.FINE, "sysex: %02x %02x %02x", data[1], data[2], data[3]);
 
-            } else if (message instanceof MetaMessage) {
-                MetaMessage metaMessage = (MetaMessage) message;
-Debug.printf("meta: %02x", metaMessage.getType());
+            } else if (message instanceof MetaMessage metaMessage) {
+                Debug.printf("meta: %02x", metaMessage.getType());
                 switch (metaMessage.getType()) {
                 case 0x2f:
                     break;

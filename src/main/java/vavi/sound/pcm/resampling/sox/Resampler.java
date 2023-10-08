@@ -69,14 +69,14 @@ public class Resampler {
     private static final int ST_SAMPLE_MIN = -ST_SAMPLE_MAX - 1;
 
     /** roll-off frequency */
-    private double rollOff;
+    private final double rollOff;
     /**
      * passband/stopband tuning magic
      * anything <= 2 means Nutall window
      */
-    private double beta;
+    private final double beta;
     /** */
-    private int nMult;
+    private final int nMult;
 
     //----
 
@@ -115,7 +115,7 @@ public class Resampler {
     }
 
     /** */
-    private ResampleWork work = new ResampleWork();
+    private final ResampleWork work = new ResampleWork();
 
     /** */
     public Resampler(float inRate, float outRate) {

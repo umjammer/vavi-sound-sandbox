@@ -4,12 +4,7 @@
 
 package jp.or.rim.kt.kemusiro.sound;
 
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.concurrent.CountDownLatch;
-import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 
 import vavi.util.Debug;
@@ -28,11 +23,11 @@ public class MMLPlayer implements Runnable {
     private static final int samplingRate = 22100;
     private static final int bitDepth = 8;
 
-    private LineListener listener;
+    private final LineListener listener;
     private Thread thread;
     private String[] mmls;
 
-    private StreamingSoundPlayer player;
+    private final StreamingSoundPlayer player;
 
     public MMLPlayer() {
         this(null);

@@ -71,7 +71,7 @@ System.err.println("END: " + args[0]);
 
     /** info */
     void t0(String[] args) throws Exception {
-        /** MIDI */
+        // MIDI
         Synthesizer synthesizer;
         Sequencer sequencer;
         MidiChannel[] channels;
@@ -147,12 +147,10 @@ System.err.println("A: ---- " + soundbank.getDescription() + " ----");
 //        }
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        MetaEventListener mel = new MetaEventListener() {
-            public void meta(MetaMessage meta) {
+        MetaEventListener mel = meta -> {
 System.err.println("META: " + meta.getType());
-                if (meta.getType() == 47) {
-                    countDownLatch.countDown();
-                }
+            if (meta.getType() == 47) {
+                countDownLatch.countDown();
             }
         };
         Sequencer sequencer = MidiSystem.getSequencer(false);
@@ -191,12 +189,10 @@ Debug.println("synthesizer: " + synthesizer);
         Sequence seq = MidiSystem.getSequence(new File(args[0]));
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        MetaEventListener mel = new MetaEventListener() {
-            public void meta(MetaMessage meta) {
+        MetaEventListener mel = meta -> {
 System.err.println("META: " + meta.getType());
-                if (meta.getType() == 47) {
-                    countDownLatch.countDown();
-                }
+            if (meta.getType() == 47) {
+                countDownLatch.countDown();
             }
         };
         sequencer.setSequence(seq);
@@ -237,12 +233,10 @@ Debug.println("sequencer: " + sequencer);
         Sequence seq = MidiSystem.getSequence(file);
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        MetaEventListener mel = new MetaEventListener() {
-            public void meta(MetaMessage meta) {
+        MetaEventListener mel = meta -> {
 //System.err.println("META: " + meta.getType());
-                if (meta.getType() == 47) {
-                    countDownLatch.countDown();
-                }
+            if (meta.getType() == 47) {
+                countDownLatch.countDown();
             }
         };
         sequencer.setSequence(seq);

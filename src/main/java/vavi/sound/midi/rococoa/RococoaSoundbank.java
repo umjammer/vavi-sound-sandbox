@@ -61,10 +61,10 @@ public class RococoaSoundbank implements Soundbank {
 
     @Override
     public Instrument getInstrument(Patch patch) {
-        for (int i = 0; i < instruments.length; i++) {
-            if (instruments[i].getPatch().getProgram() == patch.getProgram() &&
-                instruments[i].getPatch().getBank() == patch.getBank()) {
-                return instruments[i];
+        for (Instrument instrument : instruments) {
+            if (instrument.getPatch().getProgram() == patch.getProgram() &&
+                    instrument.getPatch().getBank() == patch.getBank()) {
+                return instrument;
             }
         }
         return null;

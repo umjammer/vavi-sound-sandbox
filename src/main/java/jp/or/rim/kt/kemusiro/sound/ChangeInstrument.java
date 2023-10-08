@@ -12,7 +12,7 @@ package jp.or.rim.kt.kemusiro.sound;
  */
 public class ChangeInstrument extends MusicEvent {
 
-    private Instrument instrument;
+    private final Instrument instrument;
 
     /**
      * 音色を変更するイベントを作成する。

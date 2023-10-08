@@ -75,6 +75,7 @@ public class IttakeMidiConverter implements MidiConverter {
      * Converts midi sequence to mfi sequence.
      * @deprecated
      */
+    @Deprecated
     public vavi.sound.mfi.Sequence toMfiSequence(Sequence midiSequence)
         throws InvalidMidiDataException {
 
@@ -87,10 +88,7 @@ public class IttakeMidiConverter implements MidiConverter {
 
         try {
             return convert(midiSequence, fileType);
-        } catch (IOException e) {
-Debug.printStackTrace(e);
-            throw (InvalidMidiDataException) new InvalidMidiDataException().initCause(e);
-        } catch (InvalidMfiDataException e) {
+        } catch (IOException | InvalidMfiDataException e) {
 Debug.printStackTrace(e);
             throw (InvalidMidiDataException) new InvalidMidiDataException().initCause(e);
         }
@@ -179,8 +177,7 @@ Debug.println("j: " + j);
 Debug.println("here: " + j + ", " + timeOver);
             } while (timeOver);
 
-            if (midiMessage instanceof ShortMessage) {
-                ShortMessage shortMessage = (ShortMessage) midiMessage;
+            if (midiMessage instanceof ShortMessage shortMessage) {
                 int command = shortMessage.getCommand();
 
                 if (command == ShortMessage.NOTE_ON) {
@@ -226,8 +223,7 @@ Debug.println("here: " + j + ", " + timeOver);
                         mfiTrack.add(new MfiEvent(next, presentTime));
                     }
                 }
-            } else if (midiMessage instanceof MetaMessage) {
-                MetaMessage metaMessage = (MetaMessage) midiMessage;
+            } else if (midiMessage instanceof MetaMessage metaMessage) {
                 int metaType = metaMessage.getType();
                 switch (metaType) {
                 case 81: // テンポ設定
@@ -287,12 +283,9 @@ Debug.println("here: " + j + ", " + timeOver);
 
         try {
             return convert(mfiSequence);
-        } catch (IOException e) {
+        } catch (IOException | InvalidMidiDataException e) {
 Debug.printStackTrace(e);
-            throw (InvalidMfiDataException) new InvalidMfiDataException().initCause(e);
-        } catch (InvalidMidiDataException e) {
-Debug.printStackTrace(e);
-            throw (InvalidMfiDataException) new InvalidMfiDataException().initCause(e);
+            throw (InvalidMfiDataException) new InvalidMfiDataException(e);
         }
     }
 

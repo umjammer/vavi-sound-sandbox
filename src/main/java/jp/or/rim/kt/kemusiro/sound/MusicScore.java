@@ -16,9 +16,9 @@ import java.util.LinkedList;
  */
 public final class MusicScore {
 
-    private int tickPerBeat;
-    private int channelCount;
-    private LinkedList<MusicEvent> eventList;
+    private final int tickPerBeat;
+    private final int channelCount;
+    private final LinkedList<MusicEvent> eventList;
     private static final int defaultTempo = 100;
 
     /**

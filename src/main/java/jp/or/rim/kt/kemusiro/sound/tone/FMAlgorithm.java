@@ -12,7 +12,7 @@ package jp.or.rim.kt.kemusiro.sound.tone;
  */
 public abstract class FMAlgorithm implements WaveGeneratable {
 
-    private FMOperator[] operators;
+    private final FMOperator[] operators;
 
     public FMAlgorithm(int operatorCount) {
         operators = new FMOperator[operatorCount];

@@ -70,11 +70,10 @@ class Player {
         buf = new byte[frameSize * channels * 2];
 
         // init audio
-        switch (setupInfo.samplingRate) {
-        case 44:
-            frequency = 44100;
-            break;
-        }
+        frequency = switch (setupInfo.samplingRate) {
+            case 44 -> 44100;
+            default -> frequency;
+        };
 
         AudioFormat format = new AudioFormat(
              AudioFormat.Encoding.PCM_SIGNED,

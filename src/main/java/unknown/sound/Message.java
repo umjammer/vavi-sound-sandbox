@@ -17,9 +17,9 @@ public abstract class Message {
     public String toHex() {
         byte[] bytes = toBytes();
         StringBuilder buffer = new StringBuilder();
-        for (int index = 0; index < bytes.length; index++) {
-            int lower = bytes[index] & 0xf;
-            int upper = (bytes[index] >> 4) & 0xf;
+        for (byte aByte : bytes) {
+            int lower = aByte & 0xf;
+            int upper = (aByte >> 4) & 0xf;
             String hex = getHex(upper) + getHex(lower);
             buffer.append(hex);
         }
@@ -32,29 +32,21 @@ public abstract class Message {
         if (num < 10) {
             hex = String.valueOf(num);
         } else {
-            switch (num) {
-            case 10: //
-                hex = "a";
-                break;
-            case 11: //
-                hex = "b";
-                break;
-            case 12: //
-                hex = "c";
-                break;
-            case 13: //
-                hex = "d";
-                break;
-            case 14: //
-                hex = "e";
-                break;
-            case 15: //
-                hex = "f";
-                break;
-            default:
-                hex = "R";
-                break;
-            }
+            hex = switch (num) {
+                case 10 -> //
+                        "a";
+                case 11 -> //
+                        "b";
+                case 12 -> //
+                        "c";
+                case 13 -> //
+                        "d";
+                case 14 -> //
+                        "e";
+                case 15 -> //
+                        "f";
+                default -> "R";
+            };
         }
         return hex;
     }

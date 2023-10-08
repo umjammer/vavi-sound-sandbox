@@ -72,7 +72,7 @@ class StateWaiter {
         return (new StateWaiter(p)).waitForState(state);
     }
 
-    Object waitFileSync = new Object();
+    final Object waitFileSync = new Object();
 
     boolean fileDone = false;
 

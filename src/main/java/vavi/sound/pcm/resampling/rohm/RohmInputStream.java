@@ -36,13 +36,13 @@ public class RohmInputStream extends FilterInputStream {
     private static class RohmOutputEngine implements OutputEngine {
 
         /** */
-        private InputStream in;
+        private final InputStream in;
 
         /** */
         private DataOutputStream out;
 
         /** */
-        private Resampler resampler;
+        private final Resampler resampler;
 
         /** */
         public RohmOutputEngine(InputStream is, float in, float out) throws IOException {

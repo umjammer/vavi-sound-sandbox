@@ -40,7 +40,7 @@ import static vavi.sound.SoundUtil.volume;
 public class TwinVQInputStream extends FilterInputStream {
 
     /** このクラスで取得するストリームのバイトオーダー */
-    private ByteOrder byteOrder;
+    private final ByteOrder byteOrder;
 
     /**
      */
@@ -232,13 +232,11 @@ OutputStream os =
         SourceDataLine line =
             (SourceDataLine) AudioSystem.getLine(info);
         line.open(audioFormat);
-        line.addLineListener(new LineListener() {
-            public void update(LineEvent ev) {
+        line.addLineListener(ev -> {
 Debug.println(ev.getType());
-                if (LineEvent.Type.STOP == ev.getType()) {
-                    if (!isTest) {
-                        System.exit(0);
-                    }
+            if (LineEvent.Type.STOP == ev.getType()) {
+                if (!isTest) {
+                    System.exit(0);
                 }
             }
         });

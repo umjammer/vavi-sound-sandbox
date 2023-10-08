@@ -37,13 +37,13 @@ public class Opl3ToPcmAudioInputStream extends AudioInputStream {
     private static class Opl3OutputEngine implements OutputEngine {
 
         /** */
-        private Opl3Player player;
+        private final Opl3Player player;
 
         /** */
         private DataOutputStream out;
 
         /** */
-        private float sampleRate;
+        private final float sampleRate;
 
         /** */
         public Opl3OutputEngine(InputStream is, AudioFormat format) throws IOException {

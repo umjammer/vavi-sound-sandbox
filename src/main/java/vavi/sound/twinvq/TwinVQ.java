@@ -166,7 +166,7 @@ final class TwinVQ {
     }
 
     /** type definition of tvqConfInfo */
-    class ConfInfo {
+    static class ConfInfo {
         /** frame configuration */
         int N_CH;
 
@@ -219,7 +219,7 @@ final class TwinVQ {
 
         int size;
 
-        /** Common Chunk */
+        /* Common Chunk */
         /** channel mode (mono:0/stereo:1) */
         int channelMode;
 

@@ -26,7 +26,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.EOFException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -100,7 +99,7 @@ public class MTMWindow extends Frame {
 
         private void checkText(TextComponent textcomponent) {
             try {
-                int i = Integer.decode(textcomponent.getText()).intValue();
+                int i = Integer.decode(textcomponent.getText());
                 if ((i < 0) || (i > 63)) {
                     throw new NumberFormatException();
                 }
@@ -145,8 +144,8 @@ public class MTMWindow extends Frame {
                 as = new String[1];
                 as[0] = midiFile.getAbsolutePath();
             }
-            for (int i = 0; i < as.length; i++) {
-                File file = new File(as[i]);
+            for (String a : as) {
+                File file = new File(a);
                 if ((file != null) && file.isFile()) {
                     Preferences preferences = new Preferences();
                     preferences.start = 1;
@@ -158,8 +157,7 @@ public class MTMWindow extends Frame {
                             preferences.right = 1;
                         } else if (rightOtherCheckbox.getState()) {
                             try {
-                                int j = Integer.decode(rightOtherText.getText())
-                                               .intValue();
+                                int j = Integer.decode(rightOtherText.getText());
                                 if ((j < 0) || (j > 255)) {
                                     throw new NumberFormatException();
                                 }
@@ -177,7 +175,7 @@ public class MTMWindow extends Frame {
                         if (titleFileCheckbox.getState()) {
                             String s = file.getName();
                             preferences.title = s.substring(0,
-                                                            s.lastIndexOf("."));
+                                    s.lastIndexOf("."));
                         } else if (titleUserCheckbox.getState()) {
                             preferences.title = titleUserText.getText();
                         } else {
@@ -240,10 +238,9 @@ public class MTMWindow extends Frame {
 
                             int[] ai = new int[4];
                             try {
-                                int j1 = Integer.decode(volumeCh1Text.getText())
-                                                .intValue();
+                                int j1 = Integer.decode(volumeCh1Text.getText());
                                 if ((j1 < 0) || (j1 > 99) ||
-                                    !volumeCh1Checkbox.getState()) {
+                                        !volumeCh1Checkbox.getState()) {
                                     throw new NumberFormatException();
                                 }
                                 ai[0] = j1;
@@ -251,10 +248,9 @@ public class MTMWindow extends Frame {
                                 ai[0] = -1;
                             }
                             try {
-                                int k1 = Integer.decode(volumeCh2Text.getText())
-                                                .intValue();
+                                int k1 = Integer.decode(volumeCh2Text.getText());
                                 if ((k1 < 0) || (k1 > 99) ||
-                                    !volumeCh2Checkbox.getState()) {
+                                        !volumeCh2Checkbox.getState()) {
                                     throw new NumberFormatException();
                                 }
                                 ai[1] = k1;
@@ -262,10 +258,9 @@ public class MTMWindow extends Frame {
                                 ai[1] = -1;
                             }
                             try {
-                                int l1 = Integer.decode(volumeCh3Text.getText())
-                                                .intValue();
+                                int l1 = Integer.decode(volumeCh3Text.getText());
                                 if ((l1 < 0) || (l1 > 99) ||
-                                    !volumeCh3Checkbox.getState()) {
+                                        !volumeCh3Checkbox.getState()) {
                                     throw new NumberFormatException();
                                 }
                                 ai[2] = l1;
@@ -273,10 +268,9 @@ public class MTMWindow extends Frame {
                                 ai[2] = -1;
                             }
                             try {
-                                int i2 = Integer.decode(volumeCh4Text.getText())
-                                                .intValue();
+                                int i2 = Integer.decode(volumeCh4Text.getText());
                                 if ((i2 < 0) || (i2 > 99) ||
-                                    !volumeCh4Checkbox.getState()) {
+                                        !volumeCh4Checkbox.getState()) {
                                     throw new NumberFormatException();
                                 }
                                 ai[3] = i2;
@@ -313,7 +307,7 @@ public class MTMWindow extends Frame {
                     try {
                         MIDIInputStream mis = new MIDIInputStream(Files.newInputStream(file.toPath()));
                         MIDIToMLDInputStream m2mis = new MIDIToMLDInputStream(mis,
-                                                                                             preferences);
+                                preferences);
                         FileOutputStream fos = new FileOutputStream(file1);
                         try {
                             do {
@@ -419,22 +413,18 @@ public class MTMWindow extends Frame {
         file_Exchange.addActionListener(new MTMMLDButtonListener());
         fileMenu.add(file_Exchange);
         file_Pref_Open = new MenuItem("詳細設定を表示");
-        file_Pref_Open.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent actionevent) {
-                    setSize(510, 470);
-                    fileMenu.remove(file_Pref_Open);
-                    fileMenu.insert(file_Pref_Close, 3);
-                }
-            });
+        file_Pref_Open.addActionListener(actionevent -> {
+            setSize(510, 470);
+            fileMenu.remove(file_Pref_Open);
+            fileMenu.insert(file_Pref_Close, 3);
+        });
         fileMenu.add(file_Pref_Open);
         file_Pref_Close = new MenuItem("詳細設定を隠す");
-        file_Pref_Close.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent actionevent) {
-                    setSize(270, 470);
-                    fileMenu.remove(file_Pref_Close);
-                    fileMenu.insert(file_Pref_Open, 3);
-                }
-            });
+        file_Pref_Close.addActionListener(actionevent -> {
+            setSize(270, 470);
+            fileMenu.remove(file_Pref_Close);
+            fileMenu.insert(file_Pref_Open, 3);
+        });
         fileMenu.addSeparator();
         file_Quit = new MenuItem("終了");
         fileMenu.add(file_Quit);
@@ -443,60 +433,54 @@ public class MTMWindow extends Frame {
         setResizable(false);
         titleCheckbox = new Checkbox("曲にタイトルを入れる", true);
         titleCheckbox.setBounds(35, 20, 120, 20);
-        titleCheckbox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent itemevent) {
-                    boolean flag;
-                    if (((Checkbox) itemevent.getSource()).getState()) {
-                        flag = true;
-                    } else {
-                        flag = false;
-                    }
-                    titleFileCheckbox.setEnabled(flag);
-                    titleUserCheckbox.setEnabled(flag);
-                    if (titleUserCheckbox.getState()) {
-                        titleUserText.setEnabled(flag);
-                        titleUserText.setEditable(flag);
-                        if (flag) {
-                            titleUserText.setCursor(new Cursor(Cursor.TEXT_CURSOR));
-                        } else {
-                            titleUserText.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                        }
-                    }
+        titleCheckbox.addItemListener(itemevent -> {
+            boolean flag;
+            if (((Checkbox) itemevent.getSource()).getState()) {
+                flag = true;
+            } else {
+                flag = false;
+            }
+            titleFileCheckbox.setEnabled(flag);
+            titleUserCheckbox.setEnabled(flag);
+            if (titleUserCheckbox.getState()) {
+                titleUserText.setEnabled(flag);
+                titleUserText.setEditable(flag);
+                if (flag) {
+                    titleUserText.setCursor(new Cursor(Cursor.TEXT_CURSOR));
+                } else {
+                    titleUserText.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
                 }
-            });
+            }
+        });
         add(titleCheckbox);
         titleGroup = new CheckboxGroup();
         titleFileCheckbox = new Checkbox("ファイル名をタイトルにする", true, titleGroup);
         titleFileCheckbox.setBounds(55, 40, 150, 20);
-        titleFileCheckbox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent itemevent) {
-                    if (titleFileCheckbox.getState()) {
-                        titleUserText.setEnabled(false);
-                        titleUserText.setEditable(false);
-                        titleUserText.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                    } else {
-                        titleUserText.setEnabled(true);
-                        titleUserText.setEditable(true);
-                        titleUserText.setCursor(new Cursor(Cursor.TEXT_CURSOR));
-                    }
-                }
-            });
+        titleFileCheckbox.addItemListener(itemevent -> {
+            if (titleFileCheckbox.getState()) {
+                titleUserText.setEnabled(false);
+                titleUserText.setEditable(false);
+                titleUserText.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            } else {
+                titleUserText.setEnabled(true);
+                titleUserText.setEditable(true);
+                titleUserText.setCursor(new Cursor(Cursor.TEXT_CURSOR));
+            }
+        });
         add(titleFileCheckbox);
         titleUserCheckbox = new Checkbox("", false, titleGroup);
         titleUserCheckbox.setBounds(55, 60, 20, 20);
-        titleUserCheckbox.addItemListener(new ItemListener() {
-                public void itemStateChanged(ItemEvent itemevent) {
-                    if (titleUserCheckbox.getState()) {
-                        titleUserText.setEnabled(true);
-                        titleUserText.setEditable(true);
-                        titleUserText.setCursor(new Cursor(Cursor.TEXT_CURSOR));
-                    } else {
-                        titleUserText.setEnabled(false);
-                        titleUserText.setEditable(false);
-                        titleUserText.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-                    }
-                }
-            });
+        titleUserCheckbox.addItemListener(itemevent -> {
+            if (titleUserCheckbox.getState()) {
+                titleUserText.setEnabled(true);
+                titleUserText.setEditable(true);
+                titleUserText.setCursor(new Cursor(Cursor.TEXT_CURSOR));
+            } else {
+                titleUserText.setEnabled(false);
+                titleUserText.setEditable(false);
+                titleUserText.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
         add(titleUserCheckbox);
         titleUserText = new TextField("曲名を入力してください");
         titleUserText.setBounds(75, 60, 150, 20);

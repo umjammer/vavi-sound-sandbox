@@ -38,7 +38,7 @@ public interface Block {
                     return (Block) methods.get(label).invoke(null, label, params);
                 } catch (Exception e) {
 Debug.printStackTrace(e);
-                    throw (RuntimeException) new IllegalStateException(label).initCause(e);
+                    throw (RuntimeException) new IllegalStateException(label, e);
                 }
             } else {
                 String wildcardLabel1 = label.replaceAll("#\\d+", "*");
@@ -47,7 +47,7 @@ Debug.printStackTrace(e);
                         return (Block) methods.get(wildcardLabel1).invoke(null, label, params);
                     } catch (Exception e) {
 Debug.printStackTrace(e);
-                        throw (RuntimeException) new IllegalStateException(wildcardLabel1).initCause(e);
+                        throw (RuntimeException) new IllegalStateException(wildcardLabel1, e);
                     }
                 } else {
                     if (label.matches("\\w+BPList") && methods.containsKey("*BPList")) {
@@ -55,7 +55,7 @@ Debug.printStackTrace(e);
                             return (Block) methods.get("*BPList").invoke(null, label, params);
                         } catch (Exception e) {
 Debug.printStackTrace(e);
-                            throw (RuntimeException) new IllegalStateException("*BPList").initCause(e);
+                            throw (RuntimeException) new IllegalStateException("*BPList", e);
                         }
                     } else {
 Debug.println(Level.SEVERE, "error block: " + label);
@@ -68,7 +68,7 @@ Debug.println(Level.SEVERE, "error block: " + label);
         /**
          * {@link Block} オブジェクトのファクトリメソッド集。
          */
-        private static Map<String, Method> methods = new HashMap<>();
+        private static final Map<String, Method> methods = new HashMap<>();
 
         static {
             try {
@@ -77,13 +77,12 @@ Debug.println(Level.SEVERE, "error block: " + label);
                 props.load(Factory.class.getResourceAsStream("/vavi/sound/vsq/vsq.properties"));
 
                 //
-                Iterator<?> i = props.keySet().iterator();
-                while (i.hasNext()) {
-                    String key = (String) i.next();
-Debug.println("block class: " + props.getProperty(key));
+                for (Object o : props.keySet()) {
+                    String key = (String) o;
+                    Debug.println("block class: " + props.getProperty(key));
                     @SuppressWarnings("unchecked")
                     Class<Block> clazz = (Class<Block>) Class.forName(props.getProperty(key));
-Debug.println("block class: " + StringUtil.getClassName(clazz));
+                    Debug.println("block class: " + StringUtil.getClassName(clazz));
                     Method method = clazz.getMethod("newInstance", String.class, List.class);
 
                     methods.put(key, method);

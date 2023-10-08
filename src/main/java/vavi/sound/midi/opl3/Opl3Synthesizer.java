@@ -189,7 +189,7 @@ Debug.println("type: " + type);
             DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, audioFormat, AudioSystem.NOT_SPECIFIED);
             line = (SourceDataLine) AudioSystem.getLine(lineInfo);
 Debug.println(line.getClass().getName());
-            line.addLineListener(event -> { Debug.println("Line: " + event.getType()); });
+            line.addLineListener(event -> Debug.println("Line: " + event.getType()));
 
             line.open(audioFormat);
             line.start();
@@ -665,8 +665,7 @@ Debug.println(line.getClass().getName());
                 throw new IllegalStateException("receiver is not open");
             }
 
-            if (message instanceof ShortMessage) {
-                ShortMessage shortMessage = (ShortMessage) message;
+            if (message instanceof ShortMessage shortMessage) {
                 int channel = shortMessage.getChannel();
                 int command = shortMessage.getCommand();
                 int data1 = shortMessage.getData1();
@@ -696,8 +695,7 @@ Debug.println(line.getClass().getName());
                 default:
 Debug.printf("unhandled short: %02X\n", command);
                 }
-            } else if (message instanceof SysexMessage) {
-                SysexMessage sysexMessage = (SysexMessage) message;
+            } else if (message instanceof SysexMessage sysexMessage) {
                 byte[] data = sysexMessage.getData();
 Debug.printf("sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data));
                 switch (data[0]) {
@@ -724,9 +722,8 @@ Debug.printf("sysex volume: gain: %3.0f%n", gain * 127);
                     }
                 }   break;
                 }
-            } else if (message instanceof MetaMessage) {
-                MetaMessage metaMessage = (MetaMessage) message;
-Debug.printf("meta: %02x", metaMessage.getType());
+            } else if (message instanceof MetaMessage metaMessage) {
+                Debug.printf("meta: %02x", metaMessage.getType());
                 switch (metaMessage.getType()) {
                 case 0x2f:
                     break;

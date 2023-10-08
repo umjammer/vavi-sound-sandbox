@@ -29,7 +29,7 @@ public class RococoaMixer implements Mixer {
         "0.0.1") {};
 
     /** TODO how about multiple clips */
-    private RococoaClip clip = new RococoaClip();
+    private final RococoaClip clip = new RococoaClip();
 
     @Override
     public javax.sound.sampled.Line.Info getLineInfo() {

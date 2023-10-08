@@ -53,7 +53,7 @@ public class RococoaClip implements Clip {
                                  AudioSystem.NOT_SPECIFIED,
                                  ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN));
 
-    private List<LineListener> listeners = new ArrayList<>();
+    private final List<LineListener> listeners = new ArrayList<>();
 
     protected void fireUpdate(LineEvent event) {
         listeners.forEach(l -> l.update(event));
@@ -65,7 +65,7 @@ public class RococoaClip implements Clip {
 
     private AudioInputStream stream;
 
-    private ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+    private final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
 
     @Override
     public void drain() {
@@ -118,43 +118,37 @@ Debug.println("stop detected");
     public AudioFormat getFormat() {
         AVAudioFormat format = player.format();
 Debug.println(format + ", " + format.commonFormat());
-        switch (format.commonFormat()) {
-        default:
-        case AVAudioFormat.OtherFormat:
-            return stream.getFormat();
-        case AVAudioFormat.PCMFormatFloat32:
-            return new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
-                                   (int) format.sampleRate(),
-                                   32,
-                                   format.channelCount(),
-                                   AudioSystem.NOT_SPECIFIED,
-                                   AudioSystem.NOT_SPECIFIED,
-                                   ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN);
-        case AVAudioFormat.PCMFormatFloat64:
-            return new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
-                                   (int) format.sampleRate(),
-                                   64,
-                                   format.channelCount(),
-                                   AudioSystem.NOT_SPECIFIED,
-                                   AudioSystem.NOT_SPECIFIED,
-                                   ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN);
-        case AVAudioFormat.PCMFormatInt16:
-            return new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                                   (int) format.sampleRate(),
-                                   16,
-                                   format.channelCount(),
-                                   AudioSystem.NOT_SPECIFIED,
-                                   AudioSystem.NOT_SPECIFIED,
-                                   ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN);
-        case AVAudioFormat.PCMFormatInt32:
-            return new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                                   (int) format.sampleRate(),
-                                   32,
-                                   format.channelCount(),
-                                   AudioSystem.NOT_SPECIFIED,
-                                   AudioSystem.NOT_SPECIFIED,
-                                   ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN);
-        }
+        return switch (format.commonFormat()) {
+            default -> stream.getFormat();
+            case AVAudioFormat.PCMFormatFloat32 -> new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
+                    (int) format.sampleRate(),
+                    32,
+                    format.channelCount(),
+                    AudioSystem.NOT_SPECIFIED,
+                    AudioSystem.NOT_SPECIFIED,
+                    ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN);
+            case AVAudioFormat.PCMFormatFloat64 -> new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
+                    (int) format.sampleRate(),
+                    64,
+                    format.channelCount(),
+                    AudioSystem.NOT_SPECIFIED,
+                    AudioSystem.NOT_SPECIFIED,
+                    ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN);
+            case AVAudioFormat.PCMFormatInt16 -> new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+                    (int) format.sampleRate(),
+                    16,
+                    format.channelCount(),
+                    AudioSystem.NOT_SPECIFIED,
+                    AudioSystem.NOT_SPECIFIED,
+                    ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN);
+            case AVAudioFormat.PCMFormatInt32 -> new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+                    (int) format.sampleRate(),
+                    32,
+                    format.channelCount(),
+                    AudioSystem.NOT_SPECIFIED,
+                    AudioSystem.NOT_SPECIFIED,
+                    ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN);
+        };
     }
 
     @Override

@@ -79,7 +79,7 @@ public class Polyphase {
     }
 
     /** */
-    private PolyWork work = new PolyWork();
+    private final PolyWork work = new PolyWork();
 
     /** */
     private int win_type = 0;
@@ -131,7 +131,7 @@ Debug.printf(Level.FINE, " %d", q0[pr]);
     }
 
     /** */
-    private Random random;
+    private final Random random;
 
     /** */
     private int permute(int[] m, int[] l, int ct, int ct1, int amalg) {
@@ -321,8 +321,8 @@ fail:
 //Debug.printf(Level.FINE, "# end\n\n");
     }
 
-    /** */
-//  private static final int RIBLEN = 2048;
+//    /** */
+//    private static final int RIBLEN = 2048;
 
     /** */
     private float st_gcd(float a, float b) {

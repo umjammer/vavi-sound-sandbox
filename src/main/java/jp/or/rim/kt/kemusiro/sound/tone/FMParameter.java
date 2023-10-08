@@ -12,15 +12,15 @@ package jp.or.rim.kt.kemusiro.sound.tone;
  */
 public class FMParameter {
 
-    private int toneNumber;
+    private final int toneNumber;
     private int algorithm;
-    private double[] multiplier;
-    private double[] attackRate;
-    private double[] decayRate;
-    private double[] sustainRate;
-    private double[] releaseRate;
-    private double[] sustainLevel;
-    private double[] maxLevel;
+    private final double[] multiplier;
+    private final double[] attackRate;
+    private final double[] decayRate;
+    private final double[] sustainRate;
+    private final double[] releaseRate;
+    private final double[] sustainLevel;
+    private final double[] maxLevel;
 
     public FMParameter(int number, int n) {
         multiplier = new double[n];

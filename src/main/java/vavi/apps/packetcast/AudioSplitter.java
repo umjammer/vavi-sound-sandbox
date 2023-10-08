@@ -390,8 +390,8 @@ System.err.println("- name: " + name);
          */
         void doneFile() {
             synchronized (fileSync) {
-                for (int i = 0; i < splitDS.length; i++) {
-                    if (splitDS[i] != null && !splitDS[i].done) {
+                for (SplitDataSource splitD : splitDS) {
+                    if (splitD != null && !splitD.done) {
                         return;
                     }
                 }

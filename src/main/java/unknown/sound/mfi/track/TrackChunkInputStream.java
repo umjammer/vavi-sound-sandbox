@@ -33,35 +33,28 @@ public class TrackChunkInputStream extends MLDChunkInputStream {
             case 13: // '\r'
 
                 int trackData = read();
-                switch (systemCode & 0xf) {
-                case 0: // '\0'
-                    message = new TrackBeginningMessage(deltaTime, trackData);
-                    break;
-                case 15: // '\017'
-                    message = new TrackEndMessage(deltaTime, trackData);
-                    break;
-                default:
-                    throw new InvalidMidiDataException("track");
-                }
+                message = switch (systemCode & 0xf) {
+                    case 0 -> // '\0'
+                            new TrackBeginningMessage(deltaTime, trackData);
+                    case 15 -> // '\017'
+                            new TrackEndMessage(deltaTime, trackData);
+                    default -> throw new InvalidMidiDataException("track");
+                };
                 break;
             case 14: // '\016'
 
                 int channelData = read();
-                switch (systemCode & 0xf) {
-                case 0: // '\0'
-                    message = new ProgramChangePrevMessage(deltaTime,
-                                                           channelData);
-                    break;
-                case 1: // '\001'
-                    message = new ProgramChangeNextMessage(deltaTime,
-                                                           channelData);
-                    break;
-                case 2: // '\002'
-                    message = new SoundMessage(deltaTime, channelData);
-                    break;
-                default:
-                    throw new InvalidMidiDataException("track");
-                }
+                message = switch (systemCode & 0xf) {
+                    case 0 -> // '\0'
+                            new ProgramChangePrevMessage(deltaTime,
+                                    channelData);
+                    case 1 -> // '\001'
+                            new ProgramChangeNextMessage(deltaTime,
+                                    channelData);
+                    case 2 -> // '\002'
+                            new SoundMessage(deltaTime, channelData);
+                    default -> throw new InvalidMidiDataException("track");
+                };
                 break;
             case 15: // '\017'
 

@@ -15,12 +15,12 @@ package vavi.sound.pcm.resampling.rohm;
 public class Resampler {
 
     /** 1 サンプル当たりの bit 数 */
-    private int nBitPerSample = 16;
+    private final int nBitPerSample = 16;
 
     /** 周波数. */
-    private float nFreq;
+    private final float nFreq;
     /** */
-    private float nSampleFreq;
+    private final float nSampleFreq;
 
     /**
      *

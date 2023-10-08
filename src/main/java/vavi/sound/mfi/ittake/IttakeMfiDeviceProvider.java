@@ -20,7 +20,7 @@ import vavi.sound.mfi.spi.MfiDeviceProvider;
 public class IttakeMfiDeviceProvider extends MfiDeviceProvider {
 
     /** */
-    private MfiDevice[] devices;
+    private final MfiDevice[] devices;
 
     /** */
     public IttakeMfiDeviceProvider() {
@@ -31,8 +31,8 @@ public class IttakeMfiDeviceProvider extends MfiDeviceProvider {
 
     /** */
     public boolean isDeviceSupported(MfiDevice.Info info) {
-        for (int i = 0; i < devices.length; i++) {
-            if (devices[i].getDeviceInfo().equals(info)) {
+        for (MfiDevice device : devices) {
+            if (device.getDeviceInfo().equals(info)) {
                 return true;
             }
         }
@@ -53,9 +53,9 @@ public class IttakeMfiDeviceProvider extends MfiDeviceProvider {
     public MfiDevice getDevice(MfiDevice.Info info)
         throws IllegalArgumentException {
 
-        for (int i = 0; i < devices.length; i++) {
-            if (devices[i].getDeviceInfo().equals(info)) {
-                return devices[i];
+        for (MfiDevice device : devices) {
+            if (device.getDeviceInfo().equals(info)) {
+                return device;
             }
         }
 

@@ -18,18 +18,18 @@ import java.util.LinkedList;
  */
 public class WaveInputStream extends InputStream {
 
-    private MusicScore score;
-    private int samplingRate;
-    private int samplingDepth;
-    private Instrument[] insts;
-    private NoteOn[] notes;
+    private final MusicScore score;
+    private final int samplingRate;
+    private final int samplingDepth;
+    private final Instrument[] insts;
+    private final NoteOn[] notes;
     private int currentTick = 0;
-    private double currentTime = 0.0;
-    private double[] time;
+    private final double currentTime = 0.0;
+    private final double[] time;
     private int currentTempo = 60;
     private int pos = 0;
-    private LinkedList<MusicEvent> events;
-    private ByteArrayOutputStream output;
+    private final LinkedList<MusicEvent> events;
+    private final ByteArrayOutputStream output;
     private byte[] buffer;
 
     public WaveInputStream(MusicScore score, int rate, int bits) {
@@ -79,7 +79,7 @@ public class WaveInputStream extends InputStream {
                 insts[ch].release();
             }
             events.remove(0);
-            if (events.size() == 0) {
+            if (events.isEmpty()) {
                 break;
             }
             e = events.getFirst();
@@ -116,7 +116,7 @@ public class WaveInputStream extends InputStream {
     private int fillBuffer() {
         output.reset();
         for (int t = 0; t < score.getTickPerBeat(); t++) {
-            if (events.size() == 0) {
+            if (events.isEmpty()) {
                 break;
             }
             if (events.get(0).getTick() == currentTick) {

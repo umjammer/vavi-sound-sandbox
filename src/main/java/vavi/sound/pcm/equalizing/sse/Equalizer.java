@@ -9,7 +9,6 @@
 
 package vavi.sound.pcm.equalizing.sse;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -74,13 +73,13 @@ class Equalizer {
     // play -c 2 -r 44100 -fs -sw
 
     /** */
-    private double[] fact = new double[M + 1];
+    private final double[] fact = new double[M + 1];
 
     /** */
-    private double aa = 96;
+    private final double aa = 96;
 
     /** */
-    private double iza;
+    private final double iza;
 
     /** */
     private double[] lires, lires1, lires2, rires, rires1, rires2, irest;
@@ -89,7 +88,7 @@ class Equalizer {
     private double[] fsamples;
 
     /** */
-    private double[] ditherbuf;
+    private final double[] ditherbuf;
 
     /** */
     private int ditherptr = 0;
@@ -98,10 +97,12 @@ class Equalizer {
     private volatile int chg_ires, cur_ires;
 
     /** */
-    private int winlen, tabsize, nbufsamples;
+    private final int winlen;
+    private final int tabsize;
+    private int nbufsamples;
 
     @SuppressWarnings("unused")
-    private int winlenbit;
+    private final int winlenbit;
 
     /** */
     private int[] inbuf;
@@ -124,7 +125,7 @@ class Equalizer {
     /** */
     private static Double[] bands;
 
-    /** */
+    /* */
     static {
         try {
             Properties props = new Properties();
@@ -499,8 +500,8 @@ for (Parameter pp : param2) {
 
     /** */
     private double hm1 = 0;
-    /** */
-//  private double hm2 = 0;
+//    /** */
+//    private double hm2 = 0;
 
     /**
      * @param buf PCM sample.  8, 16 and 24 bits are available.
@@ -797,7 +798,7 @@ for (Parameter pp : param2) {
             return;
         }
 
-        newipsize = (int) (2 + Math.sqrt(n / 2));
+        newipsize = (int) (2 + Math.sqrt(n / 2d));
         if (newipsize > ipsize) {
             ipsize = newipsize;
             ip = new int[ipsize];

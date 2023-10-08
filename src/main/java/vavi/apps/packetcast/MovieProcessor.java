@@ -41,13 +41,13 @@ import javax.media.util.BufferToImage;
 class MovieProcessor implements ControllerListener {
 
     /** */
-    private Player player;
+    private final Player player;
     /** */
-    private FramePositioningControl fpc;
+    private final FramePositioningControl fpc;
     /** */
-    private FrameGrabbingControl fgc;
+    private final FrameGrabbingControl fgc;
     /** */
-    private Object waitSync = new Object();
+    private final Object waitSync = new Object();
     /** */
     private boolean stateTransitionOK = true;
     /** */
@@ -55,7 +55,7 @@ class MovieProcessor implements ControllerListener {
     /** */
     private int currentFrame = 0;
     /** */
-    private BufferToImage frameConverter;
+    private final BufferToImage frameConverter;
 
     /** */
     public MovieProcessor(String url) {

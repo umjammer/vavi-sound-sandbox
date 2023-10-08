@@ -258,13 +258,11 @@ System.err.println(name + ": " + value);
             }
         };
 
-        ActionListener actionListener = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                try {
-                    doEqualize();
-                } catch (Exception e) {
-                    e.printStackTrace(System.err);
-                }
+        ActionListener actionListener = event -> {
+            try {
+                doEqualize();
+            } catch (Exception e) {
+                e.printStackTrace(System.err);
             }
         };
 

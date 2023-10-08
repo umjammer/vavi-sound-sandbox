@@ -12,7 +12,7 @@ package jp.or.rim.kt.kemusiro.sound.tone;
  */
 public class SawWave implements WaveGeneratable {
 
-    private static double[] frequencyTable;
+    private static final double[] frequencyTable;
 
     // normal temperament
     static {

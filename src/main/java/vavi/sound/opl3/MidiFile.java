@@ -19,7 +19,7 @@ import vavi.sound.opl3.MidPlayer.MidiTypeFile;
  * MidiFile.
  * <p>
  * support only format 0 SMF.
- * <li> if you want use this device, set system property "vavi.sound.opl3.MidiFile" true
+ * <li> if you want to use this device, set system property "vavi.sound.opl3.MidiFile" true
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/25 umjammer initial version <br>
