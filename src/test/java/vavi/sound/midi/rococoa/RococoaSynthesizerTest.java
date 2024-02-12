@@ -140,7 +140,8 @@ Debug.println("END");
 Debug.println("synthesizer: " + synthesizer);
 
         Sequencer sequencer = MidiSystem.getSequencer(false);
-        sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
+        Receiver receiver = synthesizer.getReceiver();
+        sequencer.getTransmitter().setReceiver(receiver);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
@@ -159,6 +160,7 @@ Debug.println("META: " + MetaEvent.valueOf(meta.getType()));
         sequencer.addMetaEventListener(mel);
 Debug.println("START");
         sequencer.start();
+        volume(receiver, volume); // volume works?
 if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  sequencer.stop();

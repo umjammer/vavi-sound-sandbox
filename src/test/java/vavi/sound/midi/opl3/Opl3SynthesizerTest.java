@@ -30,6 +30,7 @@ import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static vavi.sound.midi.MidiUtil.volume;
 
 
 /**
@@ -56,6 +57,8 @@ class Opl3SynthesizerTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
+    static float volume = (float) Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
     @Property(name = "opl3.test")
     String opl3test = "src/test/resources/test.mid";
 
@@ -74,7 +77,8 @@ class Opl3SynthesizerTest {
 Debug.println("synthesizer: " + synthesizer);
 
         Sequencer sequencer = MidiSystem.getSequencer(false);
-        sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
+        Receiver receiver = synthesizer.getReceiver();
+        sequencer.getTransmitter().setReceiver(receiver);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
@@ -84,15 +88,16 @@ Debug.println("sequencer: " + sequencer);
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
-System.err.println("META: " + meta.getType());
+Debug.println("META: " + meta.getType());
             if (meta.getType() == 47) {
                 countDownLatch.countDown();
             }
         };
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
-System.err.println("START");
+Debug.println("START");
         sequencer.start();
+        volume(receiver, volume);
 if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  sequencer.stop();
@@ -117,7 +122,8 @@ System.err.println("END");
 Debug.println("synthesizer: " + synthesizer);
 
         Sequencer sequencer = MidiSystem.getSequencer(false);
-        sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
+        Receiver receiver = synthesizer.getReceiver();
+        sequencer.getTransmitter().setReceiver(receiver);
         sequencer.open();
 Debug.println("sequencer: " + sequencer + ", " + sequencer.getClass().getName());
 
@@ -127,21 +133,17 @@ Debug.println("sequencer: " + sequencer + ", " + sequencer.getClass().getName())
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
-System.err.println("META: " + meta.getType());
+Debug.println("META: " + meta.getType());
             if (meta.getType() == 47) {
                 countDownLatch.countDown();
             }
         };
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
-System.err.println("START");
+Debug.println("START");
         sequencer.start();
 
-        int volume = (int) (16383 * .1);
-        byte[] data = { (byte) 0xf0, 0x7f, 0x7f, 0x04, 0x01, (byte) (volume & 0x7f), (byte) ((volume >> 7) & 0x7f), (byte) 0xf7 };
-        MidiMessage sysex = new SysexMessage(data, data.length);
-        Receiver receiver = synthesizer.getReceivers().get(0);
-        receiver.send(sysex, -1);
+        volume(receiver, volume); // volume works?
 
 if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
@@ -150,7 +152,7 @@ if (!System.getProperty("vavi.test", "").equals("ide")) {
 } else {
         countDownLatch.await();
 }
-System.err.println("END");
+Debug.println("END");
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
 
@@ -164,7 +166,7 @@ System.err.println("END");
 Debug.println("synthesizer: " + synthesizer);
 
         for (int i = 0; i < 3; i++) {
-System.err.println("instrument[" + i + "]");
+Debug.println("instrument[" + i + "]");
             int n = new Random().nextInt(128);
             synthesizer.getChannels()[0].programChange(n);
             for (int j = 0; j < 12; j++) {

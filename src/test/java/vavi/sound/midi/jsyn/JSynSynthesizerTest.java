@@ -11,22 +11,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
-
 import javax.sound.midi.MetaEventListener;
-import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
-import javax.sound.midi.SysexMessage;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
+
+import static vavi.sound.midi.MidiUtil.volume;
 
 
 /**
@@ -52,6 +50,8 @@ class JSynSynthesizerTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
+    static float volume = (float) Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
     @Property(name = "jsyn.test")
     String jsynTest = "src/test/resources/test.mid";
 
@@ -69,7 +69,8 @@ class JSynSynthesizerTest {
 Debug.println("synthesizer: " + synthesizer);
 
         Sequencer sequencer = MidiSystem.getSequencer(false);
-        sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
+        Receiver receiver = synthesizer.getReceiver();
+        sequencer.getTransmitter().setReceiver(receiver);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
@@ -89,16 +90,12 @@ System.err.println("META: " + meta.getType());
 System.err.println("START");
         sequencer.start();
 
-        int volume = (int) (16383 * .2);
-        byte[] data = { (byte) 0xf0, 0x7f, 0x7f, 0x04, 0x01, (byte) (volume & 0x7f), (byte) ((volume >> 7) & 0x7f), (byte) 0xf7 };
-        MidiMessage sysex = new SysexMessage(data, data.length);
-        Receiver receiver = synthesizer.getReceivers().get(0);
-        receiver.send(sysex, -1);
+        volume(receiver, volume);
 
 if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  sequencer.stop();
- Debug.println("STOP");
+ Debug.println("not on ide");
 } else {
         countDownLatch.await();
 }
@@ -140,10 +137,12 @@ System.err.println("META: " + meta.getType());
 System.err.println("START");
         sequencer.start();
 
+        volume(receiver, volume);
+
 if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  sequencer.stop();
- Debug.println("STOP");
+ Debug.println("not on ide");
 } else {
         countDownLatch.await();
 }

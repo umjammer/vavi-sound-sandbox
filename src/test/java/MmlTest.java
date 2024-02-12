@@ -12,8 +12,11 @@ import javax.sound.sampled.LineEvent;
 
 import jp.or.rim.kt.kemusiro.sound.FMGeneralInstrument;
 import jp.or.rim.kt.kemusiro.sound.MMLPlayer;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vavi.util.Debug;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 
 
 /**
@@ -22,16 +25,31 @@ import vavi.util.Debug;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2022-12-18 nsano initial version <br>
  */
+@PropsEntity(url = "file:local.properties")
 public class MmlTest {
 
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
+
+    static final float volume = Float.parseFloat(System.getProperty("vavi.test.volume",  "0.2"));
+
+    @Property(name = "mml")
+    String mml = "src/test/resources/mml/BADINERIE.mml";
+
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
+    }
     @Test
     void test1() throws Exception {
-        main(new String[] {"src/test/resources/mml/BADINERIE.mml"});
+        main(new String[] {mml});
     }
 
     private static void usage() {
         System.out.println("java MMLPlayer MML1 [MML2 [MML3]]");
-        System.exit(1);
     }
 
     /**
@@ -42,6 +60,7 @@ public class MmlTest {
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
             usage();
+            return;
         }
         if (args[0].equals("-f")) {
             FMGeneralInstrument.readParameter(new FileReader(args[1]));
@@ -62,11 +81,11 @@ public class MmlTest {
         for (String arg : args) {
             mmls[i++] = String.join("", Files.readAllLines(Paths.get(arg)));
         }
-        p.setVolume((float) Double.parseDouble(System.setProperty("vavi.test.volume", "0.2")));
+        p.setVolume(volume);
         p.setMML(mmls);
         p.start();
         cdl.await();
-        Debug.println("here");
+Debug.println("here");
         p.stop();
         Thread.getAllStackTraces().keySet().forEach(System.err::println);
     }

@@ -100,24 +100,22 @@ Debug.println(targetAudioFormat);
         Clip clip = (Clip) AudioSystem.getLine(info);
 Debug.println(clip.getClass().getName());
         clip.addLineListener(event -> {
-            if (event.getType().equals(LineEvent.Type.START)) {
-Debug.println("play");
-            }
+Debug.println("LINE: " + event.getType());
             if (event.getType().equals(LineEvent.Type.STOP)) {
-Debug.println("done");
                 countDownLatch.countDown();
             }
         });
         clip.open(audioInputStream);
-if (!(originalAudioFormat.getEncoding() instanceof Opl3Encoding)) {
-// Debug.println("down volume: " + originalAudioFormat.getEncoding());
- volume(clip, volume);
+try {
+        volume(clip, volume);
+} catch (Exception e) {
+ Debug.println("volume: " + e);
 }
         clip.start();
 if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  clip.stop();
- Debug.println("Interrupt");
+ Debug.println("not on ide");
 } else {
         countDownLatch.await();
 }

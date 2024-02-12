@@ -5,6 +5,8 @@
  */
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -20,7 +22,10 @@ import javax.sound.midi.Soundbank;
 import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Transmitter;
 
+import org.junit.jupiter.api.BeforeEach;
 import vavi.util.Debug;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 
 
 /**
@@ -30,7 +35,12 @@ import vavi.util.Debug;
  * @version 0.00 020703 nsano initial version <br>
  * @see "https://stackoverflow.com/a/45119638/6102938"
  */
+@PropsEntity(url = "file:local.properties")
 public class MidiTest {
+
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
 
     static {
 //        System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
@@ -44,13 +54,28 @@ public class MidiTest {
 //        System.setProperty("javax.sound.midi.Receiver", "#Rococoa MIDI Synthesizer");
     }
 
+    static final float volume = Float.parseFloat(System.getProperty("vavi.test.volume",  "0.2"));
+
+    @Property(name = "sf2")
+    String filename;
+
+    @Property(name = "sf2")
+    String sf2name = System.getProperty("user.home") + "/Library/Audio/Sounds/Banks/Orchestra/default.sf2";
+
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
+    }
+
     /** plain */
-    static void tP(String[] args) throws Exception {
-        Sequence sequence = MidiSystem.getSequence(new File(args[0]));
+    void tP() throws Exception {
+        Sequence sequence = MidiSystem.getSequence(new File(filename));
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
-System.err.println("META: " + meta.getType());
+Debug.println("META: " + meta.getType());
             if (meta.getType() == 47) {
                 countDownLatch.countDown();
             }
@@ -60,16 +85,16 @@ Debug.println("sequencer: " + sequencer);
         sequencer.open();
         sequencer.setSequence(sequence);
         sequencer.addMetaEventListener(mel);
-System.err.println("START: " + args[0]);
+Debug.println("START: " + filename);
         sequencer.start();
         countDownLatch.await();
-System.err.println("END: " + args[0]);
+Debug.println("END: " + filename);
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
     }
 
     /** info */
-    static void t0(String[] args) throws Exception {
+    void t0() throws Exception {
         // MIDI
         Synthesizer synthesizer;
         Sequencer sequencer;
@@ -82,43 +107,43 @@ System.err.println("END: " + args[0]);
 
         for (int i = 0; i < infos.length; i++) {
             device = MidiSystem.getMidiDevice(infos[i]);
-System.err.println("---- [" + i + "] " + infos[i] +" (" + device.getClass().getName() + ")" + " ----");
-System.err.println("name      : " + infos[i].getName());
-System.err.println("vendor    : " + infos[i].getVendor());
-System.err.println("descriptor: " + infos[i].getDescription());
-System.err.println("version   : " + infos[i].getVersion());
+Debug.println("---- [" + i + "] " + infos[i] +" (" + device.getClass().getName() + ")" + " ----");
+Debug.println("name      : " + infos[i].getName());
+Debug.println("vendor    : " + infos[i].getVendor());
+Debug.println("descriptor: " + infos[i].getDescription());
+Debug.println("version   : " + infos[i].getVersion());
 synthInfos.add(infos[i]);
         }
 
         // Now, display strings from synthInfos list in GUI.
 
-System.err.println("----");
+Debug.println("----");
         sequencer = MidiSystem.getSequencer();
-System.err.println("default sequencer: " + sequencer.getDeviceInfo());
-System.err.println("default sequencer: " + sequencer);
+Debug.println("default sequencer: " + sequencer.getDeviceInfo());
+Debug.println("default sequencer: " + sequencer);
         sequencer.open();
 
-System.err.println("---- t0");
+Debug.println("---- t0");
         synthesizer = MidiSystem.getSynthesizer();
-System.err.println("default synthesizer: " + synthesizer.getDeviceInfo());
-System.err.println("default synthesizer: " + synthesizer);
+Debug.println("default synthesizer: " + synthesizer.getDeviceInfo());
+Debug.println("default synthesizer: " + synthesizer);
         channels = synthesizer.getChannels();
-System.err.println("channels: " + channels.length);
-System.err.println("sound bank: " + synthesizer.getDefaultSoundbank());
-System.err.println("instruments: "+ synthesizer.getLoadedInstruments().length);
+Debug.println("channels: " + channels.length);
+Debug.println("sound bank: " + synthesizer.getDefaultSoundbank());
+Debug.println("instruments: "+ synthesizer.getLoadedInstruments().length);
 
         Receiver receiver = MidiSystem.getReceiver();
-System.err.println("default receiver: " + receiver);
+Debug.println("default receiver: " + receiver);
 
         Transmitter transmitter = MidiSystem.getTransmitter();
-System.err.println("default transmitter: " + transmitter);
+Debug.println("default transmitter: " + transmitter);
 
         sequencer.close();
     }
 
     /** sf2 by spi: work */
-    static void t1(String[] args) throws Exception {
-        Sequence sequence = MidiSystem.getSequence(new File(args[0]));
+    void t1() throws Exception {
+        Sequence sequence = MidiSystem.getSequence(new File(filename));
 
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
         synthesizer.open();
@@ -126,28 +151,21 @@ Debug.println("synthesizer: " + synthesizer);
         // sf
         Soundbank soundbank = synthesizer.getDefaultSoundbank();
         //Instrument[] instruments = synthesizer.getAvailableInstruments();
-System.err.println("B: ---- " + soundbank.getDescription() + " ----");
+Debug.println("B: ---- " + soundbank.getDescription() + " ----");
 //Arrays.asList(instruments).forEach(System.err::println);
         synthesizer.unloadAllInstruments(soundbank);
-        String sf2name = "FluidR3 GM2-2.SF2";
-//        String sf2name = "Aspirin-Stereo.sf2";
-//        String sf2name = "SGM-V2.01.sf2";
-        File sf2 = new File("/Users/nsano/lib/audio/sf2", sf2name);
-        soundbank = MidiSystem.getSoundbank(sf2);
-        synthesizer.loadAllInstruments(soundbank);
-System.err.println("A: ---- " + soundbank.getDescription() + " ----");
-        //instruments = synthesizer.getAvailableInstruments();
+        File sf2 = new File(sf2name);
+        if (sf2.exists()) {
+            soundbank = MidiSystem.getSoundbank(sf2);
+            synthesizer.loadAllInstruments(soundbank);
+Debug.println("A: ---- " + soundbank.getDescription() + " ----");
+//instruments = synthesizer.getAvailableInstruments();
 //Arrays.asList(instruments).forEach(System.err::println);
-        // volume (not work ???)
-//        MidiChannel[] channels = synthesizer.getChannels();
-//        double gain = 0.02d;
-//        for (int i = 0; i < channels.length; i++) {
-//            channels[i].controlChange(7, (int) (gain * 127.0));
-//        }
+        }
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
-System.err.println("META: " + meta.getType());
+Debug.println("META: " + meta.getType());
             if (meta.getType() == 47) {
                 countDownLatch.countDown();
             }
@@ -158,10 +176,10 @@ Debug.println("sequencer: " + sequencer.getClass().getName() + ", " + sequencer.
         sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
         sequencer.setSequence(sequence);
         sequencer.addMetaEventListener(mel);
-System.err.println("START: " + args[0]);
+Debug.println("START: " + filename);
         sequencer.start();
         countDownLatch.await();
-System.err.println("END: " + args[0]);
+Debug.println("END: " + filename);
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
 
@@ -170,7 +188,7 @@ System.err.println("END: " + args[0]);
 
     /** sf2 direct: work */
     @SuppressWarnings("restriction")
-    static void t2(String[] args) throws Exception {
+    void t2() throws Exception {
         com.sun.media.sound.SoftSynthesizer synthesizer = new com.sun.media.sound.SoftSynthesizer();
         synthesizer.open();
 Debug.println("synthesizer: " + synthesizer);
@@ -179,27 +197,25 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
         sequencer.open();
 
-        String sf2name = "FluidR3 GM2-2.SF2";
-//        String sf2name = "Aspirin-Stereo.sf2";
-        File sf2 = new File("/Users/nsano/lib/audio/sf2", sf2name);
+        File sf2 = new File(sf2name);
         com.sun.media.sound.SF2Soundbank bank = new com.sun.media.sound.SF2Soundbank(sf2);
         synthesizer.loadAllInstruments(bank);
 
-        Sequence seq = MidiSystem.getSequence(new File(args[0]));
+        Sequence seq = MidiSystem.getSequence(new File(filename));
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
-System.err.println("META: " + meta.getType());
+Debug.println("META: " + meta.getType());
             if (meta.getType() == 47) {
                 countDownLatch.countDown();
             }
         };
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
-System.err.println("START: " + args[0]);
+Debug.println("START: " + filename);
         sequencer.start();
         countDownLatch.await();
-System.err.println("END: " + args[0]);
+Debug.println("END: " + filename);
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
 
@@ -207,7 +223,7 @@ System.err.println("END: " + args[0]);
         synthesizer.close();
     }
 
-    static void t3(String[] args) throws Exception {
+    void t3() throws Exception {
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
         synthesizer.open();
 Debug.println("synthesizer: " + synthesizer);
@@ -220,30 +236,22 @@ Debug.println("receiver: " + receiver);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-//        String filename = "../../../src/sano-n/vavi-games-puyo/src/main/resources/sound/puyo_08.mid";
-//        String filename = "m0057_01.mid";
-//        String filename = "ac4br_gm.MID";
-        String filename = "31137_TSquare.mid";
-//        String filename = "thexder.mid";
-//        String filename = "THEXDER.mid";
-//        String filename = "Firecracker.mid";
-//        String filename = "Rydeen.mid";
-        File file = new File(System.getProperty("user.home"), "/Music/midi/1/" + filename);
+        File file = new File(filename);
         Sequence seq = MidiSystem.getSequence(file);
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
-//System.err.println("META: " + meta.getType());
+//Debug.println("META: " + meta.getType());
             if (meta.getType() == 47) {
                 countDownLatch.countDown();
             }
         };
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
-System.err.println("START");
+Debug.println("START");
         sequencer.start();
         countDownLatch.await();
-System.err.println("END");
+Debug.println("END");
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
 
@@ -252,7 +260,7 @@ System.err.println("END");
     }
 
     /** midi network session test, [1] seemed "session1" */
-    static void t4(String[] args) throws Exception {
+    void t4() throws Exception {
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
 Debug.println("synthesizer: " + synthesizer.getClass().getName());
         synthesizer.open();
@@ -270,7 +278,7 @@ Debug.println("transmitter: " + transmitter.getClass().getName());
 
         System.in.read();
 
-System.err.println("END");
+Debug.println("END");
         synthesizer.close();
     }
 
@@ -279,9 +287,10 @@ System.err.println("END");
      */
     public static void main(String[] args) throws Exception {
         MidiTest app = new MidiTest();
-//        app.t0(args);
-        MidiTest.t3(args);
-//        app.t4(args);
+        PropsEntity.Util.bind(app);
+//        app.t0();
+        app.t3();
+//        app.t4();
     }
 }
 

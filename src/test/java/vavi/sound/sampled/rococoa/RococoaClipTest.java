@@ -36,6 +36,8 @@ import vavi.util.Debug;
 
 import vavix.rococoa.avfoundation.AVAudioPlayer;
 
+import static vavi.sound.SoundUtil.volume;
+
 
 /**
  * RococoaClipTest.
@@ -114,20 +116,28 @@ Debug.println(mixer.getMixerInfo());
 Debug.println(clip.getLineInfo());
         CountDownLatch countDownLatch = new CountDownLatch(1);
         clip.addLineListener(event -> {
-            if (event.getType().equals(LineEvent.Type.START)) {
-Debug.println("play");
-            }
+Debug.println("LINE: " + event.getType());
             if (event.getType().equals(LineEvent.Type.STOP)) {
-Debug.println("done");
                 countDownLatch.countDown();
             }
         });
         AudioInputStream stream = new AudioInputStream(new BufferedInputStream(Files.newInputStream(path)), RococoaClip.info.getFormats()[0], Files.size(path));
         clip.open(stream);
-//        volume(clip, volume); // this clip doesn't support volume
+try {
+        volume(clip, volume); // this clip doesn't support volume
+} catch (Exception e) {
+ Debug.println("volume: " + e);
+}
 Debug.println(clip.getFormat());
         clip.start();
+
+if (!System.getProperty("vavi.test", "").equals("ide")) {
+ Thread.sleep(10 * 1000);
+ clip.stop();
+ Debug.println("not on ide");
+} else {
         countDownLatch.await();
+}
 
         clip.close();
     }
