@@ -19,7 +19,6 @@ import javax.sound.sampled.LineEvent;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import vavi.sound.DebugInputStream;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
@@ -37,7 +36,6 @@ import static vavi.sound.SoundUtil.volume;
  * @version 0.00 2012/06/11 umjammer initial version <br>
  */
 @PropsEntity(url = "file:local.properties")
-@DisabledIfEnvironmentVariable(named = "GITHUB_WORKFLOW", matches = ".*")
 public class ClipTest {
 
     static {

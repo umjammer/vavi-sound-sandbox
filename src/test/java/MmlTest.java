@@ -14,6 +14,7 @@ import jp.or.rim.kt.kemusiro.sound.FMGeneralInstrument;
 import jp.or.rim.kt.kemusiro.sound.MMLPlayer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
@@ -26,6 +27,7 @@ import vavi.util.properties.annotation.PropsEntity;
  * @version 0.00 2022-12-18 nsano initial version <br>
  */
 @PropsEntity(url = "file:local.properties")
+@DisabledIfEnvironmentVariable(named = "GITHUB_WORKFLOW", matches = ".*")
 public class MmlTest {
 
     static boolean localPropertiesExists() {
