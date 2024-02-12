@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
-
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -20,8 +19,8 @@ import javax.sound.sampled.LineEvent;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import vavi.sound.DebugInputStream;
-import vavi.sound.sampled.opl3.Opl3Encoding;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
@@ -38,6 +37,7 @@ import static vavi.sound.SoundUtil.volume;
  * @version 0.00 2012/06/11 umjammer initial version <br>
  */
 @PropsEntity(url = "file:local.properties")
+@DisabledIfEnvironmentVariable(named = "GITHUB_WORKFLOW", matches = ".*")
 public class ClipTest {
 
     static {
