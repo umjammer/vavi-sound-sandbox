@@ -22,6 +22,8 @@ import static vavi.sound.SoundUtil.volume;
  */
 public class LineTest {
 
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
     /**
      * @param args
      */
@@ -41,7 +43,7 @@ System.err.println(targetInfo);
 System.err.println(sourceInfo);
         SourceDataLine speaker = (SourceDataLine) AudioSystem.getLine(sourceInfo);
         speaker.open(sourceFormat);
-        volume(speaker, .2d);
+        volume(speaker, volume);
         speaker.start();
 
         byte[] buf = new byte[speaker.getBufferSize()];

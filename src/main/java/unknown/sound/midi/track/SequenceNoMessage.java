@@ -9,6 +9,7 @@ public class SequenceNoMessage extends MetaEventMessage {
         return messageSequenceNo;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] byteData = MetaEventMessage.arrayCopy(super.toBytes(), 2);
         int index = byteData.length - 2;

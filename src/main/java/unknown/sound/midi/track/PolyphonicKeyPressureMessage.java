@@ -20,6 +20,7 @@ public class PolyphonicKeyPressureMessage extends ChannelMessage {
         return messagePressure;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] byteData = Message.arrayCopy(super.toBytes(), 2);
         int index = byteData.length - 2;

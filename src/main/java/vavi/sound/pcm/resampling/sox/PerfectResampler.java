@@ -38,17 +38,17 @@ import vavi.util.SplitRadixFft;
 public class PerfectResampler {
 
     /** */
-    private void coef(double[] coef_p, int interp_order, int fir_len, int phase_num, int coef_interp_num, int fir_coef_num, double value) {
+    private static void coef(double[] coef_p, int interp_order, int fir_len, int phase_num, int coef_interp_num, int fir_coef_num, double value) {
         coef_p[(fir_len) * ((interp_order) + 1) * (phase_num) + ((interp_order) + 1) * (fir_coef_num) + (interp_order - coef_interp_num)] = value;
     }
 
     /** */
-    private double coef(double[] coef_p, int interp_order, int fir_len, int phase_num, int coef_interp_num, int fir_coef_num) {
+    private static double coef(double[] coef_p, int interp_order, int fir_len, int phase_num, int coef_interp_num, int fir_coef_num) {
         return coef_p[(fir_len) * ((interp_order) + 1) * (phase_num) + ((interp_order) + 1) * (fir_coef_num) + (interp_order - coef_interp_num)];
     }
 
     /** */
-    private void coef_coef1(int x, double value, double[] result, int interp_order, int num_coefs, int i, int j) {
+    private static void coef_coef1(int x, double value, double[] result, int interp_order, int num_coefs, int i, int j) {
         coef(result, interp_order, num_coefs, j, x, num_coefs - 1 - i, value);
     }
 
@@ -168,139 +168,133 @@ Debug.printf(Level.FINE, "coefs:%d, index:%d\n", coefs.length, pos - 1);
     }
 
     /** */
-    private int stage_occupancy(Stage s) {
+    private static int stage_occupancy(Stage s) {
         return Math.max(0, s.fifo.occupancy() - s.pre_post);
     }
 
     /** */
-    private int stage_read_p(Stage s) {
+    private static int stage_read_p(Stage s) {
         return s.fifo.read_ptr() + s.pre;
     }
 
     /** */
-    StageFunction cubic_spline = new StageFunction() {
-        public void exec(Stage stage, Fifo output_fifo) {
-            int i;
-            int num_in = stage_occupancy(stage);
-            int max_num_out = (int) (1 + num_in * stage.out_in_ratio);
-            int inputP = stage_read_p(stage);
-            int outputP = output_fifo.reserve(max_num_out);
+    StageFunction cubic_spline = (stage, output_fifo) -> {
+        int i;
+        int num_in = stage_occupancy(stage);
+        int max_num_out = (int) (1 + num_in * stage.out_in_ratio);
+        int inputP = stage_read_p(stage);
+        int outputP = output_fifo.reserve(max_num_out);
 
-            for (i = 0; stage.at.integer < num_in; ++i, stage.at.all(stage.at.all() + stage.step.all())) {
-                int s = inputP + stage.at.integer; // input
-                double[] input = stage.fifo.data;
-                double[] output = output_fifo.data;
-                double x = stage.at.fraction * (1 / Stage.MULT32);
-                double b = .5 * (input[s + 1] + input[s - 1]) - input[s];
-                double a = (1 / 6.) * (input[s + 2] - input[s + 1] + input[s - 1] - input[s] - 4 * b);
-                double c = input[s + 1] - input[s] - a - b;
-                output[outputP + i] = ((a * x + b) * x + c) * x + input[s];
-            }
-            assert max_num_out - i >= 0;
-            output_fifo.trim_by(max_num_out - i);
-            stage.fifo.read(stage.at.integer, null);
-            stage.at.integer = 0;
+        for (i = 0; stage.at.integer < num_in; ++i, stage.at.all(stage.at.all() + stage.step.all())) {
+            int s = inputP + stage.at.integer; // input
+            double[] input = stage.fifo.data;
+            double[] output = output_fifo.data;
+            double x = stage.at.fraction * (1 / Stage.MULT32);
+            double b = .5 * (input[s + 1] + input[s - 1]) - input[s];
+            double a = (1 / 6.) * (input[s + 2] - input[s + 1] + input[s - 1] - input[s] - 4 * b);
+            double c = input[s + 1] - input[s] - a - b;
+            output[outputP + i] = ((a * x + b) * x + c) * x + input[s];
         }
+        assert max_num_out - i >= 0;
+        output_fifo.trim_by(max_num_out - i);
+        stage.fifo.read(stage.at.integer, null);
+        stage.at.integer = 0;
     };
 
     /** */
-    StageFunction half_sample = new StageFunction() {
-        public void exec(Stage stage, Fifo output_fifo) {
-            double[] output;
-            int i, j;
-            int num_in = Math.max(0, stage.fifo.occupancy());
-            RateShared s = stage.shared;
-            HalfBand f = s.half_band[stage.which];
-            int overlap = f.num_taps - 1;
+    StageFunction half_sample = (stage, output_fifo) -> {
+        double[] output;
+        int i, j;
+        int num_in = Math.max(0, stage.fifo.occupancy());
+        RateShared s = stage.shared;
+        HalfBand f = s.half_band[stage.which];
+        int overlap = f.num_taps - 1;
 
-            while (num_in >= f.dft_length) {
-                int inputP = stage.fifo.read_ptr();
-                stage.fifo.read(f.dft_length - overlap, null);
-                double[] input = new double[inputP + f.dft_length - overlap];
-                num_in -= f.dft_length - overlap;
+        while (num_in >= f.dft_length) {
+            int inputP = stage.fifo.read_ptr();
+            stage.fifo.read(f.dft_length - overlap, null);
+            double[] input = new double[inputP + f.dft_length - overlap];
+            num_in -= f.dft_length - overlap;
 
-                int outputP = output_fifo.reserve(f.dft_length);
-                output = output_fifo.data;
-                output_fifo.trim_by((f.dft_length + overlap) >> 1);
+            int outputP = output_fifo.reserve(f.dft_length);
+            output = output_fifo.data;
+            output_fifo.trim_by((f.dft_length + overlap) >> 1);
 //Debug.printf("%d, %d, %d, %d, %d\n", input.length, inputP, output.length, outputP, f.dft_length);
-                System.arraycopy(input, inputP, output, outputP, Math.min(f.dft_length, input.length - inputP)); // TODO added min
+            System.arraycopy(input, inputP, output, outputP, Math.min(f.dft_length, input.length - inputP)); // TODO added min
 
 double[] o = new double[f.dft_length];
 System.arraycopy(output, outputP, o, 0, f.dft_length);
 if (s.bit_rev_table == null) {
- s.bit_rev_table = new int[dft_br_len(f.dft_length)];
- s.sin_cos_table = new double[dft_sc_len(f.dft_length)];
+s.bit_rev_table = new int[dft_br_len(f.dft_length)];
+s.sin_cos_table = new double[dft_sc_len(f.dft_length)];
 }
 //Debug.printf("%d, %s\n", f.dft_length, s.bit_rev_table.length);
 
-                SplitRadixFft.rdft(f.dft_length, 1, o, s.bit_rev_table, s.sin_cos_table);
-                o[0] *= f.coefs[0];
-                o[1] *= f.coefs[1];
-                for (i = 2; i < f.dft_length; i += 2) {
-                    double tmp = o[i];
-                    o[i] = f.coefs[i] * tmp - f.coefs[i + 1] * o[i + 1];
-                    o[i + 1] = f.coefs[i + 1] * tmp + f.coefs[i] * o[i + 1];
-                }
-                SplitRadixFft.rdft(f.dft_length, -1, o, s.bit_rev_table, s.sin_cos_table);
+            SplitRadixFft.rdft(f.dft_length, 1, o, s.bit_rev_table, s.sin_cos_table);
+            o[0] *= f.coefs[0];
+            o[1] *= f.coefs[1];
+            for (i = 2; i < f.dft_length; i += 2) {
+                double tmp = o[i];
+                o[i] = f.coefs[i] * tmp - f.coefs[i + 1] * o[i + 1];
+                o[i + 1] = f.coefs[i + 1] * tmp + f.coefs[i] * o[i + 1];
+            }
+            SplitRadixFft.rdft(f.dft_length, -1, o, s.bit_rev_table, s.sin_cos_table);
 
-                for (j = 1, i = 2; i < f.dft_length - overlap; ++j, i += 2) {
-                    o[j] = o[i];
-                }
+            for (j = 1, i = 2; i < f.dft_length - overlap; ++j, i += 2) {
+                o[j] = o[i];
+            }
 
 System.arraycopy(o, 0, output, outputP, f.dft_length);
-            }
         }
     };
 
     /** */
-    StageFunction double_sample = new StageFunction() {
-        public void exec(Stage stage, Fifo output_fifo) {
-            double[] output;
-            int i, j;
-            int num_in = Math.max(0, stage.fifo.occupancy());
-            RateShared s = stage.shared;
-            HalfBand f = s.half_band[1];
-            int overlap = f.num_taps - 1;
+    StageFunction double_sample = (stage, output_fifo) -> {
+        double[] output;
+        int i, j;
+        int num_in = Math.max(0, stage.fifo.occupancy());
+        RateShared s = stage.shared;
+        HalfBand f = s.half_band[1];
+        int overlap = f.num_taps - 1;
 
-            while (num_in > f.dft_length >> 1) {
-                int inputP = stage.fifo.read_ptr();
-                double[] input = stage.fifo.data;
-                stage.fifo.read((f.dft_length - overlap) >> 1, null);
-                num_in -= (f.dft_length - overlap) >> 1;
+        while (num_in > f.dft_length >> 1) {
+            int inputP = stage.fifo.read_ptr();
+            double[] input = stage.fifo.data;
+            stage.fifo.read((f.dft_length - overlap) >> 1, null);
+            num_in -= (f.dft_length - overlap) >> 1;
 
-                int outputP = output_fifo.reserve(f.dft_length);
-                output = output_fifo.data;
-                output_fifo.trim_by(overlap);
-                for (j = i = 0; i < f.dft_length; ++j, i += 2) {
-                    output[outputP + i] = input[inputP + j];
-                    output[outputP + i + 1] = 0;
-                }
+            int outputP = output_fifo.reserve(f.dft_length);
+            output = output_fifo.data;
+            output_fifo.trim_by(overlap);
+            for (j = i = 0; i < f.dft_length; ++j, i += 2) {
+                output[outputP + i] = input[inputP + j];
+                output[outputP + i + 1] = 0;
+            }
 
 double[] o = new double[f.dft_length];
 System.arraycopy(output, outputP, o, 0, f.dft_length);
 if (s.bit_rev_table == null) {
- s.bit_rev_table = new int[dft_br_len(f.dft_length)];
- s.sin_cos_table = new double[dft_sc_len(f.dft_length)];
+s.bit_rev_table = new int[dft_br_len(f.dft_length)];
+s.sin_cos_table = new double[dft_sc_len(f.dft_length)];
 }
 Debug.printf("%d, %s\n", f.dft_length, s.bit_rev_table);
 
-                SplitRadixFft.rdft(f.dft_length, 1, o, s.bit_rev_table, s.sin_cos_table);
-                o[0] *= f.coefs[0];
-                o[1] *= f.coefs[1];
-                for (i = 2; i < f.dft_length; i += 2) {
-                    double tmp = o[i];
-                    o[i] = f.coefs[i] * tmp - f.coefs[i + 1] * o[i + 1];
-                    o[i + 1] = f.coefs[i + 1] * tmp + f.coefs[i] * o[i + 1];
-                }
-                SplitRadixFft.rdft(f.dft_length, -1, o, s.bit_rev_table, s.sin_cos_table);
+            SplitRadixFft.rdft(f.dft_length, 1, o, s.bit_rev_table, s.sin_cos_table);
+            o[0] *= f.coefs[0];
+            o[1] *= f.coefs[1];
+            for (i = 2; i < f.dft_length; i += 2) {
+                double tmp = o[i];
+                o[i] = f.coefs[i] * tmp - f.coefs[i + 1] * o[i + 1];
+                o[i + 1] = f.coefs[i + 1] * tmp + f.coefs[i] * o[i + 1];
+            }
+            SplitRadixFft.rdft(f.dft_length, -1, o, s.bit_rev_table, s.sin_cos_table);
 
 System.arraycopy(o, 0, output, outputP, f.dft_length);
-            }
         }
     };
 
     /** */
-    private double[] make_lpf(int num_taps, double Fc, double beta, double scale) {
+    private static double[] make_lpf(int num_taps, double Fc, double beta, double scale) {
         double[] h = new double[num_taps];
         double sum = 0;
         int i, m = num_taps - 1;
@@ -331,13 +325,13 @@ System.arraycopy(o, 0, output, outputP, f.dft_length);
      * 0.5, 1, PI Stop-band attenuation in dB (Single phase.) 0: value will be
      * estimated Number of phases; 0 for single-phase
      */
-    private double[] design_lpf(double Fp,
-                                double Fc,
-                                double Fn,
-                                boolean allow_aliasing,
-                                double att,
-                                int[] num_taps,
-                                int k) {
+    private static double[] design_lpf(double Fp,
+                                       double Fc,
+                                       double Fn,
+                                       boolean allow_aliasing,
+                                       double att,
+                                       int[] num_taps,
+                                       int k) {
         double tr_bw, beta;
 
         if (allow_aliasing) {
@@ -363,21 +357,21 @@ System.arraycopy(o, 0, output, outputP, f.dft_length);
     }
 
     /** */
-    private int dft_br_len(int l) {
+    private static int dft_br_len(int l) {
         return 2 + (1 << (int) (Math.log(l / 2f + .5) / Math.log(2.)) / 2);
     }
 
     /** */
-    private int dft_sc_len(int l) {
+    private static int dft_sc_len(int l) {
         return l / 2;
     }
 
     /** */
-    private void fir_to_phase(RateShared rateShared,
-                              double[][] h,
-                              int[] len,
-                              int[] post_len,
-                              double phase0) {
+    private static void fir_to_phase(RateShared rateShared,
+                                     double[][] h,
+                                     int[] len,
+                                     int[] post_len,
+                                     double phase0) {
         double[] work;
         double phase = (phase0 > 50 ? 100 - phase0 : phase0) / 50;
         int work_len, begin, end;
@@ -460,12 +454,12 @@ System.arraycopy(o, 0, output, outputP, f.dft_length);
     }
 
     /** */
-    private int range_limit(int x, int lower, int upper) {
+    private static int range_limit(int x, int lower, int upper) {
         return Math.min(Math.max(x, lower), upper);
     }
 
     /** Set to 4 x nearest power of 2 */
-    private int set_dft_length(int num_taps) {
+    private static int set_dft_length(int num_taps) {
         int result, n = num_taps;
         for (result = 8; n > 2; result <<= 1, n >>= 1) {
         }
@@ -633,6 +627,7 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
     abstract class RateHalfFir implements StageFunction {
         abstract double[] COEFS();
         abstract int CONVOLVE();
+        @Override
         public void exec(Stage p, Fifo output_fifo) {
             int inputP = stage_read_p(p);
             double[] input = p.fifo.data;
@@ -664,6 +659,7 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
     abstract class RatePolyFir0 implements StageFunction {
         abstract int FIR_LENGTH();
         abstract int CONVOLVE();
+        @Override
         public void exec(Stage p, Fifo output_fifo) {
             int inputP = stage_read_p(p);
             double[] input = p.fifo.data;
@@ -708,6 +704,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
         abstract int COEF_INTERP();
         abstract int FIR_LENGTH();
         abstract int PHASE_BITS();
+        @Override
         public void exec(Stage p, Fifo output_fifo) {
             int inputP = stage_read_p(p);
             double[] input = p.fifo.data;
@@ -769,44 +766,62 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     // assert_static(!((array_length(COEFS)- 1) & 1), HALF_FIR_LENGTH_25 );
     StageFunction half_sample_25 = new RateHalfFir() {
         // _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        @Override
         int CONVOLVE() { return 22; }
+        @Override
         double[] COEFS() { return half_fir_coefs_25; }
     };
 
     // assert_static(!((array_length(COEFS)- 1) & 1), HALF_FIR_LENGTH_low);
     StageFunction half_sample_low = new RateHalfFir() {
         // _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+        @Override
         int CONVOLVE() { return 44; }
+        @Override
         double[] COEFS() { return half_fir_coefs_low; }
     };
 
     static final int d100_l = 16;
     // poly_fir_convolve_d100 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     StageFunction d100_0 = new RatePolyFir0() {
+        @Override
         int FIR_LENGTH() { return d100_l; }
+        @Override
         int CONVOLVE() { return 16; }
     };
 
     StageFunction d100_1 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 1; }
+        @Override
         int PHASE_BITS() { return 9; }
+        @Override
         int FIR_LENGTH() { return d100_l; }
+        @Override
         int CONVOLVE() { return 16; }
     };
 
     static final int d100_1_b = 9;
     StageFunction d100_2 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 2; }
+        @Override
         int PHASE_BITS() { return 7; }
+        @Override
         int FIR_LENGTH() { return d100_l; }
+        @Override
         int CONVOLVE() { return 16; }
     };
 
     static final int d100_2_b = 7;
     StageFunction d100_3 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 3; }
+        @Override
         int PHASE_BITS() { return 6; }
+        @Override
         int FIR_LENGTH() { return d100_l; }
+        @Override
         int CONVOLVE() { return 16; }
     };
 
@@ -814,30 +829,44 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     static final int d120_l = 30;
     // poly_fir_convolve_d120 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     StageFunction d120_0 = new RatePolyFir0() {
+        @Override
         int FIR_LENGTH() { return d120_l; }
+        @Override
         int CONVOLVE() { return 30; }
     };
 
     StageFunction d120_1 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 1; }
+        @Override
         int PHASE_BITS() { return 10; }
+        @Override
         int FIR_LENGTH() { return d120_l; }
+        @Override
         int CONVOLVE() { return 30; }
     };
 
     static final int d120_1_b = 10;
     StageFunction d120_2 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 2; }
+        @Override
         int PHASE_BITS() { return 9; }
+        @Override
         int FIR_LENGTH() { return d120_l; }
+        @Override
         int CONVOLVE() { return 30; }
     };
 
     static final int  d120_2_b = 9;
     StageFunction d120_3 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 3; }
+        @Override
         int PHASE_BITS() { return 7; }
+        @Override
         int FIR_LENGTH() { return d120_l; }
+        @Override
         int CONVOLVE() {  return 30; }
     };
 
@@ -845,30 +874,44 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     static final int d150_l = 38;
 //    poly_fir_convolve_d150 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     StageFunction d150_0 = new RatePolyFir0() {
+        @Override
         int FIR_LENGTH() { return d150_l; }
+        @Override
         int CONVOLVE() { return 38; }
     };
 
     StageFunction d150_1 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 1; }
+        @Override
         int PHASE_BITS() { return 12; }
+        @Override
         int FIR_LENGTH() { return d150_l; }
+        @Override
         int CONVOLVE() { return 38; }
     };
 
     static final int d150_1_b = 12;
     StageFunction d150_2 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 2; }
+        @Override
         int PHASE_BITS() { return 10; }
+        @Override
         int FIR_LENGTH() { return d150_l; }
+        @Override
         int CONVOLVE() { return 38; }
     };
 
     static final int d150_2_b = 10;
     StageFunction d150_3 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 3; }
+        @Override
         int PHASE_BITS() { return 8; }
+        @Override
         int FIR_LENGTH() { return d150_l; }
+        @Override
         int CONVOLVE() { return 38; }
     };
 
@@ -876,30 +919,44 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     static final int U100_l = 42;
     // poly_fir_convolve_U100 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     StageFunction U100_0 = new RatePolyFir0() {
+        @Override
         int FIR_LENGTH() { return U100_l; }
+        @Override
         int CONVOLVE() { return 42; }
     };
 
     StageFunction U100_1 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 1; }
+        @Override
         int PHASE_BITS() { return 10; }
+        @Override
         int FIR_LENGTH() { return U100_l; }
+        @Override
         int CONVOLVE() { return 42; }
     };
 
     static final int U100_1_b = 10;
     StageFunction U100_2 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 2; }
+        @Override
         int PHASE_BITS() { return 8; }
+        @Override
         int FIR_LENGTH() { return U100_l; }
+        @Override
         int CONVOLVE() { return 42; }
     };
 
     static final int U100_2_b = 8;
     StageFunction U100_3 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 3; }
+        @Override
         int PHASE_BITS() { return 6; }
+        @Override
         int FIR_LENGTH() { return U100_l; }
+        @Override
         int CONVOLVE() { return 42; }
     };
 
@@ -907,30 +964,44 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     static final int u100_l = 10;
 //     poly_fir_convolve_u100 _ _ _ _ _ _ _ _ _ _
     StageFunction u100_0 = new RatePolyFir0() {
+        @Override
         int FIR_LENGTH() { return u100_l; }
+        @Override
         int CONVOLVE() { return 10; }
     };
 
     StageFunction u100_1 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 1; }
+        @Override
         int PHASE_BITS() { return 9; }
+        @Override
         int FIR_LENGTH() { return u100_l; }
+        @Override
         int CONVOLVE() { return 10; }
     };
 
     static final int u100_1_b = 9;
     StageFunction u100_2 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 2; }
+        @Override
         int PHASE_BITS() { return 7; }
+        @Override
         int FIR_LENGTH() { return u100_l; }
+        @Override
         int CONVOLVE() { return 10; }
     };
 
     static final int u100_2_b = 7;
     StageFunction u100_3 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 3; }
+        @Override
         int PHASE_BITS() { return 6; }
+        @Override
         int FIR_LENGTH() { return u100_l; }
+        @Override
         int CONVOLVE() { return 10; }
     };
 
@@ -938,30 +1009,44 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     static final int u120_l = 14;
     // poly_fir_convolve_u120 _ _ _ _ _ _ _ _ _ _ _ _ _ _
     StageFunction u120_0 = new RatePolyFir0() {
+        @Override
         int FIR_LENGTH() { return u120_l; }
+        @Override
         int CONVOLVE() { return 14; }
     };
 
     StageFunction u120_1 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 1; }
+        @Override
         int PHASE_BITS() { return 10; }
+        @Override
         int FIR_LENGTH() { return u120_l; }
+        @Override
         int CONVOLVE() { return 14; }
     };
 
     static final int u120_1_b = 10;
     StageFunction u120_2 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 2; }
+        @Override
         int PHASE_BITS() { return 8; }
+        @Override
         int FIR_LENGTH() { return u120_l; }
+        @Override
         int CONVOLVE() { return 14; }
     };
 
     static final int u120_2_b = 8;
     StageFunction u120_3 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 3; }
+        @Override
         int PHASE_BITS() { return 6; }
+        @Override
         int FIR_LENGTH() { return u120_l; }
+        @Override
         int CONVOLVE() { return 14; }
     };
 
@@ -969,30 +1054,44 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     static final int u150_l = 20;
     // poly_fir_convolve_u150 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
     StageFunction u150_0 = new RatePolyFir0() {
+        @Override
         int FIR_LENGTH() { return u150_l; }
+        @Override
         int CONVOLVE() { return 20; }
     };
 
     StageFunction u150_1 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 1; }
+        @Override
         int PHASE_BITS() { return 11; }
+        @Override
         int FIR_LENGTH() { return u150_l; }
+        @Override
         int CONVOLVE() { return 20; }
     };
 
     static final int  u150_1_b = 11;
     StageFunction u150_2 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 2; }
+        @Override
         int PHASE_BITS() { return 9; }
+        @Override
         int FIR_LENGTH() { return u150_l; }
+        @Override
         int CONVOLVE() { return 20; }
     };
 
     static final int u150_2_b = 9;
     StageFunction u150_3 = new RatePolyFir() {
+        @Override
         int COEF_INTERP() { return 3; }
+        @Override
         int PHASE_BITS() { return 7; }
+        @Override
         int FIR_LENGTH() { return u150_l; }
+        @Override
         int CONVOLVE() { return 20; }
     };
 
@@ -1173,7 +1272,7 @@ Debug.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, s.pre
     }
 
     /** */
-    private void rate_process(Rate p) {
+    private static void rate_process(Rate p) {
         int stage = p.input_stage_num; // p.stages
         for (int i = p.input_stage_num; i < p.output_stage_num; ++i, ++stage) {
             p.stages[stage + 1].fn.exec(p.stages[stage + 1], p.stages[stage + 1 + 1].fifo);
@@ -1181,7 +1280,7 @@ Debug.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, s.pre
     }
 
     /** */
-    private int rate_input(Rate p, double[] samples, int n) {
+    private static int rate_input(Rate p, double[] samples, int n) {
         p.samples_in += n;
 //Debug.println("write: " + n);
         return p.stages[p.input_stage_num + 1].fifo.write(n, samples);
@@ -1190,7 +1289,7 @@ Debug.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, s.pre
     /**
      * @param n [out]
      */
-    private int rate_output(Rate p, double[] samples, int[] n) {
+    private static int rate_output(Rate p, double[] samples, int[] n) {
         Fifo fifo = p.stages[p.output_stage_num + 1].fifo;
         n[0] = Math.min(n[0], fifo.occupancy());
         p.samples_out += n[0];
@@ -1232,7 +1331,7 @@ Debug.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, s.pre
     }
 
     /** */
-    private Priv priv;
+    private final Priv priv;
 
     /**
      * "+i:b:p:MILaqlmhvu"

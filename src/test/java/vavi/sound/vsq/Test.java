@@ -13,13 +13,11 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.concurrent.CountDownLatch;
 
-import javax.sound.midi.ControllerEventListener;
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
-import javax.sound.midi.ShortMessage;
 
 import vavi.util.Debug;
 
@@ -54,7 +52,8 @@ Debug.println(sequencer);
         Sequence sequence = MidiSystem.getSequence(new File(infile));
         sequencer.setSequence(sequence);
         sequencer.addMetaEventListener(new MetaEventListener() {
-            StringBuilder sb = new StringBuilder();
+            final StringBuilder sb = new StringBuilder();
+            @Override
             public void meta(MetaMessage meta) {
 //Debug.println(meta.getType());
                 switch (meta.getType()) {
@@ -90,27 +89,25 @@ Debug.println("unhandled meta: " + meta.getType());
                 }
             }
         });
-        sequencer.addControllerEventListener(new ControllerEventListener() {
-            public void controlChange(ShortMessage event) {
-                switch (event.getData1()) {
-                case 98: // NRPN LSB
+        sequencer.addControllerEventListener(event -> {
+            switch (event.getData1()) {
+            case 98: // NRPN LSB
 Debug.println("NRPN LSB: " + event.getData2());
-                    break;
-                case 99: // NRPN MSB
+                break;
+            case 99: // NRPN MSB
 Debug.println("NRPN MSB: " + event.getData2());
-                    break;
-                case 6: // データエントリ MSB
+                break;
+            case 6: // データエントリ MSB
 Debug.println("データエントリ MSB: " + event.getData2());
-                    break;
-                case 38: // データエントリ LSB
+                break;
+            case 38: // データエントリ LSB
 Debug.println("データエントリ LSB: " + event.getData2());
-                    break;
-                default:
+                break;
+            default:
 Debug.println("unhandled control change: " + event.getData1());
-                    break;
-                }
-
+                break;
             }
+
         }, null);
         sequencer.start();
         cdl.await();

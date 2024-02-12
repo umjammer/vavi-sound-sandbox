@@ -1,0 +1,4 @@
+opl3.test=/foo/bar/opl3.mid
+mocha.test=/foo/bar/mocha.mid
+jsyn.test=/foo/bar/jsyn.mid
+clip.test=/foo/bar/jsyn.m4a

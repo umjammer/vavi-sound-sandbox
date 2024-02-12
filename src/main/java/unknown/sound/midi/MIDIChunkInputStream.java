@@ -9,6 +9,7 @@ import unknown.sound.Message;
 
 
 public abstract class MIDIChunkInputStream extends ChunkInputStream {
+    @Override
     public abstract Message readMessage()
         throws InvalidMidiDataException, IOException;
 

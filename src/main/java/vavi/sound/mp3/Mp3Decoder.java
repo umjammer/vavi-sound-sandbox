@@ -140,10 +140,10 @@ Debug.println(StringUtil.paramString(this));
     private int m_pcm_size;
 
     /**
-     * 直近の同期アドレスを検索します。
-     * @return offset からの相対アドレス
+     * searches nearest sync address.
+     * @return relative address from offset
      */
-    public int findSync(byte[] buf, int offset, int size) {
+    public static int findSync(byte[] buf, int offset, int size) {
         size -= 3;
 
         if (size <= 0) {
@@ -264,7 +264,7 @@ Debug.println(StringUtil.paramString(this));
             for (int ch = 0; ch < channels; ch++) {
                 GrInfo gr_info = info[gr][ch];
 
-                // ビットストリーム分解
+                // extract bitstream
                 bitget_init(inBuf, inBuf_pointer + (main_pos_bit >> 3));
                 int bit0 = (main_pos_bit & 7);
 
@@ -275,16 +275,16 @@ Debug.println(StringUtil.paramString(this));
                 main_pos_bit += gr_info.length;
                 bitget_init_end(inBuf_pointer + ((main_pos_bit + 39) >> 3));
 
-                // ハフマン復号化
+                // huffman decode
                 l3huff_decode(dec, gr_info);
 
-                // 逆量子化
+                // dequantum
                 l3dequantum(dec, spec, gr_info);
 
-                // ハイブリッドフィルタバンク
+                // hybrid filter bank
                 l3dhybrid(sample, spec, ch);
 
-                // 出力バッファへの書きこみ
+                // output to buffer
                 for (int i = 0; i < GR_SIZE; i++) {
                     if (sample[i] > 1.0) {
                         sample[i] = (float) (1.0 - 1.0e-5);
@@ -301,9 +301,9 @@ Debug.println(StringUtil.paramString(this));
     }
 
     /**
-     * 逆量子化
+     * dequantum
      */
-    private void l3dequantum(int[] samp, float[] spec, GrInfo gr_info) {
+    private static void l3dequantum(int[] samp, float[] spec, GrInfo gr_info) {
         float xs = (float) Math.pow(2.0, (gr_info.gain - 210.0) / 4);
 
         for (int i = 0; i < GR_SIZE; i++) {
@@ -312,7 +312,7 @@ Debug.println(StringUtil.paramString(this));
     }
 
     /**
-     * ハフマン復号化
+     * huffman decoder
      */
     private void l3huff_decode(int[] dec, GrInfo gr_info) {
         int big_values = gr_info.bigValues * 2;
@@ -325,7 +325,7 @@ Debug.println(StringUtil.paramString(this));
     }
 
     /**
-     * ビットストリームの分解
+     * extracts bitstream
      */
     private int l3dstream_sideinfo(GrInfo[][] info, int channels) {
         int size;
@@ -365,7 +365,7 @@ Debug.println(info[gr][ch]);
     }
 
     /**
-     * ハフマン復号化
+     * huffman encoder
      */
     private static final int[] huff_tbl_16 = {
             0xff000001, 0x00000003, 0x01000000,
@@ -533,7 +533,7 @@ Debug.println(info[gr][ch]);
     }
 
     /**
-     * ハフマン復号化
+     * huffman decoder
      */
     private void huff_decodebits(int[] xy, int n) {
         int code;
@@ -620,7 +620,7 @@ Debug.println(info[gr][ch]);
     }
 
     /**
-     * ビットストリームの分解
+     * extract bitstream
      */
     private void bitget_init_end(int buf_end) {
         m_bs_ptr_end = buf_end;
@@ -631,7 +631,7 @@ Debug.println(info[gr][ch]);
 
         if (m_bits < n) {
             while (m_bits <= 24) {
-Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
+Debug.printf("%02x", base[m_bs_ptr]);
                 m_bitbuf = ((m_bitbuf << 8)) | (base[m_bs_ptr++] & 0xff);
                 m_bits += 8;
             }
@@ -701,30 +701,30 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
     }
 
     /**
-     * ハイブリッドフィルタバンク
+     * hybrid filter bank
      */
     private void l3dhybrid(float[] sample, float[] spec, int ch) {
         float[][] sbsamp = new float[SS_SIZE][SB_SIZE];
 
-        // バタフライ演算
+        // butterfly computation
         l3dalias(spec);
 
         // MDCT
         l3imdct(sbsamp, m_dsbsampprv[ch], spec);
 
-        // サブバンドフィルタ
+        // sub band filter
         for (int ss = 0; ss < SS_SIZE; ss++) {
             l3dsubband(sample, ss * SB_SIZE, sbsamp[ss], ch);
         }
     }
 
-    private float[][] m_imdcttbl = new float[SCALE_BLOCK / 2][SCALE_BLOCK];
-    private float[][] m_imdctcos = new float[SCALE_BLOCK / 2][SCALE_BLOCK];
+    private final float[][] m_imdcttbl = new float[SCALE_BLOCK / 2][SCALE_BLOCK];
+    private final float[][] m_imdctcos = new float[SCALE_BLOCK / 2][SCALE_BLOCK];
 
     /**
      */
-    private float[] m_imdctwin = new float[SCALE_BLOCK];
-    private float[][][] m_dsbsampprv = new float[CH_MAX][SS_SIZE][SB_SIZE];
+    private final float[] m_imdctwin = new float[SCALE_BLOCK];
+    private final float[][][] m_dsbsampprv = new float[CH_MAX][SS_SIZE][SB_SIZE];
 
     /** */
     private void l3imdct_init() {
@@ -775,7 +775,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
     }
 
     /**
-     * IMDCT (逆変形離散余弦変換)
+     * IMDCT (inverse modified discrete cosine transform)
      */
     private void imdct(float[] in, int in_p, float[] out) {
         for (int m = 0; m < SCALE_BLOCK; m++) {
@@ -788,9 +788,9 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
     }
 
     /** */
-    private int[] m_dxoff = new int[CH_MAX];
+    private final int[] m_dxoff = new int[CH_MAX];
     /** */
-    private float[][] m_dsbcostbl = new float[SB_SIZE][SCALE_RANGE];
+    private final float[][] m_dsbcostbl = new float[SB_SIZE][SCALE_RANGE];
 
     /* init table */
     {
@@ -803,16 +803,16 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
         }
     }
 
-    /** バタフライ演算の係数 */
+    /** coefficient for butterfly computation */
     private static final double[] m_dcn = {
         -0.6000, -0.5350, -0.3300, -0.1850,
         -0.0950, -0.0410, -0.0142, -0.0037
     };
     /** */
-    private float[] m_dca = new float[8];
+    private final float[] m_dca = new float[8];
 
     /** */
-    private float[] m_dcs = new float[8];
+    private final float[] m_dcs = new float[8];
 
     /** */
     private void l3dalias_init() {
@@ -824,7 +824,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
     }
 
     /**
-     * 折り返し歪み削減バタフライ
+     * folded distortion reduction butterfly
      */
     private void l3dalias(float[] x) {
         int n = SB_SIZE - 1;
@@ -975,16 +975,16 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
     };
 
     /** */
-    private float[][] m_dxbuf = new float[CH_MAX][HAN_SIZE * 2];
+    private final float[][] m_dxbuf = new float[CH_MAX][HAN_SIZE * 2];
 
     /**
-     * サブバンド合成フィルタ
+     * sub band synthesis filter
      */
     private void l3dsubband(float[] sample, int sample_p, float[] s, int ch) {
         float coef = -1.0f;
         float[] w = new float[512];
 
-        // 周波数帯域信号の計算(IDCT,32×64)
+        // frequency band signal calculation (IDCT,32×64)
         for (int i = 0; i < SCALE_RANGE; i++) {
             float sum = 0.0f;
 
@@ -995,7 +995,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
             m_dxbuf[ch][m_dxoff[ch] + i] = sum;
         }
 
-        // フィルタ合成
+        // filter synthesis
         for (int i = 0; i < SB_SIZE; i++) {
             for (int j = 0; j < 8; j++) {
                 int l = i + (j * 64);
@@ -1009,7 +1009,7 @@ Debug.println(StringUtil.toHex2(base[m_bs_ptr]));
             }
         }
 
-        // 周期加算信号の計算
+        // calculation of period addition signal
         for (int i = 0; i < SB_SIZE; i++) {
             float sum = 0.0f;
 

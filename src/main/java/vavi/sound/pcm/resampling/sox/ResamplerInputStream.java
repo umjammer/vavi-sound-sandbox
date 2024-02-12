@@ -35,13 +35,13 @@ class ResamplerInputStream extends FilterInputStream {
     private static class ResamplerOutputEngine implements OutputEngine {
 
         /** */
-        private InputStream in;
+        private final InputStream in;
 
         /** */
         private DataOutputStream out;
 
         /** */
-        private Resampler resampler;
+        private final Resampler resampler;
 
         /** */
         public ResamplerOutputEngine(InputStream is, float in, float out) throws IOException {
@@ -49,7 +49,7 @@ class ResamplerInputStream extends FilterInputStream {
             this.resampler = new Resampler(in, out);
         }
 
-        /** */
+        @Override
         public void initialize(OutputStream out) throws IOException {
             if (this.out != null) {
                 throw new IOException("Already initialized");
@@ -58,9 +58,9 @@ class ResamplerInputStream extends FilterInputStream {
             }
         }
 
-        private byte[] sample = new byte[44100 * 2];
+        private final byte[] sample = new byte[44100 * 2];
 
-        /** */
+        @Override
         public void execute() throws IOException {
             if (out == null) {
                 throw new IOException("Not yet initialized");
@@ -85,7 +85,7 @@ Debug.println(r / 2 + ", " + resamples.length);
             }
         }
 
-        /** */
+        @Override
         public void finish() throws IOException {
             in.close();
         }

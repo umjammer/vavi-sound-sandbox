@@ -12,6 +12,7 @@ public class TitleMessage extends InformationMessage {
         messageTitle = str;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] title = getTitle().getBytes();
         byte[] data = {

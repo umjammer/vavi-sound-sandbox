@@ -60,46 +60,57 @@ public class SuperCutDataSource extends PushBufferDataSource {
         }
     }
 
+    @Override
     public void connect() throws java.io.IOException {
     }
 
+    @Override
     public PushBufferStream[] getStreams() {
         return streams;
     }
 
+    @Override
     public void start() throws java.io.IOException {
         p.start();
         ds.start();
     }
 
+    @Override
     public void stop() throws java.io.IOException {
     }
 
+    @Override
     public Object getControl(String name) {
         // No controls
         return null;
     }
 
+    @Override
     public Object[] getControls() {
         // No controls
         return new Control[0];
     }
 
+    @Override
     public Time getDuration() {
         return ds.getDuration();
     }
 
+    @Override
     public void disconnect() {
     }
 
+    @Override
     public String getContentType() {
         return ContentDescriptor.RAW;
     }
 
+    @Override
     public MediaLocator getLocator() {
         return ml;
     }
 
+    @Override
     public void setLocator(MediaLocator ml) {
         System.err.println("Not interested in a media locator");
     }
@@ -134,7 +145,7 @@ public class SuperCutDataSource extends PushBufferDataSource {
         Format format;
 
         // Single buffer Queue.
-        Buffer buffer;
+        final Buffer buffer;
 
         int bufferFilled = 0;
 
@@ -214,10 +225,11 @@ public class SuperCutDataSource extends PushBufferDataSource {
         /**
          * This is invoked from the consumer processor to read a frame from me.
          */
+        @Override
         public void read(Buffer rdBuf) throws IOException {
 
-            /**
-             * Check if there's any buffer in the Q to read.
+            /*
+              Check if there's any buffer in the Q to read.
              */
             synchronized (buffer) {
                 while (bufferFilled == 0) {
@@ -340,7 +352,7 @@ public class SuperCutDataSource extends PushBufferDataSource {
         /**
          * Compute the duration based on the length and format of the audio.
          */
-        public long computeDuration(int len, Format fmt) {
+        public static long computeDuration(int len, Format fmt) {
             if (!(fmt instanceof AudioFormat))
                 return -1;
             return ((AudioFormat) fmt).computeDuration(len);
@@ -349,44 +361,51 @@ public class SuperCutDataSource extends PushBufferDataSource {
         /**
          * Compute the length based on the duration and format of the audio.
          */
-        public int computeLength(long duration, Format fmt) {
-            if (!(fmt instanceof AudioFormat))
+        public static int computeLength(long duration, Format fmt) {
+            if (!(fmt instanceof AudioFormat af))
                 return -1;
-            AudioFormat af = (AudioFormat) fmt;
             // Multiplication is done is stages to avoid overflow.
             return (int) ((((duration / 1000) * (af.getChannels() * af.getSampleSizeInBits())) / 1000) * af.getSampleRate() / 8000);
         }
 
+        @Override
         public ContentDescriptor getContentDescriptor() {
             return new ContentDescriptor(ContentDescriptor.RAW);
         }
 
+        @Override
         public boolean endOfStream() {
             return eos;
         }
 
+        @Override
         public long getContentLength() {
             return LENGTH_UNKNOWN;
         }
 
+        @Override
         public Format getFormat() {
             return tc.getFormat();
         }
 
+        @Override
         public void setTransferHandler(BufferTransferHandler bth) {
             this.bth = bth;
         }
 
+        @Override
         public Object getControl(String name) {
             // No controls
             return null;
         }
 
+        @Override
         public Object[] getControls() {
             // No controls
             return new Control[0];
         }
 
+        @Override
         public synchronized void transferData(PushBufferStream pbs) {
             processData();
         }
@@ -396,7 +415,7 @@ public class SuperCutDataSource extends PushBufferDataSource {
         /**
          * Utility function to check for raw (linear) audio.
          */
-        boolean isRawAudio(Format format) {
+        static boolean isRawAudio(Format format) {
             return (format instanceof AudioFormat) && format.getEncoding().equalsIgnoreCase(AudioFormat.LINEAR);
         }
     }

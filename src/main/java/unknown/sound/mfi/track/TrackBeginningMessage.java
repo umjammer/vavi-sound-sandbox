@@ -14,6 +14,7 @@ public class TrackBeginningMessage extends SystemMessage {
         messageBeginningData = data;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] bytes = {
                            (byte) getDeltaTime(), -1, -48,

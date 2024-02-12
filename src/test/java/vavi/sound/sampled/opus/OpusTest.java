@@ -1,7 +1,8 @@
-package vavi.sound.sampled.opus;
 /*
  * https://github.com/lostromb/concentus
  */
+
+package vavi.sound.sampled.opus;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -22,6 +23,7 @@ import org.gagravarr.opus.OpusInfo;
 import org.gagravarr.opus.OpusTags;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import vavi.util.Debug;
 
 
 /**
@@ -112,10 +114,10 @@ public class OpusTest {
         }
 
         long end = System.currentTimeMillis();
-        System.out.println("Time was " + (end - start) + "ms");
+        Debug.println("Time was " + (end - start) + "ms");
         fileIn.close();
         fileOut.close();
-        System.out.println("Done!");
+        Debug.println("Done!");
     }
 
     /**

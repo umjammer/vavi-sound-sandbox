@@ -5,6 +5,7 @@ import unknown.sound.midi.DeltaTimedMessage;
 
 
 public class SystemExclusiveMessage extends TrackMessage {
+    @Override
     public byte[] toBytes() {
         byte[] src = getDataBytes();
         byte[] dataLength = DeltaTimedMessage.getDataAsBytes(src.length);

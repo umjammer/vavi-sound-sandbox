@@ -17,8 +17,7 @@
 package com.jsyn.examples;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +39,7 @@ import com.jsyn.unitgen.PassThrough;
  * @author Phil Burk (C) 2012 Mobileer Inc
  */
 public class DualOscilloscope extends JApplet {
+    @Serial
     private static final long serialVersionUID = -2704222221111608377L;
     private Synthesizer synth;
     private ChannelIn channel1;
@@ -49,9 +49,9 @@ public class DualOscilloscope extends JApplet {
     private AudioScope scope;
     private AudioDeviceManager audioManager;
     private int defaultInputId;
-    private List<String> deviceNames = new ArrayList<>();
-    private List<Integer> deviceMaxInputs = new ArrayList<>();
-    private List<Integer> deviceIds = new ArrayList<>();
+    private final List<String> deviceNames = new ArrayList<>();
+    private final List<Integer> deviceMaxInputs = new ArrayList<>();
+    private final List<Integer> deviceIds = new ArrayList<>();
     private int defaultSelection;
     private JComboBox<?> deviceComboBox;
 
@@ -95,14 +95,10 @@ public class DualOscilloscope extends JApplet {
         deviceComboBox = new JComboBox<>(deviceNames.toArray(new String[0]));
         deviceComboBox.setSelectedIndex(defaultSelection);
         add(deviceComboBox, BorderLayout.NORTH);
-        deviceComboBox.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                stopAudio();
-                int itemIndex = deviceComboBox.getSelectedIndex();
-                startAudio(itemIndex);
-            }
+        deviceComboBox.addActionListener(e -> {
+            stopAudio();
+            int itemIndex = deviceComboBox.getSelectedIndex();
+            startAudio(itemIndex);
         });
 
         scope = new AudioScope(synth);

@@ -71,6 +71,7 @@ public abstract class ITLibMediaItem extends ITLibMediaEntity {
     public abstract String category();
 
     // NullAllowed
+    @Override
     public abstract String description();
 
     /**

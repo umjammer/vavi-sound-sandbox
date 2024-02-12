@@ -39,10 +39,10 @@ import vavi.util.Debug;
 public class VSQ {
 
     /** */
-    private List<Block>[] tracks;
+    private final List<Block>[] tracks;
 
     /**
-     * @param sequence will be update 
+     * @param sequence will be updated
      */
     @SuppressWarnings("unchecked")
     public VSQ(Sequence sequence) throws IOException {
@@ -164,7 +164,7 @@ Debug.println("track[" + i + "]: " + tracks[i].size());
     /**
      * @throws IllegalArgumentException sequence has not "Voice#"
      */
-    private String[] getData(Sequence sequence) throws IOException {
+    private static String[] getData(Sequence sequence) throws IOException {
         Track[] tracks = sequence.getTracks();
 Debug.println("tracks: " + tracks.length);
         String[] results = new String[tracks.length - 1];
@@ -180,9 +180,8 @@ Debug.println("events[" + t + "]: " + track.size());
                     MidiEvent event = track.get(e);
                     MidiMessage message = event.getMessage();
 //Debug.println("message: " + message);
-                    if (message instanceof MetaMessage) {
-                        MetaMessage meta = (MetaMessage) message;
-//Debug.println(meta.getType());
+                    if (message instanceof MetaMessage meta) {
+                        //Debug.println(meta.getType());
                         switch (meta.getType()) {
                         case 1:  // テキスト・イベント 127 bytes
                             byte[] data = meta.getData();

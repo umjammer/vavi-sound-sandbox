@@ -1,6 +1,7 @@
 package unknown.sound.midi.track;
 
 public class UnknownMessage extends MetaEventMessage {
+    @Override
     public byte[] toBytes() {
         byte[] unknownData = getDataBytes();
         byte[] byteData = MetaEventMessage.arrayCopy(super.toBytes(),

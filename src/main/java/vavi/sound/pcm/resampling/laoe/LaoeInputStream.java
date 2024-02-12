@@ -36,13 +36,13 @@ public class LaoeInputStream extends FilterInputStream {
     private static class LaoeOutputEngine implements OutputEngine {
 
         /** */
-        private InputStream in;
+        private final InputStream in;
 
         /** */
         private DataOutputStream out;
 
         /** */
-        private Resampler resampler;
+        private final Resampler resampler;
 
         /** */
         public LaoeOutputEngine(InputStream is, float in, float out) throws IOException {
@@ -51,6 +51,7 @@ public class LaoeInputStream extends FilterInputStream {
         }
 
         /** */
+        @Override
         public void initialize(OutputStream out) throws IOException {
             if (this.out != null) {
                 throw new IOException("Already initialized");
@@ -60,6 +61,7 @@ public class LaoeInputStream extends FilterInputStream {
         }
 
         /** */
+        @Override
         public void execute() throws IOException {
             if (out == null) {
                 throw new IOException("Not yet initialized");
@@ -85,6 +87,7 @@ public class LaoeInputStream extends FilterInputStream {
         }
 
         /** */
+        @Override
         public void finish() throws IOException {
             in.close();
         }

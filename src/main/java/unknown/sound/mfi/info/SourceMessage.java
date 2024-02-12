@@ -9,6 +9,7 @@ public class SourceMessage extends InformationMessage {
         messageSource = source;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] data = { 115, 111, 114, 99, 0, 1, (byte) getSource() };
         return data;

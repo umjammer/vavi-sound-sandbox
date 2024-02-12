@@ -79,7 +79,7 @@ public class Polyphase {
     }
 
     /** */
-    private PolyWork work = new PolyWork();
+    private final PolyWork work = new PolyWork();
 
     /** */
     private int win_type = 0;
@@ -106,7 +106,7 @@ public class Polyphase {
     };
 
     /** */
-    private int prime(int n, int[] q0) {
+    private static int prime(int n, int[] q0) {
         int pr;
 
         int p = 0; // primes
@@ -131,7 +131,7 @@ Debug.printf(Level.FINE, " %d", q0[pr]);
     }
 
     /** */
-    private Random random;
+    private final Random random;
 
     /** */
     private int permute(int[] m, int[] l, int ct, int ct1, int amalg) {
@@ -249,7 +249,7 @@ fail:
      * Calculate a Nuttall window of a given length. Buffer must already be
      * allocated to appropriate size.
      */
-    private void nuttall(double[] buffer, int length) {
+    private static void nuttall(double[] buffer, int length) {
 
         if (buffer == null || length <= 0) {
             throw new IllegalArgumentException(String.format("Illegal buffer %s or length %d to nuttall.", Arrays.toString(buffer), length));
@@ -268,7 +268,7 @@ fail:
      * Calculate a Hamming window of given length. Buffer must already be
      * allocated to appropriate size.
      */
-    private void hamming(double[] buffer, int length) {
+    private static void hamming(double[] buffer, int length) {
 
         if (buffer == null || length <= 0) {
             throw new IllegalArgumentException(String.format("Illegal buffer %s or length %d to hamming.", Arrays.toString(buffer), length));
@@ -281,7 +281,7 @@ fail:
     }
 
     /** Calculate the sinc function properly */
-    private double sinc(double value) {
+    private static double sinc(double value) {
         return Math.abs(value) < 1E-50 ? 1.0 : Math.sin(value) / value;
     }
 
@@ -321,11 +321,11 @@ fail:
 //Debug.printf(Level.FINE, "# end\n\n");
     }
 
-    /** */
-//  private static final int RIBLEN = 2048;
+//    /** */
+//    private static final int RIBLEN = 2048;
 
     /** */
-    private float st_gcd(float a, float b) {
+    private static float st_gcd(float a, float b) {
         if (b == 0) {
             return a;
         } else {
@@ -455,7 +455,7 @@ Debug.printf("Poly:  output samples %d, oskip %d\n", -1 /* size */, work.oskip);
      * REMARK: putting this in a separate subroutine improves gcc's optimization
      * </p>
      */
-    private double st_prod(double[] q, int qP, int qstep, double[] p, int pP, int n) {
+    private static double st_prod(double[] q, int qP, int qstep, double[] p, int pP, int n) {
 //Debug.printf("qP: %d, qstep: %d, pP: %d, n: %d, (%d)\n", qP, qstep, pP, n, q.length);
         double sum = 0;
         int p0 = pP - n; // p
@@ -490,7 +490,7 @@ Debug.printf("Poly:  output samples %d, oskip %d\n", -1 /* size */, work.oskip);
     }
 
     /** */
-    private void update_hist(double[] hist, int hist_size, int in_size) {
+    private static void update_hist(double[] hist, int hist_size, int in_size) {
         int p = 0; // hist;
         int p1 = hist_size;
         int q = in_size;
@@ -505,7 +505,7 @@ Debug.printf("Poly:  output samples %d, oskip %d\n", -1 /* size */, work.oskip);
     private static final int ST_SAMPLE_MIN = (-ST_SAMPLE_MAX - 1);
 
     /** TODO check */
-    private int clipfloat(double sample) {
+    private static int clipfloat(double sample) {
 //Debug.printf("%f\n", sample);
         if (sample > ST_SAMPLE_MAX) {
             return ST_SAMPLE_MAX;

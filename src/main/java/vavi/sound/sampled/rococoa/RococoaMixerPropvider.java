@@ -25,17 +25,17 @@ public class RococoaMixerPropvider extends MixerProvider {
 
     @Override
     public Info[] getMixerInfo() {
-        return new Info[] { RococoaMixer.mixerInfo };
+        return new Info[] {RococoaMixer.mixerInfo};
     }
 
     @Override
     public Mixer getMixer(Info info) {
         if (info == RococoaMixer.mixerInfo) {
-Debug.println(Level.FINE, "★1 info: " + info);
+            Debug.println(Level.FINE, "★1 info: " + info);
             RococoaMixer mixer = new RococoaMixer();
             return mixer;
         } else {
-Debug.println(Level.FINE, "not suitable for this provider: " + info);
+            Debug.println(Level.FINE, "not suitable for this provider: " + info);
             throw new IllegalArgumentException("info is not suitable for this provider");
         }
     }

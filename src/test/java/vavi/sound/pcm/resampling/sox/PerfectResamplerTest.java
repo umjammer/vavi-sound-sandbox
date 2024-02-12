@@ -41,6 +41,8 @@ class PerfectResamplerTest {
     static String inFile = "src/test/resources/test.wav";
     static String outFile = "tmp/out.vavi.wav";
 
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
     @Test
     void test1() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
@@ -102,7 +104,7 @@ Debug.println("OUT: " + audioFormat);
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(audioFormat);
-        volume(line, .2d);
+        volume(line, volume);
         line.start();
         int l = 0;
         while (l < dest.length) {

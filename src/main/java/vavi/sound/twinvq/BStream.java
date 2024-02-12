@@ -43,7 +43,7 @@ class BStream {
      *
      * @return none
      */
-    private int getString(byte[] buf, int nbytes, BFile bfp) throws IOException {
+    private static int getString(byte[] buf, int nbytes, BFile bfp) throws IOException {
         int ichar, ibit;
         int[] c = new int[1];
 
@@ -71,7 +71,7 @@ class BStream {
         getString(chunkID, TwinVQ.KEYWORD_BYTES + TwinVQ.VERSION_BYTES, bfp);
         TVQ_VERSION = twinVq.TvqCheckVersion(new String(chunkID));
         if (TVQ_VERSION == TwinVQ.TVQ_UNKNOWN_VERSION) {
-            throw new IllegalArgumentException(String.format("Header reading error: Unknown version (%s).\n", (Object) chunkID));
+            throw new IllegalArgumentException(String.format("Header reading error: Unknown version (%s).\n", chunkID));
         }
 
         if (bfp.getBStream(chunkSize, 0, TwinVQ.ELEM_BYTES * BFile.CHAR_BITS) <= 0) {
@@ -106,7 +106,7 @@ class BStream {
         getString(lbuf, TwinVQ.KEYWORD_BYTES, bfp);
         if (Arrays.equals(lbuf, "DATA".getBytes())) {
             throw new IllegalArgumentException(
-                    String.format("TwinVQ format error. No \"DATA\" chunk was found. found %s chunk", (Object) lbuf));
+                    String.format("TwinVQ format error. No \"DATA\" chunk was found. found %s chunk", lbuf));
         }
 
         return twinChunk;
@@ -158,7 +158,7 @@ class BStream {
      *
      * @return number of bits read
      */
-    private int getBseInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
+    private static int getBseInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
         int i_sup, isf, itmp, idiv;
         int bitcount = 0;
 
@@ -184,7 +184,7 @@ class BStream {
      *
      * @return number of bits read
      */
-    private int getGainInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
+    private static int getGainInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
         int i_sup, iptop, isf;
         int bitcount = 0;
 
@@ -204,7 +204,7 @@ class BStream {
      *
      * @return number of bits read
      */
-    private int getLspInfo(ConfInfo cf, Index index, BFile bfp) throws IOException {
+    private static int getLspInfo(ConfInfo cf, Index index, BFile bfp) throws IOException {
         int i_sup, itmp;
         int bitcount = 0;
 
@@ -227,7 +227,7 @@ class BStream {
      *
      * @return number of bits read
      */
-    private int getPpcInfo(ConfInfo cf, Index index, BFile bfp) throws IOException {
+    private static int getPpcInfo(ConfInfo cf, Index index, BFile bfp) throws IOException {
         int idiv, i_sup;
         int bitcount = 0;
 
@@ -248,7 +248,7 @@ class BStream {
      *
      * @return number of bits read
      */
-    private int getEbcInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
+    private static int getEbcInfo(ConfInfo cf, ConfInfoSubBlock cfg, Index index, BFile bfp) throws IOException {
         int i_sup, isf, itmp;
         int bitcount = 0;
 
@@ -286,7 +286,7 @@ class BStream {
         // Window type
         bitcount += bfp.getBStream(index.w_type, 0, cf.BITS_WTYPE);
         if (twinVq.TvqWtypeToBtype(index.w_type[0], index.btype) != 0) {
-            System.err.printf("Error: unknown window type: %d\n", (Object) index.w_type);
+            System.err.printf("Error: unknown window type: %d\n", index.w_type);
             return 0;
         }
         int btype = index.btype[0];

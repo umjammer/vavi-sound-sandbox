@@ -71,7 +71,7 @@ Debug.println("encoding: " + encoding);
         }
     }
 
-    private OPL3 opl;
+    private final OPL3 opl;
 
     protected Opl3Player() {
         opl = new OPL3();

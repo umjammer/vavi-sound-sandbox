@@ -6,6 +6,8 @@ package vavi.sound.ldcelp;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import vavi.util.Debug;
 
@@ -27,12 +29,12 @@ import vavi.util.Debug;
 public class LdCelp {
 
     /** Arrays for band widening: zeros and */
-    private float[] pwf_z_vec = new float[Constants.LPCW + 1];
+    private final float[] pwf_z_vec = new float[Constants.LPCW + 1];
     /** poles */
-    private float[] pwf_p_vec = new float[Constants.LPCW + 1];
-    private float[] pwf_old_input = new float[Constants.LPCW + Constants.NFRSZ + Constants.NONRW];
+    private final float[] pwf_p_vec = new float[Constants.LPCW + 1];
+    private final float[] pwf_old_input = new float[Constants.LPCW + Constants.NFRSZ + Constants.NONRW];
     /** Recursive Part */
-    private float[] pwf_rec = new float[Constants.LPCW + 1];
+    private final float[] pwf_rec = new float[Constants.LPCW + 1];
 
     /**
      * @param z_out zero coefficients
@@ -83,10 +85,10 @@ public class LdCelp {
 
     // Backward Synthesis Filter Adapter --------------------------------------
 
-    private float[] facv = new float[Constants.LPC + 1];
+    private final float[] facv = new float[Constants.LPC + 1];
 
-    private float[] bsf_old_input = new float[Constants.LPC + Constants.NFRSZ + Constants.NONR];
-    private float[] bsf_rec = new float[Constants.LPC + 1];
+    private final float[] bsf_old_input = new float[Constants.LPC + Constants.NFRSZ + Constants.NONR];
+    private final float[] bsf_rec = new float[Constants.LPC + 1];
 
     /** */
     void bsf_adapter(float[] input, float[] p_out) {
@@ -131,8 +133,8 @@ public class LdCelp {
     };
 
     /** Recursive part for Hybrid Window */
-    private float[] g_rec = new float[Constants.LPCLG + 1];
-    private float[] g_old_input = new float[Constants.LPCLG + Constants.NUPDATE + Constants.NONRLG];
+    private final float[] g_rec = new float[Constants.LPCLG + 1];
+    private final float[] g_old_input = new float[Constants.LPCLG + Constants.NUPDATE + Constants.NONRLG];
 
     /** recompute lpc_coeff */
     void gain_adapter(float[] log_gain, float[] coeff) {
@@ -202,15 +204,15 @@ public class LdCelp {
      * @param rec recursive part (size LPSIZE)
      * @param decay scaling for the old recursive part.
      */
-    private void hybwin(int lpsize,
-                        int framesize,
-                        int nrsize,
-                        float[] old_input,
-                        float[] new_input,
-                        float[] output,
-                        float[] window,
-                        float[] rec,
-                        float decay) {
+    private static void hybwin(int lpsize,
+                               int framesize,
+                               int nrsize,
+                               float[] old_input,
+                               float[] new_input,
+                               float[] output,
+                               float[] window,
+                               float[] rec,
+                               float decay) {
 
         // M + L
         int N1 = lpsize + framesize;
@@ -254,7 +256,7 @@ public class LdCelp {
      * Levinson-Durbin algorithm
      * return 1 if ok, otherwise 0
      */
-    private int levdur(float[] acorr, float[] coeff, int order) {
+    private static int levdur(float[] acorr, float[] coeff, int order) {
         // Local variables
         int minc2;
         float s;
@@ -310,7 +312,7 @@ public class LdCelp {
     }
 
     /** */
-    private float[] a10 = new float[11];
+    private final float[] a10 = new float[11];
     /** */
     private float k10;
 
@@ -396,12 +398,12 @@ public class LdCelp {
     /**
      * Don't have to worry about i=0 -- z_vec[0] and p_vec[0] should stay 1.0.
      */
-    private void  bw_expand2(float[] input,
-                             float[] z_out,
-                             float[] p_out,
-                             int order,
-                             float[] z_vec,
-                             float[] p_vec) {
+    private static void  bw_expand2(float[] input,
+                                    float[] z_out,
+                                    float[] p_out,
+                                    int order,
+                                    float[] z_vec,
+                                    float[] p_vec) {
 
         for (int i = 1; i <= order; i++) {
             z_out[i] = z_vec[i] * input[i];
@@ -412,10 +414,10 @@ public class LdCelp {
     }
 
     /** Poles only */
-    private void bw_expand1(float[] input,
-                            float[] p_out,
-                            int order,
-                            float[] p_vec) {
+    private static void bw_expand1(float[] input,
+                                   float[] p_out,
+                                   int order,
+                                   float[] p_vec) {
 
         for (int i = 1; i <= order; i++) {
             p_out[i] = p_vec[i] * input[i];
@@ -423,7 +425,7 @@ public class LdCelp {
     }
 
     /** */
-    private void autocorr(float[] x, float[] r, int k, int m, int n) {
+    private static void autocorr(float[] x, float[] r, int k, int m, int n) {
 
         for (int ii = 0; ii <= k; ii++) {
             r[ii] = 0;
@@ -438,11 +440,11 @@ public class LdCelp {
 
     /** Index of the end of the decoded speech */
     private int dec_end;
-    /** */
-//  private int encoder_done = 0;
+//    /** */
+//    private int encoder_done = 0;
 
     /**
-     * @args -d[p]|-e infile outfile
+     * @param args -d[p]|-e infile outfile
      */
     public static void main(String[] args) throws Exception {
 
@@ -454,7 +456,7 @@ public class LdCelp {
         if (args[0].equals("-e")) {
             ldCelp.ifile_name = args[1];
             ldCelp.xfile_name = args[2];
-            ldCelp.ffase = 1;
+            ldCelp.ffase.set(1);
             ldCelp.encoder();
         } else if (args[0].startsWith("-d")) {
             if (args[0].length() > 2 && args[0].charAt(2) == 'p') {
@@ -464,7 +466,7 @@ public class LdCelp {
             }
             ldCelp.xfile_name = args[1];
             ldCelp.ofile_name = args[2];
-            ldCelp.ffase = 1;
+            ldCelp.ffase.set(1);
             ldCelp.decoder();
         } else {
             usage();
@@ -479,7 +481,7 @@ public class LdCelp {
     }
 
     /** */
-    private float[] thequeue = new float[QSIZE];
+    private final float[] thequeue = new float[QSIZE];
     /** */
     private int float_pointer_vector_end;
 
@@ -487,9 +489,7 @@ public class LdCelp {
     void encoder() throws IOException {
 
         init_encoder();
-        for (int i = 0; i < QSIZE; i++) {
-            thequeue[i] = 0;
-        }
+        Arrays.fill(thequeue, 0);
         for (int vnum = 0; read_sound_buffer(Constants.IDIM, thequeue, (vnum * Constants.IDIM) % QSIZE) > 0; vnum++) {
             float_pointer_vector_end = (vnum * Constants.IDIM) % QSIZE + Constants.IDIM;
             encode_vector(false);
@@ -568,7 +568,7 @@ public class LdCelp {
             dec_end -= QSIZE;
         }
         // declare array and its copy together with a semafor
-        ffase = (ffase == 4 ? 1 : ffase + 1);    // Update vector counter
+        ffase.set(ffase.get() == 4 ? 1 : ffase.get() + 1);    // Update vector counter
     }
 
     /**
@@ -584,20 +584,20 @@ public class LdCelp {
 
         // Backward syn. filter coeff update.  Occurs after full frame (before
         // first vector) but not used until the third vector of the frame
-        if (ffase == 1) {
+        if (ffase.get() == 1) {
             CIRCOPY(synth, synspeech, dec_end,
                            Constants.NUPDATE * Constants.IDIM, QSIZE);
             bsf_adapter(synth, _next[SF_COEFF]); // Compute then new coeff
         }
 
         // Before third vector of frame
-        if (ffase == 3) {
+        if (ffase.get() == 3) {
             // Copy coeff computed above(2 frames later)
             _obsolete_p[SF_COEFF] = 1;
         }
 
         // Gain coeff update before second vector of frame
-        if (ffase == 2) {
+        if (ffase.get() == 2) {
             gx = dec_end / Constants.IDIM;
             CIRCOPY(lg, log_gains, gx, Constants.NUPDATE,
                            QSIZE / Constants.IDIM);
@@ -605,7 +605,7 @@ public class LdCelp {
             _obsolete_p[GP_COEFF] = 1;
         }
 
-        if (ffase == 3) {
+        if (ffase.get() == 3) {
             CIRCOPY(input, thequeue, dec_end,
                            Constants.NUPDATE * Constants.IDIM, QSIZE);
             pwf_adapter(input, _next[PWF_Z_COEFF], _next[PWF_P_COEFF]);
@@ -613,7 +613,7 @@ public class LdCelp {
             _obsolete_p[PWF_P_COEFF] = 1;
         }
 
-        if (ffase == 3) {
+        if (ffase.get() == 3) {
             iresp_vcalc(_next[SF_COEFF], _next[PWF_Z_COEFF],
                         _next[PWF_P_COEFF], _next[IMP_RESP]);
             shape_conv(_next[IMP_RESP], _next[SHAPE_ENERGY]);
@@ -625,10 +625,10 @@ public class LdCelp {
     // CodeBook ---
 
     /** */
-    void iresp_vcalc(float[] sf_co,
-                     float[] pwf_z_co,
-                     float[] pwf_p_co,
-                     float[] h) {
+    static void iresp_vcalc(float[] sf_co,
+                            float[] pwf_z_co,
+                            float[] pwf_p_co,
+                            float[] h) {
 
         float[] temp = new float[Constants.IDIM];
         float[] rc = new float[Constants.IDIM];
@@ -655,7 +655,7 @@ public class LdCelp {
     /**
      * Unoptimized version -- kept for reference
      */
-    void shape_conv(float[] h, float[] shen) {
+    static void shape_conv(float[] h, float[] shen) {
 
         float h0 = h[0];
         float h1 = h[1];
@@ -684,7 +684,7 @@ public class LdCelp {
     }
 
     /** Time Reversed Convolution Module -- Block 13 */
-    void trev_conv(float[] h, float[] target, float[] pn) {
+    static void trev_conv(float[] h, float[] target, float[] pn) {
 
         for (int k = 0; k < Constants.IDIM; k++) {
             float tmp = 0.0f;
@@ -699,7 +699,7 @@ public class LdCelp {
      * Error Calculator and Best Codebook Index Selector
      * Blocks 17 and 18
      */
-    void cb_excitation(int ix, float[] v) {
+    static void cb_excitation(int ix, float[] v) {
         int sx = ix >> 3;
         int gx = ix & 7;
 //Debug.println("sx: " + sx + ", ix: " + ix + ", gx: " + gx);
@@ -712,7 +712,7 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
     }
 
     /** */
-    private int GTINC(float a, float b, int x) {
+    private static int GTINC(float a, float b, int x) {
         if (a > b) {
             return x++;
         } else {
@@ -845,10 +845,10 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
 
     // Circular Buffer Register numbers for ADSP21000
 
-    /** */
-//  private static final float NPUT = 8;
-    /** */
-//  private static final float NGET = 9;
+//    /** */
+//    private static final float NPUT = 8;
+//    /** */
+//    private static final float NGET = 9;
 
     /** */
     private static void ZARR(float[] A) {
@@ -892,7 +892,7 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
         }
     }
 
-    /** get queue index of the most recent vector */
+//    /** get queue index of the most recent vector */
 //    private float QINDEX() {
 //        int qx = float_pointer_vector_end;
 //        return qx != 0 ? QSIZE - Constants.IDIM : qx - Constants.IDIM;
@@ -917,9 +917,7 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
 
     /** */
     void decoder() throws IOException {
-        for (int i = 0; i < QSIZE; i++) {
-            thequeue[i] = 0;
-        }
+        Arrays.fill(thequeue, 0);
         init_decoder();
         for (w_vec_start = 0; !decoder_done; w_vec_start += Constants.IDIM) {
             if (w_vec_start >= QSIZE) {
@@ -992,11 +990,11 @@ Debug.println("decoder_done");
         }
         if (postfiltering_p) {
             inv_filter(synspeech, d_vec_start);
-            if (ffase == 3) {
+            if (ffase.get() == 3) {
               CIRCOPY(qs, synspeech, d_vec_end, Constants.NUPDATE * Constants.IDIM, QSIZE);
               psf_adapter(qs);
             }
-            if (ffase == 1) {
+            if (ffase.get() == 1) {
                 compute_sh_coeff();
             }
             postfilter(synspeech, d_vec_start, pf_speech, 0);
@@ -1005,7 +1003,7 @@ Debug.println("decoder_done");
             RCOPY(synspeech, d_vec_start, thequeue, d_vec_start, Constants.IDIM);
         }
         // declare array and its copy together with a semafor
-        ffase = (ffase == 4 ? 1 : ffase + 1);
+        ffase.set(ffase.get() == 4 ? 1 : ffase.get() + 1);
     }
 
     /** */
@@ -1015,17 +1013,17 @@ Debug.println("decoder_done");
         // gain index
         int gx;
 
-        if (ffase == 1) {
+        if (ffase.get() == 1) {
             CIRCOPY(synth, synspeech, d_vec_end, Constants.NUPDATE * Constants.IDIM, QSIZE);
             bsf_adapter(synth, _next[SF_COEFF]);
         }
-        if (ffase == 2) {
+        if (ffase.get() == 2) {
             gx = d_vec_end / Constants.IDIM;
             CIRCOPY(lg, log_gains, gx, Constants.NUPDATE, QSIZE / Constants.IDIM);
             gain_adapter(lg, _next[GP_COEFF]);
             _obsolete_p[GP_COEFF] = 1;
         }
-        if (ffase == 3) {
+        if (ffase.get() == 3) {
             _obsolete_p[SF_COEFF] = 1;
         }
     }
@@ -1406,9 +1404,9 @@ Debug.println("decoder_done");
     // Filters ----
 
     /** */
-    private float[] firmem = new float[Constants.LPCW + Constants.IDIM];
+    private final float[] firmem = new float[Constants.LPCW + Constants.IDIM];
     /** */
-    private float[] iirmem = new float[Constants.LPCW + Constants.IDIM];
+    private final float[] iirmem = new float[Constants.LPCW + Constants.IDIM];
 
     /** */
     void pwfilter2(float[] input, int offset, float[] output) {
@@ -1524,10 +1522,10 @@ Debug.println("decoder_done");
 
     // The Gain Predictor
 
-    private float[] gain_input = new float[Constants.LPCLG];
+    private final float[] gain_input = new float[Constants.LPCLG];
 
     /** */
-    private float log_rms(float[] input, int offset) {
+    private static float log_rms(float[] input, int offset) {
         float etrms = 0.0f;
         for (int k = offset; k < Constants.IDIM; k++) {
             etrms += input[k] * input[k];
@@ -1575,9 +1573,7 @@ Debug.println("decoder_done");
     /** */
     void init_gain_buf() {
 
-        for (int i = 0; i < Constants.LPCLG; i++) {
-            gain_input[i] = -Constants.GOFF;
-        }
+        Arrays.fill(gain_input, -Constants.GOFF);
         for (int i = 0; i < QSIZE / Constants.IDIM; i++) {
             log_gains[i] = -Constants.GOFF;
         }
@@ -1619,7 +1615,7 @@ Debug.println("decoder_done");
     /** Logarithm of Gains */
     float[] log_gains = new float[QSIZE / Constants.IDIM];
 
-    volatile int ffase = -4;
+    AtomicInteger ffase = new AtomicInteger(-4);
 
     // IOSparc ----
 
@@ -1751,7 +1747,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
     private static final int SHIFTSZ = (Constants.KPMAX + Constants.NPWSZ - Constants.NFRSZ + Constants.IDIM);
 
     /** Post-Filter Memory for syn. sp. */
-    private float[] tap_mem = new float[Constants.KPMAX + Constants.NPWSZ + Constants.IDIM];
+    private final float[] tap_mem = new float[Constants.KPMAX + Constants.NPWSZ + Constants.IDIM];
 
     /** */
     int pitch_period = 50;
@@ -1793,17 +1789,17 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
     };
 
     /** Short Term Filter (Poles/IIR) Coefficients */
-    private float[] shpcoef = new float[SPORDER + 1];
+    private final float[] shpcoef = new float[SPORDER + 1];
     /** Short Term Filter (Zeros/FIR) Coefficients */
-    private float[] shzcoef = new float[SPORDER + 1];
+    private final float[] shzcoef = new float[SPORDER + 1];
     private float tiltz;
     /** Post-Filter Memory for residual */
-    private float[] fil_mem = new float[PMSIZE];
+    private final float[] fil_mem = new float[PMSIZE];
 
     /**
      * Compute sum of absolute values of vector V
      */
-    private float vec_abs(float[] v, int offset) {
+    private static float vec_abs(float[] v, int offset) {
         float r = Math.abs(v[offset]);
         for (int i = 1; i < Constants.IDIM; i++) {
             r += Math.abs(v[offset + i]);
@@ -1978,10 +1974,10 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
     }
 
     /** */
-    private int best_period(float[] buffer,
-                            int buflen,
-                            int pmin,
-                            int pmax) {
+    private static int best_period(float[] buffer,
+                                   int buflen,
+                                   int pmin,
+                                   int pmax) {
         int best_per = -1;
         float best_corr = -Constants.BIG;
         for (int per = pmin; per < pmax; per++) {
@@ -2052,11 +2048,11 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
             fil_out_mem[2] = tmp;
         }
 
-        // Find best Correlation in decimated domain:
+        // Find the best Correlation in decimated domain:
 
         best_dper = best_period(fil_decim_mem, PDMSIZE, DPERMIN, DPERMAX);
 
-        // Now fine-tune best correlation on undecimated  domain
+        // Now fine-tune the best correlation on undecimated  domain
 
         permin = best_dper * DECIM - DECIM + 1;
         permax = best_dper * DECIM + DECIM - 1;
@@ -2085,7 +2081,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
         permax = old_per + Constants.KPDELTA;
         if (best_per > permax) {
 
-            // Now compute best period around the old period
+            // Now compute the best period around the old period
 
             permin = old_per - Constants.KPDELTA;
             if (permin < Constants.KPMIN) {
@@ -2138,7 +2134,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
     }
 
     /** */
-    void init_postfilter() {
+    static void init_postfilter() {
         shzscale[0] = shpscale[0] = 1.0f;
         for (int i = 1; i <= SPORDER; i++) {
             shzscale[i] = Constants.SPFZCF * shzscale[i - 1];

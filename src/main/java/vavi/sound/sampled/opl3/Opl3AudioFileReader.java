@@ -62,18 +62,18 @@ public class Opl3AudioFileReader extends AudioFileReader {
      * @param bitStream
      * @param mediaLength
      * @return an AudioInputStream object based on the audio file data contained
-     *         in the input stream.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
+     * in the input stream.
+     * @throws UnsupportedAudioFileException if the File does not point to a
+     *                                       valid audio file data recognized by the system.
+     * @throws IOException                   if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
-Debug.println("exner: available: " + bitStream.available());
+        Debug.println("exner: available: " + bitStream.available());
         AudioFormat.Encoding encoding;
         try {
             encoding = FileType.getEncoding(bitStream);
         } catch (NoSuchElementException e) {
-Debug.println("error exit: available: " + bitStream.available());
+            Debug.println("error exit: available: " + bitStream.available());
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException().initCause(e);
         }
         AudioFileFormat.Type type = FileType.getType(encoding);
@@ -114,13 +114,13 @@ Debug.println("error exit: available: " + bitStream.available());
      * must point to valid audio file data.
      *
      * @param inputStream the input stream from which the AudioInputStream
-     *            should be constructed.
+     *                    should be constructed.
      * @param mediaLength
      * @return an AudioInputStream object based on the audio file data contained
-     *         in the input stream.
-     * @exception UnsupportedAudioFileException if the File does not point to a
-     *                valid audio file data recognized by the system.
-     * @exception IOException if an I/O exception occurs.
+     * in the input stream.
+     * @throws UnsupportedAudioFileException if the File does not point to a
+     *                                       valid audio file data recognized by the system.
+     * @throws IOException                   if an I/O exception occurs.
      */
     protected AudioInputStream getAudioInputStream(InputStream inputStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
         AudioFileFormat audioFileFormat = getAudioFileFormat(inputStream, mediaLength);

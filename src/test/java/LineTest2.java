@@ -47,12 +47,14 @@ class LineTest2 {
                            "vavi\\.sound\\.DebugInputStream#\\w+");
     }
 
-//    static final String inFile = "/Users/nsano/Music/0/Mists of Time - 4T.ogg";
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
+    //    static final String inFile = "/Users/nsano/Music/0/Mists of Time - 4T.ogg";
 //    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.flac";
 //    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.m4a"; // ALAC
 //    static final String inFile = "/Users/nsano/Music/0/rc.wav";
 //    static final String inFile = "/Users/nsano/Music/0/Cyndi Lauper-Time After Time.m4a"; // AAC
-    static final String inFile = "tmp/hoshiF.opus";
+    static final String inFile = "tmp/hoshi.opus";
 //    static final String inFile = "/Users/nsano/Music/iTunes/iTunes Music/NAMCO/Ace Combat 04 Shattered Skies Original Sound Tracks/1-11 Blockade.mp3";
 
     /**
@@ -64,11 +66,11 @@ System.err.println(type);
         }
         AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new File(inFile).toURI().toURL());
         LineTest2 app = new LineTest2();
-        app.play(originalAudioInputStream);
+        LineTest2.play(originalAudioInputStream);
     }
 
     /** */
-    void play(AudioInputStream originalAudioInputStream) throws Exception {
+    static void play(AudioInputStream originalAudioInputStream) throws Exception {
         AudioFormat originalAudioFormat = originalAudioInputStream.getFormat();
 Debug.println(originalAudioFormat);
         AudioFormat targetAudioFormat = new AudioFormat( //PCM
@@ -94,7 +96,7 @@ Debug.println("done");
 
         line.open(audioFormat);
         byte[] buf = new byte[line.getBufferSize()];
-        volume(line, .2d);
+        volume(line, volume);
         line.start();
         int r = 0;
         while (true) {
@@ -134,19 +136,19 @@ try {
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes", "restriction" })
-    AudioInputStream dummy(InputStream stream) throws UnsupportedAudioFileException, IOException {
+    static AudioInputStream dummy(InputStream stream) throws UnsupportedAudioFileException, IOException {
         List providers = com.sun.media.sound.JDK13Services.getProviders(AudioFileReader.class);
 providers.forEach(System.err::println);
         AudioInputStream audioStream = null;
 
-        for(int i = 0; i < providers.size(); i++ ) {
-            AudioFileReader reader = (AudioFileReader) providers.get(i);
-Debug.println("--------- " + reader.getClass().getName());
+        for (Object provider : providers) {
+            AudioFileReader reader = (AudioFileReader) provider;
+            Debug.println("--------- " + reader.getClass().getName());
             try {
-                audioStream = reader.getAudioInputStream( stream ); // throws IOException
+                audioStream = reader.getAudioInputStream(stream); // throws IOException
                 break;
             } catch (UnsupportedAudioFileException e) {
-Debug.println("ERROR: " + e.getMessage());
+                Debug.println("ERROR: " + e.getMessage());
             }
         }
 

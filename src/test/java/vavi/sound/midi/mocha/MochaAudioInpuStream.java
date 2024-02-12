@@ -90,6 +90,7 @@ Debug.println("readable: " + readable.length());
         return new AudioFormat(SoundConstants.SAMPLE_RATE, sample_size_byte * 8, maximizer.getChannel(), signed, big_endian);
     }
 
+    @Override
     public void close() throws IOException {
         maximizer.terminate();
 //        System.out.println("total time:" + ((System.currentTimeMillis() - start) / 1000));

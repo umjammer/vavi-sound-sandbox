@@ -39,6 +39,8 @@ class ResamplerTest {
     static final String inFile = "src/test/resources/test.wav";
     static final String outFile = "tmp/out.wav";
 
+    static float volume = Float.parseFloat(System.getProperty("vavi.test.volume",  "0.2f"));
+
     @Test
     void test1() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
@@ -93,7 +95,7 @@ Debug.println(audioFormat);
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(audioFormat);
-        volume(line, .2d);
+        volume(line, volume);
         line.start();
         line.write(dest, 0, dest.length);
         line.drain();
@@ -148,7 +150,7 @@ Debug.println(audioFormat);
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(audioFormat);
-        volume(line, .2d);
+        volume(line, volume);
         line.start();
         byte[] buf = new byte[line.getBufferSize()];
         int l;

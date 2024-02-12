@@ -32,14 +32,14 @@ package vavi.sound.opl3;
  * together with the vibrato table information, eighth waveform parameter
  * information and feedback averaging information provided in MAME's YMF262 and 
  * YM3812 emulators, by Jarek Burczynski and Tatsuyuki Satoh.
- * This emulator has a high degree of accuracy, and most of music files sound
+ * This emulator has a high degree of accuracy, and most music files sound
  * almost identical, exception made in some games which uses specific parts of
  * the rhythm section. In this respect, some parts of the rhythm mode are still
  * only an approximation of the real chip.
  * The other thing to note is that this emulator was done through recordings of
  * the SB16 DAC, so it has not bitwise precision. Additional equipment should be
  * used to verify the samples directly from the chip, and allow this exact
- * per-sample correspondence. As a good side-effect, since this emulator uses
+ * per-sample correspondence. As a good side effect, since this emulator uses
  * floating point and has a more fine-grained envelope generator, it can produce
  * sometimes a crystal-clear, denser kind of OPL3 sound that, because of that,
  * may be useful for creating new music.
@@ -47,12 +47,12 @@ package vavi.sound.opl3;
  * @version 1.0.6
  */
 public final class OPL3 {
-    private int[] registers = new int[0x200];
+    private final int[] registers = new int[0x200];
 
     private Operator[][] operators;
     private Channel2Op[][] channels2op;
     private Channel4Op[][] channels4op;
-    private Channel[][] channels;
+    private final Channel[][] channels;
     private DisabledChannel disabledChannel;
 
     private BassDrumChannel bassDrumChannel;
@@ -130,7 +130,7 @@ public final class OPL3 {
         // When it is needed, we further separate the register type inside each base address,
         // which is the case of 0x00 and 0xA0.
 
-        // Through out this emulator we will use the same name convention to
+        // Throughout this emulator we will use the same name convention to
         // reference a byte with several bit registers.
         // The name of each bit register will be followed by the number of bits
         // it occupies inside the byte.
@@ -525,6 +525,7 @@ public final class OPL3 {
             op2 = o2;
         }
 
+        @Override
         double[] getChannelOutput() {
             double channelOutput = 0, op1Output = 0, op2Output;
             double[] output;
@@ -557,17 +558,20 @@ public final class OPL3 {
             return output;
         }
 
+        @Override
         protected void keyOn() {
             op1.keyOn();
             op2.keyOn();
             feedback[0] = feedback[1] = 0;
         }
 
+        @Override
         protected void keyOff() {
             op1.keyOff();
             op2.keyOff();
         }
 
+        @Override
         protected void updateOperators() {
             // Key Scale Number, used in EnvelopeGenerator.setActualRates().
             int keyScaleNumber = block * 2 + ((fNumH >> nts) & 0x01);
@@ -598,6 +602,7 @@ public final class OPL3 {
             op4 = o4;
         }
 
+        @Override
         double[] getChannelOutput() {
             double channelOutput = 0,
                    op1Output = 0, op2Output, op3Output, op4Output;
@@ -670,6 +675,7 @@ public final class OPL3 {
             return output;
         }
 
+        @Override
         protected void keyOn() {
             op1.keyOn();
             op2.keyOn();
@@ -678,6 +684,7 @@ public final class OPL3 {
             feedback[0] = feedback[1] = 0;
         }
 
+        @Override
         protected void keyOff() {
             op1.keyOff();
             op2.keyOff();
@@ -685,6 +692,7 @@ public final class OPL3 {
             op4.keyOff();
         }
 
+        @Override
         protected void updateOperators() {
             // Key Scale Number, used in EnvelopeGenerator.setActualRates().
             int keyScaleNumber = block * 2 + ((fNumH >> nts) & 0x01);
@@ -713,9 +721,13 @@ public final class OPL3 {
         DisabledChannel(int[] registers) {
             super(0);
         }
+        @Override
         double[] getChannelOutput() { return getInFourChannels(0); }
+        @Override
         protected void keyOn() { }
+        @Override
         protected void keyOff() { }
+        @Override
         protected void updateOperators() { }
     }
 
@@ -985,7 +997,7 @@ public final class OPL3 {
             dBreleaseIncrement = OPL3Data.calculateIncrement(percentageToDB(0.1), percentageToDB(0.9), period10to90inSeconds);
         }
 
-        private int calculateActualRate(int rate, int ksr, int keyScaleNumber) {
+        private static int calculateActualRate(int rate, int ksr, int keyScaleNumber) {
             int rof = EnvelopeGeneratorData.rateOffset[ksr][keyScaleNumber];
             int actualRate = rate * 4 + rof;
             // If, as an example at the maximum, rate is 15 and the rate offset is

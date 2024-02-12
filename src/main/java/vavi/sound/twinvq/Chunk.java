@@ -14,7 +14,7 @@ import java.util.List;
  */
 class Chunk {
 
-    private String id;
+    private final String id;
 
     private List<Byte> data;
 
@@ -162,8 +162,8 @@ class Chunk {
 
     /** データを追加、ベクトル型 */
     public int putData(byte[] inputData) {
-        for (int ii = 0; ii < inputData.length; ii++) {
-            data.add(inputData[ii]);
+        for (byte inputDatum : inputData) {
+            data.add(inputDatum);
         }
         return 0;
     }
@@ -309,15 +309,15 @@ class ChunkChunk extends Chunk {
  */
 class CommChunk extends Chunk {
 
-    private String version;
+    private final String version;
 
-    private int channelMode;
+    private final int channelMode;
 
-    private int bitRate;
+    private final int bitRate;
 
-    private int samplingRate;
+    private final int samplingRate;
 
-    private int securityLevel;
+    private final int securityLevel;
 
     /**
      * 

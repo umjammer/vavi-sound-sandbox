@@ -21,6 +21,7 @@ public class ProgramChangePrevMessage extends SystemMessage {
         return ((getChannel() << 6) & 0xc0) + (getProgram() & 0x3f);
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] bytes = {
                            (byte) getDeltaTime(), -1, -32,

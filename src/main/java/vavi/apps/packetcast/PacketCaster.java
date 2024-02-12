@@ -14,7 +14,6 @@ import java.util.Calendar;
 
 import javax.media.Controller;
 import javax.media.ControllerErrorEvent;
-import javax.media.ControllerEvent;
 import javax.media.ControllerListener;
 import javax.media.DataSink;
 import javax.media.EndOfMediaEvent;
@@ -23,7 +22,6 @@ import javax.media.MediaException;
 import javax.media.MediaLocator;
 import javax.media.Processor;
 import javax.media.datasink.DataSinkErrorEvent;
-import javax.media.datasink.DataSinkEvent;
 import javax.media.datasink.DataSinkListener;
 import javax.media.datasink.EndOfStreamEvent;
 import javax.media.protocol.ContentDescriptor;
@@ -62,9 +60,10 @@ public class PacketCaster {
         interval = Integer.parseInt(args[1]);
 
         Timer timer = new Timer(interval, new ActionListener() {
-            UrlMaker urlMaker = new MyUrlMaker();
+            final UrlMaker urlMaker = new MyUrlMaker();
             long playingTime = 0;
             /** Capture for 10 seconds */
+            @Override
             public void actionPerformed(ActionEvent event) {
                 try {
                     // Transcode with the specified parameters.
@@ -160,19 +159,17 @@ System.err.println("  ...done cutting.");
     /**
      * Controller Listener.
      */
-    ControllerListener controllerListener = new ControllerListener() {
-        public void controllerUpdate(ControllerEvent evt) {
+    ControllerListener controllerListener = evt -> {
 
-            if (evt instanceof ControllerErrorEvent) {
-                System.err.println("Failed to cut the file.");
-                System.exit(-1);
-            } else if (evt instanceof EndOfMediaEvent) {
-                evt.getSourceController().close();
-            }
+        if (evt instanceof ControllerErrorEvent) {
+            System.err.println("Failed to cut the file.");
+            System.exit(-1);
+        } else if (evt instanceof EndOfMediaEvent) {
+            evt.getSourceController().close();
         }
     };
 
-    Object waitFileSync = new Object();
+    final Object waitFileSync = new Object();
 
     boolean fileDone = false;
 
@@ -199,22 +196,20 @@ System.err.println("  ...done cutting.");
     /**
      * Event handler for the file writer.
      */
-    DataSinkListener dataSinkListener = new DataSinkListener() {
-        public void dataSinkUpdate(DataSinkEvent evt) {
+    DataSinkListener dataSinkListener = evt -> {
 
-            if (evt instanceof EndOfStreamEvent) {
-                synchronized (waitFileSync) {
-                    fileDone = true;
-                    waitFileSync.notifyAll();
+        if (evt instanceof EndOfStreamEvent) {
+            synchronized (waitFileSync) {
+                fileDone = true;
+                waitFileSync.notifyAll();
 System.err.print("O");
-                }
-            } else if (evt instanceof DataSinkErrorEvent) {
-                synchronized (waitFileSync) {
-                    fileDone = true;
-                    fileSuccess = false;
-                    waitFileSync.notifyAll();
+            }
+        } else if (evt instanceof DataSinkErrorEvent) {
+            synchronized (waitFileSync) {
+                fileDone = true;
+                fileSuccess = false;
+                waitFileSync.notifyAll();
 System.err.print("X");
-                }
             }
         }
     };
@@ -231,6 +226,7 @@ System.err.print("X");
         int currentNo = 0;
 
         /** */
+        @Override
         public String getUrl() {
             //
             if (currentNo == 0) {

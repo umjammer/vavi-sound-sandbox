@@ -34,7 +34,7 @@ class Opus2PcmAudioInputStream extends AudioInputStream {
     /**
      * Constructor.
      *
-     * @param in the underlying input stream.
+     * @param in     the underlying input stream.
      * @param format the target format of this stream's audio data.
      * @param length the length in sample frames of the data in this stream.
      */
@@ -49,13 +49,13 @@ class Opus2PcmAudioInputStream extends AudioInputStream {
         private DataOutputStream out;
 
         /** */
-        private OpusDecoder decoder;
+        private final OpusDecoder decoder;
 
         /** OGG only */
-        private OpusFile in;
+        private final OpusFile in;
 
         /** */
-        private int channels;
+        private final int channels;
 
         /** */
         public OpusOutputEngine(OpusFile in, float sampleRate, int channels) throws IOException {
@@ -68,7 +68,7 @@ class Opus2PcmAudioInputStream extends AudioInputStream {
             this.channels = channels;
         }
 
-        /** */
+        @Override
         public void initialize(OutputStream out) throws IOException {
             if (this.out != null) {
                 throw new IOException("Already initialized");
@@ -78,12 +78,12 @@ class Opus2PcmAudioInputStream extends AudioInputStream {
         }
 
         /** */
-        private static int BUFFER_SIZE = 1024 * 1024;
+        private static final int BUFFER_SIZE = 1024 * 1024;
 
         /** */
-        private ByteBuffer decodeBuffer = ByteBuffer.allocate(BUFFER_SIZE);
+        private final ByteBuffer decodeBuffer = ByteBuffer.allocate(BUFFER_SIZE);
 
-        /** */
+        @Override
         public void execute() throws IOException {
             if (out == null) {
                 throw new IOException("Not yet initialized");
@@ -115,7 +115,7 @@ class Opus2PcmAudioInputStream extends AudioInputStream {
             }
         }
 
-        /** */
+        @Override
         public void finish() throws IOException {
             in.close();
         }

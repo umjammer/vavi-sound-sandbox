@@ -7,11 +7,11 @@ import static java.lang.Math.sin;
 
 
 public class FFT4g {
-    private int[] ip;
+    private final int[] ip;
 
-    private double[] w;
+    private final double[] w;
 
-    private int n;
+    private final int n;
 
     FFT4g(int n) {
         this.n = n;

@@ -11,19 +11,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
-
 import javax.sound.midi.MetaEventListener;
-import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
-import javax.sound.midi.SysexMessage;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import vavi.util.Debug;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
+
+import static vavi.sound.midi.MidiUtil.volume;
 
 
 /**
@@ -35,6 +36,7 @@ import vavi.util.Debug;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/05 umjammer initial version <br>
  */
+@PropsEntity(url = "file:local.properties")
 class JSynSynthesizerTest {
 
     static {
@@ -44,7 +46,21 @@ class JSynSynthesizerTest {
         System.setProperty("javax.sound.midi.Synthesizer", "#Gervill");
     }
 
-    static String base;
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
+
+    static float volume = (float) Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
+    @Property(name = "jsyn.test")
+    String jsynTest = "src/test/resources/test.mid";
+
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
+    }
 
     @Test
     void test() throws Exception {
@@ -53,16 +69,12 @@ class JSynSynthesizerTest {
 Debug.println("synthesizer: " + synthesizer);
 
         Sequencer sequencer = MidiSystem.getSequencer(false);
-        sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
+        Receiver receiver = synthesizer.getReceiver();
+        sequencer.getTransmitter().setReceiver(receiver);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
 
-//        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
-//        String filename = "/Fusion/YMO - Firecracker.mid";
-        String filename = "test.mid";
-
-//        Path file = Paths.get(System.getProperty("gdrive.home"), "/Music/midi/", filename);
-        Path file = Paths.get("src/test/resources/", filename);
+        Path file = Paths.get(jsynTest);
 
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
@@ -78,16 +90,12 @@ System.err.println("META: " + meta.getType());
 System.err.println("START");
         sequencer.start();
 
-        int volume = (int) (16383 * .2);
-        byte[] data = { (byte) 0xf0, 0x7f, 0x7f, 0x04, 0x01, (byte) (volume & 0x7f), (byte) ((volume >> 7) & 0x7f), (byte) 0xf7 };
-        MidiMessage sysex = new SysexMessage(data, data.length);
-        Receiver receiver = synthesizer.getReceivers().get(0);
-        receiver.send(sysex, -1);
+        volume(receiver, volume);
 
 if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  sequencer.stop();
- Debug.println("STOP");
+ Debug.println("not on ide");
 } else {
         countDownLatch.await();
 }
@@ -107,11 +115,7 @@ Debug.println("synthesizer: " + synthesizer.getClass().getName());
         synthesizer.unloadAllInstruments(synthesizer.getDefaultSoundbank());
         synthesizer.loadAllInstruments(new JSynOscillator());
 
-//        String filename = "Games/Super Mario Bros 2 - Overworld.mid";
-        String filename = "test.mid";
-
-//        Path file = Paths.get(System.getProperty("gdrive.home"), "/Music/midi/", filename);
-        Path file = Paths.get("src/test/resources/", filename);
+        Path file = Paths.get(jsynTest);
 
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
@@ -133,10 +137,12 @@ System.err.println("META: " + meta.getType());
 System.err.println("START");
         sequencer.start();
 
+        volume(receiver, volume);
+
 if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  sequencer.stop();
- Debug.println("STOP");
+ Debug.println("not on ide");
 } else {
         countDownLatch.await();
 }

@@ -8,7 +8,6 @@ package vavi.sound.mp3;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.nio.ByteOrder;
 import java.nio.file.Files;

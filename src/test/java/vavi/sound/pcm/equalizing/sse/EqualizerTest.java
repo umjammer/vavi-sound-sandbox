@@ -38,6 +38,8 @@ class EqualizerTest {
     String outFile = "tmp/out.vavi.wav";
     String correctFile = "src/test/java/resources/vavi/sound/pcm/equalizing/out.wav";
 
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
     @BeforeEach
     void setUp() throws Exception {
         Properties props = new Properties();
@@ -55,7 +57,7 @@ System.err.println(format);
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(format);
-        volume(line, .2d);
+        volume(line, volume);
         line.start();
         byte[] buf = new byte[1024];
         int l;

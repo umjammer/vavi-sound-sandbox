@@ -164,7 +164,7 @@ public class Adlib {
     private static final int[] fnums = { 363, 385, 408, 432, 458, 485, 514, 544, 577, 611, 647, 686 };
     /**
      * map CMF drum channels 12 - 15 to corresponding AdLib drum operators
-     * bass drum (channel 11) not mapped, cause it's handled like a normal instrument
+     * bass drum (channel 11) not mapped, because it's handled like a normal instrument
      */
     private static final int[] map_chan = { 20, 18, 21, 17 };
     /** Map CMF drum channels 11 - 15 to corresponding AdLib drum channels */
@@ -185,7 +185,7 @@ public class Adlib {
 
     public int style;
     public int mode;
-    private int[] data = new int[256];
+    private final int[] data = new int[256];
 
     /** for outer opl3 */
     @FunctionalInterface
@@ -208,7 +208,7 @@ public class Adlib {
     }
 
     /** for outer opl3 */
-    private Writer writer;
+    private final Writer writer;
 
     /** for outer opl3 */
     public Adlib(Writer writer) {

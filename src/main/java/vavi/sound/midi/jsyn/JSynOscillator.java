@@ -80,7 +80,7 @@ public class JSynOscillator extends ModelAbstractOscillator {
     }
 
     /** */
-    private Instrument[] instruments;
+    private final Instrument[] instruments;
 
     {
         instruments = new Instrument[2];
@@ -145,7 +145,7 @@ Debug.println("instrument not found for: " + patch.getBank() + "," + patch.getPr
     private LineOut lineOut;
 
     private static final int BUFFER_SIZE = 64;
-    private float[] extraBuf = new float[BUFFER_SIZE];
+    private final float[] extraBuf = new float[BUFFER_SIZE];
     private int extraBufSize;
 
     @Override

@@ -38,8 +38,8 @@ class SierraFile extends MidiTypeFile {
     // sierra instruments
     protected int stins;
 
-    private boolean[] ons = new boolean[16];
-    private int[] inums = new int[16];
+    private final boolean[] ons = new boolean[16];
+    private final int[] inums = new int[16];
 
     @Override
     void rewind(int subSong, MidPlayer player) throws IOException {

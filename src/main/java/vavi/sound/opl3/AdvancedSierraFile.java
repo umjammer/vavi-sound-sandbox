@@ -26,10 +26,12 @@ class AdvancedSierraFile extends SierraFile {
 
     private static final Logger logger = Logger.getLogger(MidiFile.class.getName());
 
+    @Override
     int markSize() {
         return 3;
     }
 
+    @Override
     boolean matchFormatImpl(DataInputStream dis) throws IOException {
         //loadSierraIns(null)) { // TODO null
         return dis.readUnsignedByte() == 0x84 &&

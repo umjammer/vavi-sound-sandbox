@@ -4,6 +4,7 @@ import unknown.sound.Message;
 
 
 public class SongSelectMessage extends SystemMessage {
+    @Override
     public byte[] toBytes() {
         byte[] byteData = Message.arrayCopy(super.toBytes(), 2);
         int index = byteData.length - 1;

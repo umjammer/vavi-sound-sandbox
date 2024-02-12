@@ -4,6 +4,7 @@ import unknown.sound.Message;
 
 
 public class OneByteSystemMessage extends SystemMessage {
+    @Override
     public byte[] toBytes() {
         byte[] byteData = Message.arrayCopy(super.toBytes(), 1);
         int index = byteData.length;

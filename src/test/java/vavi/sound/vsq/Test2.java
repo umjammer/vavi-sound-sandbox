@@ -10,7 +10,6 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.util.concurrent.CountDownLatch;
 
-import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
@@ -44,27 +43,25 @@ public class Test2 {
         Sequencer sequencer = MidiSystem.getSequencer();
         sequencer.open();
         sequencer.setSequence(sequence);
-        sequencer.addMetaEventListener(new MetaEventListener() {
-            public void meta(javax.sound.midi.MetaMessage message) {
-                switch (MetaEvent.valueOf(message.getType())) {
-                case META_MACHINE_DEPEND: // シーケンサ固有のメタイベント
-                    byte[] data = message.getData();
+        sequencer.addMetaEventListener(message -> {
+            switch (MetaEvent.valueOf(message.getType())) {
+            case META_MACHINE_DEPEND: // シーケンサ固有のメタイベント
+                byte[] data = message.getData();
 Debug.printf("%02X, %s\n", data[0], StringUtil.getDump(data));
-                    break;
-                case META_TEXT_EVENT:  // テキスト・イベント 127 bytes
+                break;
+            case META_TEXT_EVENT:  // テキスト・イベント 127 bytes
 //Debug.println(new String(meta.getData()));
-                    String text = new String(message.getData(), Charset.forName("MS932"));
-                    if (!text.startsWith("DM")) {
-                        String[] parts = text.split(":");
+                String text = new String(message.getData(), Charset.forName("MS932"));
+                if (!text.startsWith("DM")) {
+                    String[] parts = text.split(":");
 Debug.println(parts[0] + ":" + parts[1] + ":" + message.getData().length/* + "\n" + parts[2]*/);
-                    }
-                    break;
-                case META_END_OF_TRACK:
-                    cdl.countDown();
-                    break;
-                default:
-                    break;
                 }
+                break;
+            case META_END_OF_TRACK:
+                cdl.countDown();
+                break;
+            default:
+                break;
             }
         });
         sequencer.start();

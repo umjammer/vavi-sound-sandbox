@@ -12,6 +12,7 @@ public class VersionMessage extends InformationMessage {
         messageVersion = ver;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] versionBytes = getVersion().getBytes();
         byte[] data = {

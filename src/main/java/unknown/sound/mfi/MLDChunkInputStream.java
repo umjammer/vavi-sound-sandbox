@@ -9,9 +9,11 @@ import unknown.sound.Message;
 
 
 public abstract class MLDChunkInputStream extends ChunkInputStream {
+    @Override
     public abstract Message readMessage()
         throws InvalidMidiDataException, IOException;
 
+    @Override
     public abstract Message getChunkHeader();
 
     public MLDChunkInputStream(String tag, byte[] dataBytes) {

@@ -33,7 +33,7 @@ public abstract class AUAudioUnit extends NSObject {
         AUAudioUnit alloc();
         /**
          * @param options AudioComponentInstantiationOptions
-         * @param completionHandler BiFunction<AVAudioUnit, NSError, Void)
+         * @param completionHandler BiFunction<AVAudioUnit, NSError, Void>
          */
         void instantiateWithComponentDescription_options_completionHandler(AudioComponentDescription.ByValue audioComponentDescription,
                                                                            int options,

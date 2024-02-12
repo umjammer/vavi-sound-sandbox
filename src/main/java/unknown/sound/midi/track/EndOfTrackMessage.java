@@ -1,6 +1,7 @@
 package unknown.sound.midi.track;
 
 public class EndOfTrackMessage extends MetaEventMessage {
+    @Override
     public byte[] toBytes() {
         byte[] byteData = MetaEventMessage.arrayCopy(super.toBytes(), 0);
         return byteData;

@@ -36,6 +36,8 @@ class OpusFormatConversionProviderTest {
 
     static final String inFile = "/test.opus";
 
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
     @Test
     @DisplayName("directly")
     void test0() throws Exception {
@@ -62,7 +64,7 @@ Debug.println("OUT: " + outAudioFormat);
         line.addLineListener(ev -> Debug.println(ev.getType()));
         line.start();
 
-        volume(line, .2d);
+        volume(line, volume);
 
         byte[] buf = new byte[1024];
         while (true) {
@@ -103,7 +105,7 @@ Debug.println("OUT: " + outAudioFormat);
         line.addLineListener(ev -> Debug.println(ev.getType()));
         line.start();
 
-        volume(line, .2d);
+        volume(line, volume);
 
         byte[] buf = new byte[1024];
         while (true) {

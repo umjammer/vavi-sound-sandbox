@@ -39,6 +39,8 @@ class Opl3AudioFileReaderTest {
         System.setProperty("vavi.sound.opl3.MidiFile", "false");
     }
 
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
     @ParameterizedTest
     @ValueSource(strings = {
         "/opl3/ice_thnk.sci",
@@ -68,24 +70,21 @@ Debug.println(targetAudioFormat);
         Clip clip = (Clip) AudioSystem.getLine(info);
 Debug.println(clip.getClass().getName());
         clip.addLineListener(event -> {
-            if (event.getType().equals(LineEvent.Type.START)) {
-Debug.println("play");
-            }
+Debug.println("LINE: " + event.getType());
             if (event.getType().equals(LineEvent.Type.STOP)) {
-Debug.println("done");
                 countDownLatch.countDown();
             }
         });
         clip.open(audioInputStream);
 if (!(originalAudioFormat.getEncoding() instanceof Opl3Encoding)) {
 // Debug.println("down volume: " + originalAudioFormat.getEncoding());
- volume(clip, .2d);
+ volume(clip, volume);
 }
         clip.start();
 if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  clip.stop();
- Debug.println("stop");
+ Debug.println("not on ide");
 } else {
             countDownLatch.await();
 }
@@ -121,24 +120,22 @@ Debug.println(targetAudioFormat);
         Clip clip = (Clip) AudioSystem.getLine(info);
 Debug.println(clip.getClass().getName());
         clip.addLineListener(event -> {
-            if (event.getType().equals(LineEvent.Type.START)) {
-System.err.println("play");
-            }
+Debug.println("LINE: " + event.getType());
             if (event.getType().equals(LineEvent.Type.STOP)) {
-System.err.println("done");
                 countDownLatch.countDown();
             }
         });
         clip.open(audioInputStream);
-if (!(originalAudioFormat.getEncoding() instanceof Opl3Encoding)) {
-// Debug.println("down volume: " + originalAudioFormat.getEncoding());
- volume(clip, .2d);
+try {
+        volume(clip, volume);
+} catch (Exception e) {
+ Debug.println("volume: " + e);
 }
         clip.start();
 if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  clip.stop();
- Debug.println("stop");
+ Debug.println("not on ide");
 } else {
             countDownLatch.await();
 }
@@ -171,24 +168,22 @@ Debug.println(targetAudioFormat);
         Clip clip = (Clip) AudioSystem.getLine(info);
 Debug.println(clip.getClass().getName());
         clip.addLineListener(event -> {
-            if (event.getType().equals(LineEvent.Type.START)) {
-Debug.println("play");
-            }
+Debug.println("LINE: " + event.getType());
             if (event.getType().equals(LineEvent.Type.STOP)) {
-Debug.println("done");
                 countDownLatch.countDown();
             }
         });
         clip.open(audioInputStream);
-if (!(originalAudioFormat.getEncoding() instanceof Opl3Encoding)) {
-// Debug.println("down volume: " + originalAudioFormat.getEncoding());
- volume(clip, .2d);
+try {
+        volume(clip, volume);
+} catch (Exception e) {
+ Debug.println("volume: " + e);
 }
         clip.start();
 if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  clip.stop();
- Debug.println("stop");
+ Debug.println("not on ide");
 } else {
             countDownLatch.await();
 }

@@ -25,6 +25,7 @@ public abstract class TrackMessage extends Message {
         return getAbsoluteTime();
     }
 
+    @Override
     public abstract byte[] toBytes();
 
     private int messageDeltaTime;

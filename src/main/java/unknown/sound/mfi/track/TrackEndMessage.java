@@ -13,6 +13,7 @@ public class TrackEndMessage extends SystemMessage {
         messageEndData = data;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] bytes = { (byte) getDeltaTime(), -1, -33, (byte) getEndData() };
         return bytes;

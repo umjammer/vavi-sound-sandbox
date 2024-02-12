@@ -26,6 +26,7 @@ public class SoundMessage extends SystemMessage {
         return ((getChannel() << 6) & 0xc0) | (getSound() & 0x3f);
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] bytes = {
                            (byte) getDeltaTime(), -1, -30,

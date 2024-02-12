@@ -111,11 +111,7 @@ class VideoEncoder {
         frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         VideoEncoder ve = new VideoEncoder(args[0]);
-        ve.addModelListener(new ModelListener() {
-            public void updated() {
-                frm.setTitle("Movie Player - frame: " + ve.getPosition(1) + "/" + ve.getPosition(0));
-            }
-        });
+        ve.addModelListener(() -> frm.setTitle("Movie Player - frame: " + ve.getPosition(1) + "/" + ve.getPosition(0)));
 
         frm.add(ve.getComponent());
         frm.pack();

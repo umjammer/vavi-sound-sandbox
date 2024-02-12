@@ -9,7 +9,6 @@ package vavi.sound.pcm.equalizing.sse;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -48,6 +47,8 @@ public class Test2 {
     String inFile;
     String outFile = "tmp/out.vavi.wav";
 
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+
     /** */
     public static void main(String[] args) throws Exception {
 System.setOut(new PrintStream("NUL")); // shut fuckin' j-ogg's mouth
@@ -83,15 +84,15 @@ System.setOut(new PrintStream("NUL")); // shut fuckin' j-ogg's mouth
         double rpreamp = rslpos[0] == 96 ? 0 : Math.pow(10, rslpos[0] / -20.0);
 
 System.err.println("---- init ----");
-        for (int i = 0; i < equalizer.getBandsCount(); i++) {
+        for (int i = 0; i < Equalizer.getBandsCount(); i++) {
             //
             Parameter param = new Parameter();
             lbands[i] = lslpos[i + 1] == 96 ? 0 : lpreamp * Math.pow(10, lslpos[i + 1] / -20.0);
             param.left = true;
             param.right = false;
             param.gain = lbands[i];
-            param.lower = i == 0 ? 0 : equalizer.getBand(i - 1);
-            param.upper = i == equalizer.getBandsCount()  - 1 ? 44100 : equalizer.getBand(i);
+            param.lower = i == 0 ? 0 : Equalizer.getBand(i - 1);
+            param.upper = i == Equalizer.getBandsCount()  - 1 ? 44100 : Equalizer.getBand(i);
 System.err.println(param);
             params.add(param);
             //
@@ -99,8 +100,8 @@ System.err.println(param);
             param.left = false;
             param.right = true;
             param.gain = rbands[i];
-            param.lower = i == 0 ? 0 : equalizer.getBand(i - 1);
-            param.upper = i == equalizer.getBandsCount()  - 1 ? 44100 : equalizer.getBand(i);
+            param.lower = i == 0 ? 0 : Equalizer.getBand(i - 1);
+            param.upper = i == Equalizer.getBandsCount()  - 1 ? 44100 : Equalizer.getBand(i);
 System.err.println(param);
             params.add(param);
         }
@@ -110,13 +111,13 @@ System.err.println("---- init ----");
 
         //
         Model model = new Model();
-        model.bands = equalizer.getBandsCount();
+        model.bands = Equalizer.getBandsCount();
 System.err.println("bands: " + model.bands);
         model.rgains = new double[model.bands + 1];
         model.lgains = new double[model.bands + 1];
         model.band = new double[model.bands];
         for (int i = 0; i < model.bands; i++) {
-            model.band[i] = equalizer.getBand(i);
+            model.band[i] = Equalizer.getBand(i);
         }
 
         View view = new View(model);
@@ -222,12 +223,14 @@ System.err.println("bands: " + model.bands);
         }
 
         MouseInputListener mouseInputListener = new MouseInputAdapter() {
+            @Override
             public void mouseReleased(MouseEvent event) {
                 doEqualize();
             }
         };
 
         ChangeListener changeListener = new ChangeListener() {
+            @Override
             public void stateChanged(ChangeEvent event) {
                 String name = ((Component) event.getSource()).getName();
                 int value = ((JSlider) event.getSource()).getValue();
@@ -256,13 +259,11 @@ System.err.println(name + ": " + value);
             }
         };
 
-        ActionListener actionListener = new ActionListener() {
-            public void actionPerformed(ActionEvent event) {
-                try {
-                    doEqualize();
-                } catch (Exception e) {
-                    e.printStackTrace(System.err);
-                }
+        ActionListener actionListener = event -> {
+            try {
+                doEqualize();
+            } catch (Exception e) {
+                e.printStackTrace(System.err);
             }
         };
 
@@ -299,6 +300,7 @@ System.err.println(name + ": " + value);
 
     /** */
     Runnable player = new Runnable() {
+        @Override
         public void run() {
             while (true) {
                 try {
@@ -308,7 +310,7 @@ System.err.println(format);
                     DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
                     SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
                     line.open(format);
-                    volume(line, .2d);
+                    volume(line, volume);
                     line.start();
                     byte[] buf = new byte[1024];
                     int l;

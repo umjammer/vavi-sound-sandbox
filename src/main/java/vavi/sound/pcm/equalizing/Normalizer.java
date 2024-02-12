@@ -6,8 +6,6 @@ package vavi.sound.pcm.equalizing;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,7 +28,7 @@ import vavi.util.win32.WAVE;
 class Normalizer {
 
     /** */
-    int parse_header(InputStream in, OutputStream out) throws IOException {
+    static int parse_header(InputStream in, OutputStream out) throws IOException {
         int length;
         byte[] riff_type = new byte[4];
 
@@ -57,7 +55,7 @@ class Normalizer {
     }
 
     /** */
-    int parse_fmt(InputStream in, WAVE.fmt fmt_chunk, OutputStream out) throws IOException {
+    static int parse_fmt(InputStream in, WAVE.fmt fmt_chunk, OutputStream out) throws IOException {
         int length;
 
         LittleEndianDataInputStream leis = new LittleEndianDataInputStream(in); 
@@ -114,7 +112,7 @@ class Normalizer {
     }
 
     /** */
-    int parse_data(InputStream in, WAVE.fmt fmt_chunk, OutputStream out) throws IOException {
+    static int parse_data(InputStream in, WAVE.fmt fmt_chunk, OutputStream out) throws IOException {
         int length;
         int deepest;
         int t;
@@ -189,7 +187,7 @@ class Normalizer {
     }
 
     /** */
-    int normalize(String inname, String outname) throws IOException {
+    static int normalize(String inname, String outname) throws IOException {
         InputStream in;
         OutputStream out;
         byte[] chunk_name = new byte[4];
@@ -220,15 +218,14 @@ class Normalizer {
             }
 
             String type = new String(chunk_name);
-            if (type.equals("RIFF")) {
-                parse_header(in, out);
-            } else if (type.equals("fmt ")) {
-                parse_fmt(in, fmt_chunk, out);
-            } else if (type.equals("data")) {
-                parse_data(in, fmt_chunk, out);
-            } else {
+            switch (type) {
+            case "RIFF" -> parse_header(in, out);
+            case "fmt " -> parse_fmt(in, fmt_chunk, out);
+            case "data" -> parse_data(in, fmt_chunk, out);
+            default -> {
                 System.out.printf("Unknown chunk: '%s'\n", type);
                 return -1;
+            }
             }
         }
 

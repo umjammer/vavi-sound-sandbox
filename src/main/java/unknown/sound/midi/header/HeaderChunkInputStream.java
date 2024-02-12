@@ -9,6 +9,7 @@ import unknown.sound.midi.MIDIChunkInputStream;
 
 
 public class HeaderChunkInputStream extends MIDIChunkInputStream {
+    @Override
     public Message readMessage()
         throws InvalidMidiDataException, IOException {
         byte[] dataBytes = new byte[6];
@@ -20,6 +21,7 @@ public class HeaderChunkInputStream extends MIDIChunkInputStream {
         return new HeaderMessage(dataBytes);
     }
 
+    @Override
     public Message getChunkHeader() {
         return new HeaderChunkHeader(getDataByteArray().length);
     }

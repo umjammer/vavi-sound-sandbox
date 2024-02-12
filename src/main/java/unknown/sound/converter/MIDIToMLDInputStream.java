@@ -157,7 +157,7 @@ public class MIDIToMLDInputStream {
         int informationLength = 3;
         if (preference.rightInfo != null && getRightInformation() != null) {
             CopyMessage copy;
-            if (preference.rightInfo.equals(""))
+            if (preference.rightInfo.isEmpty())
                 copy = new CopyMessage(getRightInformation());
             else
                 copy = new CopyMessage(preference.rightInfo);
@@ -184,7 +184,7 @@ public class MIDIToMLDInputStream {
         }
         TitleMessage title;
         if (preference.title != null) {
-            if (preference.title.equals("") && getTitleName() != null)
+            if (preference.title.isEmpty() && getTitleName() != null)
                 title = new TitleMessage(getTitleName());
             else
                 title = new TitleMessage(preference.title);
@@ -215,7 +215,7 @@ public class MIDIToMLDInputStream {
     private String mldRightInformation;
     private int mldMIDITrackCount;
     private int mldMIDIResolution;
-    private Vector<Message> messages;
+    private final Vector<Message> messages;
     private int mldReadIndex;
     public static final int[] DEFAULT_SOUND = {
         63, 63, 63, 63

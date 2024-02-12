@@ -17,6 +17,7 @@ public abstract class ChannelMessage extends TrackMessage {
         return messageType;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] byteData = Message.arrayCopy(super.toBytes(), 1);
         byteData[byteData.length - 1] = (byte) (getChunnel() +

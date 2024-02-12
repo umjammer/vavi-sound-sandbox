@@ -1,6 +1,5 @@
 package unknown.sound.converter;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +31,7 @@ import unknown.sound.midi.track.TextMessage;
  * @version 0.00 040911 nsano initial version <br>
  */
 public class MIDITrackChunkToMLDTrackChunk {
-    public int toMLDNote(int midiNote) {
+    public static int toMLDNote(int midiNote) {
         return midiNote - 33;
     }
 
@@ -60,8 +59,8 @@ public class MIDITrackChunkToMLDTrackChunk {
         return (255L * inputStream.getResolution()) / MLDResolution;
     }
 
-    private MIDIToMLDInputStream inputStream;
-    private List<TrackMessage> mldVec;
+    private final MIDIToMLDInputStream inputStream;
+    private final List<TrackMessage> mldVec;
     public final long MLDResolution;
 
     public MIDITrackChunkToMLDTrackChunk(MIDIToMLDInputStream inputStream,
@@ -116,8 +115,7 @@ public class MIDITrackChunkToMLDTrackChunk {
                         }
                     }
                 } while (timeOver);
-                if (message instanceof NoteOnMessage) {
-                    NoteOnMessage noteOn = (NoteOnMessage) message;
+                if (message instanceof NoteOnMessage noteOn) {
                     int index = noteOn.getChunnel();
                     if (index < 4) {
                         if (tempo[index] == null) {
@@ -157,8 +155,7 @@ public class MIDITrackChunkToMLDTrackChunk {
                     }
                     continue;
                 }
-                if (message instanceof NoteOffMessage) {
-                    NoteOffMessage noteOff = (NoteOffMessage) message;
+                if (message instanceof NoteOffMessage noteOff) {
                     int index = noteOff.getChunnel();
                     if ((index < 4) && (tempo[index] != null) &&
                         (tempo[index].getNote() == toMLDNote(noteOff.getNote()))) {
@@ -168,8 +165,7 @@ public class MIDITrackChunkToMLDTrackChunk {
                     }
                     continue;
                 }
-                if (message instanceof ProgramChangeMessage) {
-                    ProgramChangeMessage program = (ProgramChangeMessage) message;
+                if (message instanceof ProgramChangeMessage program) {
                     int index = program.getChunnel();
                     if (index < 4) {
                         ProgramChangePrevMessage prev = new ProgramChangePrevMessage(0,
@@ -185,8 +181,7 @@ public class MIDITrackChunkToMLDTrackChunk {
                     }
                     continue;
                 }
-                if (message instanceof SetTempoMessage) {
-                    SetTempoMessage tempoChange = (SetTempoMessage) message;
+                if (message instanceof SetTempoMessage tempoChange) {
                     TempoMessage tempoMessage = new TempoMessage(0,
                                                                  inputStream.getPreferences().resolution,
                                                                  tempoChange.getTempo());
@@ -197,8 +192,7 @@ public class MIDITrackChunkToMLDTrackChunk {
                 if (message instanceof EndOfTrackMessage) {
                     break;
                 }
-                if (message instanceof SequenceTrackNameMessage) {
-                    SequenceTrackNameMessage name = (SequenceTrackNameMessage) message;
+                if (message instanceof SequenceTrackNameMessage name) {
                     if (inputStream.getTitleName() == null) {
                         inputStream.setTitleName(name.getTrackName());
                     }
@@ -212,14 +206,11 @@ public class MIDITrackChunkToMLDTrackChunk {
                             add(beginning);
                         }
                     }
-                } else if (message instanceof RightMessage) {
-                    RightMessage right = (RightMessage) message;
+                } else if (message instanceof RightMessage right) {
                     inputStream.setRightInformation(right.getRightText());
                 }
             } while (true);
-        } catch (EOFException e) {
-        } catch (InvalidMidiDataException ex) {
-        } catch (IOException e) {
+        } catch (IOException | InvalidMidiDataException e) {
         }
 
         TrackEndMessage end = new TrackEndMessage(0, 0);

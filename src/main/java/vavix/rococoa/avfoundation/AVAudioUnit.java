@@ -29,7 +29,7 @@ public abstract class AVAudioUnit extends AVAudioNode {
         AVAudioUnit alloc();
         /**
          * @param options AudioComponentInstantiationOptions
-         * @param completionHandler BiFunction<AVAudioUnit, NSError, Void)
+         * @param completionHandler BiFunction<AVAudioUnit, NSError, Void>
          */
         void instantiateWithComponentDescription_options_completionHandler(AudioComponentDescription.ByValue audioComponentDescription,
                                                                            int options,
@@ -71,5 +71,6 @@ public abstract class AVAudioUnit extends AVAudioNode {
 
     public abstract int version();
 
+    @Override
     public abstract AUAudioUnit AUAudioUnit();
 }

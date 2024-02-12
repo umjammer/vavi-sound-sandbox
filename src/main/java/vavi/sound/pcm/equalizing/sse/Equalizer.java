@@ -9,7 +9,6 @@
 
 package vavi.sound.pcm.equalizing.sse;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -55,6 +54,7 @@ class Equalizer {
         }
 
         /** */
+        @Override
         public int compareTo(Parameter o) {
             return (int) (lower - o.lower);
         }
@@ -64,7 +64,7 @@ class Equalizer {
     private static final int M = 15;
 
     /** */
-    private int RINT(double x) {
+    private static int RINT(double x) {
         return (int) (x >= 0 ? x + 0.5 : x - 0.5);
     }
 
@@ -74,13 +74,13 @@ class Equalizer {
     // play -c 2 -r 44100 -fs -sw
 
     /** */
-    private double[] fact = new double[M + 1];
+    private final double[] fact = new double[M + 1];
 
     /** */
-    private double aa = 96;
+    private final double aa = 96;
 
     /** */
-    private double iza;
+    private final double iza;
 
     /** */
     private double[] lires, lires1, lires2, rires, rires1, rires2, irest;
@@ -89,7 +89,7 @@ class Equalizer {
     private double[] fsamples;
 
     /** */
-    private double[] ditherbuf;
+    private final double[] ditherbuf;
 
     /** */
     private int ditherptr = 0;
@@ -98,10 +98,12 @@ class Equalizer {
     private volatile int chg_ires, cur_ires;
 
     /** */
-    private int winlen, tabsize, nbufsamples;
+    private final int winlen;
+    private final int tabsize;
+    private int nbufsamples;
 
     @SuppressWarnings("unused")
-    private int winlenbit;
+    private final int winlenbit;
 
     /** */
     private int[] inbuf;
@@ -124,7 +126,7 @@ class Equalizer {
     /** */
     private static Double[] bands;
 
-    /** */
+    /* */
     static {
         try {
             Properties props = new Properties();
@@ -147,17 +149,17 @@ System.err.println("property band." + c + " not found, break");
     }
 
     /** */
-    public int getBandsCount() {
+    public static int getBandsCount() {
         return bands.length;
     }
 
     /** */
-    public double getBand(int index) {
+    public static double getBand(int index) {
         return bands[index];
     }
 
     /** */
-    private double alpha(double a) {
+    private static double alpha(double a) {
         if (a <= 21) {
             return 0;
         }
@@ -225,19 +227,19 @@ System.err.println("property band." + c + " not found, break");
     }
 
     /** */
-    private double sinc(double x) {
+    private static double sinc(double x) {
         return x == 0 ? 1 : Math.sin(x) / x;
     }
 
     /** */
-    private double hn_lpf(int n, double f, double fs) {
+    private static double hn_lpf(int n, double f, double fs) {
         double t = 1 / fs;
         double omega = 2 * Math.PI * f;
         return 2 * f * t * sinc(n * omega * t);
     }
 
     /** */
-    private double hn_imp(int n) {
+    private static double hn_imp(int n) {
         return n == 0 ? 1.0 : 0.0;
     }
 
@@ -274,7 +276,7 @@ System.err.println("property band." + c + " not found, break");
      * @param fs frequency in Hz
      * @param ch channel #
      */
-    void process_param(double[] bc, List<Parameter> param, List<Parameter> param2, double fs, int ch) {
+    static void process_param(double[] bc, List<Parameter> param, List<Parameter> param2, double fs, int ch) {
         Parameter p = null, e2;
 
         // set gain for each band
@@ -384,7 +386,7 @@ for (Parameter pp : param2) {
      * @param fs frequency in Hz
      * @param ch channel #
      */
-    void process_param2(double[] bc, List<Parameter> param, List<Parameter> param2, double fs, int ch) {
+    static void process_param2(double[] bc, List<Parameter> param, List<Parameter> param2, double fs, int ch) {
         Parameter p = null, e2;
 
         // set gain for each band
@@ -499,8 +501,8 @@ for (Parameter pp : param2) {
 
     /** */
     private double hm1 = 0;
-    /** */
-//  private double hm2 = 0;
+//    /** */
+//    private double hm2 = 0;
 
     /**
      * @param buf PCM sample.  8, 16 and 24 bits are available.
@@ -781,7 +783,7 @@ for (Parameter pp : param2) {
      * @param isign
      * @param x
      */
-    private void rfft(int n, int isign, double[] x) {
+    private static void rfft(int n, int isign, double[] x) {
         int ipsize = 0, wsize = 0;
         int[] ip = null;
         double[] w = null;
@@ -797,7 +799,7 @@ for (Parameter pp : param2) {
             return;
         }
 
-        newipsize = (int) (2 + Math.sqrt(n / 2));
+        newipsize = (int) (2 + Math.sqrt(n / 2d));
         if (newipsize > ipsize) {
             ipsize = newipsize;
             ip = new int[ipsize];
@@ -814,14 +816,14 @@ for (Parameter pp : param2) {
     }
 
     /** when bps = 16 */
-    private void writeShort(byte[] buffer, int offset, int value) {
+    private static void writeShort(byte[] buffer, int offset, int value) {
         // assume little endian
         buffer[offset * 2    ] = (byte)  (value       & 0xff);
         buffer[offset * 2 + 1] = (byte) ((value >> 8) & 0xff);
     }
 
     /** when bps = 16 */
-    private int readShort(byte[] buffer, int offset) {
+    private static int readShort(byte[] buffer, int offset) {
         // assume little endian
         int v =  (buffer[offset * 2    ] & 0xff) |
                 ((buffer[offset * 2 + 1] & 0xff) << 8);
@@ -832,7 +834,7 @@ for (Parameter pp : param2) {
     }
 
     /** */
-    void usage() {
+    static void usage() {
         System.err.println("java in out preamp");
     }
 
@@ -899,7 +901,7 @@ Debug.println("---- init ----");
 
         int argc = argv.length;
         if (argc != 2 && argc != 3) {
-            equ.usage();
+            Equalizer.usage();
             return;
         }
 
@@ -908,7 +910,7 @@ Debug.println("---- init ----");
             fpo = new RandomAccessFile(argv[1], "rw");
         } catch (Exception e) {
             System.err.println(e);
-            equ.usage();
+            Equalizer.usage();
             return;
         }
 
@@ -989,6 +991,7 @@ Debug.println("---- init ----");
             this.raf = raf;
         }
         /** */
+        @Override
         public void write(int b) throws IOException {
             raf.write(b);
         }

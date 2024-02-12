@@ -42,7 +42,7 @@ import vavix.rococoa.avfoundation.AudioStreamBasicDescription.AudioFormatID;
 class AVFoundationTest {
 
     static {
-        AVFoundation.instance.toString();
+        AVFoundation.instance.toString(); // to make sure library is loaded
     }
 
     /** {@link AVAudioFormat#init(AudioStreamBasicDescription)} */
@@ -316,6 +316,7 @@ Debug.println("AVAudioUnitComponent: " + c.audioComponentDescription() + ", " + 
         AUAudioUnit audioUnit = AUAudioUnit.initWithComponentDescription(description);
 Debug.println("AudioUnit: " + audioUnit.description());
         AUAudioUnit.CompletionHandlerCallback callback = new AUAudioUnit.CompletionHandlerCallback() {
+            @Override
             @RunOnMainThread
             public void completionHandler(Pointer outCompletionHandler) {
 //                NSViewController viewControler = outCompletionHandler.getValueAs(NSViewController.class);
@@ -329,7 +330,7 @@ Debug.println("AudioUnit: " + audioUnit.description());
 
     @Test
     void test8() throws Exception {
-        for (float f = .0f; f <= 1.1f; f += .1) {
+        for (float f = .0f; f <= 1.1f; f += .1f) {
             float dB = (float) (Math.log(f) / Math.log(10.0) * 20.0);
             System.out.printf("gain: %03.2f, dB: %03.0f%n", f, dB);
         }

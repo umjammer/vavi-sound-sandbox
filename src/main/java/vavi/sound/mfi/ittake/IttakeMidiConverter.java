@@ -52,20 +52,24 @@ public class IttakeMidiConverter implements MidiConverter {
                            "Version 1.01") {};
 
     /** */
+    @Override
     public MfiDevice.Info getDeviceInfo() {
         return info;
     }
 
     /* */
+    @Override
     public void close() {
     }
 
     /* */
+    @Override
     public boolean isOpen() {
         return true;
     }
 
     /* */
+    @Override
     public void open() {
     }
 
@@ -75,6 +79,8 @@ public class IttakeMidiConverter implements MidiConverter {
      * Converts midi sequence to mfi sequence.
      * @deprecated
      */
+    @Override
+    @Deprecated
     public vavi.sound.mfi.Sequence toMfiSequence(Sequence midiSequence)
         throws InvalidMidiDataException {
 
@@ -82,15 +88,13 @@ public class IttakeMidiConverter implements MidiConverter {
     }
 
     /** Converts midi sequence to mfi sequence. */
+    @Override
     public vavi.sound.mfi.Sequence toMfiSequence(Sequence midiSequence, int fileType)
         throws InvalidMidiDataException {
 
         try {
             return convert(midiSequence, fileType);
-        } catch (IOException e) {
-Debug.printStackTrace(e);
-            throw (InvalidMidiDataException) new InvalidMidiDataException().initCause(e);
-        } catch (InvalidMfiDataException e) {
+        } catch (IOException | InvalidMfiDataException e) {
 Debug.printStackTrace(e);
             throw (InvalidMidiDataException) new InvalidMidiDataException().initCause(e);
         }
@@ -100,7 +104,7 @@ Debug.printStackTrace(e);
      * hack of Track
      * TODO マジで動くの？
      */
-    private void insert(Track track, MfiEvent event, int index) {
+    private static void insert(Track track, MfiEvent event, int index) {
         try {
             @SuppressWarnings("unchecked")
             List<MfiEvent> events = (List<MfiEvent>) track.getClass().getDeclaredField("events").get(track);
@@ -111,7 +115,7 @@ Debug.printStackTrace(e);
     }
 
     /** Converts midi sequence to mfi sequence */
-    protected vavi.sound.mfi.Sequence convert(Sequence sequence, int type)
+    protected static vavi.sound.mfi.Sequence convert(Sequence sequence, int type)
         throws InvalidMfiDataException, IOException {
 
         javax.sound.midi.Track[] midiTracks = sequence.getTracks();
@@ -179,8 +183,7 @@ Debug.println("j: " + j);
 Debug.println("here: " + j + ", " + timeOver);
             } while (timeOver);
 
-            if (midiMessage instanceof ShortMessage) {
-                ShortMessage shortMessage = (ShortMessage) midiMessage;
+            if (midiMessage instanceof ShortMessage shortMessage) {
                 int command = shortMessage.getCommand();
 
                 if (command == ShortMessage.NOTE_ON) {
@@ -188,7 +191,7 @@ Debug.println("here: " + j + ", " + timeOver);
                     if (i < 4) {
                         if (tempo[i] == null) {
                             if (shortMessage.getData2() != 0) { // velocity
-                                tempo[i] = new MfiEvent(new NoteMessage(0, i, context.toMLDNote(shortMessage.getData1()), 0), presentTime);
+                                tempo[i] = new MfiEvent(new NoteMessage(0, i, MfiContext.toMLDNote(shortMessage.getData1()), 0), presentTime);
                                 if (prevVelocity[i] != shortMessage.getData2() || prevVelocity[i] == -1) {
                                     VolumeMessage sound = new VolumeMessage(0, 0xff, i, shortMessage.getData2() / 2);
                                     mfiTrack.add(new MfiEvent(sound, presentTime));
@@ -198,13 +201,13 @@ Debug.println("here: " + j + ", " + timeOver);
                             }
                         } else {
                             if (shortMessage.getData2() == 0) { // velocity
-                                if (context.toMLDNote(shortMessage.getData1()) == ((NoteMessage) tempo[i].getMessage()).getNote()) {
+                                if (MfiContext.toMLDNote(shortMessage.getData1()) == ((NoteMessage) tempo[i].getMessage()).getNote()) {
                                     ((NoteMessage) tempo[i].getMessage()).setGateTime((int) (context.toMLDTime(presentTime) - context.toMLDTime(tempo[i].getTick())));
                                     tempo[i] = null;
                                 }
                             } else {
                                 ((NoteMessage) tempo[i].getMessage()).setGateTime((int) (context.toMLDTime(presentTime) - context.toMLDTime(tempo[i].getTick()) - 1L));
-                                tempo[i] = new MfiEvent(new NoteMessage(0, i, context.toMLDNote(shortMessage.getData1()), 0), presentTime);
+                                tempo[i] = new MfiEvent(new NoteMessage(0, i, MfiContext.toMLDNote(shortMessage.getData1()), 0), presentTime);
                                 mfiTrack.add(tempo[i]);
                             }
                         }
@@ -212,7 +215,7 @@ Debug.println("here: " + j + ", " + timeOver);
                 }
                 if (command == ShortMessage.NOTE_OFF) {
                     int i = shortMessage.getChannel();
-                    if (i < 4 && tempo[i] != null && ((NoteMessage) tempo[i].getMessage()).getNote() == context.toMLDNote(shortMessage.getData1())) {
+                    if (i < 4 && tempo[i] != null && ((NoteMessage) tempo[i].getMessage()).getNote() == MfiContext.toMLDNote(shortMessage.getData1())) {
                         ((NoteMessage) tempo[i].getMessage()).setGateTime((int) (context.toMLDTime(presentTime) - context.toMLDTime(tempo[i].getTick())));
                         tempo[i] = null;
                     }
@@ -226,8 +229,7 @@ Debug.println("here: " + j + ", " + timeOver);
                         mfiTrack.add(new MfiEvent(next, presentTime));
                     }
                 }
-            } else if (midiMessage instanceof MetaMessage) {
-                MetaMessage metaMessage = (MetaMessage) midiMessage;
+            } else if (midiMessage instanceof MetaMessage metaMessage) {
                 int metaType = metaMessage.getType();
                 switch (metaType) {
                 case 81: // テンポ設定
@@ -282,22 +284,20 @@ Debug.println("here: " + j + ", " + timeOver);
     //----
 
     /** Converts mfi sequence to midi sequence  */
+    @Override
     public Sequence toMidiSequence(vavi.sound.mfi.Sequence mfiSequence)
         throws InvalidMfiDataException {
 
         try {
             return convert(mfiSequence);
-        } catch (IOException e) {
+        } catch (IOException | InvalidMidiDataException e) {
 Debug.printStackTrace(e);
-            throw (InvalidMfiDataException) new InvalidMfiDataException().initCause(e);
-        } catch (InvalidMidiDataException e) {
-Debug.printStackTrace(e);
-            throw (InvalidMfiDataException) new InvalidMfiDataException().initCause(e);
+            throw new InvalidMfiDataException(e);
         }
     }
 
     /** Converts mfi sequence to midi sequence */
-    protected Sequence convert(vavi.sound.mfi.Sequence sequence)
+    protected static Sequence convert(vavi.sound.mfi.Sequence sequence)
         throws InvalidMidiDataException, IOException {
 
         throw new UnsupportedOperationException("not implemented");

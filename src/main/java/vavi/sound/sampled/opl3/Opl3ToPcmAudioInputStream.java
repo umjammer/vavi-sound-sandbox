@@ -33,17 +33,17 @@ public class Opl3ToPcmAudioInputStream extends AudioInputStream {
         super(new OutputEngineInputStream(new Opl3OutputEngine(stream, sourceFormat)), format, length);
     }
 
-    /** */
+    /**  */
     private static class Opl3OutputEngine implements OutputEngine {
 
         /** */
-        private Opl3Player player;
+        private final Opl3Player player;
 
         /** */
         private DataOutputStream out;
 
         /** */
-        private float sampleRate;
+        private final float sampleRate;
 
         /** */
         public Opl3OutputEngine(InputStream is, AudioFormat format) throws IOException {
@@ -53,7 +53,7 @@ public class Opl3ToPcmAudioInputStream extends AudioInputStream {
             sampleRate = format.getSampleRate();
         }
 
-        /** */
+        @Override
         public void initialize(OutputStream out) throws IOException {
             if (this.out != null) {
                 throw new IOException("Already initialized");
@@ -62,14 +62,14 @@ public class Opl3ToPcmAudioInputStream extends AudioInputStream {
             }
         }
 
-        /** */
+        @Override
         public void execute() throws IOException {
             if (out == null) {
                 throw new IOException("Not yet initialized");
             } else {
                 if (player.update()) {
                     double sec = 1.0 / player.getRefresh();
-Debug.println(Level.FINE, "bytes: " + (int) (sampleRate * sec) + ", " + player.getRefresh());
+Debug.println(Level.FINER, "bytes: " + (int) (sampleRate * sec) + ", " + player.getRefresh());
 
                     byte[] buf = player.read(4 * (int) (sampleRate * sec));
                     out.write(buf);
@@ -85,7 +85,7 @@ Debug.println(Level.FINE, "bytes: " + (int) (sampleRate * sec) + ", " + player.g
             }
         }
 
-        /** */
+        @Override
         public void finish() throws IOException {
 //Debug.println("finish");
         }

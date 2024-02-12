@@ -47,6 +47,7 @@ class ITLibraryTest {
         frame.setSize(600, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JPanel panel = new JPanel() {
+            @Override
             public void paint(Graphics g) {
                 g.drawImage(image, 0, 0, this);
             }
@@ -73,7 +74,7 @@ class ITLibraryTest {
         ITLibrary library = ITLibrary.libraryWithAPIVersion("1.1");
         library.getMediaItems().stream()
             .filter(t -> t.mediaKind() == 2)
-            .filter(t -> t.artist().name().contains("a-ha"))
+            .filter(t -> t.artist().name().contains("Prince"))
             .forEach(t -> System.err.println(t.artist().name() + " - " + t.title() + " [" + t.composer() + "] " + t.addedDate()));
     }
 

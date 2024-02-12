@@ -24,8 +24,8 @@ public class OpusFileFormatType extends AudioFileFormat.Type {
 
     /**
      * Constructs a file type.
-     * 
-     * @param name the name of the OPUS File Format.
+     *
+     * @param name      the name of the OPUS File Format.
      * @param extension the file extension for this OPUS File Format.
      */
     public OpusFileFormatType(String name, String extension) {

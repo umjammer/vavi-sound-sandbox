@@ -25,10 +25,12 @@ import vavi.sound.opl3.MidPlayer.MidiTypeFile;
 class CmfFile extends MidiTypeFile {
     private static final Logger logger = Logger.getLogger(CmfFile.class.getName());
 
+    @Override
     int markSize() {
         return 4;
     }
 
+    @Override
     boolean matchFormatImpl(DataInputStream dis) throws IOException {
         return dis.readUnsignedByte() == 'C' &&
                 dis.readUnsignedByte() == 'T' &&

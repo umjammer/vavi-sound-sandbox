@@ -27,7 +27,7 @@ public class Opl3FileFormatType extends AudioFileFormat.Type {
     /**
      * Constructs a file type.
      *
-     * @param name the name of the OPL3 File Format.
+     * @param name      the name of the OPL3 File Format.
      * @param extension the file extension for this OPL3 File Format.
      */
     public Opl3FileFormatType(String name, String extension) {

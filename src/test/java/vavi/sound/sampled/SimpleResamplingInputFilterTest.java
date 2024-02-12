@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * SimpleResamplingInputFilterTest.
  *
- * @require tritonus_remaining-XXX.jar
+ * @require tritonus:tritonus_remaining
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060202 nsano initial version <br>
@@ -43,7 +43,7 @@ public class SimpleResamplingInputFilterTest {
 
     @Test
     public void test1() throws Exception {
-        // source: any any Hz, any bit, any, any bytes/frame, any
+        // source: any Hz, any bit, any, any bytes/frame, any
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
 Debug.println("IN: " + sourceAis.getFormat());
         final int outSamplingRate = 8000;

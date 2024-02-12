@@ -26,6 +26,7 @@ class StateWaiter {
     StateWaiter(Processor p) {
         this.p = p;
         p.addControllerListener(new ControllerListener() {
+            @Override
             public void controllerUpdate(ControllerEvent ce) {
                 if (ce instanceof ControllerErrorEvent) {
                     error = true;
@@ -72,7 +73,7 @@ class StateWaiter {
         return (new StateWaiter(p)).waitForState(state);
     }
 
-    Object waitFileSync = new Object();
+    final Object waitFileSync = new Object();
 
     boolean fileDone = false;
 

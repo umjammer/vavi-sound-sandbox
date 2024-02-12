@@ -25,7 +25,7 @@ public class RococoaFileFormatType extends AudioFileFormat.Type {
     /**
      * Constructs a file type.
      *
-     * @param name the name of the Rococoa File Format.
+     * @param name      the name of the Rococoa File Format.
      * @param extension the file extension for this Flac File Format.
      */
     public RococoaFileFormatType(String name, String extension) {

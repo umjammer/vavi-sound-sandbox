@@ -4,10 +4,11 @@
 
 package vavi.sound.sampled.opus;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -33,21 +34,21 @@ public class OpusAudioPlayer {
     private static final int INPUT_SAMPLERATE = 48000;
     private static final int OUTPUT_SAMPLERATE = 48000;
 
-    private OpusFile oggFile;
-    private OpusDecoder decoder;
+    private final OpusFile oggFile;
+    private final OpusDecoder decoder;
 
-    private ByteBuffer decodeBuffer = ByteBuffer.allocate(BUFFER_SIZE);
+    private final ByteBuffer decodeBuffer = ByteBuffer.allocate(BUFFER_SIZE);
 
-    private int channels;
+    private final int channels;
 
     public static void main(String[] args) throws Exception {
-        OpusAudioPlayer opusAudioPlayer = new OpusAudioPlayer(new File(args[0]));
+        OpusAudioPlayer opusAudioPlayer = new OpusAudioPlayer(Paths.get(args[0]));
         opusAudioPlayer.play();
     }
 
-    public OpusAudioPlayer(File audioFile) throws IOException {
+    public OpusAudioPlayer(Path audioFile) throws IOException {
         try {
-            oggFile = new OpusFile(new OggFile(Files.newInputStream(audioFile.toPath())));
+            oggFile = new OpusFile(new OggFile(Files.newInputStream(audioFile)));
             decoder = new OpusDecoder(INPUT_SAMPLERATE, 2);
             channels = oggFile.getInfo().getNumChannels();
         } catch (OpusException e) {

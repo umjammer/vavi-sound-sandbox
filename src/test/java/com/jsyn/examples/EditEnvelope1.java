@@ -13,18 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/** 
- * Test Envelope using Java Audio Synthesizer
- * Trigger attack or release portion.
- *
- * @author (C) 1997 Phil Burk
- */
 
 package com.jsyn.examples;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JApplet;
 import javax.swing.JButton;
@@ -42,6 +34,13 @@ import com.jsyn.unitgen.UnitOscillator;
 import com.jsyn.unitgen.VariableRateDataReader;
 import com.jsyn.unitgen.VariableRateMonoReader;
 
+
+/**
+ * Test Envelope using Java Audio Synthesizer
+ * Trigger attack or release portion.
+ *
+ * @author (C) 1997 Phil Burk
+ */
 public class EditEnvelope1 extends JApplet {
     private Synthesizer synth;
     private UnitOscillator osc;
@@ -94,30 +93,21 @@ public class EditEnvelope1 extends JApplet {
 
         JPanel bottomPanel = new JPanel();
         bottomPanel.add(hitme = new JButton("On"));
-        hitme.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                points.updateEnvelopeIfDirty(envelope);
-                envelopePlayer.dataQueue.queueOn(envelope);
-            }
+        hitme.addActionListener(e -> {
+            points.updateEnvelopeIfDirty(envelope);
+            envelopePlayer.dataQueue.queueOn(envelope);
         });
 
         bottomPanel.add(attackButton = new JButton("Off"));
-        attackButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                points.updateEnvelopeIfDirty(envelope);
-                envelopePlayer.dataQueue.queueOff(envelope);
-            }
+        attackButton.addActionListener(e -> {
+            points.updateEnvelopeIfDirty(envelope);
+            envelopePlayer.dataQueue.queueOff(envelope);
         });
 
         bottomPanel.add(releaseButton = new JButton("Queue"));
-        releaseButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                points.updateEnvelopeIfDirty(envelope);
-                envelopePlayer.dataQueue.queue(envelope);
-            }
+        releaseButton.addActionListener(e -> {
+            points.updateEnvelopeIfDirty(envelope);
+            envelopePlayer.dataQueue.queue(envelope);
         });
 
         add(bottomPanel, BorderLayout.SOUTH);

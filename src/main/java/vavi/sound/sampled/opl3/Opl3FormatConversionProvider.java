@@ -24,18 +24,18 @@ public class Opl3FormatConversionProvider extends FormatConversionProvider {
 
     @Override
     public AudioFormat.Encoding[] getSourceEncodings() {
-        return new AudioFormat.Encoding[] { Opl3Encoding.MID, Opl3Encoding.DRO1, Opl3Encoding.DRO2 };
+        return new AudioFormat.Encoding[] {Opl3Encoding.MID, Opl3Encoding.DRO1, Opl3Encoding.DRO2};
     }
 
     @Override
     public AudioFormat.Encoding[] getTargetEncodings() {
-        return new AudioFormat.Encoding[] { AudioFormat.Encoding.PCM_SIGNED };
+        return new AudioFormat.Encoding[] {AudioFormat.Encoding.PCM_SIGNED};
     }
 
     @Override
     public AudioFormat.Encoding[] getTargetEncodings(AudioFormat sourceFormat) {
         if (sourceFormat.getEncoding() instanceof Opl3Encoding) {
-            return new AudioFormat.Encoding[] { AudioFormat.Encoding.PCM_SIGNED };
+            return new AudioFormat.Encoding[] {AudioFormat.Encoding.PCM_SIGNED};
         } else {
             return new AudioFormat.Encoding[0];
         }
@@ -46,11 +46,11 @@ public class Opl3FormatConversionProvider extends FormatConversionProvider {
         if (sourceFormat.getEncoding() instanceof Opl3Encoding && targetEncoding.equals(AudioFormat.Encoding.PCM_SIGNED)) {
             // TODO signed, endian should be free (means add more 3 patterns)
             return new AudioFormat[] {
-                new AudioFormat(sourceFormat.getSampleRate(),
-                                16,         // sample size in bits
-                                sourceFormat.getChannels(),
-                                true,       // signed
-                                false)      // little endian (for PCM wav)
+                    new AudioFormat(sourceFormat.getSampleRate(),
+                            16,           // sample size in bits
+                            sourceFormat.getChannels(),
+                            true,                // signed
+                            false)                      // little endian (for PCM wav)
             };
         } else {
             return new AudioFormat[0];
@@ -95,7 +95,7 @@ public class Opl3FormatConversionProvider extends FormatConversionProvider {
                     if (sourceFormat.equals(targetFormat)) {
                         return sourceStream;
                     } else if (sourceFormat.getEncoding() instanceof Opl3Encoding &&
-                               targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
+                            targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
                         return new Opl3ToPcmAudioInputStream(sourceStream, targetFormat, AudioSystem.NOT_SPECIFIED, sourceFormat);
                     } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof Opl3Encoding) {
                         throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);

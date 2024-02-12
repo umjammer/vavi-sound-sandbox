@@ -12,6 +12,7 @@ public class SpecialMessage extends TrackMessage {
         messageDataBytes = data;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] bytes = {
                            (byte) getDeltaTime(), -1, -16,

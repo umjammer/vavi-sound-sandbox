@@ -196,7 +196,7 @@ Debug.println(Level.SEVERE, e);
     // data pos
     protected int pos;
 
-    private Opl3Soundbank soundBank = new Opl3Soundbank(Adlib.midi_fm_instruments);
+    private final Opl3Soundbank soundBank = new Opl3Soundbank(Adlib.midi_fm_instruments);
 
     private FileType type;
     protected int subsongs;
@@ -211,9 +211,9 @@ Debug.println(Level.SEVERE, e);
     // number of instruments
     protected int tins;
 
-    private Opl3Synthesizer synthesizer = new Opl3Synthesizer();
+    private final Opl3Synthesizer synthesizer = new Opl3Synthesizer();
 
-    private Transmitter transmitter = new Opl3Transmitter();
+    private final Transmitter transmitter = new Opl3Transmitter();
 
     @Override
     public boolean matchFormat(InputStream bitStream) {
@@ -369,7 +369,7 @@ logger.fine("type: " + type);
                             midiMessage = new ShortMessage();
                             ((ShortMessage) midiMessage).setMessage(ShortMessage.POLY_PRESSURE, c, data1, data2);
                             break;
-                        case 0xb0: // control change .. pitch bend?
+                        case 0xb0: // control change ... pitch bend?
                             int ctrl = takeBE(1);
                             data2 = takeBE(1);
                             midiMessage = new ShortMessage();
@@ -469,7 +469,7 @@ logger.fine("type: " + type);
                             }
                             break;
                         default:
-                            // if we get down here, a error occurred
+                            // if we get down here, an error occurred
                             logger.warning(String.format("!: %02x at %d", v, pos));
                             break;
                         }

@@ -21,6 +21,7 @@ public class ProgramChangeNextMessage extends SystemMessage {
         return ((getChannel() << 6) & 0xc0) | ((getProgram() >> 6) & 1) | 2;
     }
 
+    @Override
     public byte[] toBytes() {
         byte[] bytes = {
                            (byte) getDeltaTime(), -1, -31,

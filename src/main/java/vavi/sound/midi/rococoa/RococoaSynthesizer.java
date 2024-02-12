@@ -61,10 +61,10 @@ public class RococoaSynthesizer implements Synthesizer {
 
     private AVAudioUnitMIDIInstrument midiSynth;
 
-    private MidiChannel[] channels = new MidiChannel[MAX_CHANNEL];
+    private final MidiChannel[] channels = new MidiChannel[MAX_CHANNEL];
 
     // TODO voice != channel ( = getMaxPolyphony())
-    private VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
+    private final VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
 
     private long timestump;
 
@@ -250,12 +250,12 @@ Debug.println("stated: " + r + ", " + hashCode());
 
     private class RococoaMidiChannel implements MidiChannel {
 
-        private int channel;
+        private final int channel;
 
-        private int[] polyPressure = new int[128];
+        private final int[] polyPressure = new int[128];
         private int pressure;
         private int pitchBend;
-        private int[] control = new int[128];
+        private final int[] control = new int[128];
 
         /** */
         public RococoaMidiChannel(int channel) {
@@ -411,7 +411,7 @@ Debug.println("stated: " + r + ", " + hashCode());
         }
     }
 
-    private List<Receiver> receivers = new ArrayList<>();
+    private final List<Receiver> receivers = new ArrayList<>();
 
     private class RococoaReceiver implements Receiver {
         private boolean isOpen;
@@ -425,8 +425,7 @@ Debug.println("stated: " + r + ", " + hashCode());
         public void send(MidiMessage message, long timeStamp) {
             timestump = timeStamp;
             if (isOpen) {
-                if (message instanceof ShortMessage) {
-                    ShortMessage shortMessage = (ShortMessage) message;
+                if (message instanceof ShortMessage shortMessage) {
                     int channel = shortMessage.getChannel();
                     int command = shortMessage.getCommand();
                     int data1 = shortMessage.getData1();
@@ -456,10 +455,9 @@ Debug.println("stated: " + r + ", " + hashCode());
                         channels[channel].setPitchBend(data1 | (data2 << 7));
                         break;
                     default:
-Debug.printf("uncknown short: %02X\n", command);
+Debug.printf("unknown short: %02X\n", command);
                     }
-                } else if (message instanceof SysexMessage) {
-                    SysexMessage sysexMessage = (SysexMessage) message;
+                } else if (message instanceof SysexMessage sysexMessage) {
                     byte[] data = sysexMessage.getData();
 Debug.printf("sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data));
                     midiSynth.sendMIDISysExEvent(data);
