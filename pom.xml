@@ -12,12 +12,7 @@
 
   <name>Vavi Sound API (Sandbox)</name>
   <url>https://github.com/umjammer/vavi-sound-sandbox</url>
-  <description>TODO
-
-    jni in maven
-    resampling spi
-    qt has been deprecated
-  </description>
+  <description/>
   <scm>
     <url>https://github.com/umjammer/vavi-sound-sandbox</url>
   </scm>
@@ -27,7 +22,8 @@
 
   <properties>
     <tritonus.version>0.3.12</tritonus.version>
-    <rococoa.version>0.8.4</rococoa.version>
+    <rococoa.version>0.8.6</rococoa.version>
+    <maven.plugin.validation>VERBOSE</maven.plugin.validation>
   </properties>
 
   <distributionManagement>
@@ -50,7 +46,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
-            <version>3.3.0</version>
+            <version>3.6.0</version>
             <executions>
               <execution>
                 <id>copy</id>
@@ -83,25 +79,33 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.10.1</version>
+        <version>3.11.0</version>
         <configuration>
-          <source>8</source>
-          <target>8</target>
-          <encoding>UTF-8</encoding>
+          <source>17</source> <!-- TODO release causes compilation failure why? -->
+          <target>17</target>
+          <compilerArgs>
+            <arg>--add-exports</arg>
+            <arg>java.desktop/com.sun.media.sound=ALL-UNNAMED</arg>
+          </compilerArgs>
+          <!-- https://stackoverflow.com/a/30472473 -->
+          <fork>true</fork>
+          <showWarnings>true</showWarnings>
         </configuration>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M7</version>
+        <version>3.2.2</version>
         <configuration>
           <argLine>
             -Dvavi.util.logging.VaviFormatter.extraClassMethod="org\.tritonus\.share\.TDebug#out"
             -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
+            -Dvavi.test.volume=0.02
+            --add-exports java.desktop/com.sun.media.sound=ALL-UNNAMED
           </argLine>
           <trimStackTrace>false</trimStackTrace>
-          <forkMode>always</forkMode>
+          <reuseForks>false</reuseForks>
         </configuration>
       </plugin>
     </plugins>
@@ -123,7 +127,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.9.1</version>
+        <version>5.10.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -134,23 +138,18 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.8</version>
+      <version>1.1.10</version>
     </dependency>
     <dependency>
-      <groupId>com.github.umjammer</groupId> <!-- com.github.umjammer -->
+      <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.13</version>
+      <version>1.0.16</version>
       <exclusions>
         <exclusion>
           <groupId>com.github.umjammer</groupId>
           <artifactId>vavi-sound-nda</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>com.github.umjammer</groupId>
-      <artifactId>vavi-sound-alac</artifactId>
-      <version>0.3.2</version>
     </dependency>
 
     <dependency>
@@ -224,14 +223,8 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons-sandbox</artifactId>
-      <version>0.4.2</version>
+      <version>0.4.4</version>
       <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>com.github.umjammer</groupId>
-          <artifactId>vavi-commons</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>
@@ -266,21 +259,19 @@
     <dependency>
       <groupId>com.github.SourceUtils</groupId>
       <artifactId>jspeex</artifactId>
-      <version>master-SNAPSHOT</version>
+      <version>b7f6f864f0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <!-- drogatkin -->
-      <groupId>com.github.umjammer</groupId>
-      <artifactId>JustFLAC</artifactId>
-      <version>0.0.3</version>
+      <groupId>com.github.umjammer</groupId> <!-- drogatkin / com.github.umjammer -->
+      <artifactId>vavi-sound-flac</artifactId>
+      <version>0.0.5</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <!-- net.sourceforge.jaadec:jaad -->
-      <groupId>com.github.umjammer</groupId>
-      <artifactId>JAADec</artifactId>
-      <version>0.8.8</version>
+      <groupId>com.github.umjammer</groupId> <!-- net.sourceforge.jaadec / com.github.umjammer -->
+      <artifactId>vavi-sound-aac</artifactId>
+      <version>0.8.10</version>
       <scope>test</scope>
     </dependency>
 <!--
@@ -288,7 +279,7 @@
     <dependency>
       <groupId>net.javazoom</groupId>
       <artifactId>mp3spi</artifactId>
-      <version>1.9.11</version>
+      <version>1.9.13</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -301,14 +292,14 @@
     <dependency>
       <groupId>com.github.mina-berger</groupId>
       <artifactId>mocha-sound</artifactId>
-      <version>master-SNAPSHOT</version>
+      <version>03201e40a6</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-jdk14</artifactId>
-      <version>1.7.36</version>
+      <version>2.0.5</version>
       <scope>test</scope>
     </dependency>
 <!--
@@ -322,7 +313,7 @@
     <dependency>
       <groupId>com.locurasoft</groupId>
       <artifactId>osxmidi4j</artifactId>
-      <version>1.0.3</version>
+      <version>1.0.4</version>
       <scope>test</scope>
     </dependency>
 
@@ -353,6 +344,20 @@
           <artifactId>jlayer</artifactId>
         </exclusion>
       </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.umjammer</groupId>
+      <artifactId>vavi-util-screenscraping</artifactId>
+      <version>1.0.13</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.umjammer</groupId>
+      <artifactId>vavi-sound-alac</artifactId>
+      <version>0.3.3</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 </project>
