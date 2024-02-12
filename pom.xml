@@ -100,7 +100,7 @@
         <configuration>
           <argLine>
             -Xmx4G
-            -Dvavi.util.logging.VaviFormatter.extraClassMethod="org\.tritonus\.share\.TDebug#out"
+            -Dvavi.util.logging.VaviFormatter.extraClassMethod=org\\.tritonus\\.share\\.TDebug#out
             -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
             -Dvavi.test.volume=0.02
             --add-exports java.desktop/com.sun.media.sound=ALL-UNNAMED
