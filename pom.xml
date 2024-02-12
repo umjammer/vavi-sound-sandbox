@@ -99,6 +99,7 @@
         <version>3.2.2</version>
         <configuration>
           <argLine>
+            -Xmx4G
             -Dvavi.util.logging.VaviFormatter.extraClassMethod="org\.tritonus\.share\.TDebug#out"
             -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
             -Dvavi.test.volume=0.02
