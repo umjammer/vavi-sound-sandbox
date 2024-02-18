@@ -1,4 +1,4 @@
-[![Maven Package](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/maven-publish.yml)
+[![Release](https://jitpack.io/v/umjammer/vavi-sound-sandbox.svg)](https://jitpack.io/#umjammer/vavi-sound-sandbox)
 [![Java CI](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/maven.yml/badge.svg)](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/maven.yml)
 [![CodeQL](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/umjammer/vavi-sound-sandbox/actions/workflows/codeql-analysis.yml)
 ![Java](https://img.shields.io/badge/Java-17-b07219)
@@ -58,9 +58,7 @@
 
 ## Install
 
- * https://github.com/umjammer/vavi-sound-sandbox/packages/1298964
- * this project uses github packages. add a personal access token to `~/.m2/settings.xml`
- * see https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-apache-maven-registry
+ * [maven](https://jitpack.io/#umjammer/vavi-sound-sandbox)
 
 ## Tech Know
 
@@ -103,12 +101,12 @@
 #### macos coremidi
 
  * ~~[osxmidi4j](https://github.com/locurasoft/osxmidi4j)~~ → [osxmidi4j](https://github.com/umjammer/osxmidi4j)
- * ~~https://github.com/DerekCook/CoreMidi4J~~ (uses jni)
+ * ~~https://github.com/DerekCook/CoreMidi4J~~ (jni)
 
 #### macos audiounit
 
  * open audiounit custom view
-   * https://github.com/nativelibs4java/BridJ (is able to deal objective-c blocks)
+   * https://github.com/nativelibs4java/BridJ (~~is able to deal objective-c blocks~~ inactive)
  * volume
 
 #### others

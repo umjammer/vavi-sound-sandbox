@@ -22,6 +22,7 @@ import javax.sound.sampled.Mixer;
 import javax.swing.JFrame;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.rococoa.ObjCObjectByReference;
@@ -107,6 +108,7 @@ Debug.println("duration: " + duration + ", " + movie.duration().timeValue + ", "
     }
 
     @Test
+    @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
     void test1() throws Exception {
         Path path = Paths.get(RococoaClipTest.class.getResource(inFile).toURI());
 

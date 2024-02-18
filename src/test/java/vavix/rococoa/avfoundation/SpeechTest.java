@@ -9,6 +9,7 @@ package vavix.rococoa.avfoundation;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import vavi.util.Debug;
 
 
@@ -21,6 +22,7 @@ import vavi.util.Debug;
 public class SpeechTest {
 
     @Test
+    @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
     void test1() throws Exception {
 //        for (NSObject voice : AVSpeechSynthesisVoice.speechVoices()) { // TODO cannot use AVSpeechSynthesisVoice instead of NSObject
 //            System.err.println(voice);

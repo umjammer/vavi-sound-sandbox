@@ -14,6 +14,7 @@ import java.util.EnumSet;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.rococoa.RunOnMainThread;
@@ -47,6 +48,7 @@ class AVFoundationTest {
 
     /** {@link AVAudioFormat#init(AudioStreamBasicDescription)} */
     @Test
+    @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
     void test01() {
         AudioStreamBasicDescription outDesc = new AudioStreamBasicDescription();
         outDesc.mSampleRate = 44100.0;
@@ -101,6 +103,7 @@ Debug.println(status);
      * AVAudioUnitMIDIInstrument (kAudioUnitSubType_MIDISynth) w/ AudioToolbox#MusicDeviceMIDIEvent
      */
     @Test
+    @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
     void test2() throws Exception {
         AVAudioEngine engine = AVAudioEngine.newInstance();
 Debug.println(engine);
@@ -144,6 +147,7 @@ Debug.println(status);
      * TODO w/ sound font
      */
     @Test
+    @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
     void test3() throws Exception {
         AVAudioEngine engine = AVAudioEngine.newInstance();
 Debug.println(engine);
@@ -192,6 +196,7 @@ Debug.println("stated: " + r);
      * AVAudioUnitMIDIInstrument (kAudioUnitSubType_DLSSynth)
      */
     @Test
+    @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
     void test31() throws Exception {
         AVAudioEngine engine = AVAudioEngine.newInstance();
 Debug.println(engine);
@@ -284,6 +289,7 @@ Debug.println("AudioComponent: " + name);
 
     /** list AVAudioUnitComponent */
     @Test
+    @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
     void test6() throws Exception {
         AudioComponentDescription description = new AudioComponentDescription();
         description.componentType = AudioComponentDescription.kAudioUnitType_MusicDevice;

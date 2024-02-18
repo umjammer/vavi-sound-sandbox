@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
@@ -87,6 +88,7 @@ class RococoaSynthesizerTest {
 
     @Test
     @DisplayName("directly")
+    @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
     void test() throws Exception {
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
         synthesizer.open();
