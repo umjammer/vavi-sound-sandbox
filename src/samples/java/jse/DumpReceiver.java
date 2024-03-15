@@ -548,5 +548,3 @@ public class DumpReceiver implements Receiver {
         return new String(sbuf).trim();
     }
 }
-
-/* */

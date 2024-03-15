@@ -44,5 +44,3 @@ class LucasFile extends MidiFile {
         super.init(context);
     }
 }
-
-/* */

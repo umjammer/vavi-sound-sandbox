@@ -515,5 +515,3 @@ public class MidiPlayer {
         System.out.println(strMessage);
     }
 }
-
-/* */

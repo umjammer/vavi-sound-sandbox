@@ -241,5 +241,3 @@ public class MidiPlayerPanel extends JPanel {
         m_sequencer.setTempoFactor(fTempoFactor);
     }
 }
-
-/* */

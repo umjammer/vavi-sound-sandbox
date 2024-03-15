@@ -34,5 +34,3 @@ public class Opl3FileFormatType extends AudioFileFormat.Type {
         super(name, extension);
     }
 }
-
-/* */

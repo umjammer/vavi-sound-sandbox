@@ -130,5 +130,3 @@ System.err.println("image at " + ve.getPosition(1) + ": " + image);
         frm.dispose();
     }
 }
-
-/* */

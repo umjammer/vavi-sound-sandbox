@@ -50,5 +50,3 @@ Debug.println("write: " + r);
         System.exit(0);
     }
 }
-
-/* */

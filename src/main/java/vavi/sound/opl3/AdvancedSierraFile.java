@@ -148,5 +148,3 @@ class AdvancedSierraFile extends SierraFile {
         context.adlib().style = Adlib.SIERRA_STYLE | Adlib.MIDI_STYLE; // advanced sierra tunes use volume;
     }
 }
-
-/* */

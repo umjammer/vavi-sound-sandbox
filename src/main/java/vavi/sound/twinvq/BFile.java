@@ -254,5 +254,3 @@ class BFile {
         return retval;
     }
 }
-
-/* */

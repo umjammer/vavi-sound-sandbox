@@ -16,5 +16,3 @@ package vavix.rococoa.avfoundation;
 public interface AVFoundation extends com.sun.jna.Library {
     AVFoundation instance = com.sun.jna.Native.load("AVFoundation", AVFoundation.class);
 }
-
-/* */

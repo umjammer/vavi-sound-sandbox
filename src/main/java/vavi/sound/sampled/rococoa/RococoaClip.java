@@ -82,13 +82,13 @@ public class RococoaClip implements Clip {
             service.scheduleAtFixedRate(this::check, 100, 100, TimeUnit.MILLISECONDS);
             fireUpdate(new LineEvent(this, LineEvent.Type.START, 0));
         }
-        Debug.println("play: " + r);
+Debug.println("play: " + r);
     }
 
     // TODO use AVFoudation's delegate
     private void check() {
         if (!player.isPlaying()) {
-            Debug.println("stop detected");
+Debug.println("stop detected");
             stopInternal();
         }
     }
@@ -117,7 +117,7 @@ public class RococoaClip implements Clip {
     @Override
     public AudioFormat getFormat() {
         AVAudioFormat format = player.format();
-        Debug.println(format + ", " + format.commonFormat());
+Debug.println(format + ", " + format.commonFormat());
         return switch (format.commonFormat()) {
             default -> stream.getFormat();
             case AVAudioFormat.PCMFormatFloat32 -> new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
@@ -172,7 +172,7 @@ public class RococoaClip implements Clip {
 
     @Override
     public void open() throws LineUnavailableException {
-        Debug.println(Level.WARNING, "use #open(AudioInputStream)");
+Debug.println(Level.WARNING, "use #open(AudioInputStream)");
     }
 
     @Override
@@ -243,7 +243,7 @@ public class RococoaClip implements Clip {
 //            }
 //        });
         fireUpdate(new LineEvent(this, LineEvent.Type.OPEN, 0));
-        Debug.println("player: " + player);
+Debug.println("player: " + player);
     }
 
     @Override
@@ -299,5 +299,3 @@ public class RococoaClip implements Clip {
         return player.volume();
     }
 }
-
-/* */

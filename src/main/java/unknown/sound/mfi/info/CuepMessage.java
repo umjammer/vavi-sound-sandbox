@@ -37,5 +37,3 @@ public class CuepMessage extends InformationMessage {
         this(MYBYTE);
     }
 }
-
-/* */

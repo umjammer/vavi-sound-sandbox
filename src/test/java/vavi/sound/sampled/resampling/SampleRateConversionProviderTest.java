@@ -118,5 +118,3 @@ Debug.println("thirdAis: " + thirdAis.getFormat());
         line.close();
     }
 }
-
-/* */

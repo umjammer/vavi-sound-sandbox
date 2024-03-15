@@ -253,5 +253,3 @@ public class SimpleMidiPlayer {
         System.exit(1);
     }
 }
-
-/* */

@@ -56,5 +56,3 @@ Debug.println("IN: " + sourceAis.getFormat());
         assertEquals(outSamplingRate, (int) resultAis.getFormat().getSampleRate());
     }
 }
-
-/* */

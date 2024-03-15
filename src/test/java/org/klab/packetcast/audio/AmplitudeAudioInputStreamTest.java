@@ -69,5 +69,3 @@ public class AmplitudeAudioInputStreamTest {
         AudioSystem.write(amplifiedAudioInputStream, targetType, targetFile);
     }
 }
-
-/* */

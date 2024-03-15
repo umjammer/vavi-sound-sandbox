@@ -286,5 +286,3 @@ class UniStringInfo {
     static class FailConstructionException extends RuntimeException {
     }
 }
-
-/* */

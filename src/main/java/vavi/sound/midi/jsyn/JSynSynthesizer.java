@@ -68,7 +68,7 @@ public class JSynSynthesizer implements Synthesizer {
     // TODO voice != channel ( = getMaxPolyphony())
     private final VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
 
-    private long timestump;
+    private long timestamp;
 
     @Override
     public Info getDeviceInfo() {
@@ -126,7 +126,7 @@ Debug.println(Level.WARNING, "already open: " + hashCode());
 
     @Override
     public long getMicrosecondPosition() {
-        return timestump;
+        return timestamp;
     }
 
     @Override
@@ -424,7 +424,7 @@ Debug.println(Level.WARNING, "already open: " + hashCode());
 
         @Override
         public void send(MidiMessage message, long timeStamp) {
-            timestump = timeStamp;
+            timestamp = timeStamp;
             if (isOpen) {
                 if (message instanceof ShortMessage shortMessage) {
                     int channel = shortMessage.getChannel();
@@ -490,5 +490,3 @@ Debug.printf(Level.FINE, message.getClass().getName());
         }
     }
 }
-
-/* */

@@ -178,5 +178,3 @@ Debug.println("END");
         synthesizer.close();
     }
 }
-
-/* */

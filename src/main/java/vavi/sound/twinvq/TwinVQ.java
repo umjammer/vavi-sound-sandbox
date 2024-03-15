@@ -372,5 +372,3 @@ final class TwinVQ {
         return instance;
     }
 }
-
-/* */

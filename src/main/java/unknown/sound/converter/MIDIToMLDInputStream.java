@@ -221,5 +221,3 @@ public class MIDIToMLDInputStream {
         63, 63, 63, 63
     };
 }
-
-/* */

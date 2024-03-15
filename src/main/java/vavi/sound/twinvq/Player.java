@@ -205,5 +205,3 @@ class Player {
         return 0;
     }
 }
-
-/* */

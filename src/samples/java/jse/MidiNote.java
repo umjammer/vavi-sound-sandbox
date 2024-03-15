@@ -302,5 +302,3 @@ public class MidiNote {
         t.printStackTrace();
     }
 }
-
-/* */

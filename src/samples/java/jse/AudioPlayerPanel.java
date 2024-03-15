@@ -228,5 +228,3 @@ public class AudioPlayerPanel extends JPanel {
         m_audioStream.setPan(fPan);
     }
 }
-
-/* */

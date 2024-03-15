@@ -104,5 +104,3 @@ class OldLucasFile extends MidiTypeFile {
         context.adlib().style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
     }
 }
-
-/* */

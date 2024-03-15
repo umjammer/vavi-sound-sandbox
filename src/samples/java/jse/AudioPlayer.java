@@ -410,5 +410,3 @@ public class AudioPlayer {
         return line;
     }
 }
-
-/* */

@@ -69,7 +69,7 @@ public class OpusAudioFileReader extends AudioFileReader {
      * @throws IOException                   if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
-        Debug.println(Level.FINE, "enter available: " + bitStream.available());
+Debug.println(Level.FINE, "enter available: " + bitStream.available());
         OpusFile opus;
         try {
             bitStream.mark(32);
@@ -90,7 +90,7 @@ public class OpusAudioFileReader extends AudioFileReader {
             } catch (IOException e) {
                 Debug.printStackTrace(e);
             }
-            Debug.println(Level.FINE, "finally available: " + bitStream.available());
+Debug.println(Level.FINE, "finally available: " + bitStream.available());
         }
         AudioFormat format = new AudioFormat(OpusEncoding.OPUS, opus.getInfo().getSampleRate(), AudioSystem.NOT_SPECIFIED, opus.getInfo().getNumChannels(), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true, new HashMap<>() {{
             put("opus", opus);

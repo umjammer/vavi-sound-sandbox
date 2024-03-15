@@ -66,5 +66,3 @@ public class MLDInputStream extends DataInputStream {
         return chunk;
     }
 }
-
-/* */

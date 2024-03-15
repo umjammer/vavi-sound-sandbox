@@ -2142,5 +2142,3 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
         }
     }
 }
-
-/* */

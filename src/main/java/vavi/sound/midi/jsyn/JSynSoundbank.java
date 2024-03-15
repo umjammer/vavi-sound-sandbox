@@ -113,5 +113,3 @@ public class JSynSoundbank implements Soundbank {
         }
     }
 }
-
-/* */

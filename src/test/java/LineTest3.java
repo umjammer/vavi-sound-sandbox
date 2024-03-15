@@ -26,5 +26,3 @@ public class LineTest3 {
         Files.readAllLines(path).forEach(System.err::println);
     }
 }
-
-/* */

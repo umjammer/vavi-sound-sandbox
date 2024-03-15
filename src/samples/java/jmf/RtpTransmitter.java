@@ -203,5 +203,3 @@ class TransmitThread extends Thread {
         }
     }
 }
-
-/* */

@@ -10,5 +10,3 @@ public abstract class TrackMessage extends DeltaTimedMessage {
 
     protected TrackMessage() {}
 }
-
-/* */

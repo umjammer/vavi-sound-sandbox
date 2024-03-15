@@ -68,7 +68,7 @@ public class MochaSynthesizer implements Synthesizer {
 
     private final VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
 
-    private long timestump;
+    private long timestamp;
 
     private boolean isOpen;
 
@@ -144,7 +144,7 @@ Debug.println(line.getClass().getName());
             throw (MidiUnavailableException) new MidiUnavailableException().initCause(e);
         }
 
-        timestump = 0;
+        timestamp = 0;
     }
 
     /** */
@@ -160,8 +160,8 @@ Debug.println(line.getClass().getName());
                     timeline.clear();
                 }
 
-                long msec = System.currentTimeMillis() - timestump;
-                timestump = System.currentTimeMillis();
+                long msec = System.currentTimeMillis() - timestamp;
+                timestamp = System.currentTimeMillis();
                 msec = msec > 100 ? 100 : msec;
                 int l = mocha.read(buf, 0, 4 * (int) (mocha.getFormat().getSampleRate() * msec / 1000.0));
 //Debug.printf("adlib: %d", l);
@@ -190,7 +190,7 @@ Debug.println(line.getClass().getName());
 
     @Override
     public long getMicrosecondPosition() {
-        return timestump;
+        return timestamp;
     }
 
     @Override
@@ -538,5 +538,3 @@ Debug.printf(Level.FINE, "sysex: %02x %02x %02x", data[1], data[2], data[3]);
         }
     }
 }
-
-/* */

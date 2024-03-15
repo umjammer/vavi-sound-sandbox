@@ -94,5 +94,3 @@ public class CaptureStream extends Thread {
         }
     }
 }
-
-/* */

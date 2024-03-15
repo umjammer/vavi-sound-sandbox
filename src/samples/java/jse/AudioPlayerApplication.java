@@ -91,5 +91,3 @@ public class AudioPlayerApplication extends JFrame {
         apa.setVisible(true);
     }
 }
-
-/* */

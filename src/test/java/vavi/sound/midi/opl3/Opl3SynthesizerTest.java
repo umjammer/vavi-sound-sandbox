@@ -179,5 +179,3 @@ Debug.println("instrument[" + i + "]");
         synthesizer.close();
     }
 }
-
-/* */

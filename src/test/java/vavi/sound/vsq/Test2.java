@@ -70,5 +70,3 @@ Debug.println(parts[0] + ":" + parts[1] + ":" + message.getData().length/* + "\n
         sequencer.close();
     }
 }
-
-/* */

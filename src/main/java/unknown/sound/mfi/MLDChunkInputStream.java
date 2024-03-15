@@ -20,5 +20,3 @@ public abstract class MLDChunkInputStream extends ChunkInputStream {
         super(tag, dataBytes);
     }
 }
-
-/* */

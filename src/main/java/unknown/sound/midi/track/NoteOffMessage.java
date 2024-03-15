@@ -46,5 +46,3 @@ public class NoteOffMessage extends ChannelMessage {
         setVelocity(velocity);
     }
 }
-
-/* */

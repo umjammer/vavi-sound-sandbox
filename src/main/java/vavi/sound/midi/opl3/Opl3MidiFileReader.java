@@ -49,5 +49,3 @@ public class Opl3MidiFileReader extends BasicMidiFileReader {
         
     }
 }
-
-/* */

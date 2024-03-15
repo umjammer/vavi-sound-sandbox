@@ -154,5 +154,3 @@ System.err.println("END");
         synthesizer.close();
     }
 }
-
-/* */

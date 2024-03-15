@@ -46,5 +46,3 @@ public class ModeMessage extends ChannelMessage {
         setData(data);
     }
 }
-
-/* */

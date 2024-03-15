@@ -32,5 +32,3 @@ public class Opl3Encoding extends AudioFormat.Encoding {
         super(name);
     }
 }
-
-/* */

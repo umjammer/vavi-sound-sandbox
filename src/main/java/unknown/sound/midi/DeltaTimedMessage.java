@@ -84,5 +84,3 @@ public abstract class DeltaTimedMessage extends Message {
     protected DeltaTimedMessage() {
     }
 }
-
-/* */

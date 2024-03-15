@@ -106,5 +106,3 @@ logger.info(String.format("pos2: 0x%04x", player.pos));
         context.adlib().style = Adlib.CMF_STYLE;
     }
 }
-
-/* */

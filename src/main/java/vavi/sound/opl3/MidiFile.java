@@ -66,5 +66,3 @@ logger.info("format: " + format);
     public void init(Context context) {
     }
 }
-
-/* */

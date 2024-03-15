@@ -91,5 +91,3 @@ Debug.println(r / 2 + ", " + resamples.length);
         }
     }
 }
-
-/* */

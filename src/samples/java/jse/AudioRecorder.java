@@ -527,5 +527,3 @@ public class AudioRecorder {
         }
     }
 }
-
-/* */

@@ -567,5 +567,3 @@ Debug.println("too many errors: " + errorCount);
         app.processITunesLibrary();
     }
 }
-
-/* */

@@ -128,5 +128,3 @@ Debug.println("result: " + r);
         assertEquals((int) resamplingRate, (int) resultAis.getFormat().getSampleRate());
     }
 }
-
-/* */

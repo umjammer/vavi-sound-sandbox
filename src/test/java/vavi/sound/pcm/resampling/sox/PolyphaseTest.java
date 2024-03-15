@@ -317,5 +317,3 @@ Debug.println("OUT: " + outFormat);
         sourceAis.close();
     }
 }
-
-/* */

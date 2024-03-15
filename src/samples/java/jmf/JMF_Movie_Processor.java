@@ -567,5 +567,3 @@ System.err.println("IJ: frameConverter.createImage FAILED!");
         p.close();
     }
 }
-
-/* */

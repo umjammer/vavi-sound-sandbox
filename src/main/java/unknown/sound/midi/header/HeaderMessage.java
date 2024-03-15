@@ -55,5 +55,3 @@ public class HeaderMessage extends Message {
         setResolution(resolution);
     }
 }
-
-/* */

@@ -19,5 +19,3 @@ public interface ITunesLibrary extends com.sun.jna.Library {
 }
 
 //delegate void ITLibMediaEntityEnumerateValuesHandler (NSString property, NSObject value, out bool stop);
-
-/* */

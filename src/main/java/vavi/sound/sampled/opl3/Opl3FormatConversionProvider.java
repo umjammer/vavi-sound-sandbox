@@ -113,5 +113,3 @@ public class Opl3FormatConversionProvider extends FormatConversionProvider {
         }
     }
 }
-
-/* */

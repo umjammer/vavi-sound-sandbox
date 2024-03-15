@@ -48,5 +48,3 @@ public class PolyphonicKeyPressureMessage extends ChannelMessage {
         setPressure(pressure);
     }
 }
-
-/* */

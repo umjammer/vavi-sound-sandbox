@@ -154,5 +154,3 @@ public class SynthNote {
         channels[0].noteOff(nNoteNumber);
     }
 }
-
-/* */

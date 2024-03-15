@@ -1023,5 +1023,3 @@ Debug.printf("%02x", base[m_bs_ptr]);
         m_dxoff[ch] = (m_dxoff[ch] - SCALE_RANGE) & ((HAN_SIZE * 2) - 1);
     }
 }
-
-/* */

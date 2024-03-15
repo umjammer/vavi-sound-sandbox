@@ -177,5 +177,3 @@ Debug.println("line.write: " + l);
         sourceAis.close();
     }
 }
-
-/* */

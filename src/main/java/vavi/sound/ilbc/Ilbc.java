@@ -4996,5 +4996,3 @@ public class Ilbc {
         System.arraycopy(Out, po + len - LPC_FILTERORDER, mem, 0, LPC_FILTERORDER);
     }
 }
-
-/* */

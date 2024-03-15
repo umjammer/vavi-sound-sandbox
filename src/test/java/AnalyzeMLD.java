@@ -50,5 +50,3 @@ Debug.println("************ END *************");
         fileDigger.dig(new File(args[0]));
     }
 }
-
-/* */

@@ -115,5 +115,3 @@ Debug.println("unhandled control change: " + event.getData1());
         sequencer.close();
     }
 }
-
-/* */

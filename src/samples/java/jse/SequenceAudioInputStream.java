@@ -191,5 +191,3 @@ public class SequenceAudioInputStream extends AudioInputStream {
         return false;
     }
 }
-
-/* */

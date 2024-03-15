@@ -68,12 +68,12 @@ public class Opl3AudioFileReader extends AudioFileReader {
      * @throws IOException                   if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
-        Debug.println("exner: available: " + bitStream.available());
+Debug.println("enter: available: " + bitStream.available());
         AudioFormat.Encoding encoding;
         try {
             encoding = FileType.getEncoding(bitStream);
         } catch (NoSuchElementException e) {
-            Debug.println("error exit: available: " + bitStream.available());
+Debug.println("error exit: available: " + bitStream.available());
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException().initCause(e);
         }
         AudioFileFormat.Type type = FileType.getType(encoding);

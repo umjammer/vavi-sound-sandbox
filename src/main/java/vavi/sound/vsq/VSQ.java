@@ -220,5 +220,3 @@ Debug.println(baos.toString("MS932"));
         return results;
     }
 }
-
-/* */

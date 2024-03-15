@@ -249,5 +249,3 @@ public class AudioConcat {
         System.exit(1);
     }
 }
-
-/* */

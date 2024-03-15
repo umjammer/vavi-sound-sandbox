@@ -60,5 +60,3 @@ System.err.println(sourceInfo);
         speaker.close();
     }
 }
-
-/* */

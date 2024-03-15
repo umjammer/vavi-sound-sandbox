@@ -232,5 +232,3 @@ public class MidiFileInfo {
         System.exit(1);
     }
 }
-
-/* */

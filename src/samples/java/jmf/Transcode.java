@@ -767,5 +767,3 @@ public class Transcode implements ControllerListener, DataSinkListener {
         System.exit(0);
     }
 }
-
-/* */

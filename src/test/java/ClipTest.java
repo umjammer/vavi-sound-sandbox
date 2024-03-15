@@ -42,8 +42,6 @@ public class ClipTest {
         System.setProperty("vavi.util.logging.VaviFormatter.extraClassMethod", "org.tritonus.share.TDebug#out");
 
         System.setProperty("vavi.sound.opl3.MidiFile", "true"); // true: means using opl3 midi device when SMF format 0
-
-//        TDebug.TraceAudioFileReader = true;
     }
 
     static boolean localPropertiesExists() {
@@ -120,5 +118,3 @@ if (!System.getProperty("vavi.test", "").equals("ide")) {
         clip.close();
     }
 }
-
-/* */
