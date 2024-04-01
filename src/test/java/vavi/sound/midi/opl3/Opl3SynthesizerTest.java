@@ -57,7 +57,7 @@ class Opl3SynthesizerTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
-    static float volume = (float) Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    static float volume = (float) Double.parseDouble(System.getProperty("vavi.test.volume.midi",  "0.2"));
 
     @Property(name = "opl3.test")
     String opl3test = "src/test/resources/test.mid";
