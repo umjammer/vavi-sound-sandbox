@@ -6,6 +6,7 @@
 
 package vavi.sound.sampled.rococoa;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,14 +31,14 @@ public class RococoaAudioFileReader extends AudioFileReader {
 
     @Override
     public AudioFileFormat getAudioFileFormat(File file) throws UnsupportedAudioFileException, IOException {
-        try (InputStream inputStream = Files.newInputStream(file.toPath())) {
+        try (InputStream inputStream = new BufferedInputStream(Files.newInputStream(file.toPath()))) {
             return getAudioFileFormat(inputStream, (int) file.length());
         }
     }
 
     @Override
     public AudioFileFormat getAudioFileFormat(URL url) throws UnsupportedAudioFileException, IOException {
-        try (InputStream inputStream = url.openStream()) {
+        try (InputStream inputStream = new BufferedInputStream(url.openStream())) {
             return getAudioFileFormat(inputStream);
         }
     }
@@ -50,8 +51,8 @@ public class RococoaAudioFileReader extends AudioFileReader {
     /**
      * Return the AudioFileFormat from the given InputStream. Implementation.
      *
-     * @param bitStream
-     * @param mediaLength
+     * @param bitStream input to decode
+     * @param mediaLength unused
      * @return an AudioInputStream object based on the audio file data contained
      * in the input stream.
      * @throws UnsupportedAudioFileException if the File does not point to a
@@ -67,7 +68,7 @@ public class RococoaAudioFileReader extends AudioFileReader {
 
     @Override
     public AudioInputStream getAudioInputStream(File file) throws UnsupportedAudioFileException, IOException {
-        InputStream inputStream = Files.newInputStream(file.toPath());
+        InputStream inputStream = new BufferedInputStream(Files.newInputStream(file.toPath()));
         try {
             return getAudioInputStream(inputStream, (int) file.length());
         } catch (UnsupportedAudioFileException | IOException e) {
@@ -78,7 +79,7 @@ public class RococoaAudioFileReader extends AudioFileReader {
 
     @Override
     public AudioInputStream getAudioInputStream(URL url) throws UnsupportedAudioFileException, IOException {
-        InputStream inputStream = url.openStream();
+        InputStream inputStream = new BufferedInputStream(url.openStream());
         try {
             return getAudioInputStream(inputStream);
         } catch (UnsupportedAudioFileException | IOException e) {
@@ -98,7 +99,7 @@ public class RococoaAudioFileReader extends AudioFileReader {
      *
      * @param inputStream the input stream from which the AudioInputStream
      *                    should be constructed.
-     * @param mediaLength
+     * @param mediaLength unused
      * @return an AudioInputStream object based on the audio file data contained
      * in the input stream.
      * @throws UnsupportedAudioFileException if the File does not point to a

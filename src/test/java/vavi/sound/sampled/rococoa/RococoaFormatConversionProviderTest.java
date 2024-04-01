@@ -8,25 +8,29 @@ package vavi.sound.sampled.rococoa;
 
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-
+import vavi.sound.sampled.adpcm.ms.MsEncoding;
 import vavi.util.Debug;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static vavi.sound.SoundUtil.volume;
 
 
@@ -132,12 +136,41 @@ Debug.println("OUT: " + outAudioFormat);
 
     @Test
     @Disabled("not completed yet")
-    public void test2() throws Exception {
+    public void test4() throws Exception {
         for (AudioFileFormat.Type type : AudioSystem.getAudioFileTypes()) {
             System.err.println(type);
         }
         AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new File(inFile).toURI().toURL());
         AudioFormat originalAudioFormat = originalAudioInputStream.getFormat();
 Debug.println(originalAudioFormat);
+    }
+
+    @Test
+    @DisplayName("another input type 2")
+    void test2() throws Exception {
+        URL url = Paths.get("src/test/resources/" + inFile).toUri().toURL();
+        AudioInputStream ais = AudioSystem.getAudioInputStream(url);
+        assertEquals(MsEncoding.MS, ais.getFormat().getEncoding());
+    }
+
+    @Test
+    @DisplayName("another input type 3")
+    void test3() throws Exception {
+        File file = Paths.get("src/test/resources/" + inFile).toFile();
+        AudioInputStream ais = AudioSystem.getAudioInputStream(file);
+        assertEquals(MsEncoding.MS, ais.getFormat().getEncoding());
+    }
+
+    @Test
+    @DisplayName("when unsupported file coming")
+    void test5() throws Exception {
+        InputStream is = RococoaFormatConversionProviderTest.class.getResourceAsStream("/test.wma");
+        int available = is.available();
+        UnsupportedAudioFileException e = assertThrows(UnsupportedAudioFileException.class, () -> {
+Debug.println(is);
+            AudioSystem.getAudioInputStream(is);
+        });
+Debug.println(e.getMessage());
+        assertEquals(available, is.available()); // spi must not consume input stream even one byte
     }
 }
