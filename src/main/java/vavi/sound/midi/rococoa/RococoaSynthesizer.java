@@ -6,8 +6,10 @@
 
 package vavi.sound.midi.rococoa;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MidiChannel;
@@ -45,7 +47,23 @@ import vavix.rococoa.avfoundation.AudioComponentDescription;
  */
 public class RococoaSynthesizer implements Synthesizer {
 
-    private static final String version = "1.0.4";
+    static {
+        try {
+            try (InputStream is = RococoaSynthesizer.class.getResourceAsStream("/META-INF/maven/vavi/vavi-sound-sandbox/pom.properties")) {
+                if (is != null) {
+                    Properties props = new Properties();
+                    props.load(is);
+                    version = props.getProperty("version", "undefined in pom.properties");
+                } else {
+                    version = System.getProperty("vavi.test.version", "undefined");
+                }
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static final String version;
 
     /** the device information */
     protected static final MidiDevice.Info info =

@@ -6,14 +6,15 @@
 
 package vavi.sound.midi.opl3;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
@@ -60,9 +61,25 @@ import vavi.util.StringUtil;
  */
 public class Opl3Synthesizer implements Synthesizer {
 
+    static {
+        try {
+            try (InputStream is = Opl3Synthesizer.class.getResourceAsStream("/META-INF/maven/vavi/vavi-sound-sandbox/pom.properties")) {
+                if (is != null) {
+                    Properties props = new Properties();
+                    props.load(is);
+                    version = props.getProperty("version", "undefined in pom.properties");
+                } else {
+                    version = System.getProperty("vavi.test.version", "undefined");
+                }
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     private static final Logger logger = Logger.getLogger(Opl3Synthesizer.class.getName());
 
-    private static final String version = "1.0.4";
+    private static final String version;
 
     /** the device information */
     protected static final MidiDevice.Info info =
@@ -723,7 +740,7 @@ Debug.printf("sysex volume: gain: %3.0f%n", gain * 127);
                 }   break;
                 }
             } else if (message instanceof MetaMessage metaMessage) {
-                Debug.printf("meta: %02x", metaMessage.getType());
+Debug.printf("meta: %02x", metaMessage.getType());
                 switch (metaMessage.getType()) {
                 case 0x2f:
                     break;
