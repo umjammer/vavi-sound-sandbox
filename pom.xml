@@ -26,7 +26,44 @@
     <rococoa.groupId>com.github.umjammer.rococoa</rococoa.groupId> <!-- org.rococoa / com.github.umjammer.rococoa -->
     <rococoa.version>0.8.7</rococoa.version>
     <maven.plugin.validation>VERBOSE</maven.plugin.validation>
+    <vavi.test.volume>0.02</vavi.test.volume>
+    <vavi.test.volume.midi>0.2</vavi.test.volume.midi>
+    <maven.test.skip>false</maven.test.skip>
   </properties>
+
+  <profiles>
+    <profile>
+      <id>local</id>
+      <activation>
+        <file>
+          <exists>${basedir}/local.properties</exists>
+        </file>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>properties-maven-plugin</artifactId>
+            <version>1.1.0</version>
+            <executions>
+              <execution>
+                <id>read-properties</id>
+                <phase>initialize</phase>
+                <goals>
+                  <goal>read-project-properties</goal>
+                </goals>
+                <configuration>
+                  <files>
+                    <file>${basedir}/local.properties</file>
+                  </files>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
   <build>
     <plugins>
@@ -54,13 +91,46 @@
         <configuration>
           <argLine>
             -Xmx4G
-            -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
-            -Dvavi.test.volume=0.02
             --add-exports java.desktop/com.sun.media.sound=ALL-UNNAMED
+            -javaagent:${project.build.directory}/vavi-instrumentation.jar
+            -Dvavix.lang.instrumentation.VaviInstrumentation.1=vavix.lang.instrumentation.PropertiesClassFileTransformer
+            -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
+            -Dvavi.test.volume=${vavi.test.volume}
+            -Dvavi.test.volume.midi=${vavi.test.volume.midi}
+            -Dvavi.test.version=${project.version}
           </argLine>
           <trimStackTrace>false</trimStackTrace>
           <reuseForks>false</reuseForks>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>IntegrationTest</id>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <phase>integration-test</phase>
+            <configuration>
+              <skip>${maven.test.skip}</skip>
+              <target>
+                <java classname="IntegrationTest" fork="true">
+                  <classpath>
+                    <path location="${project.build.directory}/${project.artifactId}-${project.version}.${project.packaging}"/>
+                    <path refid="maven.compile.classpath"/>
+                    <path refid="maven.test.classpath"/>
+                  </classpath>
+                  <jvmarg value="-Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties" />
+                </java>
+              </target>
+              <failOnError>true</failOnError>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
@@ -301,6 +371,13 @@
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-sound-alac</artifactId>
       <version>0.3.4</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.umjammer.vavi-commons</groupId>
+      <artifactId>vavi-instrumentation</artifactId>
+      <version>1.1.12</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

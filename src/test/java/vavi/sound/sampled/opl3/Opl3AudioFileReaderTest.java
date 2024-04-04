@@ -76,9 +76,10 @@ Debug.println("LINE: " + event.getType());
             }
         });
         clip.open(audioInputStream);
-if (!(originalAudioFormat.getEncoding() instanceof Opl3Encoding)) {
-// Debug.println("down volume: " + originalAudioFormat.getEncoding());
+try {
  volume(clip, volume);
+} catch (Exception e) {
+ Debug.println("volume: " + e);
 }
         clip.start();
 if (!System.getProperty("vavi.test", "").equals("ide")) {

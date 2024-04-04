@@ -32,6 +32,7 @@ import vavi.util.Debug;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static vavi.sound.SoundUtil.volume;
+import static vavi.sound.sampled.rococoa.RcococaEncoding.ROCOCOA;
 
 
 /**
@@ -41,6 +42,7 @@ import static vavi.sound.SoundUtil.volume;
  * @version 0.00 060726 nsano initial version <br>
  * @see "https://github.com/iterate-ch/rococoa"
  */
+@Disabled("not implemented yet")
 @EnabledOnOs(OS.MAC)
 public class RococoaFormatConversionProviderTest {
 
@@ -49,7 +51,6 @@ public class RococoaFormatConversionProviderTest {
     static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
 
     @Test
-    @Disabled("not implemented yet")
     @DisplayName("directly")
     public void test0() throws Exception {
 
@@ -92,7 +93,6 @@ Debug.println("OUT: " + outAudioFormat);
     }
 
     @Test
-    @Disabled("not implemented yet")
     @DisplayName("by spi")
     public void test1() throws Exception {
 
@@ -135,7 +135,6 @@ Debug.println("OUT: " + outAudioFormat);
     }
 
     @Test
-    @Disabled("not completed yet")
     public void test4() throws Exception {
         for (AudioFileFormat.Type type : AudioSystem.getAudioFileTypes()) {
             System.err.println(type);
@@ -150,7 +149,7 @@ Debug.println(originalAudioFormat);
     void test2() throws Exception {
         URL url = Paths.get("src/test/resources/" + inFile).toUri().toURL();
         AudioInputStream ais = AudioSystem.getAudioInputStream(url);
-        assertEquals(MsEncoding.MS, ais.getFormat().getEncoding());
+        assertEquals(ROCOCOA, ais.getFormat().getEncoding());
     }
 
     @Test
@@ -158,9 +157,11 @@ Debug.println(originalAudioFormat);
     void test3() throws Exception {
         File file = Paths.get("src/test/resources/" + inFile).toFile();
         AudioInputStream ais = AudioSystem.getAudioInputStream(file);
-        assertEquals(MsEncoding.MS, ais.getFormat().getEncoding());
+        assertEquals(ROCOCOA, ais.getFormat().getEncoding());
     }
 
+    // com.sun.media.sound.SoftMidiAudioFileReader consumes 4byte unexpectedly.
+    // so it's excluded when test. see -agent jvm option at maven-surefire-plugin
     @Test
     @DisplayName("when unsupported file coming")
     void test5() throws Exception {
