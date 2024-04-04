@@ -202,7 +202,7 @@ Debug.println("nextAnchor: " + nextAnchor);
         /** */
         WebElement nextAnchor(List<WebElement> anchors) {
             for (WebElement anchor : anchors) {
-                if (anchor.getAttribute("title").equals("次ページの結果を表示します")) {
+                if (anchor.getAttribute("title").equals("Show results on next page")) {
                     return anchor;
                 }
             }
@@ -272,7 +272,7 @@ Debug.println("nextAnchor: " + nextAnchor);
         /** */
         WebElement nextAnchor(List<WebElement> anchors) {
             for (WebElement anchor : anchors) {
-                if (anchor.getAttribute("title").equals("次ページの結果を表示します")) {
+                if (anchor.getAttribute("title").equals("Show results on next page")) {
                     return anchor;
                 }
             }

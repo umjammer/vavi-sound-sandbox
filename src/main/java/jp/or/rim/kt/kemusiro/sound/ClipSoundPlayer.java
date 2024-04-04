@@ -10,6 +10,8 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 
+import vavi.util.Debug;
+
 
 /**
  * Play with the already created byte array.
@@ -36,7 +38,7 @@ public class ClipSoundPlayer extends SoundPlayer {
             line = (Clip) AudioSystem.getLine(info);
             line.open(format, array, 0, array.length);
         } catch (LineUnavailableException e) {
-            e.printStackTrace();
+            Debug.printStackTrace(e);
         }
     }
 

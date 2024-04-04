@@ -8,6 +8,7 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.DataLine;
 
 import vavi.sound.SoundUtil;
+import vavi.util.Debug;
 
 
 /**
@@ -75,6 +76,7 @@ public abstract class SoundPlayer {
 
     /** Changes volume */
     public void volume(float gain) {
+Debug.println("volume: " + gain + ", " + getClass()); // works, but not so different
         SoundUtil.volume(getLine(), gain);
     }
 }

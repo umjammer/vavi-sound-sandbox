@@ -98,10 +98,10 @@ Debug.println("NRPN LSB: " + event.getData2());
 Debug.println("NRPN MSB: " + event.getData2());
                 break;
             case 6: // data entry MSB
-Debug.println("データエントリ MSB: " + event.getData2());
+Debug.println("Data Entry MSB: " + event.getData2());
                 break;
             case 38: // data entry LSB
-Debug.println("データエントリ LSB: " + event.getData2());
+Debug.println("Data Entry LSB: " + event.getData2());
                 break;
             default:
 Debug.println("unhandled control change: " + event.getData1());
