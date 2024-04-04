@@ -78,7 +78,7 @@ logger.info(String.format("pos1: 0x%04x", player.pos));
 
         this.instruments = new Opl3Instrument[this.tins];
         for (int p = 0; p < player.tins; ++p) {
-            logger.fine(String.format("\n%d: ", p));
+logger.fine(String.format("\n%d: ", p));
 
             int[] x = new int[16];
             for (int j = 0; j < 16; ++j) {

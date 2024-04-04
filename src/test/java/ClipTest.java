@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
+import java.util.logging.Level;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -75,6 +76,7 @@ public class ClipTest {
             System.err.println(type);
         }
         Path file = Paths.get(inFile);
+Debug.println(file);
 
 //        URL clipURL = new URL(inFile);
 //        AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(clipURL);
@@ -105,7 +107,7 @@ Debug.println("LINE: " + event.getType());
 try {
         volume(clip, volume);
 } catch (Exception e) {
- Debug.println("volume: " + e);
+ Debug.println(Level.WARNING, "volume: " + e);
 }
         clip.start();
 if (!System.getProperty("vavi.test", "").equals("ide")) {

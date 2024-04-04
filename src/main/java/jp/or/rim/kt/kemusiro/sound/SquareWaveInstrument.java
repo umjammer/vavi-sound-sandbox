@@ -10,7 +10,7 @@ import jp.or.rim.kt.kemusiro.sound.tone.SquareWave;
 
 
 /**
- * 方形波を表すクラス。
+ * A class that represents a square wave.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.1 $

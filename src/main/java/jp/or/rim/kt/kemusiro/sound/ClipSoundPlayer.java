@@ -12,7 +12,7 @@ import javax.sound.sampled.LineUnavailableException;
 
 
 /**
- * すでにできあがったバイト配列を演奏する。
+ * Play with the already created byte array.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.1 $
@@ -22,11 +22,11 @@ public class ClipSoundPlayer extends SoundPlayer {
     private Clip line = null;
 
     /**
-     * 音声再生用のオブジェクトを生成する。
+     * Generate an object for audio playback.
      *
-     * @param rate  サンプリングレート
-     * @param depth サンプリングビット長
-     * @param array 再生する音声データの配列
+     * @param rate  sampling rate
+     * @param depth sampling bit length
+     * @param array array of audio data to play
      */
     public ClipSoundPlayer(int rate, int depth, byte[] array) {
         format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
@@ -41,9 +41,9 @@ public class ClipSoundPlayer extends SoundPlayer {
     }
 
     /**
-     * ラインを返す。
+     * Return line.
      *
-     * @return ライン
+     * @return line
      */
     @Override
     public DataLine getLine() {

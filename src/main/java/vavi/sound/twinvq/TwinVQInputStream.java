@@ -38,7 +38,7 @@ import static vavi.sound.SoundUtil.volume;
  */
 public class TwinVQInputStream extends FilterInputStream {
 
-    /** このクラスで取得するストリームのバイトオーダー */
+    /** byte order of the stream obtained with this class */
     private final ByteOrder byteOrder;
 
     /**

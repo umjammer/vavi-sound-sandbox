@@ -11,7 +11,7 @@ import java.util.LinkedList;
 
 
 /**
- * 楽譜からバイナリデータを生成する。
+ * Generates binary data from musical scores.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.2 $

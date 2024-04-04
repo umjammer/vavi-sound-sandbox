@@ -5,7 +5,7 @@
 package jp.or.rim.kt.kemusiro.sound;
 
 /**
- * テンポを変えるイベントを表すクラス。
+ * A class that represents an event that changes the tempo.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.2 $

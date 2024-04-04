@@ -10,7 +10,7 @@ import java.util.List;
 
 
 /**
- * チャンクの基本構造を提供する。生のデータを入出力する
+ * Provides the basic structure of chunks. Input and output raw data.
  */
 class Chunk {
 
@@ -21,8 +21,8 @@ class Chunk {
     private int pos;
 
     /**
-     * 現在位置から size バイト整数を取得
-     * @param size デフォルト：long整数
+     * Gets size byte integer from current position.
+     * @param size default: long integer
      */
     protected long getNInt(int size/* =sizeof(long) */) {
         final int mask = 0xff;
@@ -39,8 +39,8 @@ class Chunk {
     }
 
     /**
-     * 現在位置から size バイト分のベクトルを取得
-     * @param size デフォルト：残り全部
+     * Gets a vector of size bytes from the current position.
+     * @param size default: all the rest
      */
     protected byte[] getVector(int size/* = 0 */) {
 
@@ -61,8 +61,8 @@ class Chunk {
     }
 
     /**
-     * 現在位置から length だけの文字列を取得
-     * @param length デフォルト：残り全部
+     * Gets length string from current position.
+     * @param length default: all the rest
      */
     protected String getRndString(int length/* = 0 */) {
         if (length == 0) {
@@ -82,9 +82,9 @@ class Chunk {
     }
 
     /**
-     * 現在位置から size バイト整数を書き込み
+     * Writes size byte integer from current position.
      * 
-     * @param size デフォルト：long整数
+     * @param size default: long integer
      */
     protected void putNInt(int inputData, int size/* =sizeof(long) */) {
         final int mask = 0xff;
@@ -101,44 +101,44 @@ class Chunk {
         }
     }
 
-    /** 現在位置を先頭に戻す */
+    /** Returns current position to the beginning. */
     protected void rewindChunk() {
         pos = 0;
     }
 
-    /** データを消去する */
+    /** Erases data. */
     protected void deleteChunk() {
         data.clear();
         rewindChunk();
     }
 
-    /** 現在位置を取得する */
+    /** Get current position. */
     protected final int getCurrentPosition() {
         return pos;
     }
 
-    /** 例外 */
+    /** exception */
     protected static class FailPutException extends RuntimeException {
     }
 
-    /** コンストラクタ */
+    /** constructor */
     public Chunk(Chunk parent) {
         id = parent.id;
         pos = 0;
     }
 
-    /** コンストラクタ */
+    /** constructor */
     public Chunk(String ID) {
         id = ID;
         pos = 0;
     }
 
-    /** ID の取得 */
+    /** Gets ID. */
     public final String getID() {
         return id;
     }
 
-    /** チャンクサイズの取得 */
+    /** Gets chunk size. */
     public final int getSize() {
         return data.size();
     }
@@ -151,7 +151,7 @@ class Chunk {
         return retval;
     }
 
-    /** データを追加、キャラクタ配列型 */
+    /** Adds data, character array type. */
     public int putData(int size, byte[] inputData) {
         for (int ii = 0; ii < size; ii++) {
             data.add(inputData[ii]);
@@ -160,7 +160,7 @@ class Chunk {
         return 0;
     }
 
-    /** データを追加、ベクトル型 */
+    /** Adds data, vector type. */
     public int putData(byte[] inputData) {
         for (byte inputDatum : inputData) {
             data.add(inputDatum);
@@ -168,7 +168,7 @@ class Chunk {
         return 0;
     }
 
-    /** データを追加、文字列型 */
+    /** Adds data, string type. */
     public int putData(String theString) {
 
         for (byte it : theString.getBytes()) {
@@ -184,7 +184,7 @@ class Chunk {
 }
 
 /**
- * 文字列のみを格納するチャンク、汎用チャンク型
+ * Chunk that stores only strings, general-purpose chunk type.
  */
 class StringChunk extends Chunk {
     public String getString() {
@@ -208,12 +208,12 @@ class StringChunk extends Chunk {
 }
 
 /**
- * 整数を１つだけ格納するチャンク型のテンプレート、汎用チャンク型
+ * Chunk type template that stores only one integer, general purpose chunk type.
  */
 class IntChunk extends Chunk {
     int m_dataSize;
 
-    // 整数データを取得する
+    // Gets integer data.
     public final long getInt() {
         rewindChunk();
         return getNInt(m_dataSize);
@@ -241,10 +241,10 @@ class IntChunk extends Chunk {
 }
 
 /**
- * チャンクを格納するチャンク、汎用チャンク型
+ * Chunk that stores chunks, general-purpose chunk type.
  */
 class ChunkChunk extends Chunk {
-    /** 次のチャンクを返す */
+    /** Returns next chunk. */
     public Chunk GetNextChunk(int idSize/* = 4 */) {
         String id;
         if (!(id = this.getRndString(idSize)).isEmpty()) {
@@ -264,7 +264,7 @@ class ChunkChunk extends Chunk {
         return null;
     }
 
-    /** 巻き戻し */
+    /** Rewinds. */
     public void rewind() {
         rewindChunk();
     }
@@ -279,23 +279,23 @@ class ChunkChunk extends Chunk {
         putData(data);
     }
 
-    /** オブジェクトを種にする */
+    /** Seeds an object. */
     public ChunkChunk(Chunk parent) {
         super(parent);
     }
 
     /**
-     * ID だけ与え空のチャンクを作成する
+     * Creates an empty chunk given just the ID.
      */
     public ChunkChunk(String id) {
         super(id);
     }
 
-    /** チャンク取得に失敗 */
+    /** Failed to get chunk. */
     public static class FailGetChunkException extends RuntimeException {
     }
 
-    /** チャンク書き込みに失敗 */
+    /** Chunk write failed. */
     public static class FailPutChunkException extends Exception {
     }
 
@@ -352,22 +352,22 @@ class CommChunk extends Chunk {
 
     }
 
-    /** チャネルモードを取得 */
+    /** Gets channel mode. */
     public int getChannelMode() {
         return channelMode;
     }
 
-    /** ビットレートを取得 */
+    /** Gets bitrate. */
     public int getBitRate() {
         return bitRate;
     }
 
-    /** サンプリング周波数を取得 */
+    /** Gets sampling frequency. */
     public int getSamplingRate() {
         return samplingRate;
     }
 
-    /** 追加情報を取得 */
+    /** Gets additional information. */
     public int getSecurityLevel() {
         return securityLevel;
     }
@@ -377,7 +377,7 @@ class CommChunk extends Chunk {
         return version;
     }
 
-    /** コンストラクションに失敗 */
+    /** Construction failed. */
     static class FailConstructionException extends Exception {
     }
 
@@ -496,13 +496,13 @@ class EncdChunk extends Chunk {
 }
 
 // ///////////////////////////////////////////////////////
-// 汎用チャンク型を利用するサブチャンク型の宣言
+// Declaration of a subchunk type that uses a generic chunk type
 // ///////////////////////////////////////////////////////
-// TWIN チャンク
+// TWIN Chunk
 // typedef CChunkChunk CTwinChunk; // TWIN
 //
-// // 標準チャンク
-// // COMM は汎用チャンクではない
+// // Normal Chunk
+// // COMM is not a normal chunk
 // typedef CStringChunk CNameChunk; // NAME
 // typedef CStringChunk CComtChunk; // COMT
 // typedef CStringChunk CAuthChunk; // AUTH
@@ -511,10 +511,10 @@ class EncdChunk extends Chunk {
 // typedef CIntChunk<unsigned long> CDsizChunk; // DSIZ
 // typedef CChunk CExtrChunk; // EXTR
 //
-// // 拡張チャンク・通常
+// // Extended Chunk/Normal
 // typedef CStringChunk CAlbmChunk; // ALBM
-// // YEAR は汎用チャンクではない
-// // ENCD は汎用チャンクではない
+// // YEAR is not a normal chunk
+// // ENCD is not a normal chunk
 // typedef CIntChunk<short> CTracChunk; // TRAC
 // typedef CStringChunk CLyrcChunk; // LYRC
 // typedef CChunk CGuidChunk; // GUID
@@ -531,10 +531,10 @@ class EncdChunk extends Chunk {
 // typedef CStringChunk CLablChunk; // LABL
 // typedef CStringChunk CNoteChunk; // NOTE
 //
-// // 拡張チャンク・補助
+// // Extended Chunk/Auxiliary
 // typedef CChunkChunk CScndChunk; // SCND
 //
-// // 予約チャンク
+// // Reserved Chunk
 // typedef CChunk C_Id3Chunk; // _ID3
 // typedef CChunk C_YmhChunk; // _YMH
 // typedef CChunk C_NttChunk; // _NTT

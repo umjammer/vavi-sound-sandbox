@@ -16,7 +16,7 @@ import javax.sound.sampled.TargetDataLine;
 
 
 /**
- * RtpTransmitter RTPパケットの送信機クラス
+ * RtpTransmitter RTP packet transmitter class.
  *
  * @author fukugawa
  */
@@ -24,22 +24,24 @@ public class RtpTransmitter {
     // Socket
     private DatagramSocket socket;
 
-    // 宛先IPアドレス
+    // destination IP address
     private String destIP;
 
-    // 宛先UDPポート番号
+    // destination UDP port number
     private String destPort;
 
-    // 送信スレッド
+    // sending thread
     private TransmitThread transmitThread;
 
     /**
-     * マイクから入力された音声データを、RTPパケットに加工し、 指定したソケットを使用して、指定した宛先IPアドレス、指定した宛先UDPポート番号
-     * へ送信するRTPパケット送信機を生成します ディフォルトのメディアタイプは、G.711 u-law(0)を使用します
+     * Generates an RTP packet transmitter that processes the audio data input from the microphone
+     * into RTP packets and sends them to the specified destination IP address and
+     * specified destination UDP port number using the specified socket.
+     * Default media type uses G.711 u-law(0)
      *
-     * @param socket 使用するSocket
-     * @param destIP 宛先IPアドレス
-     * @param destPort 宛先UDPポート番号
+     * @param socket socket to use
+     * @param destIP destination IP address
+     * @param destPort destination UDP port number
      */
     public RtpTransmitter(DatagramSocket socket, String destIP, String destPort) {
         this.socket = socket;
@@ -48,8 +50,9 @@ public class RtpTransmitter {
     }
 
     /**
-     * マイクからキャプチャーを開始し、相手へRTPパケットを送信し始めます このメソッドのスレッドはブロックせずにすぐに制御を返します
-     * キャプチャー・送信はstop()メソッドが呼ばれると停止します
+     * Starts capturing from the microphone and start sending RTP packets to the other party.
+     * The thread in this method returns immediately without blocking.
+     * Capturing and sending will stop when the stop() method is called.
      */
     public void start() {
         this.transmitThread = new TransmitThread(this.socket, this.destIP, this.destPort);
@@ -57,14 +60,15 @@ public class RtpTransmitter {
     }
 
     /**
-     * マイクからのキャプチャーを停止し、相手へのRTPパケットの送信を終えます
+     * Stops capturing from the microphone and finishes sending RTP packets to the other party
      */
     public void stop() {
         this.transmitThread.transmitStop();
     }
 
     /**
-     * 使用するメディアタイプを変更します ※このメソッドはまだ実装されていません
+     * Change the media type used.
+     * *This method has not been implemented yet.
      */
     public void setMediaType(int mediaType) {
 
@@ -72,7 +76,7 @@ public class RtpTransmitter {
 }
 
 /**
- * キャプチャー -> 送信スレッド
+ * Capture -> Send thread
  */
 class TransmitThread extends Thread {
 
@@ -84,7 +88,7 @@ class TransmitThread extends Thread {
 
     private boolean isStop;
 
-    // コンストラクタ
+    // constructor
     public TransmitThread(DatagramSocket socket, String destIP, String destPort) {
         this.socket = socket;
         this.destIP = destIP;
@@ -93,7 +97,7 @@ class TransmitThread extends Thread {
 
     }
 
-    // マイクキャプチャー -> 送信 スレッド開始
+    // Microphone capture -> Send Start thread
     public void run() {
         try {
             byte[] voicePacket = new byte[160];
@@ -110,20 +114,20 @@ class TransmitThread extends Thread {
             targetDataLine.start();
 
             AudioInputStream linearStream = new AudioInputStream(targetDataLine);
-            // リニアPCM 16bit 8000Hz から G.711 u-lawへ変換
+            // convert from linear PCM 16bit 8000Hz to G.711 u-law
             AudioInputStream ulawStream = AudioSystem.getAudioInputStream(ulawFormat, linearStream);
 
             while (!isStop) {
                 try {
-                    // G.711 u-law 20ms分を取得する
+                    // get G.711 u-law 20ms minutes
                     ulawStream.read(voicePacket, 0, voicePacket.length);
-                    // RTPヘッダーを付ける
+                    // add RTP header
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     new RtpHeader().writeTo(baos);
                     System.arraycopy(voicePacket, 0, baos.toByteArray(), 0, 12);
                     System.arraycopy(voicePacket, 0, rtpPacket, 12, 160);
                     packet = new DatagramPacket(rtpPacket, rtpPacket.length, address);
-                    // 相手へ送信
+                    // send to other party
                     this.socket.send(packet);
                 } catch (Exception ee) {
                     ee.printStackTrace();
@@ -136,7 +140,7 @@ class TransmitThread extends Thread {
         }
     }
 
-    // マイクキャプチャー -> 送信開始 スレッド停止
+    // Microphone capture -> Start transmission Stop thread
     public void transmitStop() {
         this.isStop = true;
     }
@@ -151,31 +155,31 @@ class TransmitThread extends Thread {
             this.marker = -128;
         }
 
-        // シーケンス番号
+        // sequence number
         private short sequenceNum;
-        // タイムスタンプ
+        // time stamp
         private int timeStamp;
-        // 同期ソースID
+        // sync source ID
         private int syncSourceId;
-        // マーカービット
+        // marker bit
         private byte marker;
 
-        // バージョン番号10000000
+        // version number 10000000
         byte version = -128;
-        // パディング
+        // padding
         byte padding = 0;
-        // 拡張ビット
+        // expansion bit
         byte extention = 0;
-        // コントリビュートカウント
+        // contribution count
         byte contribute = 0;
-        // ペイロードタイプ
+        // payload type
         byte payload = 0;
 
         void writeTo(OutputStream os) throws IOException {
-            // RTPヘッダ
+            // RTP header
             byte[] rtpHeader = new byte[12];
 
-            // RTPヘッダーの生成
+            // generating RTP headers
             rtpHeader[0] = (byte) (version | padding | extention | contribute);
             rtpHeader[1] = (byte) (marker | payload);
             rtpHeader[2] = (byte) (this.sequenceNum >> 8);
@@ -189,14 +193,14 @@ class TransmitThread extends Thread {
             rtpHeader[10] = (byte) (this.syncSourceId >> 8);
             rtpHeader[11] = (byte) (this.syncSourceId >> 0);
 
-            // シーケンス番号、タイムスタンプ、マーカービット移行
+            // sequence number, timestamp, marker bit migration
             this.sequenceNum++;
             this.timeStamp += 160;
             if (this.marker == -128) {
                 this.marker = 0;
             }
 
-            // RTPヘッダー＋音声データ = RTPパケット
+            // RTP header + audio data = RTP packet
             ByteArrayOutputStream baos = new ByteArrayOutputStream(172);
             baos.write(rtpHeader, 0, 12);
             baos.writeTo(os);

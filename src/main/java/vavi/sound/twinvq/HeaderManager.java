@@ -13,49 +13,48 @@ import java.util.Map;
  * HeaderManager
  */
 class HeaderManager {
-    /** 通常チャンクのチャンクバンク */
+    /** Chunk bank of normal chunks */
     private Map<String, Chunk> primaryChunkBank;
 
-    /** 補助チャンクのチャンクバンク */
+    /** Auxiliary chunk chunk bank */
     private Map<String, Chunk> secondaryChunkBank;
 
-    /** TWIN チャンクのID、通常のIDと違い "TWIN"+<バージョン識別子>で構成される。 */
+    /** TWIN chunk ID, unlike a normal ID, consists of "TWIN" + "version identifier". */
     private String chunkID;
 
-    /** チャンクバンクからIDでチャンクを引き出す */
+    /** Extracts chunks from chunk bank by ID. */
     static Chunk getChunk(Map<String, Chunk> chunkBank, String id) {
 
-        // チャンクのあるなしを問い合わせる。
+        // Query whether chunks are present or not.
         if (chunkBank.containsKey(id)) {
-            // あれば
-            // そのチャンクを戻す。
+            // If it exists, return that chunk.
             return chunkBank.get(id);
         }
 
-        // チャンクがなければ処理を放棄する。
+        // If there are no chunks, the process is abandoned.
         throw new FailGetChunkException();
     }
 
     /**
-     * チャンクを入力して、サブチャンクを拾い出しチャンクバンクに預ける
-     * @param chunkBank In/Out チャンクバンク
-     * @param inputChunk 入力チャンク
-     * Chunk型のチャンクからサブチャンクを取り出しチャンクバンクに登録する
+     * Input a chunk, pick up sub-chunks and deposit them in the chunk bank
+     * @param chunkBank In/Out chunk bank
+     * @param inputChunk input chunk
+     * Extract sub-chunks from Chunk-type chunks and register them in the chunk bank.
      */
     private static void PickUpSubChunks(Map<String, Chunk> chunkBank, ChunkChunk inputChunk) {
-        // 準備
-        // チャンク ID のサイズ（４文字）
+        // preparation
+        // chunk ID size (4 characters)
         final int idSize = 4;
 
-        // チャンクを解析する前にまき戻しを行う
+        // rewinds before parsing chunks
         inputChunk.rewind();
 
         Chunk subChunk;
         try {
-            // チャンクからサブチャンクを取り出す
+            // extract subchunk from chunk
             while ((subChunk = inputChunk.GetNextChunk(idSize)) != null) {
                 String id = subChunk.getID();
-                // 取り出したサブチャンクをチャンクバンクに登録
+                // register the retrieved subchunk to the chunk bank
                 chunkBank.put(id, subChunk);
             }
         } catch (ChunkChunk.FailGetChunkException e) {
@@ -65,15 +64,15 @@ class HeaderManager {
     }
 
     /**
-     * ヘッダマネージャの初期化をする。Create() からのみ呼ばれる。
-     * 初期化する。コンストラクタの代わりに使う
+     * Initializes the header manager. Called only from #create().
+     * Uses instead of constructor for initializing.
      */
     void init(ChunkChunk twinChunk) {
         try {
-            // 基本チャンクを基本チャンクバンクに収める。
+            // put the basic chunks into the basic chunk bank.
             PickUpSubChunks(primaryChunkBank, twinChunk);
 
-            // 補助チャンクがあったら補助チャンクバンクに収める。
+            // if there are auxiliary chunks, put them in the auxiliary chunk bank.
             ChunkChunk scndChunk = (ChunkChunk) getPrimaryChunk("SCND");
             PickUpSubChunks(secondaryChunkBank, scndChunk);
         } catch (ChunkChunk.FailGetChunkException e) {
@@ -84,22 +83,22 @@ class HeaderManager {
     }
 
     /**
-     * コンストラクタ。ユーザは呼べない。代わりに Create() を使う。
-     * 初期化の際にエラーが出る可能性があるためこのような仕様にした。
+     * Constructor. User cannot call. Use Create() instead.
+     * This specification was made because there is a possibility that an error may occur during initialization.
      */
     private HeaderManager() {
     }
 
-    /** チャンクの書式が正しくない */
+    /** Chunk format is incorrect */
     static class WrongChunkFormatException extends RuntimeException {
     }
 
-    /** 通常チャンクを引き出す */
+    /** Pulls out regular chunks. */
     public Chunk getPrimaryChunk(String id) {
         return getChunk(primaryChunkBank, id);
     }
 
-    /** 補助チャンクを引き出す */
+    /** Pulls out auxiliary chunks. */
     public Chunk getSecondaryChunk(String id) {
         return getChunk(secondaryChunkBank, id);
     }
@@ -110,19 +109,19 @@ class HeaderManager {
     }
 
     /**
-     * ヘッダマネージャを生成する。
-     * チャンクマネージャを作り出す。コンストラクタの代わり
+     * Generates header manager.
+     * Create a chunk manager. instead of constructor.
      *
-     * @return 生成したヘッダマネージャへのポインタ、生成に失敗した場合は null
+     * @return pointer to the generated header manager, or null if generation fails
      */
     static HeaderManager create(ChunkChunk twinChunk) {
         try {
-            // チャンクマネージャを生成する。
+            // generate a chunk manager.
             HeaderManager theManager = null;
             theManager = new HeaderManager();
             theManager.init(twinChunk);
 
-            // TWINチャンクのヘッダを取得する
+            // get TWIN chunk header
             theManager.chunkID = twinChunk.getID();
             if (theManager.chunkID.isEmpty()) {
                 return null;
@@ -134,16 +133,16 @@ class HeaderManager {
         }
     }
 
-    /** チャンクの取得に失敗した */
+    /** Failed to get chunk */
     static class FailGetChunkException extends RuntimeException {
     }
 }
 
-// ヘッダマネージャからのデータ読み出しの支援クラス
+// support class for reading data from header manager
 
 /**
- * Unified string information, 文字列チャンクの総合情報、
- * ヘッダマネージャから取得することができる
+ * Unified string information, General information about string chunks,
+ * can be obtained from header manager
  */
 class UniStringInfo {
     public enum CharCode {
@@ -160,85 +159,85 @@ class UniStringInfo {
         }
     }
 
-    /** チャンク ID */
+    /** chunk ID */
     private String id;
 
-    /** 基本文字列 */
+    /** basic string */
     private String primary;
 
-    /** 補助文字列 */
+    /** auxiliary string */
     private String secondary;
 
-    /** 基本文字列の文字コード */
+    /** basic string character code */
     private int primaryCharCode;
 
-    /** 補助文字列の文字コード */
+    /** character code of auxiliary string */
     private int secondaryCharCode;
 
     private void putPrimaryInfo(StringChunk theChunk) {
-        // ID をチェック
+        // check ID
         if (id.isEmpty()) {
             id = theChunk.getID();
         } else if (!id.equals(theChunk.getID())) {
             throw new IDException();
         }
 
-        // データを書き込み
+        // write data
         primary = theChunk.getString();
     }
 
     private void putSecondaryInfo(StringChunk theChunk) {
-        // ID をチェック
+        // check ID
         if (id.isEmpty()) {
             id = theChunk.getID();
         } else if (!id.equals(theChunk.getID())) {
             throw new IDException();
         }
 
-        // データを書き込み
+        // write data
         String secondary = theChunk.getString();
-        // 文字コード情報があるかどうかチェック
+        // check if there is character code information
         if (secondary.length() < 2) {
             throw new NoCharCodeException();
         }
 
-        // 文字コードデータ
+        // character code data
         primaryCharCode = secondary.charAt(0) - '0';
         secondaryCharCode = secondary.charAt(1) - '0';
 
         secondary = secondary.substring(2);
     }
 
-    /** 初期化の際、基本チャンクと補助チャンクの ID が食い違っている */
+    /** During initialization, the IDs of the basic chunk and auxiliary chunk are different. */
     static class IDException extends RuntimeException {
     }
 
-    /** 補助チャンクに文字コード情報がない */
+    /** There is no character code information in the auxiliary chunk */
     static class NoCharCodeException extends RuntimeException {
     }
 
-    /** 基本文字列を返す */
+    /** Returns basic string. */
     public final String getPrimaryInfo() {
         return primary;
     }
 
-    /** 補助文字列を返す */
+    /** Returns auxiliary string. */
     public final String getSecondaryInfo() {
         return secondary;
     }
 
-    /** 基本文字列の文字コードを返す */
+    /** Returns the character code of the basic string. */
     public final int getPrimaryCharCode() {
         return primaryCharCode;
     }
 
-    /** 補助文字列の文字コードを返す */
+    /** Returns the character code of the auxiliary string. */
     public final int getSecondaryCharCode() {
         return secondaryCharCode;
     }
 
     /**
-     * コンストラクタ、必要な情報を全て与える
+     * Constructor, give all necessary information.
      *
      * @param secondary deault = ""
      * @param primCode default = unknown_code
@@ -252,15 +251,15 @@ class UniStringInfo {
         this.secondaryCharCode = scndCode;
     }
 
-    /** コンストラクタ、ヘッダマネージャから読み出す */
+    /** Constructor, read from header manager. */
     UniStringInfo(String id, HeaderManager theManager) {
-        // ID を設定する
+        // set ID
         this.id = id;
         primaryCharCode = -1;
         secondaryCharCode = -1;
 
         int flag = 0;
-        // 基本チャンク情報をコピーする
+        // copy basic chunk information
         try {
             StringChunk primChunk = new StringChunk(theManager.getPrimaryChunk(id));
             putPrimaryInfo(primChunk);
@@ -272,7 +271,7 @@ class UniStringInfo {
             throw new FailConstructionException();
         }
 
-        // 補助チャンク情報をコピーする
+        // copy auxiliary chunk information
         try {
             StringChunk scndChunk = new StringChunk(theManager.getSecondaryChunk(id));
             putSecondaryInfo(scndChunk);
@@ -282,7 +281,7 @@ class UniStringInfo {
         }
     }
 
-    /** コンストラクトの失敗 */
+    /** Construction failure */
     static class FailConstructionException extends RuntimeException {
     }
 }

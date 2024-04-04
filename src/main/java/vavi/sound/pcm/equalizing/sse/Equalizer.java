@@ -244,7 +244,7 @@ System.err.println("property band." + c + " not found, break");
     }
 
     /**
-     * @param param2 TODO index 0 に何か意味あり？？？
+     * @param param2 TODO does index 0 have any meaning???
      */
     private double hn(int n, List<Parameter> param2, double fs) {
         double ret, lhn;

@@ -70,7 +70,7 @@ class OldLucasFile extends MidiTypeFile {
 
         this.instruments = new Opl3Instrument[this.tins];
         for (int p = 0; p < v; ++p) {
-            logger.fine(String.format("\n%d: ", p));
+logger.fine(String.format("\n%d: ", p));
 
             int[] ins = new int[16];
 

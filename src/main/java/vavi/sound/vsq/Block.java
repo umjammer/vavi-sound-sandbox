@@ -65,7 +65,7 @@ Debug.println(Level.SEVERE, "error block: " + label);
         }
 
         /**
-         * {@link Block} オブジェクトのファクトリメソッド集。
+         * collection of factory methods for {@link Block} objects.
          */
         private static final Map<String, Method> methods = new HashMap<>();
 

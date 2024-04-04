@@ -53,7 +53,7 @@ Debug.println("byteOrder: " + this.byteOrder);
     }
 
     /**
-     * 必ず呼んでね。
+     * Be sure to call me.
      */
     @Override
     public void close() throws IOException {

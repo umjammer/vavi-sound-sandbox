@@ -24,11 +24,11 @@ import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
 
 import jp.or.rim.kt.kemusiro.sound.tone.FMParameter;
+import vavi.util.Debug;
 
 
 /**
- * MMLを演奏するクラス。アプレットとしてもアプリケーションとしても
- * 動作する。
+ * A class that plays MML. It works both as an applet and as an application.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.3 $
@@ -253,7 +253,7 @@ public class MMLPlayerApplet extends JApplet {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Debug.printStackTrace(e);
             }
         }
     }

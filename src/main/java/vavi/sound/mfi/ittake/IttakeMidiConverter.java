@@ -102,7 +102,7 @@ Debug.printStackTrace(e);
 
     /**
      * hack of Track
-     * TODO マジで動くの？
+     * TODO does it really work?
      */
     private static void insert(Track track, MfiEvent event, int index) {
         try {
@@ -232,7 +232,7 @@ Debug.println("here: " + j + ", " + timeOver);
             } else if (midiMessage instanceof MetaMessage metaMessage) {
                 int metaType = metaMessage.getType();
                 switch (metaType) {
-                case 81: // テンポ設定
+                case 81: // Tempo setting
                     TempoMessage tempoMessage = new TempoMessage(0, 0xff, context.getMidiResolution(), (metaMessage.getData()[0] << 8) | metaMessage.getData()[1]);
                     mfiTrack.add(new MfiEvent(tempoMessage, presentTime));
                     break;

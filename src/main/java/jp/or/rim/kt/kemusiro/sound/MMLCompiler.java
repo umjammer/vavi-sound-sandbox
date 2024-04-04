@@ -8,7 +8,7 @@ import vavi.util.Debug;
 
 
 /**
- * MMLを楽譜に変換するクラス。
+ * A class that converts MML to musical score.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.4 $

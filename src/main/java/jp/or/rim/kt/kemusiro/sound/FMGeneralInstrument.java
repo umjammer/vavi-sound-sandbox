@@ -26,7 +26,7 @@ import jp.or.rim.kt.kemusiro.sound.tone.FMParameter;
 
 
 /**
- * 汎用FM音源楽器。
+ * General-purpose FM sound source instrument.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.2 $

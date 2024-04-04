@@ -36,15 +36,15 @@ class MidiFile extends MidiTypeFile {
     @Override
     boolean matchFormatImpl(DataInputStream dis) throws IOException {
         if (!Boolean.parseBoolean(System.getProperty("vavi.sound.opl3.MidiFile", "false"))) {
-logger.info("vavi.sound.opl3.MidiFile: false");
+logger.fine("vavi.sound.opl3.MidiFile: false");
             return false;
         }
-logger.info("use vavi.sound.opl3.MidiFile");
+logger.fine("use vavi.sound.opl3.MidiFile");
         byte[] chunkType = new byte[4];
         dis.readFully(chunkType);
         dis.skipBytes(4);
         int format = dis.readUnsignedShort();
-logger.info("format: " + format);
+logger.fine("format: " + format);
         return Arrays.equals("MThd".getBytes(), chunkType) && format == 0;
     }
 
@@ -53,13 +53,13 @@ logger.info("format: " + format);
         player.tins = 128;
         player.takeBE(4 + 4 + 2 + 2); // skip header
         player.deltas = player.takeBE(2);
-        logger.fine(String.format("deltas: %d", player.deltas));
+logger.fine(String.format("deltas: %d", player.deltas));
         player.takeBE(4);
 
         player.tracks[0].on = true;
         player.tracks[0].tend = player.takeBE(4);
         player.tracks[0].spos = player.pos;
-        logger.info(String.format("tracklen: %d", player.tracks[0].tend));
+logger.fine(String.format("tracklen: %d", player.tracks[0].tend));
     }
 
     @Override

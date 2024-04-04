@@ -48,19 +48,19 @@ class Mp3Decoder {
     /** */
     static class MpegDecodeInfo {
         MpegHeader header;
-        /** 出力チャネル */
+        /** output channel */
         int channels;
-        /** サンプリングレート[Hz] */
+        /** sampling rate [Hz] */
         int frequency;
-        /** ビットレート[bit/s] */
+        /** bit rate [bit/s] */
         int bitRate;
-        /** 1フレームの入力サイズ */
+        /** 1 frame input size */
         int inputSize;
-        /** 1フレームの出力サイズ */
+        /** 1 frame output size */
         int outputSize;
     }
 
-    /** ヘッダ情報 4 byte */
+    /** header information 4 byte */
     static class MpegHeader {
         static final int[][] m_bitrate = {
             // layer1
@@ -108,7 +108,7 @@ class Mp3Decoder {
          * </ol>
          */
         int mode;
-        /** ヘッダ情報の取得 */
+        /** Gets header information. */
         public MpegHeader(byte[] buf, int offset) {
 Debug.println("offset: " + offset);
             this.version   = (buf[offset + 1] & 0x18) >> 3;

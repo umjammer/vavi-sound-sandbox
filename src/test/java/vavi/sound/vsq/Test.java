@@ -57,20 +57,20 @@ Debug.println(sequencer);
             public void meta(MetaMessage meta) {
 //Debug.println(meta.getType());
                 switch (meta.getType()) {
-                case 1:  // テキスト・イベント 127 bytes
+                case 1:  // text event 127 bytes
 //Debug.println(new String(meta.getData()));
                     String text = new String(meta.getData(), Charset.forName("MS932"));
                     String[] parts = text.split(":");
 Debug.println(parts[0] + ":" + parts[1] + ":" + meta.getData().length);
                     sb.append(parts[2]);
                     break;
-                case 3:  // トラック名 "Master Track", "Voice1"
+                case 3:  // track name "Master Track", "Voice1"
                     String trackName = new String(meta.getData());
 Debug.println(trackName);
                     break;
-                case 81: // テンポ設定
+                case 81: // tempo setting
                     break;
-                case 88: // 拍子記号
+                case 88: // time signature
                     break;
                 case 47:
 try {
@@ -97,10 +97,10 @@ Debug.println("NRPN LSB: " + event.getData2());
             case 99: // NRPN MSB
 Debug.println("NRPN MSB: " + event.getData2());
                 break;
-            case 6: // データエントリ MSB
+            case 6: // data entry MSB
 Debug.println("データエントリ MSB: " + event.getData2());
                 break;
-            case 38: // データエントリ LSB
+            case 38: // data entry LSB
 Debug.println("データエントリ LSB: " + event.getData2());
                 break;
             default:

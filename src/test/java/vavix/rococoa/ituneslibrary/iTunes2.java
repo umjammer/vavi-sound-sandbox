@@ -59,7 +59,7 @@ public class iTunes2 {
         return instance;
     }
 
-    /** アーティスト、作品名検索 */
+    /** artist/work name search */
     public static class MyInput implements InputHandler<Reader> {
         /**
          * @param args 0: artist, 1: title
@@ -123,7 +123,7 @@ try {
         }
     }
 
-    /** 作詞、作曲詳細 (単品) */
+    /** lyrics and composition details (single) */
     public static class MyInput2 implements InputHandler<Reader> {
         /**
          * @param args 0: url
@@ -139,7 +139,7 @@ try {
         }
     }
 
-    /** 作詞、作曲詳細 (一行) */
+    /** lyrics and composition details (one line) */
     @WebScraper(input = MyInput2.class,
 //                isDebug = true,
                 parser = HtmlXPathParser.class)
@@ -157,7 +157,7 @@ try {
         }
     }
 
-    /** 作品名で検索 */
+    /** search by title*/
     public static class MyInput3 implements InputHandler<Reader> {
         /**
          * @param args 0: title
@@ -210,7 +210,7 @@ Debug.println("nextAnchor: " + nextAnchor);
         }
     }
 
-    /** 作品名指定の作品 (複数) */
+    /** works with specified work name (multiple) */
     @WebScraper(input = MyInput3.class,
 //                isDebug = true,
                 parser = HtmlXPathParser.class)
@@ -230,7 +230,7 @@ Debug.println("nextAnchor: " + nextAnchor);
         }
     }
 
-    /** アーティストで検索 */
+    /** search by artist*/
     public static class MyInput4 implements InputHandler<Reader> {
         /**
          * @param args 0: artist
@@ -280,7 +280,7 @@ Debug.println("nextAnchor: " + nextAnchor);
         }
     }
 
-    /** アーティスト指定の作品 (複数) */
+    /** works specified by the artist (multiple) */
     @WebScraper(input = MyInput4.class,
 //                isDebug = true,
                 parser = HtmlXPathParser.class)
@@ -300,7 +300,7 @@ Debug.println("nextAnchor: " + nextAnchor);
         }
     }
 
-    /** アーティスト名で近い順 */
+    /** Sort by artist name */
     static class MyComparator3 implements Comparator<TitleUrl3> {
         String artist;
         MyComparator3(String artist) {
@@ -312,7 +312,7 @@ Debug.println("nextAnchor: " + nextAnchor);
         }
     }
 
-    /** 作品名で近い順 */
+    /** Sort by title of work */
     static class MyComparator4 implements Comparator<TitleUrl4> {
         String name;
         MyComparator4(String name) {
@@ -338,7 +338,7 @@ Debug.println("nextAnchor: " + nextAnchor);
     private static String normalizeComposer(String name) {
         Matcher matcher = normalizeComposerPattern.matcher(name);
         if (!matcher.matches()) {
-            return name; // 国内
+            return name; // domestic (Japan)
         }
         name = name.replace("ー", "-");
         StringBuilder result = new StringBuilder();

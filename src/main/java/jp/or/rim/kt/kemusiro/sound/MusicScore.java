@@ -9,7 +9,7 @@ import java.util.LinkedList;
 
 
 /**
- * 楽譜を表すクラス。
+ * A class that represents musical scores.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.3 $
@@ -22,10 +22,10 @@ public final class MusicScore {
     private static final int defaultTempo = 100;
 
     /**
-     * 楽譜を新規に作成する。
+     * Create a new score.
      *
-     * @param newTickPerBeat 1拍当たりのカウント数
-     * @param newChannelCount    チャネル数
+     * @param newTickPerBeat Counts per beat
+     * @param newChannelCount    Number of channels
      */
     public MusicScore(int newTickPerBeat, int newChannelCount) {
         tickPerBeat = newTickPerBeat;
@@ -51,10 +51,10 @@ public final class MusicScore {
     }
 
     /**
-     * イベントを追加する。新しいイベントはリスト上で昇順に並ぶことを
-     * 保証する。
+     * Adds an event. New events are guaranteed to be sorted
+     * in ascending order on the list.
      *
-     * @param event イベント
+     * @param event an event
      */
     public void add(MusicEvent event) {
         for (int i = eventList.size() - 1; i >= 0; i--) {

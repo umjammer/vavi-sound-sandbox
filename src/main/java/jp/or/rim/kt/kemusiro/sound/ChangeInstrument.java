@@ -5,7 +5,7 @@
 package jp.or.rim.kt.kemusiro.sound;
 
 /**
- * 音色を変えるイベントを表すクラス。
+ * A class that represents an event that changes the tone.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.2 $
@@ -15,11 +15,11 @@ public class ChangeInstrument extends MusicEvent {
     private final Instrument instrument;
 
     /**
-     * 音色を変更するイベントを作成する。
+     * Creates an event to change the tone.
      *
-     * @param newTick       ティック
-     * @param newChannel    チャネル番号
-     * @param newInstrument 新しい音色
+     * @param newTick       tick
+     * @param newChannel    channel number
+     * @param newInstrument new tone
      */
     public ChangeInstrument(int newTick, int newChannel, Instrument newInstrument) {
         tick = newTick;

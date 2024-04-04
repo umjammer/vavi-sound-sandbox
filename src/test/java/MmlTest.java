@@ -55,7 +55,7 @@ public class MmlTest {
     }
 
     /**
-     * 引数で与えられたMML文字列を演奏する。
+     * Plays the MML string given as an argument.
      *
      * @param args [-f instr.txt] mml1.mml [mm2.mml [mm3.mml]]
      */

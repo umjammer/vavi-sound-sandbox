@@ -214,7 +214,7 @@ System.err.print("X");
         }
     };
 
-    /** 現在の秒に対応するファイルを取得 {@link #interval} [mesc] おき */
+    /** Get the file corresponding to the current second {@link #interval} [mesc] */
     class MyUrlMaker implements UrlMaker {
         /** */
         Calendar calendar = Calendar.getInstance();
@@ -222,7 +222,7 @@ System.err.print("X");
         MyUrlMaker() {
             calendar.roll(Calendar.SECOND, 10);
         }
-        /** 現在使用中の時間 */
+        /** Time currently in use */
         int currentNo = 0;
 
         /** */
