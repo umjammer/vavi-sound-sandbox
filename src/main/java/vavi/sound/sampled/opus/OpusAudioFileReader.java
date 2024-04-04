@@ -79,7 +79,7 @@ Debug.println(Level.FINE, "enter available: " + bitStream.available());
             dis.readFully(b);
             if (b[0] != 'O' || b[1] != 'g' || b[2] != 'g' || b[3] != 'S' ||
                     b[28] != 'O' || b[29] != 'p' || b[30] != 'u' || b[31] != 's') { // TODO 28 ~ fixed???
-                throw new UnsupportedAudioFileException("not ogg/opus");
+                throw new IllegalArgumentException("not ogg/opus");
             }
             bitStream.reset();
             opus = new OpusFile(new OggFile(bitStream));
