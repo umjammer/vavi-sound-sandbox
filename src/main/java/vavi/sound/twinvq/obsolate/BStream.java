@@ -1,20 +1,19 @@
 /*
- * Copyright 1996-2000 (c) NTT Cyber Space Laboratories
+ * Copyright (c) 2024 by Naohide Sano, All rights reserved.
  *
- * Released on 2000.05.22 by N. Iwakami
- * Released on 2000.09.06 by N. Iwakami
+ * Programmed by Naohide Sano
  */
 
-package vavi.sound.twinvq;
+package vavi.sound.twinvq.obsolate;
 
 import java.io.IOException;
 import java.util.Arrays;
 
-import vavi.sound.twinvq.TwinVQ.BlockType;
-import vavi.sound.twinvq.TwinVQ.Index;
-import vavi.sound.twinvq.TwinVQ.HeaderInfo;
-import vavi.sound.twinvq.TwinVQ.ConfInfo;
-import vavi.sound.twinvq.TwinVQ.ConfInfoSubBlock;
+import vavi.sound.twinvq.obsolate.TwinVQ.BlockType;
+import vavi.sound.twinvq.obsolate.TwinVQ.Index;
+import vavi.sound.twinvq.obsolate.TwinVQ.HeaderInfo;
+import vavi.sound.twinvq.obsolate.TwinVQ.ConfInfo;
+import vavi.sound.twinvq.obsolate.TwinVQ.ConfInfoSubBlock;
 
 
 class BStream {

@@ -1,6 +1,8 @@
 # vavi.sound.mp3
 
-MP3 サウンド関連のクラスを提供します．
+Provides MP3 sound related classes.
+
+## References
 
 ### Header
 
@@ -15,10 +17,10 @@ MP3 サウンド関連のクラスを提供します．
  +--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
 ```
 
+### License
+
+    not listed
+
 ## TODO
 
- * 完成させる
-
-## License
-
-    表記なし
+* complete

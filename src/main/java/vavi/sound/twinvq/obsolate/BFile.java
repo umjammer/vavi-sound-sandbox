@@ -1,10 +1,10 @@
 /*
- * Copyright 1996-2000 (c) NTT Cyber Space Laboratories
+ * Copyright (c) 2024 by Naohide Sano, All rights reserved.
  *
- * Released on 2000.05.22 by N. Iwakami
+ * Programmed by Naohide Sano
  */
 
-package vavi.sound.twinvq;
+package vavi.sound.twinvq.obsolate;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;

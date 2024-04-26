@@ -1,17 +1,16 @@
 # vavi.sound.sampled.ilbc
 
-iLBC コーデック関連のクラスを提供します．
+Provides iLBC codec related classes.
+
+## References
 
  * [iLBCfreeware](http://www.ilbcfreeware.org/)
+ * http://www.sip-communicator.org/ this is outdone me... orz
 
-先越された... orz
+### License
 
- * http://www.sip-communicator.org/
+[License](http://www.ilbcfreeware.org/documentation/gips_iLBClicense.pdf)
 
 ## TODO
 
  * complete
-
-## License
-
- [License](http://www.ilbcfreeware.org/documentation/gips_iLBClicense.pdf)

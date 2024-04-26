@@ -6,12 +6,16 @@
 
 package vavi.sound.ilbc;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 
 /**
@@ -262,7 +266,7 @@ public class Ilbc {
             /* Start state location, gain and samples */
             start_bits = new int[] { 3, 0, 0, 0, 0 };
             startfirst_bits = new int[] { 1, 0, 0, 0, 0 };
-            startfirst_bits = new int[] { 6, 0, 0, 0, 0 };
+            scale_bits = new int[] { 6, 0, 0, 0, 0 };
             state_bits = new int[] { 0, 1, 2, 0, 0 };
             /* extra CB index and extra CB gain */
             extra_cb_index = new int[][] {
@@ -844,14 +848,12 @@ public class Ilbc {
     /**
      * Main program to test iLBC encoding and decoding
      *
-     * <pre>
-     *  Usage: exefile_name.exe &lt;infile&gt; &lt;bytefile&gt; &lt;outfile&gt; &lt;channel&gt;
-     *
-     *  &lt;infile&gt; : Input file, speech for encoder (16-bit pcm file)
-     *  &lt;bytefile&gt; : Bit stream output from the encoder
-     *  &lt;outfile&gt; : Output file, decoded speech (16-bit pcm file)
-     *  &lt;channel&gt; : Bit error file, optional (16-bit) 1 - Packet received correctly 0 - Packet Lost
-     * </pre>
+     * @param argv 0: modem 1: infile, 2: bytefile, 3: outfile, 4: channel
+     *  mode: Frame size for the encoding/decoding, 20 ms or 30 ms
+     *  infile: Input file, speech for encoder (16-bit pcm file)
+     *  bytefile: Bit stream output from the encoder
+     *  outfile: Output file, decoded speech (16-bit pcm file)
+     *  channel: Bit error file, optional (16-bit) 1 - Packet received correctly 0 - Packet Lost
      */
     public static void main(String[] argv) throws Exception {
         new Ilbc(argv);
@@ -902,8 +904,8 @@ public class Ilbc {
             throw new IllegalArgumentException(String.format("Wrong mode %s, must be 20, or 30", argv[0]));
         }
         try {
-            iFile = Files.newInputStream(Paths.get(argv[1]));
-        } catch (IOException e) {
+            iFile = AudioSystem.getAudioInputStream(new BufferedInputStream(Files.newInputStream(Paths.get(argv[1]))));
+        } catch (IOException | UnsupportedAudioFileException e) {
             throw new IllegalArgumentException(String.format("Cannot open input file %s", argv[1]));
         }
         try {
@@ -917,14 +919,12 @@ public class Ilbc {
             throw new IllegalArgumentException(String.format("Cannot open decoded file %s", argv[3]));
         }
         if (argv.length == 5) {
-            if ((cFile = Files.newInputStream(Paths.get(argv[4]))) == null) {
-                throw new IllegalArgumentException(String.format("Cannot open channel file %s", argv[4]));
-            }
+            cFile = Files.newInputStream(Paths.get(argv[4]));
         } else {
             cFile = null;
         }
 
-        /* print info */
+        // print info
 
         System.err.print("\n");
         System.err.print("*---------------------------------------------------*\n");
@@ -1015,7 +1015,7 @@ public class Ilbc {
         iFile.close();
         eFile.close();
         oFile.close();
-        if (argv.length == 6) {
+        if (argv.length == 5) {
             cFile.close();
         }
     }
@@ -1086,7 +1086,7 @@ public class Ilbc {
         int[] gain_index = new int[CB_NSTAGES * NASUB_MAX], extra_gain_index = new int[CB_NSTAGES];
         int[] cb_index = new int[CB_NSTAGES * NASUB_MAX], extra_cb_index = new int[CB_NSTAGES];
         int[] lsf_i = new int[LSF_NSPLIT * LPC_N_MAX];
-        int /* double * */pbytes;
+        int /* double* */ pbytes;
         int diff, start_pos;
         int[] state_first = new int[1];
         double en1, en2;
@@ -4955,27 +4955,27 @@ public class Ilbc {
     /**
      * LP synthesis filter.
      *
-     * @param Out (i/o) Signal to be filtered
+     * @param out (i/o) Signal to be filtered
      * @param a LP parameters
      * @param len Length of signal
      * @param mem (i/o) Filter state
      */
-    private static void syntFilter(double[] Out, int oP, double[] a, int aP, int len, double[] mem) {
+    private static void syntFilter(double[] out, int oP, double[] a, int aP, int len, double[] mem) {
         int /* double * */po, pi, pa, pm;
 
-        po = oP; // Out
+        po = oP; // out
 
         // Filter first part using memory from past
 
         for (int i = 0; i < LPC_FILTERORDER; i++) {
-            pi = i - 1; // Out
+            pi = i - 1; // out
             pa = 1; // a
             pm = LPC_FILTERORDER - 1; // mem
             for (int j = 1; j <= i; j++) {
-                Out[po] -= (a[aP + pa++]) * (Out[pi--]);
+                out[po] -= (a[aP + pa++]) * (out[pi--]);
             }
             for (int j = i + 1; j < LPC_FILTERORDER + 1; j++) {
-                Out[po] -= (a[aP + pa++]) * (mem[pm--]);
+                out[po] -= (a[aP + pa++]) * (mem[pm--]);
             }
             po++;
         }
@@ -4983,16 +4983,16 @@ public class Ilbc {
         // Filter last part where the state is entirely in the output vector
 
         for (int i = LPC_FILTERORDER; i < len; i++) {
-            pi = i - 1; // Out
+            pi = i - 1; // out
             pa = 1; // a
             for (int j = 1; j < LPC_FILTERORDER + 1; j++) {
-                Out[po] -= (a[aP + pa++]) * (Out[pi--]);
+                out[po] -= (a[aP + pa++]) * (out[pi--]);
             }
             po++;
         }
 
         // Update state vector
 
-        System.arraycopy(Out, po + len - LPC_FILTERORDER, mem, 0, LPC_FILTERORDER);
+        System.arraycopy(out, po + len - LPC_FILTERORDER, mem, 0, LPC_FILTERORDER);
     }
 }

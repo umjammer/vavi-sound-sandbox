@@ -19,6 +19,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.SourceDataLine;
 
+import vavi.sound.twinvq.obsolate.TwinVQInputStream;
 import vavi.util.Debug;
 
 import static vavi.sound.SoundUtil.volume;

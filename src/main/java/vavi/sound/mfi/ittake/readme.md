@@ -1,13 +1,13 @@
 # vavi.sound.mfi.vavi
 
-MFi のサービスプロバイダ実装例のクラスを提供します．
+Provides MFi service provider sample implementation classes.
 
 ## TODO
 
- * 人のアルゴリズムはようわからん
+ * I don't understand other people's algorithms.
 
 ## License
 
  * [MIDIToMLD](https://web.archive.org/web/20090515001654/http://tokyo.cool.ne.jp/ittake/java/MIDIToMLDv013/MIDIToMLD.html)
 
-    記載なし
+   not listed

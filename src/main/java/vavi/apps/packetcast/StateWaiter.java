@@ -1,9 +1,10 @@
-package vavi.apps.packetcast;
 /*
  * Copyright (c) 2006 by Naohide Sano, All rights reserved.
  *
  * Programmed by Naohide Sano
  */
+
+package vavi.apps.packetcast;
 
 import javax.media.ControllerErrorEvent;
 import javax.media.ControllerEvent;

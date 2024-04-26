@@ -1,13 +1,12 @@
-sox のリサンプリング関連のクラスを提供します．
+# vavi.sound.pcm.resampling.sox
 
-## TODO
+Provides sox's resampling related classes.
 
- * 完成させる
- * その他のフィルタ？
+## References
 
-## License
+### License
 
-### Resampler
+#### Resampler
 
 ```
 /*
@@ -17,7 +16,7 @@ sox のリサンプリング関連のクラスを提供します．
  */
 ```
 
-### Polyphase
+#### Polyphase
 
 ```
 /*
@@ -39,3 +38,8 @@ sox のリサンプリング関連のクラスを提供します．
  *   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 ```
+
+## TODO
+
+* complete
+* other filters?

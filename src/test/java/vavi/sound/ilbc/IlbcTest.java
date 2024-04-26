@@ -25,13 +25,14 @@ import vavix.util.Checksum;
 @Disabled("not implemented yet")
 class IlbcTest {
 
-    String inFile = "src/test/resources/vavi/sound/ldcelp/f17.bit";
-    String outFile = "tmp/f17.vavi.outnpf";
+    String inFile = "src/test/resources/test.wav";
+    String bitFile = "tmp/test.bit";
+    String outFile = "tmp/test.outnpf";
     String correctFile = "src/test/resources/vavi/sound/ldcelp/f17.outnpf";
 
     @Test
     void test1() throws Exception {
-        Ilbc.main(new String[] { "-d", inFile, outFile });
+        Ilbc.main(new String[] { "30", inFile, bitFile, outFile });
 
         assertEquals(Checksum.getChecksum(new File(correctFile)), Checksum.getChecksum(new File(outFile)));
     }
