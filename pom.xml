@@ -23,8 +23,6 @@
   <properties>
     <tritonus.groupId>com.github.umjammer.tritonus</tritonus.groupId> <!-- org.tritonus / com.github.umjammer.tritonus -->
     <tritonus.version>0.3.13</tritonus.version>
-    <rococoa.groupId>com.github.umjammer.rococoa</rococoa.groupId> <!-- org.rococoa / com.github.umjammer.rococoa -->
-    <rococoa.version>0.8.7</rococoa.version>
     <maven.plugin.validation>VERBOSE</maven.plugin.validation>
     <vavi.test.volume>0.02</vavi.test.volume>
     <vavi.test.volume.midi>0.2</vavi.test.volume.midi>
@@ -173,14 +171,14 @@
     </dependency>
 
     <dependency>
-      <groupId>${rococoa.groupId}</groupId>
+      <groupId>com.github.umjammer.rococoa</groupId> <!-- org.rococoa / com.github.umjammer.rococoa -->
       <artifactId>rococoa-cocoa</artifactId>
-      <version>${rococoa.version}</version>
     </dependency>
     <dependency>
       <groupId>${rococoa.groupId}</groupId>
       <artifactId>rococoa-core</artifactId>
       <version>${rococoa.version}</version>
+      <version>0.8.13</version>
     </dependency>
     <dependency>
       <groupId>${tritonus.groupId}</groupId>

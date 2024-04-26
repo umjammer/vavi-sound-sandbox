@@ -64,7 +64,7 @@ Debug.println("player: " + player);
 Debug.println("prepareToPlay: " + r);
         r = player.play();
 Debug.println("play: " + r);
-//        player.setVolume(.5f); // TODO doesn't work
+        player.setVolume((float) volume);
         long duration = (long) Math.ceil((float) player.duration() * 1000);
 Debug.println("duration: " + duration);
         try {
@@ -126,7 +126,7 @@ Debug.println("LINE: " + event.getType());
         AudioInputStream stream = new AudioInputStream(new BufferedInputStream(Files.newInputStream(path)), RococoaClip.info.getFormats()[0], Files.size(path));
         clip.open(stream);
 try {
-        volume(clip, volume); // this clip doesn't support volume
+        volume(clip, volume);
 } catch (Exception e) {
  Debug.println("volume: " + e);
 }
