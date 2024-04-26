@@ -62,5 +62,3 @@ public class IttakeMfiDeviceProvider extends MfiDeviceProvider {
         throw new IllegalArgumentException(info + " is not supported");
     }
 }
-
-/* */

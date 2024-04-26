@@ -58,5 +58,3 @@ public abstract class ChunkInputStream extends DataInputStream {
     private String chunkTag;
     private byte[] chunkDataBytes;
 }
-
-/* */

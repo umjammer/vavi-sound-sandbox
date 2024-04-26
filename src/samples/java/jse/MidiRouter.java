@@ -207,5 +207,3 @@ public class MidiRouter {
         System.exit(1);
     }
 }
-
-/* */

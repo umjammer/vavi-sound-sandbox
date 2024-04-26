@@ -6,7 +6,10 @@
 
 package vavix.rococoa.avfoundation;
 
+import com.sun.jna.Pointer;
 import org.rococoa.ID;
+import org.rococoa.ObjCBlock;
+import org.rococoa.ObjCBlocks.BlockLiteral;
 import org.rococoa.ObjCClass;
 import org.rococoa.ObjCObject;
 import org.rococoa.Rococoa;
@@ -82,5 +85,9 @@ public abstract class AVSpeechSynthesizer extends NSObject {
         setDelegate(delegateProxy.id());
     }
 
-    public abstract void writeUtterance_toBufferCallback(AVSpeechUtterance utterance, ID bufferCallback);
+    public interface AVSpeechSynthesizerBufferCallback extends ObjCBlock {
+        void apply(BlockLiteral literal, ID /* AVAudioBuffer */ buffer);
+    }
+
+    public abstract void writeUtterance_toBufferCallback(AVSpeechUtterance utterance, BlockLiteral /* ^AVSpeechSynthesizerBufferCallback */ bufferCallback);
 }

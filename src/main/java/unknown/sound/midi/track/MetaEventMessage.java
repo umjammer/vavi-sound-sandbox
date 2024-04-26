@@ -41,5 +41,3 @@ public abstract class MetaEventMessage extends TrackMessage {
     protected MetaEventMessage() {
     }
 }
-
-/* */

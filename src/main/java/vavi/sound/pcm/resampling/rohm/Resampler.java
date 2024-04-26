@@ -14,18 +14,18 @@ package vavi.sound.pcm.resampling.rohm;
  */
 public class Resampler {
 
-    /** 1 サンプル当たりの bit 数 */
+    /** number of bits per sample */
     private final int nBitPerSample = 16;
 
-    /** 周波数. */
+    /** frequency */
     private final float nFreq;
     /** */
     private final float nSampleFreq;
 
     /**
      *
-     * @param nSampleFreq PCM データサンプリング周波数. (in)
-     * @param nAdpcmFreq エンコード後の ADPCM データのサンプリング周波数. (out)
+     * @param nSampleFreq PCM data sampling frequency (in)
+     * @param nAdpcmFreq sampling frequency of ADPCM data after encoding. (out)
      */
     Resampler(float nSampleFreq, float nAdpcmFreq) {
         this.nFreq = nAdpcmFreq;
@@ -39,36 +39,36 @@ public class Resampler {
      */
     int[] resample(int[] pbyPcmData) {
 
-        // 1サンプルのバイト数.
+        // number of bytes per sample
 //        int nBytes = nBitPerSample / 8;
 
-        // 周波数変換後のサンプル数.
+        // number of samples after frequency conversion.
         int nNewSampleNum = (int) (pbyPcmData.length * (nFreq / nSampleFreq));
 //Debug.println(nFreq + ", "+  nSampleFreq + ", " + pbyPcmData.length + ", " + nNewSampleNum);
 
-        // 領域確保.
+        // memory allocation
         int[] pbyNewPcm = new int[nNewSampleNum];
 
-        // 周波数変換.
+        // frequency conversion.
         for (int i = 0; i < nNewSampleNum; i++) {
 
-            // インデックス値.
+            // index value
             double dIndex = (double) i * pbyPcmData.length / nNewSampleNum;
             int nIndex1 = (int) dIndex;
             int nIndex2 = Math.min((nIndex1 + 1), pbyPcmData.length - 1);
 
-            // 乗値算出.
+            // multiplier calculation.
             double dRat1 = dIndex - nIndex1;
             double dRat2 = 1.0 - dRat1;
 
-            // 8bit.
+            // 8bit
             if (nBitPerSample == 8) {
 
-                // インデックス1と2の値.
+                // values of index 1 and 2
                 int c1 = pbyPcmData[nIndex1] - 128;
                 int c2 = pbyPcmData[nIndex2] - 128;
 
-                // 値算出.
+                // value calculation
                 double dRes = dRat1 * c2 + dRat2 * c1;
                 if (dRes < -128) {
                     dRes = -128;
@@ -77,7 +77,7 @@ public class Resampler {
                     dRes = 127;
                 }
 
-                // 値代入.
+                // value assignment
                 short n = (short) dRes;
                 n = (short) (n + 128);
 
@@ -88,11 +88,11 @@ public class Resampler {
             else {
 
 //Debug.println(nIndex1 + ", "+  nIndex2);
-                // インデックス1と2の値.
+                // values of index 1 and 2
                 int n1 = pbyPcmData[nIndex1];
                 int n2 = pbyPcmData[nIndex2];
 
-                // 値算出.
+                // value calculation
                 double dRes = dRat1 * n2 + dRat2 * n1;
                 if (dRes < -32768) {
                     dRes = -32768;
@@ -101,7 +101,7 @@ public class Resampler {
                     dRes = 32767;
                 }
 
-                // 値代入.
+                // value assignment
                 short n = (short) dRes;
 
                 pbyNewPcm[i] = n;
@@ -111,5 +111,3 @@ public class Resampler {
         return pbyNewPcm;
     }
 }
-
-/* */

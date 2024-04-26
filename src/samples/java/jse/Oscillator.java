@@ -173,5 +173,3 @@ public class Oscillator extends AudioInputStream {
         return nReturn;
     }
 }
-
-/* */

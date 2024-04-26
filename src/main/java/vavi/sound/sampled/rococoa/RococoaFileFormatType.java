@@ -32,5 +32,3 @@ public class RococoaFileFormatType extends AudioFileFormat.Type {
         super(name, extension);
     }
 }
-
-/* */

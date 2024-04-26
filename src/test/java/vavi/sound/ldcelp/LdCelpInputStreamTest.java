@@ -46,5 +46,3 @@ class LdCelpInputStreamTest {
         assertEquals(Checksum.getChecksum(new File(correctFile2)), Checksum.getChecksum(new File(outFile2)));
     }
 }
-
-/* */

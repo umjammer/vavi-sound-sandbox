@@ -128,5 +128,3 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
         }
     }
 }
-
-/* */

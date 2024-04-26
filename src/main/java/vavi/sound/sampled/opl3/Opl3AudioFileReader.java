@@ -12,8 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.NoSuchElementException;
-
+import java.util.logging.Level;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -59,8 +58,8 @@ public class Opl3AudioFileReader extends AudioFileReader {
     /**
      * Return the AudioFileFormat from the given InputStream. Implementation.
      *
-     * @param bitStream
-     * @param mediaLength
+     * @param bitStream input to decode
+     * @param mediaLength unused
      * @return an AudioInputStream object based on the audio file data contained
      * in the input stream.
      * @throws UnsupportedAudioFileException if the File does not point to a
@@ -68,12 +67,13 @@ public class Opl3AudioFileReader extends AudioFileReader {
      * @throws IOException                   if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
-        Debug.println("exner: available: " + bitStream.available());
+Debug.println(Level.FINE, "enter: available: " + bitStream.available());
         AudioFormat.Encoding encoding;
         try {
             encoding = FileType.getEncoding(bitStream);
-        } catch (NoSuchElementException e) {
-            Debug.println("error exit: available: " + bitStream.available());
+        } catch (Exception e) {
+Debug.println(Level.FINER, "error exit: available: " + bitStream.available());
+Debug.printStackTrace(Level.FINEST, e);
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException().initCause(e);
         }
         AudioFileFormat.Type type = FileType.getType(encoding);
@@ -95,7 +95,7 @@ public class Opl3AudioFileReader extends AudioFileReader {
 
     @Override
     public AudioInputStream getAudioInputStream(URL url) throws UnsupportedAudioFileException, IOException {
-        InputStream inputStream = url.openStream();
+        InputStream inputStream = new BufferedInputStream(url.openStream());
         try {
             return getAudioInputStream(inputStream);
         } catch (UnsupportedAudioFileException | IOException e) {
@@ -115,7 +115,7 @@ public class Opl3AudioFileReader extends AudioFileReader {
      *
      * @param inputStream the input stream from which the AudioInputStream
      *                    should be constructed.
-     * @param mediaLength
+     * @param mediaLength unused
      * @return an AudioInputStream object based on the audio file data contained
      * in the input stream.
      * @throws UnsupportedAudioFileException if the File does not point to a

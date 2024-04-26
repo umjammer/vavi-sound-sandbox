@@ -13,5 +13,3 @@ public class UnknownMessage extends Message {
         super(dataBytes);
     }
 }
-
-/* */

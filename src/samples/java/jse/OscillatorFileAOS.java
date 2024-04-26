@@ -230,5 +230,3 @@ public class OscillatorFileAOS {
         System.exit(1);
     }
 }
-
-/* */

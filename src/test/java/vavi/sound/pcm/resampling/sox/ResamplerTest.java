@@ -252,5 +252,3 @@ Debug.println(Level.FINE, "line.write: " + l);
         sourceAis.close();
     }
 }
-
-/* */

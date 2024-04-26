@@ -86,5 +86,3 @@ public interface AudioToolbox extends com.sun.jna.Library {
         return Foundation.toString(outName.getValue());
     }
 }
-
-/* */

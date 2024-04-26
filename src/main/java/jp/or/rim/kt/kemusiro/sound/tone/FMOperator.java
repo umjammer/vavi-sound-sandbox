@@ -5,7 +5,7 @@
 package jp.or.rim.kt.kemusiro.sound.tone;
 
 /**
- * FM音源のオペレータを表すクラス。
+ * A class representing an FM sound source operator.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.1 $

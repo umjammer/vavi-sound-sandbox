@@ -93,7 +93,7 @@ class AdvancedSierraFile extends SierraFile {
             player.tracks[t].on = false;
         }
 
-        logger.info("next adv sierra section:");
+logger.info("next adv sierra section:");
         player.pos = sierraPos;
 
         int t = 0;
@@ -105,7 +105,7 @@ class AdvancedSierraFile extends SierraFile {
             player.tracks[t].tend = player.flen;
             player.tracks[t].iwait = 0;
             player.tracks[t].pv = 0;
-            logger.info(String.format("track %d starts at %x", t, player.tracks[t].spos));
+logger.info(String.format("track %d starts at %x", t, player.tracks[t].spos));
             t++;
             player.takeBE(2);
         }
@@ -148,5 +148,3 @@ class AdvancedSierraFile extends SierraFile {
         context.adlib().style = Adlib.SIERRA_STYLE | Adlib.MIDI_STYLE; // advanced sierra tunes use volume;
     }
 }
-
-/* */

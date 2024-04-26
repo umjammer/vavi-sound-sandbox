@@ -48,5 +48,3 @@ public class EventList implements Block {
         return block;
     }
 }
-
-/* */

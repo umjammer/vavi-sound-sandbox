@@ -261,5 +261,3 @@ public class MidiInDump {
         t.printStackTrace();
     }
 }
-
-/* */

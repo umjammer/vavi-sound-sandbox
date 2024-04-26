@@ -128,5 +128,3 @@ public class AudioChannelPlayer {
     private static void handleSilence(int nDuration, AudioChannel channel) {
     }
 }
-
-/* */

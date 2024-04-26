@@ -84,13 +84,13 @@ class DroPlayer extends Opl3Player {
 
             return true;
         } catch (IOException e) {
-Debug.println(Level.WARNING, e);
+            logger.log(Level.WARNING, e.getMessage(), e);
             return false;
         } finally {
             try {
                 dis.reset();
             } catch (IOException e) {
-Debug.println(Level.SEVERE, e);
+                logger.fine(e.toString());
             }
         }
     }
@@ -114,11 +114,11 @@ Debug.println(Level.SEVERE, e);
         dis.readUnsignedByte();
         dis.readUnsignedByte();
 
-        logger.info("id: " +  ID);
-        logger.info("version: " + 1);
-        logger.info("mstotal: " + mstotal);
-        logger.info("length: " + length);
-        logger.info("oplType: " + opl3_mode);
+logger.fine("id: " +  ID);
+logger.fine("version: " + 1);
+logger.fine("mstotal: " + mstotal);
+logger.fine("length: " + length);
+logger.fine("oplType: " + opl3_mode);
 
         data = dis;
 

@@ -11,9 +11,11 @@ import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
+import vavi.util.Debug;
+
 
 /**
- * ストリー民具データを演奏する。
+ * Play streaming data.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.2 $
@@ -23,10 +25,10 @@ public class StreamingSoundPlayer extends SoundPlayer {
     private SourceDataLine line = null;
 
     /**
-     * 音声再生用のオブジェクトを生成する。
+     * Generate an object for audio playback.
      *
-     * @param rate  サンプリングレート
-     * @param depth サンプリングビット長
+     * @param rate  sampling rate
+     * @param depth sampling bit length
      */
     public StreamingSoundPlayer(int rate, int depth, LineListener listener) {
         format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
@@ -39,14 +41,14 @@ public class StreamingSoundPlayer extends SoundPlayer {
             }
             line.open(format);
         } catch (LineUnavailableException e) {
-            e.printStackTrace();
+            Debug.printStackTrace(e);
         }
     }
 
     /**
-     * ラインを返す。
+     * Returns line.
      *
-     * @return ライン
+     * @return line
      */
     @Override
     public DataLine getLine() {
@@ -54,9 +56,9 @@ public class StreamingSoundPlayer extends SoundPlayer {
     }
 
     /**
-     * ストリームにデータを出力する。
+     * Outputs data to a stream.
      *
-     * @param buffer 再生するデータ
+     * @param buffer data to play
      */
     public void write(byte[] buffer, int offset, int length) {
         line.write(buffer, offset, length);

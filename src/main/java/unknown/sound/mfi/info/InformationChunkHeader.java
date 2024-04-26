@@ -73,5 +73,3 @@ public class InformationChunkHeader extends Message {
         setTrackCount(count);
     }
 }
-
-/* */

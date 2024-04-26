@@ -17,6 +17,7 @@ import unknown.sound.midi.MIDIInputStream;
 import unknown.sound.midi.header.HeaderChunkInputStream;
 import unknown.sound.midi.header.HeaderMessage;
 import unknown.sound.midi.track.TrackChunkInputStream;
+import vavi.util.Debug;
 
 
 /** */
@@ -35,11 +36,9 @@ public class MIDIToMLDInputStream {
             do {
                 new MIDITrackChunkToMLDTrackChunk(this, (TrackChunkInputStream) getStream().readMIDIChunk());
             } while (true);
-        } catch (EOFException e) {
-        } catch (IOException e) {
-            System.out.println("IOException 発生");
-        } catch (InvalidMidiDataException e) {
-            System.out.println("MIDIFormat例外発生 ");
+        } catch (EOFException ignore) {
+        } catch (IOException | InvalidMidiDataException e) {
+            Debug.printStackTrace(e);
         }
         createHeaderChunk();
     }
@@ -221,5 +220,3 @@ public class MIDIToMLDInputStream {
         63, 63, 63, 63
     };
 }
-
-/* */

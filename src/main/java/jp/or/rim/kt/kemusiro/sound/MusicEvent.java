@@ -5,7 +5,7 @@
 package jp.or.rim.kt.kemusiro.sound;
 
 /**
- * イベントを表すクラス。
+ * A class that represents an event.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.1.1.1 $
@@ -25,18 +25,18 @@ public abstract class MusicEvent implements Comparable<MusicEvent> {
     }
 
     /**
-     * ティック数を得る。
+     * Get the number of ticks.
      *
-     * @return ティック数
+     * @return the number of ticks.
      */
     public int getTick() {
         return tick;
     }
 
     /**
-     * チャンネル番号を得る。
+     * Get channel number.
      *
-     * @return チャネル番号
+     * @return channel number
      */
     public int getChannel() {
         return channel;

@@ -1,7 +1,11 @@
-laoe のリサンプリング関連のクラスを提供します．
+# vaiv.sound.pcm.resampling.laoe
 
-http://www.oli4.ch/laoe/home.html
+Provides laoe's resampling related classes.
+
+## References
+
+ * [laoe](http://www.oli4.ch/laoe/home.html)
 
 ## TODO
 
- * 完成させる
+ * complete

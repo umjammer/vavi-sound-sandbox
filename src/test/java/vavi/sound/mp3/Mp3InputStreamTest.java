@@ -41,7 +41,6 @@ class Mp3InputStreamTest {
     static final String outFile = "tmp/out.vavi.pcm";
     static final String correctFile = "tmp/out.pcm";
 
-    /** */
     @Test
     void test1() throws Exception {
         main(new String[] { inFile, outFile });
@@ -88,9 +87,5 @@ Debug.println("available: " + is.available());
         line.close();
 
         is.close();
-
-        System.exit(0);
     }
 }
-
-/* */

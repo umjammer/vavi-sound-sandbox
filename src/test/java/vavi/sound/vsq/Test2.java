@@ -45,11 +45,11 @@ public class Test2 {
         sequencer.setSequence(sequence);
         sequencer.addMetaEventListener(message -> {
             switch (MetaEvent.valueOf(message.getType())) {
-            case META_MACHINE_DEPEND: // シーケンサ固有のメタイベント
+            case META_MACHINE_DEPEND: // sequencer-specific meta-events
                 byte[] data = message.getData();
 Debug.printf("%02X, %s\n", data[0], StringUtil.getDump(data));
                 break;
-            case META_TEXT_EVENT:  // テキスト・イベント 127 bytes
+            case META_TEXT_EVENT:  // text event 127 bytes
 //Debug.println(new String(meta.getData()));
                 String text = new String(message.getData(), Charset.forName("MS932"));
                 if (!text.startsWith("DM")) {
@@ -70,5 +70,3 @@ Debug.println(parts[0] + ":" + parts[1] + ":" + message.getData().length/* + "\n
         sequencer.close();
     }
 }
-
-/* */

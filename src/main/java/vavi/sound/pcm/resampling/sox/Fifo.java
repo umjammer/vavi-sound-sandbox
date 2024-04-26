@@ -125,5 +125,3 @@ Debug.printf("fifo: length: %d, start: %d, end: %d, point: %d, n: %08x", allocat
         clear();
     }
 }
-
-/* */

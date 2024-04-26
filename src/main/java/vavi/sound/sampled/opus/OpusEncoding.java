@@ -30,5 +30,3 @@ public class OpusEncoding extends AudioFormat.Encoding {
         super(name);
     }
 }
-
-/* */

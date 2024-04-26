@@ -210,5 +210,3 @@ public class OscillatorFile {
         System.out.println(strMessage);
     }
 }
-
-/* */

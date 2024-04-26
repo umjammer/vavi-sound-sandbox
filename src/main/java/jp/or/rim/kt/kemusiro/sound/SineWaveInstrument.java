@@ -10,7 +10,7 @@ import jp.or.rim.kt.kemusiro.sound.tone.SineWave;
 
 
 /**
- * sin波を表すクラス。
+ * A class representing a sine wave.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.1 $

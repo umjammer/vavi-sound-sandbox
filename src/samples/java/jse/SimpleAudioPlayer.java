@@ -217,5 +217,3 @@ public class SimpleAudioPlayer {
         System.exit(0);
     }
 }
-
-/* */

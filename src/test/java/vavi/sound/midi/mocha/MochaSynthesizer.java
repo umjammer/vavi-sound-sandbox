@@ -7,14 +7,15 @@
 package vavi.sound.midi.mocha;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
@@ -34,10 +35,9 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
-import vavi.util.Debug;
-
 import mocha.sound.Instrumental;
 import mocha.sound.TimeLine;
+import vavi.util.Debug;
 
 
 /**
@@ -50,9 +50,25 @@ import mocha.sound.TimeLine;
  */
 public class MochaSynthesizer implements Synthesizer {
 
+    static {
+        try {
+            try (InputStream is = MochaSynthesizer.class.getResourceAsStream("/META-INF/maven/vavi/vavi-sound-sandbox/pom.properties")) {
+                if (is != null) {
+                    Properties props = new Properties();
+                    props.load(is);
+                    version = props.getProperty("version", "undefined in pom.properties");
+                } else {
+                    version = System.getProperty("vavi.test.version", "undefined");
+                }
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
     static Logger logger = Logger.getLogger(MochaSynthesizer.class.getName());
 
-    private static final String version = "0.0.1.";
+    private static final String version;
 
     /** the device information */
     protected static final MidiDevice.Info info =
@@ -68,7 +84,7 @@ public class MochaSynthesizer implements Synthesizer {
 
     private final VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
 
-    private long timestump;
+    private long timestamp;
 
     private boolean isOpen;
 
@@ -144,7 +160,7 @@ Debug.println(line.getClass().getName());
             throw (MidiUnavailableException) new MidiUnavailableException().initCause(e);
         }
 
-        timestump = 0;
+        timestamp = 0;
     }
 
     /** */
@@ -160,8 +176,8 @@ Debug.println(line.getClass().getName());
                     timeline.clear();
                 }
 
-                long msec = System.currentTimeMillis() - timestump;
-                timestump = System.currentTimeMillis();
+                long msec = System.currentTimeMillis() - timestamp;
+                timestamp = System.currentTimeMillis();
                 msec = msec > 100 ? 100 : msec;
                 int l = mocha.read(buf, 0, 4 * (int) (mocha.getFormat().getSampleRate() * msec / 1000.0));
 //Debug.printf("adlib: %d", l);
@@ -190,7 +206,7 @@ Debug.println(line.getClass().getName());
 
     @Override
     public long getMicrosecondPosition() {
-        return timestump;
+        return timestamp;
     }
 
     @Override
@@ -538,5 +554,3 @@ Debug.printf(Level.FINE, "sysex: %02x %02x %02x", data[1], data[2], data[3]);
         }
     }
 }
-
-/* */

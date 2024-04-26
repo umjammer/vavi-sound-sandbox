@@ -14,23 +14,21 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
-
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.BooleanControl;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.Control;
 import javax.sound.sampled.Control.Type;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 
+import org.rococoa.ID;
 import vavi.util.Debug;
-
 import vavix.rococoa.avfoundation.AVAudioFormat;
 import vavix.rococoa.avfoundation.AVAudioPlayer;
 
@@ -59,13 +57,154 @@ public class RococoaClip implements Clip {
         listeners.forEach(l -> l.update(event));
     }
 
+    private Control[] controls;
+
     private AVAudioPlayer player;
 
     private int bufferSize;
 
     private AudioInputStream stream;
 
-    private final ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
+    public RococoaClip() {
+        controls = new Control[] {gainControl, panControl};
+    }
+
+//#region Control
+
+    protected final class Gain extends FloatControl {
+
+        static float linearToDB(float linear) {
+
+            return (float) (Math.log(((linear == 0.0) ? 0.0001 : linear)) / Math.log(10.0) * 20.0);
+        }
+
+        static float dBToLinear(float dB) {
+
+            return (float) Math.pow(10.0, dB / 20.0);
+        }
+
+        private float linearGain = 1.0f;
+
+        private Gain() {
+
+            super(FloatControl.Type.MASTER_GAIN,
+                    linearToDB(0.0f),
+                    linearToDB(2.0f),
+                    Math.abs(linearToDB(1.0f) - linearToDB(0.0f)) / 128.0f,
+                    -1,
+                    0.0f,
+                    "dB", "Minimum", "", "Maximum");
+        }
+
+        @Override
+        public void setValue(float newValue) {
+            // adjust value within range ?? spec says IllegalArgumentException
+            //newValue = Math.min(newValue, getMaximum());
+            //newValue = Math.max(newValue, getMinimum());
+
+            float newLinearGain = dBToLinear(newValue);
+            super.setValue(linearToDB(newLinearGain));
+            // if no exception, commit to our new gain
+            linearGain = newLinearGain;
+            calcVolume();
+Debug.println("volume: " + leftGain);
+            player.setVolume(leftGain);
+        }
+
+        float getLinearGain() {
+            return linearGain;
+        }
+    }
+
+    private final class Mute extends BooleanControl {
+
+        private Mute() {
+            super(BooleanControl.Type.MUTE, false, "True", "False");
+        }
+
+        @Override
+        public void setValue(boolean newValue) {
+            super.setValue(newValue);
+            calcVolume();
+            player.setVolume(leftGain);
+        }
+    }
+
+    private final class Balance extends FloatControl {
+
+        private Balance() {
+            super(FloatControl.Type.BALANCE, -1.0f, 1.0f, (1.0f / 128.0f), -1, 0.0f,
+                    "", "Left", "Center", "Right");
+        }
+
+        @Override
+        public void setValue(float newValue) {
+            setValueImpl(newValue);
+            panControl.setValueImpl(newValue);
+            calcVolume();
+            player.setVolume(leftGain);
+        }
+
+        void setValueImpl(float newValue) {
+            super.setValue(newValue);
+        }
+
+    }
+
+    private final class Pan extends FloatControl {
+
+        private Pan() {
+            super(FloatControl.Type.PAN, -1.0f, 1.0f, (1.0f / 128.0f), -1, 0.0f,
+                    "", "Left", "Center", "Right");
+        }
+
+        @Override
+        public void setValue(float newValue) {
+            setValueImpl(newValue);
+            balanceControl.setValueImpl(newValue);
+            calcVolume();
+            player.setPan(newValue);
+        }
+        void setValueImpl(float newValue) {
+            super.setValue(newValue);
+        }
+    }
+
+    private void calcVolume() {
+        if (getFormat() == null) {
+            return;
+        }
+        if (muteControl.getValue()) {
+            leftGain = 0.0f;
+            rightGain = 0.0f;
+            return;
+        }
+        float gain = gainControl.getLinearGain();
+        if (getFormat().getChannels() == 1) {
+            // trivial case: only use gain
+            leftGain = gain;
+            rightGain = gain;
+        } else {
+            // need to combine gain and balance
+            float bal = balanceControl.getValue();
+            if (bal < 0.0f) {
+                // left
+                leftGain = gain;
+                rightGain = gain * (bal + 1.0f);
+            } else {
+                leftGain = gain * (1.0f - bal);
+                rightGain = gain;
+            }
+        }
+    }
+
+    private Gain gainControl = new Gain();
+    private final Mute muteControl = new Mute();
+    private final Balance balanceControl = new Balance();
+    private final Pan panControl = new Pan();
+    private float leftGain, rightGain;
+
+//#endregion Control
 
     @Override
     public void drain() {
@@ -78,30 +217,13 @@ public class RococoaClip implements Clip {
     @Override
     public void start() {
         boolean r = player.play();
-        if (r) {
-            service.scheduleAtFixedRate(this::check, 100, 100, TimeUnit.MILLISECONDS);
-            fireUpdate(new LineEvent(this, LineEvent.Type.START, 0));
-        }
-        Debug.println("play: " + r);
-    }
-
-    // TODO use AVFoudation's delegate
-    private void check() {
-        if (!player.isPlaying()) {
-            Debug.println("stop detected");
-            stopInternal();
-        }
-    }
-
-    private void stopInternal() {
-        fireUpdate(new LineEvent(this, LineEvent.Type.STOP, 0));
-        service.shutdown();
+        fireUpdate(new LineEvent(this, LineEvent.Type.START, 0));
+Debug.println("play: " + r);
     }
 
     @Override
     public void stop() {
         player.stop();
-        stopInternal();
     }
 
     @Override
@@ -117,7 +239,7 @@ public class RococoaClip implements Clip {
     @Override
     public AudioFormat getFormat() {
         AVAudioFormat format = player.format();
-        Debug.println(format + ", " + format.commonFormat());
+Debug.println(format + ", " + format.commonFormat());
         return switch (format.commonFormat()) {
             default -> stream.getFormat();
             case AVAudioFormat.PCMFormatFloat32 -> new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
@@ -172,7 +294,7 @@ public class RococoaClip implements Clip {
 
     @Override
     public void open() throws LineUnavailableException {
-        Debug.println(Level.WARNING, "use #open(AudioInputStream)");
+Debug.println(Level.WARNING, "use #open(AudioInputStream)");
     }
 
     @Override
@@ -195,15 +317,34 @@ public class RococoaClip implements Clip {
     }
 
     @Override
-    public boolean isControlSupported(Type control) {
-        // TODO Auto-generated method stub
+    public boolean isControlSupported(Type controlType) {
+        // protect against a NullPointerException
+        if (controlType == null) {
+            return false;
+        }
+
+        for (Control control : controls) {
+            if (controlType == control.getType()) {
+                return true;
+            }
+        }
+
         return false;
     }
 
     @Override
-    public Control getControl(Type control) {
-        // TODO Auto-generated method stub
-        return null;
+    public Control getControl(Type controlType) {
+        // protect against a NullPointerException
+        if (controlType != null) {
+
+            for (Control control : controls) {
+                if (controlType == control.getType()) {
+                    return control;
+                }
+            }
+        }
+
+        throw new IllegalArgumentException("Unsupported control type: " + controlType);
     }
 
     @Override
@@ -236,14 +377,33 @@ public class RococoaClip implements Clip {
 
         player = AVAudioPlayer.init(file.toUri());
         // TODO doesn't work
-//        player.setDelegate(new AVAudioPlayer.Delegate() {
-//            @Override
-//            public void audioPlayerDidFinishPlaying_successfully(ID player, boolean flag) {
-//                stop();
-//            }
-//        });
+        player.setDelegate(new AVAudioPlayer.AVAudioPlayerDelegate() {
+            @Override public void audioPlayerDidFinishPlaying_successfully(ID player, boolean flag) {
+                fireUpdate(new LineEvent(RococoaClip.this, LineEvent.Type.STOP, 0));
+            }
+
+            @Override public void audioPlayerDecodeErrorDidOccur_error(ID player, ID error) {
+
+            }
+
+            @Override public void audioPlayerBeginInterruption(ID player) {
+
+            }
+
+            @Override public void audioPlayerEndInterruption(ID player) {
+
+            }
+
+            @Override public void audioPlayerEndInterruption_withOptions(ID player, long flags) {
+
+            }
+
+            @Override public void audioPlayerEndInterruption_withFlags(ID player, long flags) {
+
+            }
+        });
         fireUpdate(new LineEvent(this, LineEvent.Type.OPEN, 0));
-        Debug.println("player: " + player);
+Debug.println("player: " + player);
     }
 
     @Override
@@ -299,5 +459,3 @@ public class RococoaClip implements Clip {
         return player.volume();
     }
 }
-
-/* */

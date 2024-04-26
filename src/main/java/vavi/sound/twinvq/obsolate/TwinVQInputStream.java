@@ -1,33 +1,21 @@
 /*
- * Copyright (c) 2007 by Naohide Sano, All rights reserved.
+ * Copyright (c) 2024 by Naohide Sano, All rights reserved.
  *
  * Programmed by Naohide Sano
  */
 
-package vavi.sound.twinvq;
+package vavi.sound.twinvq.obsolate;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.nio.ByteOrder;
 
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineEvent;
-import javax.sound.sampled.SourceDataLine;
-
 import vavi.util.Debug;
-
-import static vavi.sound.SoundUtil.volume;
 
 
 /**
@@ -38,7 +26,7 @@ import static vavi.sound.SoundUtil.volume;
  */
 public class TwinVQInputStream extends FilterInputStream {
 
-    /** このクラスで取得するストリームのバイトオーダー */
+    /** byte order of the stream obtained with this class */
     private final ByteOrder byteOrder;
 
     /**
@@ -188,5 +176,3 @@ e.printStackTrace(System.err);
         return i;
     }
 }
-
-/* */

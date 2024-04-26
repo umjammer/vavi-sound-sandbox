@@ -2,7 +2,7 @@ package unknown.sound.mfi.track;
 
 
 /**
- * 演奏位置情報 (キューポイント)
+ * Performance position information (cue point)
  * delta, 0xff, 0xd0,
  */
 public class TrackBeginningMessage extends SystemMessage {

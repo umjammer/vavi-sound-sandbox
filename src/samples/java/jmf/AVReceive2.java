@@ -503,5 +503,3 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
     }
 }
 
-/* */
-

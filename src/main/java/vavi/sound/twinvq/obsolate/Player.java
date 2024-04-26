@@ -1,11 +1,10 @@
 /*
- * Copyright (C) 2000 Pawel Garbacz <pgarbacz@poland.com>
- * TwinVQ Decoding Lib by NTT Labs
- * 
- * www.dreamplayer.prv.pl
+ * Copyright (c) 2024 by Naohide Sano, All rights reserved.
+ *
+ * Programmed by Naohide Sano
  */
 
-package vavi.sound.twinvq;
+package vavi.sound.twinvq.obsolate;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -15,8 +14,8 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import vavi.sound.twinvq.TwinVQ.HeaderInfo;
-import vavi.sound.twinvq.TwinVQ.Index;
+import vavi.sound.twinvq.obsolate.TwinVQ.HeaderInfo;
+import vavi.sound.twinvq.obsolate.TwinVQ.Index;
 
 
 /**
@@ -205,5 +204,3 @@ class Player {
         return 0;
     }
 }
-
-/* */

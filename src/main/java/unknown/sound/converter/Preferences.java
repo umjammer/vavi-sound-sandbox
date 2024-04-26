@@ -38,5 +38,3 @@ public class Preferences {
              MIDIToMLDInputStream.DEFAULT_SOUND);
     }
 }
-
-/* */

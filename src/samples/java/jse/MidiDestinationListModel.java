@@ -74,5 +74,3 @@ public class MidiDestinationListModel extends AbstractListModel {
         }
     }
 }
-
-/* */

@@ -10,7 +10,7 @@ import javax.swing.JFrame;
 
 
 /**
- * MMLを演奏する。
+ * Play MML.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision$

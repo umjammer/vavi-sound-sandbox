@@ -2,7 +2,7 @@ package unknown.sound.mfi.track;
 
 
 /**
- * ボリューム変更
+ * Volume change.
  * delta, 0xff, 0xe2,
  */
 public class SoundMessage extends SystemMessage {

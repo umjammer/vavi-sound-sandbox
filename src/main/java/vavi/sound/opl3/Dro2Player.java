@@ -76,13 +76,13 @@ class Dro2Player extends Opl3Player {
 
             return true;
         } catch (IOException e) {
-Debug.println(Level.WARNING, e);
+            logger.log(Level.WARNING, e.getMessage(), e);
             return false;
         } finally {
             try {
                 dis.reset();
             } catch (IOException e) {
-Debug.println(Level.SEVERE, e);
+                logger.fine(e.toString());
             }
         }
     }
@@ -121,13 +121,13 @@ Debug.println(Level.SEVERE, e);
             toReg[i] = dis.readUnsignedByte();
         }
 
-        logger.info("id: " + DroPlayer.ID);
-        logger.info("version: " + 2);
-        logger.info("length: " + length);
-        logger.info("mstotal: " + msTotal);
-        logger.info("opl3Type: " + opl3Type);
-        logger.info("delay256: " + delay256);
-        logger.info("delayShift8: " + delayShift8);
+logger.fine("id: " + DroPlayer.ID);
+logger.fine("version: " + 2);
+logger.fine("length: " + length);
+logger.fine("mstotal: " + msTotal);
+logger.fine("opl3Type: " + opl3Type);
+logger.fine("delay256: " + delay256);
+logger.fine("delayShift8: " + delayShift8);
 
         data = dis;
 

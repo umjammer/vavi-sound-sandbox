@@ -68,18 +68,18 @@ public class RococoaFormatConversionProvider extends FormatConversionProvider {
                 } else if (sourceFormat.getEncoding() instanceof RcococaEncoding && targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
                     return new Rococoa2PcmAudioInputStream(sourceStream, targetFormat, -1);
                 } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof RcococaEncoding) {
-                    Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
                     throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 } else {
-                    Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
                     throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 }
             } else {
-                Debug.println("target format not found");
+Debug.println("target format not found");
                 throw new IllegalArgumentException("target format not found");
             }
         } else {
-            Debug.println("conversion not supported");
+Debug.println("conversion not supported");
             throw new IllegalArgumentException("conversion not supported");
         }
     }
@@ -96,21 +96,19 @@ public class RococoaFormatConversionProvider extends FormatConversionProvider {
                         targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
                     return new Rococoa2PcmAudioInputStream(sourceStream, targetFormat, -1);
                 } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof RcococaEncoding) {
-                    Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
                     throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 } else {
-                    Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
                     throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 }
             } else {
-                Debug.println("target format not found");
+Debug.println("target format not found");
                 throw new IllegalArgumentException("target format not found");
             }
         } else {
-            Debug.println("conversion not supported");
+Debug.println("conversion not supported");
             throw new IllegalArgumentException("conversion not supported");
         }
     }
 }
-
-/* */

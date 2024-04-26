@@ -32,5 +32,3 @@ public class OpusFileFormatType extends AudioFileFormat.Type {
         super(name, extension);
     }
 }
-
-/* */

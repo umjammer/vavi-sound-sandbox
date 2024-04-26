@@ -161,5 +161,3 @@ public class AudioChannel extends Thread {
         // b) stop the Thread
     }
 }
-
-/* */

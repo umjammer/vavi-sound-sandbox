@@ -23,13 +23,12 @@ package vavi.sound.opl3;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-
+import java.util.logging.Logger;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 
 import vavi.sound.sampled.opl3.Opl3Encoding;
 import vavi.sound.sampled.opl3.Opl3FileFormatType;
-import vavi.util.Debug;
 
 
 /**
@@ -38,6 +37,8 @@ import vavi.util.Debug;
  * @author Simon Peter <dn.tlp@gmx.net>
  */
 public abstract class Opl3Player {
+
+    private static final Logger logger = Logger.getLogger(Opl3Player.class.getName());
 
     /** TODO who defined 49700? */
     public static final AudioFormat opl3 = new AudioFormat(49700.0f, 16, 2, true, false);
@@ -56,7 +57,7 @@ public abstract class Opl3Player {
             this.player = player;
         }
         public static Opl3Player getPlayer(AudioFormat.Encoding encoding) {
-Debug.println("encoding: " + encoding);
+logger.fine("encoding: " + encoding);
             return Arrays.stream(values()).filter(e -> e.encoding == encoding).findFirst().get().player;
         }
         /** @param ext lower case w/o '.' */
@@ -86,7 +87,7 @@ Debug.println("encoding: " + encoding);
     public abstract void load(InputStream is) throws IOException;
 
     public byte[] read(int len) {
-//LOGGER.warning("Enter in read method");
+//logger.warning("Enter in read method");
 
         byte[] buf = new byte[len];
 
@@ -99,7 +100,7 @@ Debug.println("encoding: " + encoding);
             buf[i + 2] = (byte) (chB & 0xff);
             buf[i + 3] = (byte) (chB >> 8 & 0xff);
         }
-//LOGGER.info("read: " + len);
+//logger.info("read: " + len);
       return buf;
     }
 

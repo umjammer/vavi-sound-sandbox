@@ -972,7 +972,7 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
 //Debug.println("ix: " + ix);
         if (ix < 0) {
 Debug.println("decoder_done");
-            decoder_done = true; // TODO eof なのにフラグ立てるだけ？
+            decoder_done = true; // TODO even though it's eof, just flag it?
         }
 
         UPDATE(sf_coeff, SF_COEFF);
@@ -2142,5 +2142,3 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
         }
     }
 }
-
-/* */

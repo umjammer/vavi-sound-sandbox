@@ -9,7 +9,7 @@ import jp.or.rim.kt.kemusiro.sound.tone.WaveGeneratable;
 
 
 /**
- * 楽器を表すクラス。
+ * A class representing musical instruments.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.2 $
@@ -27,12 +27,11 @@ public abstract class Instrument {
     }
 
     /**
-     * 現在時刻の波形値を得る。波形の振幅は1.0に正規化される。
-     * 値を取得した後、あらかじめ設定しておいた時間幅だけ、現在時刻を
-     * 更新する。
+     * Obtain the waveform value at the current time. The amplitude of the waveform is normalized to 1.0.
+     * After obtaining the value, update the current time by the preset time range.
      *
-     * @param number 音番号(0-127)
-     * @return 波形値
+     * @param number note number (0-127)
+     * @return waveform value
      */
     public double getValue(int number) {
         double value = envelope.getValue() * wave.getValue(number, currentTime);
@@ -50,9 +49,9 @@ public abstract class Instrument {
     }
 
     /**
-     * 楽器の名前を得る。
+     * Get the name of the instrument.
      *
-     * @return 楽器名
+     * @return instrument name
      */
     public abstract String getName();
 }

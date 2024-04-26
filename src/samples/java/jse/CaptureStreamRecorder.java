@@ -172,5 +172,3 @@ public class CaptureStreamRecorder {
         System.exit(0);
     }
 }
-
-/* */

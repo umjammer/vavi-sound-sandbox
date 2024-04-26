@@ -5,7 +5,7 @@
 package jp.or.rim.kt.kemusiro.sound.tone;
 
 /**
- * sin波を表すクラス。
+ * A class representing a sine wave.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.1 $
@@ -28,11 +28,11 @@ public class SineWave implements WaveGeneratable {
     }
 
     /**
-     * 指定の時刻の値を得る。波形の振幅は1.0に正規化される。
+     * Get the value at the specified time. The amplitude of the waveform is normalized to 1.0.
      *
-     * @param number 音番号(0-127)
-     * @param time   時刻
-     * @return 波形値
+     * @param number note number (0-127)
+     * @param time   time
+     * @return waveform value
      */
     @Override
     public double getValue(int number, double time) {

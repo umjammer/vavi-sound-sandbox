@@ -135,5 +135,3 @@ public class DirectRecordingStream extends Thread {
         }
     }
 }
-
-/* */

@@ -5,7 +5,7 @@
 package jp.or.rim.kt.kemusiro.sound.tone;
 
 /**
- * ダミーエンベロープをあらわすクラス。
+ * A class that represents a dummy envelope.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.1 $

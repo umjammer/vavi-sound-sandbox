@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2007 by Naohide Sano, All rights reserved.
+ * Copyright (c) 2024 by Naohide Sano, All rights reserved.
  *
  * Programmed by Naohide Sano
  */
 
-package vavi.sound.twinvq;
+package vavi.sound.twinvq.obsolate;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -53,7 +53,7 @@ Debug.println("byteOrder: " + this.byteOrder);
     }
 
     /**
-     * 必ず呼んでね。
+     * Be sure to call me.
      */
     @Override
     public void close() throws IOException {
@@ -90,5 +90,3 @@ Debug.println(e);
         realOut.close();
     }
 }
-
-/* */

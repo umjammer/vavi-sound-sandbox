@@ -11,7 +11,7 @@ import vavi.util.Debug;
 
 
 /**
- * MMLを演奏する。
+ * Plays MML.
  *
  * TODO glitch at the end
  *
@@ -44,12 +44,12 @@ public class MMLPlayer implements Runnable {
     }
 
     /**
-     * MML文字列を解析して再生する。
-     * 演奏状態を監視し、演奏終了時にlockオブジェクトに対して
-     * notify()が発行される。
+     * Parse and play MML string.
+     * The performance status is monitored, and notify() is issued
+     * to the lock object when the performance ends.
      *
-     * @param mmls MML文字列
-     * @throws MMLException 不正なMML文字列か否か
+     * @param mmls MML string
+     * @throws MMLException invalid MML string
      * @see SoundPlayer
      */
     public void play(String[] mmls) throws MMLException, IOException {

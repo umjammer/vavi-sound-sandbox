@@ -338,5 +338,3 @@ public class Adlib {
         return len;
     }
 }
-
-/* */

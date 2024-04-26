@@ -74,5 +74,3 @@ class SierraFile extends MidiTypeFile {
         context.adlib().style = Adlib.SIERRA_STYLE | Adlib.MIDI_STYLE;
     }
 }
-
-/* */

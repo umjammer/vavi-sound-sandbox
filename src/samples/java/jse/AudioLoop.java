@@ -310,5 +310,3 @@ public class AudioLoop extends Thread {
         return null;
     }
 }
-
-/* */

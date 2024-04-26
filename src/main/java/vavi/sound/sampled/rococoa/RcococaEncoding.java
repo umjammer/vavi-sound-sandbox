@@ -29,5 +29,3 @@ public class RcococaEncoding extends AudioFormat.Encoding {
         super(name);
     }
 }
-
-/* */

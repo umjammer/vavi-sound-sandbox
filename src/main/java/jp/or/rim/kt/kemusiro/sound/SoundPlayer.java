@@ -8,10 +8,11 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.DataLine;
 
 import vavi.sound.SoundUtil;
+import vavi.util.Debug;
 
 
 /**
- * データを演奏する操作を提供する抽象クラス。
+ * Abstract class that provides operations to play with data.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.2 $
@@ -21,60 +22,61 @@ public abstract class SoundPlayer {
     protected AudioFormat format;
 
     /**
-     * サンプリングレートをfloatで返す。
+     * Returns the sampling rate as a float.
      *
-     * @return サンプリングレート
+     * @return sampling rate
      */
     public float getSampleRate() {
         return format.getSampleRate();
     }
 
     /**
-     * フレームサイズを返す。
+     * Returns the frame size.
      *
-     * @return フレームサイズ
+     * @return frame size
      */
     public int getFrameSize() {
         return format.getFrameSize();
     }
 
     /**
-     * ラインを返す。
+     * Returns line.
      *
-     * @return ライン
+     * @return line
      */
     public abstract DataLine getLine();
 
     /**
-     * 再生を開始する。
+     * Starts playing.
      */
     public void start() {
         getLine().start();
     }
 
     /**
-     * バッファにたまっているデータを掃き出す。
+     * Flush out data accumulated in the buffer.
      */
     public void drain() {
         getLine().drain();
     }
 
     /**
-     * 再生を終了する。
+     * Ends playback.
      */
     public void stop() {
         getLine().stop();
     }
 
     /**
-     * ラインを閉じる。
+     * Closes the line.
      */
     public void close() {
         getLine().close();
     }
 
-    /** change volume */
+    /** Changes volume */
     public void volume(float gain) {
+Debug.println("volume: " + gain + ", " + getClass()); // works, but not so different
         SoundUtil.volume(getLine(), gain);
     }
 }

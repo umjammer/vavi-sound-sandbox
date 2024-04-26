@@ -667,5 +667,3 @@ Debug.printf(Level.FINER, "dCgain err=%.12f", dcGain - 1.0);
         return c;
     }
 }
-
-/* */

@@ -183,7 +183,7 @@ Debug.println("events[" + t + "]: " + track.size());
                     if (message instanceof MetaMessage meta) {
                         //Debug.println(meta.getType());
                         switch (meta.getType()) {
-                        case 1:  // テキスト・イベント 127 bytes
+                        case 1:  // text event 127 bytes
                             byte[] data = meta.getData();
 //Debug.println(new String(data));
                             if (data[0] == 'D' && data[1] == 'M') {
@@ -201,7 +201,7 @@ Debug.println("events[" + t + "]: " + track.size());
 Debug.println(new String(data, Charset.forName("MS932")));
                             }
                             break;
-                        case 3:  // トラック名 ,
+                        case 3:  // track name,
                             String trackName = new String(meta.getData());
 Debug.println("trackName[" + t + "]: " + trackName);
                             break;
@@ -220,5 +220,3 @@ Debug.println(baos.toString("MS932"));
         return results;
     }
 }
-
-/* */

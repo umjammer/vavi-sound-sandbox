@@ -22,8 +22,10 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -32,6 +34,8 @@ import vavi.util.Debug;
 import static vavi.sound.SoundUtil.volume;
 
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 
 
 /**
@@ -40,7 +44,14 @@ import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2012/06/11 umjammer initial version <br>
  */
+
+@EnabledIf("localPropertiesExists")
+@PropsEntity(url = "file:local.properties")
 class LineTest2 {
+
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
 
     static {
         System.setProperty("vavi.util.logging.VaviFormatter.extraClassMethod",
@@ -49,23 +60,29 @@ class LineTest2 {
 
     static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
 
-    //    static final String inFile = "/Users/nsano/Music/0/Mists of Time - 4T.ogg";
-//    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.flac";
-//    static final String inFile = "/Users/nsano/Music/0/11 - Blockade.m4a"; // ALAC
-//    static final String inFile = "/Users/nsano/Music/0/rc.wav";
-//    static final String inFile = "/Users/nsano/Music/0/Cyndi Lauper-Time After Time.m4a"; // AAC
-    static final String inFile = "tmp/hoshi.opus";
-//    static final String inFile = "/Users/nsano/Music/iTunes/iTunes Music/NAMCO/Ace Combat 04 Shattered Skies Original Sound Tracks/1-11 Blockade.mp3";
+    @Property(name = "line2.test")
+    String inFile = "src/test/resources/test.caf";
+
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
+    }
 
     /**
      * @param args
      */
     public static void main(String[] args) throws Exception {
+        LineTest2 app = new LineTest2();
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(app);
+        }
+
         for (AudioFileFormat.Type type : AudioSystem.getAudioFileTypes()) {
 System.err.println(type);
         }
-        AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new File(inFile).toURI().toURL());
-        LineTest2 app = new LineTest2();
+        AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new File(app.inFile).toURI().toURL());
         LineTest2.play(originalAudioInputStream);
     }
 
@@ -73,7 +90,7 @@ System.err.println(type);
     static void play(AudioInputStream originalAudioInputStream) throws Exception {
         AudioFormat originalAudioFormat = originalAudioInputStream.getFormat();
 Debug.println(originalAudioFormat);
-        AudioFormat targetAudioFormat = new AudioFormat( //PCM
+        AudioFormat targetAudioFormat = new AudioFormat( // PCM
             originalAudioFormat.getSampleRate(),
             16,
             originalAudioFormat.getChannels(),
@@ -85,14 +102,7 @@ Debug.println(targetAudioFormat);
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat, AudioSystem.NOT_SPECIFIED);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
 Debug.println(line.getClass().getName());
-        line.addLineListener(event -> {
-            if (event.getType().equals(LineEvent.Type.START)) {
-Debug.println("play");
-            }
-            if (event.getType().equals(LineEvent.Type.STOP)) {
-Debug.println("done");
-            }
-        });
+        line.addLineListener(event -> Debug.println(event.getType()));
 
         line.open(audioFormat);
         byte[] buf = new byte[line.getBufferSize()];
@@ -130,7 +140,7 @@ try {
         play(audioInputStream);
 } catch (Throwable t) {
   Debug.println("file: " + file);
-  t.printStackTrace();
+  Debug.printStackTrace(t);
   throw t;
 }
     }
@@ -143,7 +153,7 @@ providers.forEach(System.err::println);
 
         for (Object provider : providers) {
             AudioFileReader reader = (AudioFileReader) provider;
-            Debug.println("--------- " + reader.getClass().getName());
+Debug.println("--------- " + reader.getClass().getName());
             try {
                 audioStream = reader.getAudioInputStream(stream); // throws IOException
                 break;
@@ -167,5 +177,3 @@ providers.forEach(System.err::println);
         play(audioInputStream);
     }
 }
-
-/* */

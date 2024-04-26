@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.sound.midi.ControllerEventListener;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaEventListener;
@@ -48,7 +47,6 @@ import vavi.sound.midi.MidiConstants.MetaEvent;
 import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Synthesizer;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
-import vavi.util.Debug;
 import vavi.util.StringUtil;
 
 
@@ -148,13 +146,13 @@ public class MidPlayer extends Opl3Player implements Sequencer {
                 dis.mark(markSize());
                 return matchFormatImpl(dis);
             } catch (IOException e) {
-Debug.println(Level.WARNING, e);
+                logger.log(Level.WARNING, e.getMessage(), e);
                 return false;
             } finally {
                 try {
                     dis.reset();
                 } catch (IOException e) {
-Debug.println(Level.SEVERE, e);
+                    logger.log(Level.FINE, e.getMessage());
                 }
             }
         }
@@ -474,8 +472,7 @@ logger.fine("type: " + type);
                             break;
                         }
                     } catch (InvalidMidiDataException e) {
-                        logger.warning(e.getMessage());
-                        e.printStackTrace();
+                        logger.log(Level.SEVERE, e.getMessage(), e);
                     }
 
                     if (midiMessage != null) {
@@ -522,8 +519,7 @@ logger.fine("type: " + type);
                     MidiMessage midiMessage = new MetaMessage(MetaEvent.META_END_OF_TRACK.number(), new byte[0], 0);
                     transmitter.getReceiver().send(midiMessage, -1);
                 } catch (InvalidMidiDataException e) {
-                    logger.warning(e.getMessage());
-                    e.printStackTrace();
+                    logger.log(Level.WARNING, e.getMessage(), e);
                 }
             }
         }

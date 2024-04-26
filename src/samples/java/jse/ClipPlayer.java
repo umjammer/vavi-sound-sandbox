@@ -91,5 +91,3 @@ public class ClipPlayer implements LineListener {
         }
     }
 }
-
-/* */

@@ -148,5 +148,3 @@ public class CddaRipper {
         System.out.println(strMessage);
     }
 }
-
-/* */

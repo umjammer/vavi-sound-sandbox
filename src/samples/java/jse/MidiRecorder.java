@@ -506,5 +506,3 @@ public class MidiRecorder {
         System.out.println(strMessage);
     }
 }
-
-/* */

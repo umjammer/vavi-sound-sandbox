@@ -176,5 +176,3 @@ public class MidiConverter {
         System.exit(0);
     }
 }
-
-/* */

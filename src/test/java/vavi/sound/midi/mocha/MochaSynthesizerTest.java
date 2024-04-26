@@ -24,6 +24,8 @@ import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
 
+import static vavi.sound.midi.MidiUtil.volume;
+
 
 /**
  * MochaSynthesizer.
@@ -45,6 +47,8 @@ public class MochaSynthesizerTest {
 
     @Property(name = "mocha.test")
     String mochaTest = "src/test/resources/test.mid";
+
+    static float volume = (float) Double.parseDouble(System.getProperty("vavi.test.volume.midi",  "0.2"));
 
     @BeforeEach
     void setup() throws Exception {
@@ -80,6 +84,9 @@ System.err.println("META: " + meta.getType());
         sequencer.addMetaEventListener(mel);
 System.err.println("START");
         sequencer.start();
+
+        volume(receiver, volume); // volume works?
+
 if (!System.getProperty("vavi.test", "").equals("ide")) {
  Thread.sleep(10 * 1000);
  sequencer.stop();

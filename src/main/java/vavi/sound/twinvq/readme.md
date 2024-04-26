@@ -1,9 +1,11 @@
 # vavi.sound.twinvq
 
-TwinVQ サウンド関連のクラスを提供します．
+Provides TwinVQ sound related classes.
+
+## References
+
+### License
 
 ## TODO
 
- * 完成させる
-
-## License
+ * complete

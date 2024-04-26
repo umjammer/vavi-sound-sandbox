@@ -75,5 +75,3 @@ public abstract class Message {
         this(new byte[0]);
     }
 }
-
-/* */

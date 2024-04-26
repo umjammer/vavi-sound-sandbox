@@ -69,7 +69,7 @@ public class Opl3ToPcmAudioInputStream extends AudioInputStream {
             } else {
                 if (player.update()) {
                     double sec = 1.0 / player.getRefresh();
-Debug.println(Level.FINER, "bytes: " + (int) (sampleRate * sec) + ", " + player.getRefresh());
+Debug.println(Level.FINEST, "bytes: " + (int) (sampleRate * sec) + ", " + player.getRefresh());
 
                     byte[] buf = player.read(4 * (int) (sampleRate * sec));
                     out.write(buf);
@@ -87,7 +87,7 @@ Debug.println(Level.FINER, "bytes: " + (int) (sampleRate * sec) + ", " + player.
 
         @Override
         public void finish() throws IOException {
-//Debug.println("finish");
+Debug.println(Level.FINEST, "finish");
         }
     }
 }

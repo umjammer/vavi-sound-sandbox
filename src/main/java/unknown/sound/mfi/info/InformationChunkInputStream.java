@@ -77,5 +77,3 @@ public class InformationChunkInputStream extends MLDChunkInputStream {
         setTrackCount(read());
     }
 }
-
-/* */

@@ -27,6 +27,8 @@ import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
 
+import static vavi.sound.midi.MidiUtil.volume;
+
 
 /**
  * MIDI test. (vavi-sound-sandbox)
@@ -56,7 +58,7 @@ public class MidiTest {
 
     static final float volume = Float.parseFloat(System.getProperty("vavi.test.volume",  "0.2"));
 
-    @Property(name = "sf2")
+    @Property(name = "midi.test")
     String filename;
 
     @Property(name = "sf2")
@@ -235,6 +237,7 @@ Debug.println("receiver: " + receiver);
         sequencer.getTransmitter().setReceiver(receiver);
         sequencer.open();
 Debug.println("sequencer: " + sequencer);
+        volume(receiver, volume);
 
         File file = new File(filename);
         Sequence seq = MidiSystem.getSequence(file);
@@ -293,5 +296,3 @@ Debug.println("END");
 //        app.t4();
     }
 }
-
-/* */

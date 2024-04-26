@@ -72,5 +72,3 @@ System.err.println(format);
         assertEquals(Checksum.getChecksum(new File(inFile)), Checksum.getChecksum(new File(outFile)));
     }
 }
-
-/* */

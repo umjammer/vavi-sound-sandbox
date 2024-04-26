@@ -237,5 +237,3 @@ class Normalizer {
         return 0;
     }
 }
-
-/* */

@@ -353,5 +353,3 @@ public class MixingAudioInputStream extends AudioInputStream {
         return true;
     }
 }
-
-/* */

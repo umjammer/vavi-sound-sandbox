@@ -57,5 +57,3 @@ public class MfiContext {
         this.midiResolution = midiResolution;
     }
 }
-
-/* */

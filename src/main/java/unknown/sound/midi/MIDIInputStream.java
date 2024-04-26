@@ -47,5 +47,3 @@ public class MIDIInputStream extends DataInputStream {
         return chunk;
     }
 }
-
-/* */

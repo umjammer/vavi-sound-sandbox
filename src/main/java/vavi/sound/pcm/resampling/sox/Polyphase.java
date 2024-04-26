@@ -654,5 +654,3 @@ Debug.println(Level.FINE, "out_size: " + out_size);
         return resample(new int[0]);  // TODO does not work
     }
 }
-
-/* */

@@ -504,5 +504,3 @@ public class AudioStream implements Runnable {
                                                    new Long(lNewPosition));
     }
 }
-
-/* */

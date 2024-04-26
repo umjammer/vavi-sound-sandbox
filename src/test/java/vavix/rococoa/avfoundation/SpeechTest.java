@@ -8,9 +8,13 @@ package vavix.rococoa.avfoundation;
 
 import java.util.concurrent.CountDownLatch;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import vavi.util.Debug;
+import vavix.rococoa.avfoundation.AVSpeechSynthesizer.AVSpeechSynthesizerBufferCallback;
+
+import static org.rococoa.ObjCBlocks.block;
 
 
 /**
@@ -47,6 +51,35 @@ Debug.println("voice: " + voice);
         utterance.setPitchMultiplier(1.0f);
 
         synthesizer.speakUtterance(utterance);
+
+        cdl.await();
+    }
+
+    @Test
+    @Disabled("crash")
+    @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
+    void test2() throws Exception {
+        CountDownLatch cdl = new CountDownLatch(1);
+
+        AVSpeechSynthesizer synthesizer = AVSpeechSynthesizer.newInstance();
+        synthesizer.setDelegate(new AVSpeechSynthesizer.AVSpeechSynthesizerAdapter() {
+            @Override public void speechSynthesizer_didFinishSpeechUtterance(AVSpeechSynthesizer sender, AVSpeechUtterance utterance) {
+                cdl.countDown();
+            }
+        });
+
+        AVSpeechSynthesisVoice voice = AVSpeechSynthesisVoice.withLanguage("en-US");
+Debug.println("voice: " + voice);
+
+        AVSpeechUtterance utterance = AVSpeechUtterance.of("she sells seashells by the seashore");
+        utterance.setVoice(voice);
+        utterance.setVolume(.2f);
+        utterance.setRate(.5f);
+        utterance.setPitchMultiplier(1.0f);
+
+        synthesizer.writeUtterance_toBufferCallback(utterance, block((AVSpeechSynthesizerBufferCallback)((literal, buffer) -> {
+//            Debug.println("here!");
+        })));
 
         cdl.await();
     }

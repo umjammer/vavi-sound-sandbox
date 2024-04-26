@@ -18,5 +18,3 @@ public class UnknownChunkInputStream extends MLDChunkInputStream {
         super(tag, dataBytes);
     }
 }
-
-/* */

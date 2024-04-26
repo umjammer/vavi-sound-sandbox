@@ -181,5 +181,3 @@ public class SimpleAudioRecorder extends Thread {
         System.exit(0);
     }
 }
-
-/* */

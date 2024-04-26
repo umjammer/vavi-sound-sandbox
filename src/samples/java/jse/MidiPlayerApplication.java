@@ -125,5 +125,3 @@ public class MidiPlayerApplication extends JFrame {
         mpa.setVisible(true);
     }
 }
-
-/* */

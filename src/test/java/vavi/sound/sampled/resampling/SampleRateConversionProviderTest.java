@@ -50,8 +50,8 @@ public class SampleRateConversionProviderTest {
 
     /**
      * <ul>
-     *  <li>→ mono に tritonus_remaining_###.jar が必要 
-     *  <li>eclipse では jar の順位がしたの方から plugin が機能している？？？
+     *  <li>→ mono requires tritonus_remaining_###.jar
+     *  <li>In eclipse, is the plugin working according to the jar ranking???
      * </ul>
      */
     @Test
@@ -118,5 +118,3 @@ Debug.println("thirdAis: " + thirdAis.getFormat());
         line.close();
     }
 }
-
-/* */

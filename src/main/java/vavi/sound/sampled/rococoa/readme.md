@@ -1,11 +1,11 @@
-# vavi.sound.pcm
+# vavi.sound.sampled.rococoa
 
-Rococoa の spi 実装のクラスを提供します．
-
-## TODO
-
-* ~~完成させる~~
+Provides Rococoa spi implementation classes.
 
 ## References
 
 [rococoa](https://github.com/iterate-ch/rococoa)
+
+## TODO
+
+* ~~complete~~

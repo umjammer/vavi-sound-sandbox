@@ -93,5 +93,3 @@ public class RohmInputStream extends FilterInputStream {
         }
     }
 }
-
-/* */

@@ -416,5 +416,3 @@ public class Mp3Encoder {
         System.exit(1);
     }
 }
-
-/* */

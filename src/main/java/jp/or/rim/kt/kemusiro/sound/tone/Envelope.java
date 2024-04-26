@@ -5,7 +5,7 @@
 package jp.or.rim.kt.kemusiro.sound.tone;
 
 /**
- * エンベロープをあらわすクラス。
+ * A class that represents an envelope.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.1 $

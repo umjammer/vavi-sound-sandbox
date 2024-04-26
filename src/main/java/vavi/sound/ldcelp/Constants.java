@@ -74,5 +74,3 @@ final class Constants {
     static final float MAX = 4095.0f;
     static final float MIN = -4095.0f;
 }
-
-/* */

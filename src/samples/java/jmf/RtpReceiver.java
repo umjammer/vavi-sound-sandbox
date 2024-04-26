@@ -32,7 +32,7 @@ import vavi.util.Debug;
 
 
 /**
- * RtpReceiver RTPパケットの受信機クラス
+ * RtpReceiver. Receiver class for RTP packets.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 0510156 nsano initial version <br>
@@ -244,7 +244,7 @@ System.err.print("X");
         }
     }
 
-    /** 現在の秒に対応するファイルを取得 {@link #interval} [mesc] おき */
+    /** Get the file corresponding to the current second {@link #interval} [mesc] */
     class MyUrlMaker implements UrlMaker {
         /** */
         Calendar calendar = Calendar.getInstance();
@@ -252,7 +252,7 @@ System.err.print("X");
         MyUrlMaker() {
             calendar.roll(Calendar.SECOND, 10);
         }
-        /** 現在使用中の時間 */
+        /** time currently in use */
         int currentNo = 0;
 
         /** */
@@ -278,5 +278,3 @@ System.err.print("X");
         String getUrl();
     }
 }
-
-/* */

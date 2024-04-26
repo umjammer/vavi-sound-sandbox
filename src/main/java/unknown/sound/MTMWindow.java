@@ -31,9 +31,11 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Calendar;
+
 import unknown.sound.converter.MIDIToMLDInputStream;
 import unknown.sound.converter.Preferences;
 import unknown.sound.midi.MIDIInputStream;
+import vavi.util.Debug;
 
 
 public class MTMWindow extends Frame {
@@ -115,7 +117,7 @@ public class MTMWindow extends Frame {
         @Override
         public void actionPerformed(ActionEvent actionevent) {
             FileDialog filedialog = new FileDialog(MTMWindow.this,
-                                                   "MIDIファイルを選択してください", 0);
+                                                   "Select MIDI file", 0);
             if (midiFile == null) {
                 filedialog.setDirectory(System.getProperty("user.dir"));
             } else {
@@ -318,11 +320,11 @@ public class MTMWindow extends Frame {
                             do {
                                 fos.write(m2mis.readMessageAsBytes());
                             } while (true);
-                        } catch (EOFException _ex) {
+                        } catch (EOFException ignore) {
                         }
                         fos.close();
                     } catch (IOException _ex) {
-                        System.out.println("IOExceptionが発生");
+                        Debug.printStackTrace(_ex);
                     }
                 }
             }
@@ -414,34 +416,34 @@ public class MTMWindow extends Frame {
                 }
             });
         bar = new MenuBar();
-        fileMenu = new Menu("ファイル");
-        file_Open = new MenuItem("MIDIファイルを選択...");
+        fileMenu = new Menu("File");
+        file_Open = new MenuItem("Select MIDI File...");
         file_Open.addActionListener(new MTMFileButtonListener());
         fileMenu.add(file_Open);
-        file_Exchange = new MenuItem("MLDファイルに変換");
+        file_Exchange = new MenuItem("Convert to MLD file");
         file_Exchange.setEnabled(false);
         file_Exchange.addActionListener(new MTMMLDButtonListener());
         fileMenu.add(file_Exchange);
-        file_Pref_Open = new MenuItem("詳細設定を表示");
+        file_Pref_Open = new MenuItem("Show details");
         file_Pref_Open.addActionListener(actionevent -> {
             setSize(510, 470);
             fileMenu.remove(file_Pref_Open);
             fileMenu.insert(file_Pref_Close, 3);
         });
         fileMenu.add(file_Pref_Open);
-        file_Pref_Close = new MenuItem("詳細設定を隠す");
+        file_Pref_Close = new MenuItem("Hide deteails");
         file_Pref_Close.addActionListener(actionevent -> {
             setSize(270, 470);
             fileMenu.remove(file_Pref_Close);
             fileMenu.insert(file_Pref_Open, 3);
         });
         fileMenu.addSeparator();
-        file_Quit = new MenuItem("終了");
+        file_Quit = new MenuItem("Quit");
         fileMenu.add(file_Quit);
         bar.add(fileMenu);
         setSize(510, 470);
         setResizable(false);
-        titleCheckbox = new Checkbox("曲にタイトルを入れる", true);
+        titleCheckbox = new Checkbox("Add a title to the song", true);
         titleCheckbox.setBounds(35, 20, 120, 20);
         titleCheckbox.addItemListener(itemevent -> {
             boolean flag;
@@ -464,7 +466,7 @@ public class MTMWindow extends Frame {
         });
         add(titleCheckbox);
         titleGroup = new CheckboxGroup();
-        titleFileCheckbox = new Checkbox("ファイル名をタイトルにする", true, titleGroup);
+        titleFileCheckbox = new Checkbox("Let filename title", true, titleGroup);
         titleFileCheckbox.setBounds(55, 40, 150, 20);
         titleFileCheckbox.addItemListener(itemevent -> {
             if (titleFileCheckbox.getState()) {
@@ -492,7 +494,7 @@ public class MTMWindow extends Frame {
             }
         });
         add(titleUserCheckbox);
-        titleUserText = new TextField("曲名を入力してください");
+        titleUserText = new TextField("Enter the song name");
         titleUserText.setBounds(75, 60, 150, 20);
         titleUserText.setEnabled(false);
         titleUserText.setEditable(false);
@@ -500,21 +502,21 @@ public class MTMWindow extends Frame {
         add(titleUserText);
 
         MTMVolumeListener mtmvolumelistener = new MTMVolumeListener();
-        volumeCheckbox = new Checkbox("音量を設定する", true);
+        volumeCheckbox = new Checkbox("Set the volume", true);
         volumeCheckbox.setBounds(35, 100, 90, 20);
         volumeCheckbox.addItemListener(mtmvolumelistener);
         add(volumeCheckbox);
         volumeGroup = new CheckboxGroup();
-        volumeVelocityCheckbox = new Checkbox("音量にベロシティを利用する", false,
+        volumeVelocityCheckbox = new Checkbox("Use velocity for volume", false,
                                               volumeGroup);
         volumeVelocityCheckbox.setBounds(55, 120, 150, 20);
         volumeVelocityCheckbox.addItemListener(mtmvolumelistener);
         add(volumeVelocityCheckbox);
-        volumeConstCheckbox = new Checkbox("固定値を利用する(0-63)", true, volumeGroup);
+        volumeConstCheckbox = new Checkbox("Use fixed values (0-63)", true, volumeGroup);
         volumeConstCheckbox.setBounds(55, 140, 140, 20);
         volumeConstCheckbox.addItemListener(mtmvolumelistener);
         add(volumeConstCheckbox);
-        volumeCh1Checkbox = new Checkbox("チャンネル１", true);
+        volumeCh1Checkbox = new Checkbox("channel 1", true);
         volumeCh1Checkbox.setBounds(75, 160, 80, 20);
         volumeCh1Checkbox.addItemListener(mtmvolumelistener);
         add(volumeCh1Checkbox);
@@ -522,7 +524,7 @@ public class MTMWindow extends Frame {
         volumeCh1Text.setBounds(155, 160, 40, 20);
         volumeCh1Text.addTextListener(mtmvolumelistener);
         add(volumeCh1Text);
-        volumeCh2Checkbox = new Checkbox("チャンネル２", true);
+        volumeCh2Checkbox = new Checkbox("channel 2", true);
         volumeCh2Checkbox.setBounds(75, 180, 80, 20);
         volumeCh2Checkbox.addItemListener(mtmvolumelistener);
         add(volumeCh2Checkbox);
@@ -530,7 +532,7 @@ public class MTMWindow extends Frame {
         volumeCh2Text.setBounds(155, 180, 40, 20);
         volumeCh2Text.addTextListener(mtmvolumelistener);
         add(volumeCh2Text);
-        volumeCh3Checkbox = new Checkbox("チャンネル３", true);
+        volumeCh3Checkbox = new Checkbox("channel 3", true);
         volumeCh3Checkbox.setBounds(75, 200, 80, 20);
         volumeCh3Checkbox.addItemListener(mtmvolumelistener);
         add(volumeCh3Checkbox);
@@ -538,7 +540,7 @@ public class MTMWindow extends Frame {
         volumeCh3Text.setBounds(155, 200, 40, 20);
         volumeCh3Text.addTextListener(mtmvolumelistener);
         add(volumeCh3Text);
-        volumeCh4Checkbox = new Checkbox("チャンネル４", true);
+        volumeCh4Checkbox = new Checkbox("channel 4", true);
         volumeCh4Checkbox.setBounds(75, 220, 80, 20);
         volumeCh4Checkbox.addItemListener(mtmvolumelistener);
         add(volumeCh4Checkbox);
@@ -546,7 +548,7 @@ public class MTMWindow extends Frame {
         volumeCh4Text.setBounds(155, 220, 40, 20);
         volumeCh4Text.addTextListener(mtmvolumelistener);
         add(volumeCh4Text);
-        fileLabel = new Label("MIDIファイル");
+        fileLabel = new Label("MIDI file");
         fileLabel.setBounds(35, 330, 70, 20);
         add(fileLabel);
         filePathText = new TextArea("", 20, 2, 1);
@@ -554,22 +556,22 @@ public class MTMWindow extends Frame {
         filePathText.setEditable(false);
         filePathText.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         add(filePathText);
-        fileButton = new Button("選択");
+        fileButton = new Button("Select");
         fileButton.setBounds(35, 350, 40, 20);
         fileButton.addActionListener(new MTMFileButtonListener());
         add(fileButton);
-        fileCheckbox = new Checkbox("ディレクトリを選択する", false);
+        fileCheckbox = new Checkbox("Select directory", false);
         fileCheckbox.setBounds(95, 350, 130, 20);
         add(fileCheckbox);
-        mldButton = new Button("MLDファイルを作成する");
+        mldButton = new Button("Create MLD file");
         mldButton.setBounds(55, 440, 160, 20);
         mldButton.setEnabled(false);
         mldButton.addActionListener(new MTMMLDButtonListener());
         add(mldButton);
-        prefLabel = new Label("詳細設定");
+        prefLabel = new Label("Set details");
         prefLabel.setBounds(280, 20, 40, 20);
         add(prefLabel);
-        resolutionLabel = new Label("４分音符の分解能");
+        resolutionLabel = new Label("Quarter note resolution");
         resolutionLabel.setBounds(35, 270, 80, 20);
         add(resolutionLabel);
         resolutionChoice = new Choice();
@@ -585,17 +587,17 @@ public class MTMWindow extends Frame {
         resolutionChoice.add("1536");
         resolutionChoice.select("48");
         add(resolutionChoice);
-        dateCheckbox = new Checkbox("作成日", false);
+        dateCheckbox = new Checkbox("Created date", false);
         dateCheckbox.setBounds(300, 40, 50, 20);
         dateCheckbox.addItemListener(new MTMDateListener());
         add(dateCheckbox);
         dateGroup = new CheckboxGroup();
-        dateTodayCheckbox = new Checkbox("今日の日付", true, dateGroup);
+        dateTodayCheckbox = new Checkbox("Today's date", true, dateGroup);
         dateTodayCheckbox.setBounds(320, 60, 70, 20);
         dateTodayCheckbox.setEnabled(false);
         dateTodayCheckbox.addItemListener(new MTMDateListener());
         add(dateTodayCheckbox);
-        dateFileCheckbox = new Checkbox("ファイルの修正日", false, dateGroup);
+        dateFileCheckbox = new Checkbox("File modification date", false, dateGroup);
         dateFileCheckbox.setBounds(320, 80, 100, 20);
         dateFileCheckbox.setEnabled(false);
         dateFileCheckbox.addItemListener(new MTMDateListener());
@@ -610,16 +612,16 @@ public class MTMWindow extends Frame {
         dateUserText.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         dateUserText.setEnabled(false);
         add(dateUserText);
-        rightCheckbox = new Checkbox("著作権の有無", true);
+        rightCheckbox = new Checkbox("Copyright status", true);
         rightCheckbox.setBounds(300, 140, 80, 20);
         rightCheckbox.addItemListener(new MTMRightListener());
         add(rightCheckbox);
         rightGroup = new CheckboxGroup();
-        rightNoneCheckbox = new Checkbox("著作権なし ( 00 )", true, rightGroup);
+        rightNoneCheckbox = new Checkbox("No copyright (00)", true, rightGroup);
         rightNoneCheckbox.setBounds(320, 160, 110, 20);
         rightNoneCheckbox.addItemListener(new MTMRightListener());
         add(rightNoneCheckbox);
-        rightIsCheckbox = new Checkbox("著作権あり ( 01 ) ", false, rightGroup);
+        rightIsCheckbox = new Checkbox("Copyrighted (01) ", false, rightGroup);
         rightIsCheckbox.setBounds(320, 180, 110, 20);
         rightIsCheckbox.addItemListener(new MTMRightListener());
         add(rightIsCheckbox);
@@ -636,12 +638,12 @@ public class MTMWindow extends Frame {
         Label label = new Label("(0 - 255)");
         label.setBounds(380, 200, 50, 20);
         add(label);
-        informationCheckbox = new Checkbox("著作権情報", false);
+        informationCheckbox = new Checkbox("Copyright information", false);
         informationCheckbox.setBounds(300, 240, 70, 20);
         informationCheckbox.addItemListener(new MTMInformationListener());
         add(informationCheckbox);
         informationGroup = new CheckboxGroup();
-        informationFileCheckbox = new Checkbox("ファイルから取り込む", true,
+        informationFileCheckbox = new Checkbox("Import from file", true,
                                               informationGroup);
         informationFileCheckbox.setBounds(320, 260, 120, 20);
         informationFileCheckbox.setEnabled(false);
@@ -658,12 +660,12 @@ public class MTMWindow extends Frame {
         informationUserText.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         informationUserText.setBounds(340, 280, 110, 60);
         add(informationUserText);
-        versionCheckbox = new Checkbox("バージョン", true);
+        versionCheckbox = new Checkbox("Version", true);
         versionCheckbox.setBounds(300, 360, 70, 20);
         versionCheckbox.addItemListener(new MTMVersionListener());
         add(versionCheckbox);
         versionGroup = new CheckboxGroup();
-        versionDefaultCheckbox = new Checkbox("標準 \"0100\"", true, versionGroup);
+        versionDefaultCheckbox = new Checkbox("Standard \"0100\"", true, versionGroup);
         versionDefaultCheckbox.setBounds(320, 380, 80, 20);
         versionDefaultCheckbox.addItemListener(new MTMVersionListener());
         add(versionDefaultCheckbox);
@@ -677,7 +679,7 @@ public class MTMWindow extends Frame {
         versionUserText.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         versionUserText.setBounds(340, 400, 100, 20);
         add(versionUserText);
-        fullCheckbox = new Checkbox("フルコーラス", false);
+        fullCheckbox = new Checkbox("Full chorus", false);
         fullCheckbox.setBounds(300, 435, 80, 20);
         add(fullCheckbox);
         setVisible(true);

@@ -156,5 +156,3 @@ public class DumpSequence {
         sm_receiver.send(message, lTicks);
     }
 }
-
-/* */

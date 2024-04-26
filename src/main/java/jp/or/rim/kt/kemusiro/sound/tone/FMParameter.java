@@ -5,7 +5,7 @@
 package jp.or.rim.kt.kemusiro.sound.tone;
 
 /**
- * FM音源の各種パラメータを保存する。
+ * Save various parameters of FM sound source.
  *
  * @author Kenichi Miyata (kemusiro&#x40;kt.rim.or.jp)
  * @version $Revision: 1.1 $

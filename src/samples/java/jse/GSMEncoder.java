@@ -131,5 +131,3 @@ public class GSMEncoder {
         System.exit(1);
     }
 }
-
-/* */
