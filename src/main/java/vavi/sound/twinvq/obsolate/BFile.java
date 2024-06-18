@@ -99,7 +99,7 @@ class BFile {
         long fs_ret;
 
         if (!this.mode.equals("w")) {
-            System.err.print("bseek(): No seek support in write mode.\n");
+            System.err.print("bseek(): No seek support in write mode.");
             return 2;
         }
 
@@ -166,7 +166,7 @@ class BFile {
             this.ptr = (offset + BBUFLEN) % BBUFLEN;
             break;
         default:
-            System.err.printf("bseek(): %d: Invalid origin ID.\n", origin);
+            System.err.printf("bseek(): %d: Invalid origin ID.", origin);
             return 2;
         }
         return 0;
@@ -206,7 +206,7 @@ class BFile {
             ibufbit = iptr % BYTE_BIT;
             // tmpdat = stream.buf[ibufadr] >> (BYTE_BIT-ibufbit-1);
             tmpdat = this.buf[ibufadr];
-            tmpdat >>= (BYTE_BIT - ibufbit - 1);
+            tmpdat = (byte) (tmpdat >> (BYTE_BIT - ibufbit - 1));
             // current data bit
 
             // output data address
@@ -238,7 +238,7 @@ class BFile {
         byte[] tmpbit = new byte[BITS_INT];
 
         if (nbits > BITS_INT) {
-            throw new IllegalArgumentException(String.format("get_bstm(): %d: %d Error.\n", nbits, BITS_INT));
+            throw new IllegalArgumentException(String.format("get_bstm(): %d: %d Error.", nbits, BITS_INT));
         }
         int retval = read(tmpbit, BITS_INT, nbits);
         for (int ibit = retval; ibit < nbits; ibit++) {

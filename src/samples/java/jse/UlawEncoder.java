@@ -22,10 +22,15 @@ package jse;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+
+import static java.lang.System.getLogger;
+
 
 /*
  * +DocBookXML
@@ -82,6 +87,9 @@ import javax.sound.sampled.AudioSystem;
  * This file is part of the Java Sound Examples.
  */
 public class UlawEncoder {
+
+    private static final Logger logger = getLogger(UlawEncoder.class.getName());
+
     public static void main(String[] args) {
         if (args.length != 2) {
             printUsageAndExit();
@@ -93,7 +101,7 @@ public class UlawEncoder {
         try {
             ais = AudioSystem.getAudioInputStream(pcmFile);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
         if (ais == null) {
             System.out.println("cannot open audio file");
@@ -107,7 +115,7 @@ public class UlawEncoder {
         try {
             nWrittenFrames = AudioSystem.write(ulawAudioInputStreamAIS, fileType, ulawFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
     }
 

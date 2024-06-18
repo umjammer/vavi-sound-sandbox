@@ -20,10 +20,14 @@
 
 package jse;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Synthesizer;
+
+import static java.lang.System.getLogger;
 
 
 /*        +DocBookXML
@@ -81,21 +85,23 @@ import javax.sound.midi.Synthesizer;
 
 -DocBookXML
 */
-/*
- *        SynthNote.java
- *
- *        This file is part of the Java Sound Examples.
+
+/**
+ * SynthNote.java
+ * <p>
+ * This file is part of the Java Sound Examples.
  */
 public class SynthNote {
+
+    private static final Logger logger = getLogger(SynthNote.class.getName());
+
     public static void main(String[] args) {
         int nNoteNumber = 0; // MIDI key number
         int nVelocity = 0;
 
-        /*
-         *        Time between note on and note off event in
-         *        milliseconds. Note that on most systems, the
-         *        best resolution you can expect are 10 ms.
-         */
+        // Time between note on and note off event in
+        // milliseconds. Note that on most systems, the
+        // best resolution you can expect are 10 ms.
         int nDuration = 0;
         if (args.length == 3) {
             nNoteNumber = Integer.parseInt(args[0]);
@@ -110,47 +116,37 @@ public class SynthNote {
             System.exit(1);
         }
 
-        /*
-         *        We need a synthesizer to play the note on.
-         *        Here, we simply request the default
-         *        synthesizer.
-         */
+        // We need a synthesizer to play the note on.
+        // Here, we simply request the default
+        // synthesizer.
         Synthesizer synth = null;
         try {
             synth = MidiSystem.getSynthesizer();
         } catch (MidiUnavailableException e) {
         }
 
-        /*
-         *        Of course, we have to open the synthesizer to
-         *        produce any sound for us.
-         */
+        // Of course, we have to open the synthesizer to
+        // produce any sound for us.
         try {
             synth.open();
         } catch (MidiUnavailableException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 
-        /*
-         *        Turn the note on on MIDI channel 1.
-         *        (Index zero means MIDI channel 1)
-         */
+        // Turn the note on on MIDI channel 1.
+        // (Index zero means MIDI channel 1)
         MidiChannel[] channels = synth.getChannels();
         channels[0].noteOn(nNoteNumber, nVelocity);
 
-        /*
-         *        Wait for the specified amount of time
-         *        (the duration of the note).
-         */
+        // Wait for the specified amount of time
+        // (the duration of the note).
         try {
             Thread.sleep(nDuration);
         } catch (InterruptedException e) {
         }
 
-        /*
-         *        Turn the note off.
-         */
+        // Turn the note off.
         channels[0].noteOff(nNoteNumber);
     }
 }

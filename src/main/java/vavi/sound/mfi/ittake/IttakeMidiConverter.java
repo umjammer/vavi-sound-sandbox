@@ -51,24 +51,20 @@ public class IttakeMidiConverter implements MidiConverter {
                            "MIDItoMLD",
                            "Version 1.01") {};
 
-    /** */
     @Override
     public MfiDevice.Info getDeviceInfo() {
         return info;
     }
 
-    /* */
     @Override
     public void close() {
     }
 
-    /* */
     @Override
     public boolean isOpen() {
         return true;
     }
 
-    /* */
     @Override
     public void open() {
     }

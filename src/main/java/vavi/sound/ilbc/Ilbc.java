@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -2632,7 +2631,7 @@ public class Ilbc {
      * @param plocs locations where period array values valid
      * @param periodl dimension of period and plocs
      */
-    private void enhancer(double[] odata, int odataP, double[] idata, int idatal, int centerStartPos, double alpha0, double[] period, double[] plocs, int periodl) {
+    private static void enhancer(double[] odata, int odataP, double[] idata, int idatal, int centerStartPos, double alpha0, double[] period, double[] plocs, int periodl) {
         double[] sseq = new double[(2 * ENH_HL + 1) * ENH_BLOCKL];
 
         // get said second sequence of segments
@@ -4173,7 +4172,7 @@ public class Ilbc {
      * @param length length of lsf coefficient vector
      * @param iLBCdec_inst the decoder state structure
      */
-    private void DecoderInterpolateLSF(double[] syntdenum, double[] weightdenum, double[] lsfdeq, int length, Decoder iLBCdec_inst) {
+    private static void DecoderInterpolateLSF(double[] syntdenum, double[] weightdenum, double[] lsfdeq, int length, Decoder iLBCdec_inst) {
         int pos, lp_length;
         double[] lp = new double[LPC_FILTERORDER + 1];
         int /* double * */lsfdeq2;
@@ -4291,7 +4290,7 @@ public class Ilbc {
      * @param length should equate LPC_FILTERORDER
      * @param iLBCenc_inst (i/o) the encoder state structure
      */
-    private void SimpleInterpolateLSF(double[] syntdenum, double[] weightdenum, double[] lsf, double[] lsfdeq, double[] lsfold, double[] lsfdeqold, int length, Encoder iLBCenc_inst) {
+    private static void SimpleInterpolateLSF(double[] syntdenum, double[] weightdenum, double[] lsf, double[] lsfdeq, double[] lsfold, double[] lsfdeqold, int length, Encoder iLBCenc_inst) {
         int pos, lp_length;
         double[] lp = new double[LPC_FILTERORDER + 1];
         int /* double * */lsf2, lsfdeq2;
@@ -4352,7 +4351,7 @@ public class Ilbc {
      *            FILTERORDER )
      * @param lpc_n number of lsf sets to quantize
      */
-    private void SimplelsfQ(double[] lsfdeq, int[] index, double[] lsf, int lpc_n) {
+    private static void SimplelsfQ(double[] lsfdeq, int[] index, double[] lsf, int lpc_n) {
         // Quantize first LSF with memoryless split VQ
         SplitVQ(lsfdeq, 0, index, 0, lsf, 0, lsfCbTbl, LSF_NSPLIT, dim_lsfCbTbl, size_lsfCbTbl);
 
@@ -4373,7 +4372,7 @@ public class Ilbc {
      * @param data lsf coefficients to quantize
      * @param iLBCenc_inst (i/o) the encoder state structure
      */
-    private void LPCencode(double[] syntdenum, double[] weightdenum, int[] lsf_index, double[] data, Encoder iLBCenc_inst) {
+    private static void LPCencode(double[] syntdenum, double[] weightdenum, int[] lsf_index, double[] data, Encoder iLBCenc_inst) {
         double[] lsf = new double[LPC_FILTERORDER * LPC_N_MAX];
         double[] lsfdeq = new double[LPC_FILTERORDER * LPC_N_MAX];
         int change = 0;
@@ -4670,11 +4669,11 @@ public class Ilbc {
             // Insert index into the bitstream
 
             if (bitno <= posLeft) {
-                bitstream[bP] |= (byte) (index << (posLeft - bitno));
+                bitstream[bP] = (byte) (bitstream[bP] | (byte) (index << (posLeft - bitno)));
                 pos[0] += bitno;
                 bitno = 0;
             } else {
-                bitstream[bP] |= (byte) (index >> (bitno - posLeft));
+                bitstream[bP] = (byte) (bitstream[bP] | (byte) (index >> (bitno - posLeft)));
 
                 pos[0] = 8;
                 index -= ((index >> (bitno - posLeft)) << (bitno - posLeft));
@@ -4879,7 +4878,7 @@ public class Ilbc {
      * @param len length of all vectors
      * @param state_first position of start state in the 80 vec
      */
-    private void StateSearchW(Encoder iLBCenc_inst, double[] residual, int residualP, double[] syntDenum, int syntDenumP, double[] weightDenum, int weightDenumP, int[] idxForMax, int[] idxVec, int len, int state_first) {
+    private static void StateSearchW(Encoder iLBCenc_inst, double[] residual, int residualP, double[] syntDenum, int syntDenumP, double[] weightDenum, int weightDenumP, int[] idxForMax, int[] idxVec, int len, int state_first) {
         double[] dtmp = new double[1];
         double maxVal;
         double[] tmpbuf = new double[LPC_FILTERORDER + 2 * STATE_SHORT_LEN_30MS];

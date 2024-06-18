@@ -53,7 +53,7 @@ public class PerfectResampler {
     }
 
     /** */
-    private double[] prepare_coefs(double[] coefs, int num_coefs, int num_phases, int interp_order, int multiplier) {
+    private static double[] prepare_coefs(double[] coefs, int num_coefs, int num_phases, int interp_order, int multiplier) {
         int length = num_coefs * num_phases;
         double[] result = new double[length * (interp_order + 1)];
         double fm1 = coefs[0];
@@ -469,15 +469,15 @@ System.arraycopy(o, 0, output, outputP, f.dft_length);
     }
 
     /** */
-    private void half_band_filter_init(RateShared rateShared,
-                                       /* unsigned */int which,
-                                       int[] num_taps,
-                                       double[] h,
-                                       double Fp,
-                                       double atten,
-                                       int multiplier,
-                                       double phase,
-                                       boolean allow_aliasing) {
+    private static void half_band_filter_init(RateShared rateShared,
+            /* unsigned */int which,
+                                              int[] num_taps,
+                                              double[] h,
+                                              double Fp,
+                                              double atten,
+                                              int multiplier,
+                                              double phase,
+                                              boolean allow_aliasing) {
         HalfBand f = rateShared.half_band[which];
         int dft_length, i;
 
@@ -624,7 +624,7 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
      * Down-sample by a factor of 2 using a FIR with odd length (LEN).
      * Input must be preceded and followed by LEN >> 1 samples.
      */
-    abstract class RateHalfFir implements StageFunction {
+    abstract static class RateHalfFir implements StageFunction {
         abstract double[] COEFS();
         abstract int CONVOLVE();
         @Override
@@ -656,7 +656,7 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
      * Input must be preceded by LEN >> 1 samples.
      * Input must be followed by (LEN-1) >> 1 samples.
      */
-    abstract class RatePolyFir0 implements StageFunction {
+    abstract static class RatePolyFir0 implements StageFunction {
         abstract int FIR_LENGTH();
         abstract int CONVOLVE();
         @Override
@@ -699,7 +699,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
      * Input must be preceded by LEN >> 1 samples.
      * Input must be followed by (LEN-1) >> 1 samples.
      */
-    abstract class RatePolyFir implements StageFunction {
+    abstract static class RatePolyFir implements StageFunction {
         abstract int CONVOLVE();
         abstract int COEF_INTERP();
         abstract int FIR_LENGTH();
@@ -1297,7 +1297,7 @@ Debug.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, s.pre
     }
 
     /** */
-    private void rate_flush(Rate p) {
+    private static void rate_flush(Rate p) {
         Fifo fifo = p.stages[p.output_stage_num + 1].fifo;
         int samples_out = (int) (p.samples_in / p.factor + .5);
         int remaining = samples_out - p.samples_out;

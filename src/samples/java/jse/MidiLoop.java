@@ -101,9 +101,9 @@ public class MidiLoop {
             }
 
             MidiDevice inputDevice = MidiSystem.getMidiDevice(info);
-            out("opening input device '" + inDeviceName + "'...");
-            inputDevice.open();
-            try {
+            try (inputDevice) {
+                out("opening input device '" + inDeviceName + "'...");
+                inputDevice.open();
                 out("getting output device '" + outDeviceName + "'...");
                 info = getMidiDeviceInfo(outDeviceName, true);
                 if (info == null) {
@@ -111,9 +111,9 @@ public class MidiLoop {
                 }
 
                 MidiDevice outputDevice = MidiSystem.getMidiDevice(info);
-                out("opening output device '" + outDeviceName + "'...");
-                outputDevice.open();
-                try {
+                try (outputDevice) {
+                    out("opening output device '" + outDeviceName + "'...");
+                    outputDevice.open();
                     out("connecting input with output...");
                     inputDevice.getTransmitter().setReceiver(outputDevice.getReceiver());
 
@@ -121,16 +121,12 @@ public class MidiLoop {
                     System.in.read();
                 } finally {
                     out("Closing output device...");
-                    outputDevice.close();
                 }
             } finally {
                 out("Closing input device...");
-                inputDevice.close();
             }
-        } catch (IOException ioe) {
+        } catch (IOException | MidiUnavailableException ioe) {
             out(ioe);
-        } catch (MidiUnavailableException mue) {
-            out(mue);
         }
         System.exit(0);
     }
@@ -160,7 +156,7 @@ public class MidiLoop {
                 boolean bAllowsInput = (device.getMaxTransmitters() != 0);
                 boolean bAllowsOutput = (device.getMaxReceivers() != 0);
                 if ((bAllowsInput && forInput) || (bAllowsOutput && forOutput)) {
-                    out("" + i + "  " + (bAllowsInput ? "IN " : "   ") +
+                    out(i + "  " + (bAllowsInput ? "IN " : "   ") +
                         (bAllowsOutput ? "OUT " : "    ") +
                         aInfos[i].getName() + ", " + aInfos[i].getVendor() +
                         ", " + aInfos[i].getVersion() + ", " +
@@ -188,17 +184,17 @@ public class MidiLoop {
         MidiDevice.Info[] aInfos = MidiSystem.getMidiDeviceInfo();
 
         //out("Searching '"+strDeviceName+"' for "+(forOutput?"output":"input"));
-        for (int i = 0; i < aInfos.length; i++) {
-            if (aInfos[i].getName().equals(strDeviceName)) {
+        for (MidiDevice.Info aInfo : aInfos) {
+            if (aInfo.getName().equals(strDeviceName)) {
                 try {
-                    MidiDevice device = MidiSystem.getMidiDevice(aInfos[i]);
+                    MidiDevice device = MidiSystem.getMidiDevice(aInfo);
                     boolean bAllowsInput = (device.getMaxTransmitters() != 0);
                     boolean bAllowsOutput = (device.getMaxReceivers() != 0);
 
                     //out("Looking for at '"+aInfos[i].getName()+"' with "+dev.getMaxReceivers()+" receivers and "+dev.getMaxTransmitters()+" transmitters.");
                     if ((bAllowsOutput && forOutput) ||
-                        (bAllowsInput && !forOutput)) {
-                        return aInfos[i];
+                            (bAllowsInput && !forOutput)) {
+                        return aInfo;
                     }
                 } catch (MidiUnavailableException mue) {
                 }

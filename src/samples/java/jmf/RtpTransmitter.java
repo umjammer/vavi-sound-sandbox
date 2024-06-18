@@ -22,13 +22,13 @@ import javax.sound.sampled.TargetDataLine;
  */
 public class RtpTransmitter {
     // Socket
-    private DatagramSocket socket;
+    private final DatagramSocket socket;
 
     // destination IP address
-    private String destIP;
+    private final String destIP;
 
     // destination UDP port number
-    private String destPort;
+    private final String destPort;
 
     // sending thread
     private TransmitThread transmitThread;
@@ -80,11 +80,11 @@ public class RtpTransmitter {
  */
 class TransmitThread extends Thread {
 
-    private String destIP;
+    private final String destIP;
 
-    private String destPort;
+    private final String destPort;
 
-    private DatagramSocket socket;
+    private final DatagramSocket socket;
 
     private boolean isStop;
 
@@ -98,6 +98,7 @@ class TransmitThread extends Thread {
     }
 
     // Microphone capture -> Send Start thread
+    @Override
     public void run() {
         try {
             byte[] voicePacket = new byte[160];
@@ -145,7 +146,7 @@ class TransmitThread extends Thread {
         this.isStop = true;
     }
 
-    class RtpHeader {
+    static class RtpHeader {
         // Init RTP Headerstop
         RtpHeader() {
             Random r = new Random();
@@ -160,7 +161,7 @@ class TransmitThread extends Thread {
         // time stamp
         private int timeStamp;
         // sync source ID
-        private int syncSourceId;
+        private final int syncSourceId;
         // marker bit
         private byte marker;
 

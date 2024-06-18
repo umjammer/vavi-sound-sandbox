@@ -27,6 +27,8 @@ package jse;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
@@ -35,8 +37,10 @@ import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
 
+import static java.lang.System.getLogger;
 
-/**
+
+/*
  * +DocBookXML <title>Displaying the content of a MIDI file</title>
  *
  * <formalpara><title>Purpose</title> <para>Dumps the decoded content of a MIDI file to the console.</para> </formalpara>
@@ -58,12 +62,19 @@ import javax.sound.midi.Track;
  *
  * -DocBookXML
  */
+
+/**
+ * DumpSequence.
+ */
 public class DumpSequence {
-    private static String[] sm_astrKeyNames = {
+
+    private static final Logger logger = getLogger(DumpSequence.class.getName());
+
+    private static final String[] sm_astrKeyNames = {
         "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
     };
 
-    private static Receiver sm_receiver = new DumpReceiver(System.out, true);
+    private static final Receiver sm_receiver = new DumpReceiver();
 
     public static void main(String[] args) {
         /*
@@ -87,11 +98,8 @@ public class DumpSequence {
         Sequence sequence = null;
         try {
             sequence = MidiSystem.getSequence(midiFile);
-        } catch (InvalidMidiDataException e) {
-            e.printStackTrace();
-            System.exit(1);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (InvalidMidiDataException | IOException e) {
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 

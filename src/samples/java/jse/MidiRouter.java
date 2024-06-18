@@ -1,9 +1,3 @@
-package jse;
-/*
- *        MidiRouter.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999, 2000 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -23,11 +17,18 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+package jse;
+
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Transmitter;
+
+import static java.lang.System.getLogger;
 
 
 /*        +DocBookXML
@@ -80,64 +81,64 @@ import javax.sound.midi.Transmitter;
 
 -DocBookXML
 */
-public class MidiRouter {
-    /**        Flag for debugging messages.
-     *        If true, some messages are dumped to the console
-     *        during operation.
-     */
-    private static boolean DEBUG = true;
 
-    // private static Sequencer    sm_sequencer = null;
+/**
+ * MidiRouter.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ */
+public class MidiRouter {
+
+    private static final Logger logger = getLogger(MidiRouter.class.getName());
+
+//    private static Sequencer sm_sequencer = null;
+
     public static void main(String[] args) {
-        /*
-         *        We check if there is no command-line argument at all
-         *        or the first one is '-h'.
-         *        If so, we display the usage message and
-         *        exit.
-         */
-/*
-                if (args.length < 1 || args[0].equals("-h"))
-                {
-                        printUsageAndExit();
-                }
-*/
+        // We check if there is no command-line argument at all
+        // or the first one is '-h'.
+        // If so, we display the usage message and
+        // exit.
+
+//        if (args.length < 1 || args[0].equals("-h")) {
+//            printUsageAndExit();
+//        }
+
         boolean bUseSynthesizer = false;
         boolean bUseMidiPort = false;
         boolean bUseConsoleDump = false;
 
         int nArgumentIndex;
+label:
         for (nArgumentIndex = 0; nArgumentIndex < args.length;
              nArgumentIndex++) {
             String strArgument = args[nArgumentIndex];
-            if (strArgument.equals("-s")) {
-                bUseSynthesizer = true;
-            } else if (strArgument.equals("-m")) {
-                bUseMidiPort = true;
-            } else if (strArgument.equals("-d")) {
-                bUseConsoleDump = true;
-            } else {
-                break;
+            switch (strArgument) {
+                case "-s":
+                    bUseSynthesizer = true;
+                    break;
+                case "-m":
+                    bUseMidiPort = true;
+                    break;
+                case "-d":
+                    bUseConsoleDump = true;
+                    break;
+                default:
+                    break label;
             }
         }
 
-        /*
-         *        If no destination option is choosen at all,
-         *        we default to playing on the internal synthesizer.
-         */
+        // If no destination option is choosen at all,
+        // we default to playing on the internal synthesizer.
         if (!(bUseSynthesizer | bUseMidiPort | bUseConsoleDump)) {
             bUseSynthesizer = true;
         }
 
-        /*
-         *        Now, we set up the destinations the Sequence should be
-         *        played on.
-         */
+        // Now, we set up the destinations the Sequence should be
+        // played on.
         if (bUseSynthesizer) {
-            /*
-             *        We try to get the default synthesizer, open()
-             *        it and chain it to the sequencer with a
-             *        Transmitter-Receiver pair.
-             */
+            // We try to get the default synthesizer, open()
+            // it and chain it to the sequencer with a
+            // Transmitter-Receiver pair.
             try {
                 Synthesizer synth = MidiSystem.getSynthesizer();
                 synth.open();
@@ -146,48 +147,42 @@ public class MidiRouter {
                 Transmitter seqTransmitter = MidiSystem.getTransmitter();
                 seqTransmitter.setReceiver(synthReceiver);
             } catch (MidiUnavailableException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
 
         if (bUseMidiPort) {
-            /*
-             *        We try to get a Receiver which is already
-             *        associated with the default MIDI port.
-             *        It is then linked to a sequencer's
-             *        Transmitter.
-             */
+            // We try to get a Receiver which is already
+            // associated with the default MIDI port.
+            // It is then linked to a sequencer's
+            // Transmitter.
             try {
                 Receiver midiReceiver = MidiSystem.getReceiver();
                 Transmitter midiTransmitter = MidiSystem.getTransmitter();
                 midiTransmitter.setReceiver(midiReceiver);
             } catch (MidiUnavailableException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
 
         if (bUseConsoleDump) {
-            /*
-             *        We allocate a DumpReceiver object. Its job
-             *        is to print information on all received events
-             *        to the console.
-             *        It is then linked to a sequencer's
-             *        Transmitter.
-             */
+            // We allocate a DumpReceiver object. Its job
+            // is to print information on all received events
+            // to the console.
+            // It is then linked to a sequencer's
+            // Transmitter.
             try {
-                Receiver dumpReceiver = new DumpReceiver(System.out);
+                Receiver dumpReceiver = new DumpReceiver();
                 Transmitter dumpTransmitter = MidiSystem.getTransmitter();
                 dumpTransmitter.setReceiver(dumpReceiver);
             } catch (MidiUnavailableException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
 
         System.out.println("If you are done with this programm, terminate it by pressing ctrl-C");
 
-        /*
-         *        Now, we wait forever.
-         */
+        // Now, we wait forever.
         while (true) {
             try {
                 Thread.sleep(10000);

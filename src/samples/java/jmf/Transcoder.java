@@ -12,7 +12,6 @@ import java.lang.reflect.Method;
 
 import javax.media.ConfigureCompleteEvent;
 import javax.media.Controller;
-import javax.media.ControllerEvent;
 import javax.media.ControllerListener;
 import javax.media.DataSink;
 import javax.media.EndOfMediaEvent;
@@ -30,7 +29,6 @@ import javax.media.StopAtTimeEvent;
 import javax.media.Time;
 import javax.media.control.TrackControl;
 import javax.media.datasink.DataSinkErrorEvent;
-import javax.media.datasink.DataSinkEvent;
 import javax.media.datasink.DataSinkListener;
 import javax.media.datasink.EndOfStreamEvent;
 import javax.media.format.AudioFormat;
@@ -61,7 +59,7 @@ public class Transcoder {
      * @param start start time
      * @param end end time
      */
-    public void doIt(MediaLocator inML, MediaLocator outML, Format fmts[], int start, int end) throws NoProcessorException, IOException, NoDataSinkException {
+    public void doIt(MediaLocator inML, MediaLocator outML, Format[] fmts, int start, int end) throws NoProcessorException, IOException, NoDataSinkException {
 
         Processor processor = Manager.createProcessor(inML);
         processor.addControllerListener(controllerListener);
@@ -147,23 +145,23 @@ Debug.println("- set content descriptor to: " + cd);
     /**
      * Set the target transcode format on the processor.
      */
-    private void setTrackFormats(Processor p, Format fmts[]) {
+    private void setTrackFormats(Processor p, Format[] fmts) {
 
         if (fmts.length == 0) {
             return;
         }
 
-        TrackControl tcs[] = p.getTrackControls();
+        TrackControl[] tcs = p.getTrackControls();
         if (tcs == null) {
             throw new IllegalStateException("The Processor cannot transcode the tracks to the given formats");
         }
 
-        for (int i = 0; i < fmts.length; i++) {
+        for (Format fmt : fmts) {
 
-Debug.println("- set track format to: " + fmts[i]);
+            Debug.println("- set track format to: " + fmt);
 
-            if (!setEachTrackFormat(p, tcs, fmts[i])) {
-                throw new IllegalStateException("Cannot transcode any track to: " + fmts[i]);
+            if (!setEachTrackFormat(p, tcs, fmt)) {
+                throw new IllegalStateException("Cannot transcode any track to: " + fmt);
             }
         }
     }
@@ -202,7 +200,7 @@ Debug.println("- set track format to: " + fmts[i]);
         try {
             Class<?> clazz = Class.forName("com.sun.media.MimeManager");
             Method method = clazz.getMethod("getMimeType", String.class);
-            return String.class.cast(method.invoke(null, name));
+            return (String) method.invoke(null, name);
         } catch (Exception e) {
             return null;
         }
@@ -212,9 +210,9 @@ Debug.println("- set track format to: " + fmts[i]);
      * We'll loop through the tracks and try to find a track that can be
      * converted to the given format.
      */
-    private boolean setEachTrackFormat(Processor p, TrackControl tcs[], Format fmt) {
+    private boolean setEachTrackFormat(Processor p, TrackControl[] tcs, Format fmt) {
 
-        Format supported[];
+        Format[] supported;
         Format f;
 
 // for (int i = 0; i < tcs.length; i++) {
@@ -224,17 +222,17 @@ Debug.println("- set track format to: " + fmts[i]);
 //  }
 // }
 
-        for (int i = 0; i < tcs.length; i++) {
+        for (TrackControl tc : tcs) {
 
-            supported = tcs[i].getSupportedFormats();
+            supported = tc.getSupportedFormats();
 
             if (supported == null) {
                 continue;
             }
 
-            for (int j = 0; j < supported.length; j++) {
+            for (Format format : supported) {
 
-                if (fmt.matches(supported[j]) && (f = fmt.intersects(supported[j])) != null && tcs[i].setFormat(f) != null) {
+                if (fmt.matches(format) && (f = fmt.intersects(format)) != null && tc.setFormat(f) != null) {
 
                     // Success.
                     return true;
@@ -266,7 +264,7 @@ System.err.println("- create DataSink for: " + outML);
     }
 
     /** */
-    private Object waitSync = new Object();
+    private final Object waitSync = new Object();
 
     /** */
     private boolean stateTransitionOK = true;
@@ -281,7 +279,7 @@ System.err.println("- create DataSink for: " + outML);
                 while (p.getState() < state && stateTransitionOK) {
                     waitSync.wait();
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
         return stateTransitionOK;
@@ -290,34 +288,32 @@ System.err.println("- create DataSink for: " + outML);
     /**
      * Controller Listener.
      */
-    private ControllerListener controllerListener = new ControllerListener() {
-        public void controllerUpdate(ControllerEvent event) {
+    private final ControllerListener controllerListener = event -> {
 
-            if (event instanceof ConfigureCompleteEvent ||
-                event instanceof RealizeCompleteEvent ||
-                event instanceof PrefetchCompleteEvent) {
-                synchronized (waitSync) {
-                    stateTransitionOK = true;
-                    waitSync.notifyAll();
-                }
-            } else if (event instanceof ResourceUnavailableEvent) {
-                synchronized (waitSync) {
-                    stateTransitionOK = false;
-                    waitSync.notifyAll();
-                }
-            } else if (event instanceof EndOfMediaEvent) {
-                event.getSourceController().close();
-            } else if (event instanceof MediaTimeSetEvent) {
-System.err.println("- mediaTime set: " + ((MediaTimeSetEvent) event).getMediaTime().getSeconds());
-            } else if (event instanceof StopAtTimeEvent) {
-System.err.println("- stop at time: " + ((StopAtTimeEvent) event).getMediaTime().getSeconds());
-                event.getSourceController().close();
+        if (event instanceof ConfigureCompleteEvent ||
+            event instanceof RealizeCompleteEvent ||
+            event instanceof PrefetchCompleteEvent) {
+            synchronized (waitSync) {
+                stateTransitionOK = true;
+                waitSync.notifyAll();
             }
+        } else if (event instanceof ResourceUnavailableEvent) {
+            synchronized (waitSync) {
+                stateTransitionOK = false;
+                waitSync.notifyAll();
+            }
+        } else if (event instanceof EndOfMediaEvent) {
+            event.getSourceController().close();
+        } else if (event instanceof MediaTimeSetEvent) {
+System.err.println("- mediaTime set: " + ((MediaTimeSetEvent) event).getMediaTime().getSeconds());
+        } else if (event instanceof StopAtTimeEvent) {
+System.err.println("- stop at time: " + ((StopAtTimeEvent) event).getMediaTime().getSeconds());
+            event.getSourceController().close();
         }
     };
 
     /** */
-    private Object waitFileSync = new Object();
+    private final Object waitFileSync = new Object();
 
     /** */
     private boolean fileDone = false;
@@ -336,30 +332,28 @@ System.err.print("  ");
                     waitFileSync.wait(1000);
 System.err.print(".");
                 }
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
-System.err.println("");
+System.err.println();
         return fileSuccess;
     }
 
     /**
      * Event handler for the file writer.
      */
-    private DataSinkListener dataSinkListener = new DataSinkListener() {
-        public void dataSinkUpdate(DataSinkEvent event) {
+    private final DataSinkListener dataSinkListener = event -> {
 
-            if (event instanceof EndOfStreamEvent) {
-                synchronized (waitFileSync) {
-                    fileDone = true;
-                    waitFileSync.notifyAll();
-                }
-            } else if (event instanceof DataSinkErrorEvent) {
-                synchronized (waitFileSync) {
-                    fileDone = true;
-                    fileSuccess = false;
-                    waitFileSync.notifyAll();
-                }
+        if (event instanceof EndOfStreamEvent) {
+            synchronized (waitFileSync) {
+                fileDone = true;
+                waitFileSync.notifyAll();
+            }
+        } else if (event instanceof DataSinkErrorEvent) {
+            synchronized (waitFileSync) {
+                fileDone = true;
+                fileSuccess = false;
+                waitFileSync.notifyAll();
             }
         }
     };
@@ -427,7 +421,7 @@ Debug.println("Cannot build media locator from: " + outputURL);
             System.exit(0);
         }
 
-        // Trancode with the specified parameters.
+        // Transcode with the specified parameters.
         Transcoder transcode = new Transcoder();
 
         transcode.doIt(iml, oml, new Format[] { fmt }, 0, 0);

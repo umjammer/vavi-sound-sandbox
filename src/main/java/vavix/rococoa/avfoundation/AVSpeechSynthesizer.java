@@ -6,7 +6,6 @@
 
 package vavix.rococoa.avfoundation;
 
-import com.sun.jna.Pointer;
 import org.rococoa.ID;
 import org.rococoa.ObjCBlock;
 import org.rococoa.ObjCBlocks.BlockLiteral;

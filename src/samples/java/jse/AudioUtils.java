@@ -19,10 +19,11 @@
 
 package jse;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -31,15 +32,19 @@ import javax.sound.sampled.Line;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 
+import static java.lang.System.getLogger;
+
 
 /**
  * AudioUtils.java
- * @see AudioStream For an example of usage
  *
+ * @see AudioStream For an example of usage
+ * <p>
  * This file is part of the Java Sound Examples.
  */
 public class AudioUtils {
-    private static final boolean DEBUG = true;
+
+    private static final Logger logger = getLogger(AudioUtils.class.getName());
 
     public static Iterator<AudioFormat> getSupportedSourceDataLineFormats(Mixer mixer) {
         Line.Info[] aLineInfos = mixer.getSourceLineInfo(new Line.Info(SourceDataLine.class));
@@ -53,19 +58,17 @@ public class AudioUtils {
 
     private static Iterator<AudioFormat> getSupportedSourceDataLineFormatsImpl(Line.Info[] aLineInfos) {
         List<AudioFormat> formats = new ArrayList<>();
-        for (int i = 0; i < aLineInfos.length; i++) {
-            if (aLineInfos[i] instanceof DataLine.Info) {
-                AudioFormat[] aFormats = ((DataLine.Info) aLineInfos[i]).getFormats();
-                for (int nFormat = 0; nFormat < aFormats.length; nFormat++) {
-                    if (!formats.contains(aFormats[nFormat])) {
-                        formats.add(aFormats[nFormat]);
+        for (Line.Info aLineInfo : aLineInfos) {
+            if (aLineInfo instanceof DataLine.Info) {
+                AudioFormat[] aFormats = ((DataLine.Info) aLineInfo).getFormats();
+                for (AudioFormat aFormat : aFormats) {
+                    if (!formats.contains(aFormat)) {
+                        formats.add(aFormat);
                     }
                 }
             } else {
-                /*
-                 *        No chance to get useful information,
-                 *        so do nothing.
-                 */
+                // No chance to get useful information,
+                // so do nothing.
             }
         }
         return formats.iterator();
@@ -90,9 +93,7 @@ public class AudioUtils {
             }
         }
 
-        /*
-         *        No suitable format found.
-         */
+        // No suitable format found.
         return null;
     }
 
@@ -107,18 +108,12 @@ public class AudioUtils {
     }
 
     public static AudioInputStream getSuitableAudioInputStreamImpl(AudioInputStream sourceAudioInputStream, AudioFormat targetFormat) {
-        if (DEBUG) {
-            System.out.println("AudioUtils.getSuitableAudioInputStreamImpl(): target format: " + targetFormat);
-        }
+        logger.log(Level.DEBUG, "AudioUtils.getSuitableAudioInputStreamImpl(): target format: " + targetFormat);
         if (targetFormat != null) {
-            if (DEBUG) {
-                System.out.println("AudioUtils.getSuitableAudioInputStreamImpl(): trying to do a conversion.");
-            }
+            logger.log(Level.DEBUG, "AudioUtils.getSuitableAudioInputStreamImpl(): trying to do a conversion.");
             return AudioSystem.getAudioInputStream(targetFormat, sourceAudioInputStream);
         } else {
-            if (DEBUG) {
-                System.out.println("AudioUtils.getSuitableAudioInputStreamImpl(): returning null as resulting AudioInputStream.");
-            }
+            logger.log(Level.DEBUG, "AudioUtils.getSuitableAudioInputStreamImpl(): returning null as resulting AudioInputStream.");
             return null;
         }
     }

@@ -21,6 +21,8 @@ package jse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.sound.sampled.AudioFormat;
@@ -30,38 +32,38 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.Line;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+
 import org.tritonus.sampled.cdda.CddaURLStreamHandlerFactory;
+
+import static java.lang.System.getLogger;
 
 
 /**
   command-line player
  */
 public class CddaPlayer {
+
     static {
         URL.setURLStreamHandlerFactory(new CddaURLStreamHandlerFactory());
     }
 
-    /**        Flag for debugging messages.
-     *        If true, some messages are dumped to the console
-     *        during operation.
-     */
-    private static boolean DEBUG = false;
-    private static int DEFAULT_EXTERNAL_BUFFER_SIZE = 128000;
+    private static final Logger logger = getLogger(CddaPlayer.class.getName());
+
+    private static final int DEFAULT_EXTERNAL_BUFFER_SIZE = 128000;
 
     public static void main(String[] args) {
         int nExternalBufferSize = DEFAULT_EXTERNAL_BUFFER_SIZE;
         int nInternalBufferSize = AudioSystem.NOT_SPECIFIED;
 
-        /**        CDROM drive number.
-                Defaults to first drive. [how is the order constituted?]
-                Not used for now. Hardcoded default to /dev/cdrom.
-        */
+        // CDROM drive number.
+        // Defaults to first drive. [how is the order constituted?]
+        // Not used for now. Hardcoded default to /dev/cdrom.
         int nDrive = 0;
 
         boolean bTocOnly = true;
         int nTrack = 0;
 
-        // File        outputFile = new File("output.wav");
+//        File outputFile = new File("output.wav");
         if (args.length < 1) {
             bTocOnly = true;
         } else if (args.length == 1) {
@@ -77,14 +79,14 @@ public class CddaPlayer {
             try {
                 tocURL = new URL("cdda:" + strDrive);
             } catch (MalformedURLException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
 
             InputStream tocInputStream = null;
             try {
                 tocInputStream = tocURL.openStream();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
             output(tocInputStream);
         }
@@ -94,14 +96,14 @@ public class CddaPlayer {
             try {
                 trackURL = new URL("cdda://" + strDrive + "#" + nTrack);
             } catch (MalformedURLException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
 
             InputStream trackInputStream = null;
             try {
                 trackInputStream = trackURL.openStream();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
 
             AudioInputStream audioInputStream = (AudioInputStream) trackInputStream;
@@ -115,7 +117,7 @@ public class CddaPlayer {
                 line.open();
                 line.start();
             } catch (LineUnavailableException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
 
             int nBytesRead = 0;
@@ -124,18 +126,13 @@ public class CddaPlayer {
                 try {
                     nBytesRead = audioInputStream.read(abData, 0, abData.length);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.log(Level.ERROR, e.getMessage(), e);
                 }
-                if (DEBUG) {
-                    System.out.println("AudioPlayer.main(): read from AudioInputStream (bytes): " +
-                                       nBytesRead);
-                }
+                logger.log(Level.DEBUG, "AudioPlayer.main(): read from AudioInputStream (bytes): " + nBytesRead);
                 if (nBytesRead >= 0) {
                     int nBytesWritten = line.write(abData, 0, nBytesRead);
-                    if (DEBUG) {
-                        System.out.println("AudioPlayer.main(): written to SourceDataLine (bytes): " +
+                    logger.log(Level.DEBUG, "AudioPlayer.main(): written to SourceDataLine (bytes): " +
                                            nBytesWritten);
-                    }
                 }
             }
         }
@@ -153,7 +150,7 @@ public class CddaPlayer {
                 nBytesRead = inputStream.read(buffer);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
     }
 

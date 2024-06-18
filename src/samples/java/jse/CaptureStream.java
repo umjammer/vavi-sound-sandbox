@@ -1,9 +1,3 @@
-package jse;
-/*
- *        CaptureStream.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -23,41 +17,48 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+package jse;
+
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.TargetDataLine;
 
+import static java.lang.System.getLogger;
 
+
+/**
+ * CaptureStream.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ */
 public class CaptureStream extends Thread {
-    /**        Flag for debugging messages.
-     *        If true, some messages are dumped to the console
-     *        during operation.
-     */
-    private static final boolean DEBUG = true;
-    private TargetDataLine m_line;
-    private OutputStream m_outputStream;
+
+    private static final Logger logger = getLogger(CaptureStream.class.getName());
+
+    private final TargetDataLine m_line;
+    private final OutputStream m_outputStream;
     private boolean m_bRecording;
 
-    /*
-     *        We have to pass:
-     *        a) an AudioFormat to describe in which format the audio data
-     *        should be recorded.
-     *        b) an OutputStream to describe where the recorded data should
-     *        be written.
+    /**
+     * We have to pass:
+     * a) an AudioFormat to describe in which format the audio data should be recorded.
+     * b) an OutputStream to describe where the recorded data should be written.
      */
-    public CaptureStream(AudioFormat format, OutputStream outputStream)
-        throws LineUnavailableException {
-        DataLine.Info info = new DataLine.Info(TargetDataLine.class, format,
-                                               AudioSystem.NOT_SPECIFIED);
+    public CaptureStream(AudioFormat format, OutputStream outputStream) throws LineUnavailableException {
+        DataLine.Info info = new DataLine.Info(TargetDataLine.class, format, AudioSystem.NOT_SPECIFIED);
         m_line = (TargetDataLine) AudioSystem.getLine(info);
         m_line.open(format, m_line.getBufferSize());
         m_outputStream = outputStream;
     }
 
+    @Override
     public void start() {
         m_line.start();
         super.start();
@@ -69,6 +70,7 @@ public class CaptureStream extends Thread {
         m_bRecording = false;
     }
 
+    @Override
     public void run() {
         // TODO: intelligent size
         byte[] abBuffer = new byte[65536];
@@ -76,20 +78,16 @@ public class CaptureStream extends Thread {
         int nBufferFrames = abBuffer.length / nFrameSize;
         m_bRecording = true;
         while (m_bRecording) {
-            if (DEBUG) {
-                System.out.println("Trying to read: " + nBufferFrames);
-            }
+            logger.log(Level.DEBUG, "Trying to read: " + nBufferFrames);
 
             int nFramesRead = m_line.read(abBuffer, 0, nBufferFrames);
-            if (DEBUG) {
-                System.out.println("Read: " + nFramesRead);
-            }
+            logger.log(Level.DEBUG, "Read: " + nFramesRead);
 
             int nBytesToWrite = nFramesRead * nFrameSize;
             try {
                 m_outputStream.write(abBuffer, 0, nBytesToWrite);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
     }

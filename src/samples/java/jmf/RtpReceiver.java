@@ -18,7 +18,6 @@ import javax.media.Processor;
 import javax.media.RealizeCompleteEvent;
 import javax.media.control.TrackControl;
 import javax.media.datasink.DataSinkErrorEvent;
-import javax.media.datasink.DataSinkEvent;
 import javax.media.datasink.DataSinkListener;
 import javax.media.datasink.EndOfStreamEvent;
 import javax.media.format.AudioFormat;
@@ -45,7 +44,7 @@ public class RtpReceiver {
     int interval;
     long playingTime = 0;
     public static void main(String[] args) throws Exception {
-        new RtpReceiver(new File(args[0]).toURL().toString(), Integer.parseInt(args[1]));
+        new RtpReceiver(new File(args[0]).toURI().toString(), Integer.parseInt(args[1]));
     }
     /**
      * @param url
@@ -57,23 +56,27 @@ Debug.println("url: " + url + ", " + this.interval);
         sourceML = new MediaLocator(url);
         processor = Manager.createProcessor(sourceML);
         processor.addControllerListener(new ControllerAdapter() {
+            @Override
             public void configureComplete(ConfigureCompleteEvent event) {
                 // Set the output content type and realize the processor
 
                 checkTrackFormats(processor);
                 processor.realize();
             }
+            @Override
             public void realizeComplete(RealizeCompleteEvent event) {
 System.err.println("start play");
                 timer.setInitialDelay(0);
                 timer.start();
             }
+            @Override
             public void endOfMedia(EndOfMediaEvent event) {
 System.err.println("stop play");
                 timer.stop();
                 event.getSourceController().close();
                 System.exit(0);
             }
+            @Override
             public void controllerError(ControllerErrorEvent event) {
                 System.err.println(event);
                 System.exit(-1);
@@ -81,9 +84,10 @@ System.err.println("stop play");
         });
 
         timer = new Timer(this.interval, new ActionListener() {
-            UrlMaker urlMaker = new MyUrlMaker();
+            final UrlMaker urlMaker = new MyUrlMaker();
             Processor outProcessor;
             /** Capture for 10 seconds */
+            @Override
             public void actionPerformed(ActionEvent event) {
                 try {
                     long start = playingTime * 1000 * 1000;
@@ -97,15 +101,18 @@ Debug.println("end: " + end);
 
                     outProcessor = Manager.createProcessor(dataSource);
                     outProcessor.addControllerListener(new ControllerAdapter() {
+                        @Override
                         public void configureComplete(ConfigureCompleteEvent event) {
                             outProcessor.setContentDescriptor(new FileTypeDescriptor(FileTypeDescriptor.WAVE));
                             outProcessor.realize();
 Debug.println("outProcessor: configured");
                         }
+                        @Override
                         public void realizeComplete(RealizeCompleteEvent event) {
                             outProcessor.prefetch();
 Debug.println("outProcessor: realized");
                         }
+                        @Override
                         public void prefetchComplete(PrefetchCompleteEvent event) {
                             try {
                                 // create a File protocol MediaLocator with the location of the
@@ -135,9 +142,11 @@ Debug.println("fileSuccess: " + fileSuccess);
                                 e.printStackTrace(System.err);
                             }
                         }
+                        @Override
                         public void endOfMedia(EndOfMediaEvent event) {
                             event.getSourceController().close();
                         }
+                        @Override
                         public void controllerError(ControllerErrorEvent event) {
                             System.err.println(event);
                         }
@@ -154,7 +163,7 @@ Debug.println("fileSuccess: " + fileSuccess);
     }
 
     /** */
-    private Object waitFileSync = new Object();
+    private final Object waitFileSync = new Object();
 
     /** */
     private boolean fileDone = false;
@@ -184,22 +193,20 @@ System.err.println();
     /**
      * Event handler for the file writer.
      */
-    private DataSinkListener dataSinkListener = new DataSinkListener() {
-        public void dataSinkUpdate(DataSinkEvent event) {
+    private final DataSinkListener dataSinkListener = event -> {
 
-            if (event instanceof EndOfStreamEvent) {
-                synchronized (waitFileSync) {
-                    fileDone = true;
-                    waitFileSync.notifyAll();
+        if (event instanceof EndOfStreamEvent) {
+            synchronized (waitFileSync) {
+                fileDone = true;
+                waitFileSync.notifyAll();
 System.err.print("O");
-                }
-            } else if (event instanceof DataSinkErrorEvent) {
-                synchronized (waitFileSync) {
-                    fileDone = true;
-                    fileSuccess = false;
-                    waitFileSync.notifyAll();
+            }
+        } else if (event instanceof DataSinkErrorEvent) {
+            synchronized (waitFileSync) {
+                fileDone = true;
+                fileSuccess = false;
+                waitFileSync.notifyAll();
 System.err.print("X");
-                }
             }
         }
     };
@@ -210,35 +217,35 @@ System.err.print("X");
      */
     void checkTrackFormats(Processor p) {
 
-        TrackControl tc[] = p.getTrackControls();
+        TrackControl[] tc = p.getTrackControls();
         VideoFormat mpgVideo = new VideoFormat(VideoFormat.MPEG);
         AudioFormat rawAudio = new AudioFormat(AudioFormat.LINEAR);
 
-        for (int i = 0; i < tc.length; i++) {
+        for (TrackControl trackControl : tc) {
             Format preferred = null;
 
-            if (tc[i].getFormat().matches(mpgVideo)) {
+            if (trackControl.getFormat().matches(mpgVideo)) {
                 preferred = new VideoFormat(VideoFormat.JPEG);
-            } else if (tc[i].getFormat() instanceof AudioFormat && !tc[i].getFormat().matches(rawAudio)) {
+            } else if (trackControl.getFormat() instanceof AudioFormat && !trackControl.getFormat().matches(rawAudio)) {
                 preferred = rawAudio;
             }
 
             if (preferred != null) {
-                Format supported[] = tc[i].getSupportedFormats();
+                Format[] supported = trackControl.getSupportedFormats();
                 Format selected = null;
 
-                for (int j = 0; j < supported.length; j++) {
-                    if (supported[j].matches(preferred)) {
-                        selected = supported[j];
+                for (Format format : supported) {
+                    if (format.matches(preferred)) {
+                        selected = format;
                         break;
                     }
                 }
 
                 if (selected != null) {
                     System.err.println("  Transcode:");
-                    System.err.println("     from: " + tc[i].getFormat());
+                    System.err.println("     from: " + trackControl.getFormat());
                     System.err.println("     to: " + selected);
-                    tc[i].setFormat(selected);
+                    trackControl.setFormat(selected);
                 }
             }
         }
@@ -256,6 +263,7 @@ System.err.print("X");
         int currentNo = 0;
 
         /** */
+        @Override
         public String getUrl() {
             //
             if (currentNo == 0) {

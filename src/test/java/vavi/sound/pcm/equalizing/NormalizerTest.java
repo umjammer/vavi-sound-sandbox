@@ -82,6 +82,6 @@ Debug.println("IN: " + format);
             outname = null;
         }
 
-        new Normalizer().normalize(inname, outname);
+        Normalizer.normalize(inname, outname);
     }
 }

@@ -4,12 +4,19 @@
 package vavi.sound.ldcelp;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -28,6 +35,8 @@ import vavi.util.Debug;
  */
 public class LdCelp {
 
+    private static final Logger logger = getLogger(LdCelp.class.getName());
+
     /** Arrays for band widening: zeros and */
     private final float[] pwf_z_vec = new float[Constants.LPCW + 1];
     /** poles */
@@ -41,7 +50,7 @@ public class LdCelp {
      * @param p_out pole coefficients
      */
     void pwf_adapter(float[] input, float[] z_out, float[] p_out) {
-        // autocorrelation coefficients
+        // auto-correlation coefficients
         float[] acorr = new float[Constants.LPCW + 1];
         float[] lpcoeff = new float[Constants.LPCW + 1];
         float[] temp = new float[Constants.LPCW + 1];
@@ -57,8 +66,7 @@ public class LdCelp {
                0.5f);
         if (levdur(acorr, temp, Constants.LPCW) != 0) {
             RCOPY(temp, 0, lpcoeff, 0, Constants.LPCW + 1);
-            bw_expand2(lpcoeff, z_out, p_out,
-                       Constants.LPCW, pwf_z_vec, pwf_p_vec);
+            bw_expand2(lpcoeff, z_out, p_out, Constants.LPCW, pwf_z_vec, pwf_p_vec);
         }
     }
 
@@ -83,7 +91,7 @@ public class LdCelp {
         ZARR(pwf_rec);
     }
 
-    // Backward Synthesis Filter Adapter --------------------------------------
+    // Backward Synthesis Filter Adapter ----
 
     private final float[] facv = new float[Constants.LPC + 1];
 
@@ -93,14 +101,14 @@ public class LdCelp {
     /** */
     void bsf_adapter(float[] input, float[] p_out) {
         float[] old_input = new float[Constants.LPC + Constants.NFRSZ + Constants.NONR];
-        // autocorrelation coefficients
+        // auto-correlation coefficients
         float[] acorr = new float[Constants.LPC + 1];
         float[] lpcoeff = new float[Constants.LPC + 1];
         float[] temp = new float[Constants.LPC + 1];
 
         hybwin(Constants.LPC,    // lpsize
                Constants.NFRSZ,    // framesize
-               Constants.NONR,    // nrsize -- nonrecursive size
+               Constants.NONR,    // nrsize -- non-recursive size
                old_input,
                input,
                acorr,
@@ -115,7 +123,7 @@ public class LdCelp {
         }
     }
 
-    // Gain Adapter -----------------------------------------------------------
+    // Gain Adapter ----
 
     /** Array for band widening */
     private static final float[] gain_p_vec = {
@@ -138,7 +146,7 @@ public class LdCelp {
 
     /** recompute lpc_coeff */
     void gain_adapter(float[] log_gain, float[] coeff) {
-        // autocorrelation coefficients
+        // auto-correlation coefficients
         float[] acorr = new float[Constants.LPCLG + 1];
         float[] lpcoeff = new float[Constants.LPCLG + 1];
 
@@ -160,7 +168,7 @@ public class LdCelp {
         }
     }
 
-    // Initializations --------------------------------------------------------
+    // Initializations ----
 
     /** */
     void init_bsf_adapter(float[] co) {
@@ -188,7 +196,7 @@ public class LdCelp {
         ZARR(g_old_input);
     }
 
-    // Hybrid Window Module ---------------------------------------------------
+    // Hybrid Window Module ----
 
     /**
      * Hybrid Window
@@ -250,7 +258,7 @@ public class LdCelp {
         output[0] *= Constants.WNCF;
     }
 
-    // Levinson-Durbin Routines -----------------------------------------------
+    // Levinson-Durbin Routines ----
 
     /**
      * Levinson-Durbin algorithm
@@ -393,7 +401,7 @@ public class LdCelp {
         return 1;
     }
 
-    // Band Width Expanders ---------------------------------------------------
+    // Band Width Expanders ----
 
     /**
      * Don't have to worry about i=0 -- z_vec[0] and p_vec[0] should stay 1.0.
@@ -454,8 +462,8 @@ public class LdCelp {
 
         LdCelp ldCelp = new LdCelp();
         if (args[0].equals("-e")) {
-            ldCelp.ifile_name = args[1];
-            ldCelp.xfile_name = args[2];
+            ldCelp.in_file_name = args[1];
+            ldCelp.x_file_name = args[2];
             ldCelp.ffase.set(1);
             ldCelp.encoder();
         } else if (args[0].startsWith("-d")) {
@@ -464,8 +472,8 @@ public class LdCelp {
             } else {
                 ldCelp.postfiltering_p = false;
             }
-            ldCelp.xfile_name = args[1];
-            ldCelp.ofile_name = args[2];
+            ldCelp.x_file_name = args[1];
+            ldCelp.out_file_name = args[2];
             ldCelp.ffase.set(1);
             ldCelp.decoder();
         } else {
@@ -585,8 +593,7 @@ public class LdCelp {
         // Backward syn. filter coeff update.  Occurs after full frame (before
         // first vector) but not used until the third vector of the frame
         if (ffase.get() == 1) {
-            CIRCOPY(synth, synspeech, dec_end,
-                           Constants.NUPDATE * Constants.IDIM, QSIZE);
+            CIRCOPY(synth, synspeech, dec_end, Constants.NUPDATE * Constants.IDIM, QSIZE);
             bsf_adapter(synth, _next[SF_COEFF]); // Compute then new coeff
         }
 
@@ -599,23 +606,20 @@ public class LdCelp {
         // Gain coeff update before second vector of frame
         if (ffase.get() == 2) {
             gx = dec_end / Constants.IDIM;
-            CIRCOPY(lg, log_gains, gx, Constants.NUPDATE,
-                           QSIZE / Constants.IDIM);
+            CIRCOPY(lg, log_gains, gx, Constants.NUPDATE, QSIZE / Constants.IDIM);
             gain_adapter(lg, _next[GP_COEFF]);
             _obsolete_p[GP_COEFF] = 1;
         }
 
         if (ffase.get() == 3) {
-            CIRCOPY(input, thequeue, dec_end,
-                           Constants.NUPDATE * Constants.IDIM, QSIZE);
+            CIRCOPY(input, thequeue, dec_end, Constants.NUPDATE * Constants.IDIM, QSIZE);
             pwf_adapter(input, _next[PWF_Z_COEFF], _next[PWF_P_COEFF]);
             _obsolete_p[PWF_Z_COEFF] = 1;
             _obsolete_p[PWF_P_COEFF] = 1;
         }
 
         if (ffase.get() == 3) {
-            iresp_vcalc(_next[SF_COEFF], _next[PWF_Z_COEFF],
-                        _next[PWF_P_COEFF], _next[IMP_RESP]);
+            iresp_vcalc(_next[SF_COEFF], _next[PWF_Z_COEFF], _next[PWF_P_COEFF], _next[IMP_RESP]);
             shape_conv(_next[IMP_RESP], _next[SHAPE_ENERGY]);
             _obsolete_p[SHAPE_ENERGY] = 1;
             _obsolete_p[IMP_RESP] = 1;
@@ -702,11 +706,12 @@ public class LdCelp {
     static void cb_excitation(int ix, float[] v) {
         int sx = ix >> 3;
         int gx = ix & 7;
-//Debug.println("sx: " + sx + ", ix: " + ix + ", gx: " + gx);
+//logger.log(Level.TRACE, "sx: " + sx + ", ix: " + ix + ", gx: " + gx);
         float gain = cb_gain[gx];
         for (int i = 0; i < Constants.IDIM; i++) {
-//Debug.println("v: " + i + "/" + v.length);
-Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_shape[sx].length);
+//logger.log(Level.TRACE, "v: " + i + "/" + v.length);
+//logger.log(Level.TRACE, "is: " + ix + ", sx: " + sx);
+logger.log(Level.TRACE, "cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_shape[sx].length);
             v[i] = cb_shape[sx][i] * gain;
         }
     }
@@ -740,7 +745,7 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
         final int minus5 = -5;
 
         for (int j = 0; j < Constants.NCWD; j++) {
-            cor = cor - cor;
+            cor = 0.0f;
             float energy = shape_energy[float_pointer_sher_ptr++];
 
             float b0 = cgm0 * energy;
@@ -828,10 +833,10 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
                                      float[] b,
                                      int offsetB) {
         for (int i = 0; i < Constants.IDIM; i++) {
-// Debug.println("b: " + b.length);
-// Debug.println("bi: " + offsetB + ", " + (offsetB + i));
-// Debug.println("a: " + a.length);
-// Debug.println("ai: " + offsetA + ", " + (offsetA + i));
+//logger.log(Level.TRACE, "b: " + b.length);
+//logger.log(Level.TRACE, "bi: " + offsetB + ", " + (offsetB + i));
+//logger.log(Level.TRACE, "a: " + a.length);
+//logger.log(Level.TRACE, "ai: " + offsetA + ", " + (offsetA + i));
             b[offsetB + i] = scale * a[offsetA + i];
         }
     }
@@ -938,7 +943,7 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
     }
 
     /** */
-    private void init_decoder() {
+    private void init_decoder() throws IOException {
         init_bsf_adapter(sf_coeff);
         _next[SF_COEFF][0] = 1.0f;
         _obsolete_p[SF_COEFF] = 0;
@@ -969,10 +974,11 @@ Debug.println("cb_shape: " + sx + ", " + i + "/" + cb_shape.length + ", " + cb_s
             d_vec_start -= QSIZE;
         }
         ix = get_index();
-//Debug.println("ix: " + ix);
+//logger.log(Level.TRACE, "ix: " + ix);
         if (ix < 0) {
 Debug.println("decoder_done");
             decoder_done = true; // TODO even though it's eof, just flag it?
+return; // TODO vavi
         }
 
         UPDATE(sf_coeff, SF_COEFF);
@@ -1308,7 +1314,7 @@ Debug.println("decoder_done");
     }
 
     /**
-     * Autocorrelation : R[0:K] is autocorrelation of X[M:N-1]  i.e.
+     * Auto-correlation : R[0:K] is auto-correlation of X[M:N-1]  i.e.
      * R[k] = Sum X[i]*X[i-k]   for    M<=i<N
      */
     static void AUTOCORR(float[] X, float[] R, int K, int M, int N) {
@@ -1321,7 +1327,7 @@ Debug.println("decoder_done");
     }
 
     /**
-     * if AC is autocorrelation of X (as in above) , then
+     * if AC is auto-correlation of X (as in above) , then
      * R[i] = D * R[i] + AC[i]
      */
     static void RECACORR(float[] X, float[] R, int K, int M, int N, float D) {
@@ -1496,7 +1502,7 @@ Debug.println("decoder_done");
             for (int i = k; i >= 1; i--) {
                 zirwfir[float_pointer_t2 + i] = zirwfir[float_pointer_t2 + i - 1];
                 temp[i] = temp[i - 1];
-                a0 -=   sf_coeff[i] * zirwfir[float_pointer_t2 + i];
+                a0 -= sf_coeff[i] * zirwfir[float_pointer_t2 + i];
                 a1 += pwf_z_coeff[i] * zirwfir[float_pointer_t2 + i];
                 a2 -= pwf_p_coeff[i] * temp[i];
             }
@@ -1558,10 +1564,7 @@ Debug.println("decoder_done");
     }
 
     /** */
-    void update_gain(float[] input,
-                     int offset,
-                     float[] lgp,
-                     int float_pointer_lgp) {
+    void update_gain(float[] input, int offset, float[] lgp, int float_pointer_lgp) {
 
         lgp[float_pointer_lgp] = log_rms(input, offset) - Constants.GOFF;
         for (int i = 0; i < Constants.LPCLG - 1; i++) {
@@ -1622,68 +1625,63 @@ Debug.println("decoder_done");
     /** Scaling factor for input */
     float rscale = 0.125f;
 
-    String xfile_name;
+    /** ld-celp coded file */
+    String x_file_name;
 
     /** output file (codebook indices) */
-    FileOutputStream oxfd;
+    OutputStream eOut;
     /** input file */
-    FileInputStream ifd;
+    InputStream eIn;
 
-    /** */
-    String ifile_name;
+    /** for encoding */
+    String in_file_name;
 
-    /** */
+    /** for encoding */
     void init_input() {
         try {
-            ifd = new FileInputStream(ifile_name);
+            eIn = new FileInputStream(in_file_name);
         } catch (IOException e) {
-System.err.println("Can't open \"" + ifile_name + "\"\n");
+logger.log(Level.DEBUG, "Can't open \"" + in_file_name + "\"\n");
             System.exit(1);
         }
         try {
-            oxfd = new FileOutputStream(xfile_name);
+            eOut = new FileOutputStream(x_file_name);
         } catch (IOException e) {
-System.err.println("Can't open \"" + xfile_name + "\"\n");
+logger.log(Level.DEBUG, "Can't open \"" + x_file_name + "\"\n");
         }
     }
 
-    /** */
+    /** for encoding */
     void put_index(int x) throws IOException {
-        oxfd.write((x & 0xff00) >> 8);
-        oxfd.write( x & 0x00ff);
+        eOut.write((x & 0xff00) >> 8);
+        eOut.write( x & 0x00ff);
     }
 
-    /** */
-    String ofile_name;
+    /** for decoding */
+    String out_file_name;
 
-    /** Outpu file */
-    private FileOutputStream ofd;
+    /** Output file */
+    private OutputStream dOut;
     /** Input file (codebook indices) */
-    private FileInputStream ixfd;
+    private InputStream dIn;
     int sound_overflow = 0;
 
-    /** */
-    void init_output() {
+    /** for decoding */
+    void init_output() throws FileNotFoundException {
         sound_overflow = 0;
-        try {
-            ofd = new FileOutputStream(ofile_name);
-        } catch (IOException e) {
-System.err.println("Can't open \"" + ofile_name + "\" for output\n");
-            System.exit(1);
-        }
-        try {
-            ixfd = new FileInputStream(xfile_name);
-        } catch (IOException e) {
-System.err.println("Can't open \"" + xfile_name + "\"\n");
-            System.exit(3);
-        }
+        dOut = new FileOutputStream(out_file_name);
+        dIn = new FileInputStream(x_file_name);
     }
 
-    /** */
+    /** for decoding */
     int get_index() throws IOException {
-        int c1 = ixfd.read();
-        int c2 = ixfd.read();
-        return (short) (c1 << 8 | c2);
+        int c1 = dIn.read();
+        int c2 = dIn.read();
+        if (c1 == -1 || c2 == -1) {
+//Debug.println("here: EOF");
+            return -1;
+        }
+        return (short) (c1 << 8 | c2) & 0xffff;
     }
 
     /** Return Number of Samples Read */
@@ -1691,20 +1689,19 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
         int c = 0;
 
         for (int i = 0; i < n; i++) {
-            int c1 = ifd.read();
-            int c2 = ifd.read();
+            int c1 = eIn.read();
+            int c2 = eIn.read();
             if (c1 == -1 || c2 == -1) {
                 break;
             }
-            int s = (c1 << 8) | c2;
+            int s = ((c1 << 8) | c2) & 0xffff;
             buf[offset + c++] = rscale * s;
         }
         return c;
     }
 
-    /** */
-    void write_sound_buffer(int n, float[] buf, int offset)
-        throws IOException {
+    /** for decoding */
+    void write_sound_buffer(int n, float[] buf, int offset) throws IOException {
 
         for (int i = 0; i < n; i++) {
             float xx = buf[offset + i] / rscale;
@@ -1722,8 +1719,8 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
                 }
             }
             int s = (int) xx;
-            ofd.write((s & 0xff00) >> 8);
-            ofd.write( s & 0x00ff);
+            dOut.write((s & 0xff00) >> 8);
+            dOut.write( s & 0x00ff);
         }
     }
 
@@ -1861,7 +1858,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
             scale = 1.0f;
         }
 
-        // Smooth out scale, then scale the output
+        // Smooth dOut scale, then scale the output
 
         for (int i = 0; i < Constants.IDIM; i++) {
             scalefil = Constants.AGCFAC * scalefil + (1.0f - Constants.AGCFAC) * scale;
@@ -1923,7 +1920,7 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
     }
 
     /**
-     * Postfilter Adapter
+     * Post-filter Adapter
      */
     void psf_adapter(float[] frame) {
 
@@ -2016,10 +2013,10 @@ System.err.println("Can't open \"" + xfile_name + "\"\n");
         float[] fil_out_mem = new float[Constants.NFRSZ + DECIM];
 
         // Shift decimated filtered output
-//Debug.println("DCFRSZ: " + DCFRSZ + ", PDMSIZE: " + PDMSIZE);
+//logger.log(Level.DEBUG, "DCFRSZ: " + DCFRSZ + ", PDMSIZE: " + PDMSIZE);
         for (int i = DCFRSZ; i < PDMSIZE; i++) {
-// Debug.println("fil_decim_mem: " + (i - DCFRSZ) + "/" + fil_decim_mem.length);
-// Debug.println("fil_out_mem: " + i + "/" + fil_out_mem.length);
+//logger.log(Level.DEBUG, "fil_decim_mem: " + (i - DCFRSZ) + "/" + fil_decim_mem.length);
+//logger.log(Level.DEBUG, "fil_out_mem: " + i + "/" + fil_out_mem.length);
             fil_decim_mem[i - DCFRSZ] = fil_decim_mem[i];
         }
 

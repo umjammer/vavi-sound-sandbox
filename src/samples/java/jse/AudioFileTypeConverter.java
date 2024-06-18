@@ -22,9 +22,13 @@ package jse;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+
+import static java.lang.System.getLogger;
 
 
 /*
@@ -33,11 +37,8 @@ import javax.sound.sampled.AudioSystem;
  *        This file is part of the Java Sound Examples.
  */
 public class AudioFileTypeConverter {
-    /**        Flag for debugging messages.
-     *        If true, some messages are dumped to the console
-     *        during operation.
-     */
-    private static final boolean DEBUG = false;
+
+    private static final Logger logger = getLogger(AudioFileTypeConverter.class.getName());
 
     public static void main(String[] args) {
         if (args.length == 1) {
@@ -67,7 +68,7 @@ public class AudioFileTypeConverter {
             try {
                 ais = AudioSystem.getAudioInputStream(file);
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
             if (ais == null) {
                 System.out.println("cannot open audio file");
@@ -83,20 +84,16 @@ public class AudioFileTypeConverter {
                 strTargetFilename = strFilename.substring(0, nDotPos) +
                                     targetFileType.getExtension();
             }
-            if (DEBUG) {
-                System.out.println("Target filename: " + strTargetFilename);
-            }
+            logger.log(Level.DEBUG, "Target filename: " + strTargetFilename);
 
             int nWrittenBytes = 0;
             try {
                 nWrittenBytes = AudioSystem.write(ais, targetFileType,
                                                   new File(strTargetFilename));
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
-            if (DEBUG) {
-                System.out.println("Written bytes: " + nWrittenBytes);
-            }
+            logger.log(Level.DEBUG, "Written bytes: " + nWrittenBytes);
         } else // args.length != 3
          {
             printUsageAndExit();
@@ -113,17 +110,17 @@ public class AudioFileTypeConverter {
     private static void listPossibleTargetTypes() {
         AudioFileFormat.Type[] aTypes = AudioSystem.getAudioFileTypes();
         System.out.print("Supported target types:");
-        for (int i = 0; i < aTypes.length; i++) {
-            System.out.print(" " + aTypes[i].getExtension());
+        for (AudioFileFormat.Type aType : aTypes) {
+            System.out.print(" " + aType.getExtension());
         }
         System.out.print("\n");
     }
 
     private static AudioFileFormat.Type findTargetType(String strExtension) {
         AudioFileFormat.Type[] aTypes = AudioSystem.getAudioFileTypes();
-        for (int i = 0; i < aTypes.length; i++) {
-            if (aTypes[i].getExtension().equals(strExtension)) {
-                return aTypes[i];
+        for (AudioFileFormat.Type aType : aTypes) {
+            if (aType.getExtension().equals(strExtension)) {
+                return aType;
             }
         }
         return null;

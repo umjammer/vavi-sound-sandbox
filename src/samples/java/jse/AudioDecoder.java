@@ -1,9 +1,3 @@
-package jse;
-/*
- *        AudioDecoder.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999, 2000 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -23,12 +17,19 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-import java.io.IOException;
+
+package jse;
+
 import java.io.File;
+import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+
+import static java.lang.System.getLogger;
 
 
 /*        +DocBookXML
@@ -89,7 +90,16 @@ import javax.sound.sampled.AudioSystem;
 
 -DocBookXML
 */
+
+/**
+ * AudioDecoder.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ */
 public class AudioDecoder {
+
+    private static final Logger logger = getLogger(AudioDecoder.class.getName());
+
     public static void main(String[] args) {
         if (args.length != 2) {
             printUsageAndExit();
@@ -101,7 +111,7 @@ public class AudioDecoder {
         try {
             ais = AudioSystem.getAudioInputStream(encodedFile);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
         if (ais == null) {
             System.out.println("cannot open audio file");
@@ -109,14 +119,13 @@ public class AudioDecoder {
         }
 
         AudioFormat.Encoding targetEncoding = AudioFormat.Encoding.PCM_SIGNED;
-        AudioInputStream pcmAIS = AudioSystem.getAudioInputStream(targetEncoding,
-                                                                  ais);
+        AudioInputStream pcmAIS = AudioSystem.getAudioInputStream(targetEncoding, ais);
         AudioFileFormat.Type fileType = AudioFileFormat.Type.AU;
         int nWrittenFrames = 0;
         try {
             nWrittenFrames = AudioSystem.write(pcmAIS, fileType, pcmFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
     }
 

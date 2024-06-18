@@ -20,6 +20,8 @@ package jse;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -29,24 +31,29 @@ import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 
+import static java.lang.System.getLogger;
+
 
 /**
  * ClipPlayer
- *
+ * <p>
  * This file is part of the Java Sound Examples.
  */
 public class ClipPlayer implements LineListener {
+
+    private static final Logger logger = getLogger(ClipPlayer.class.getName());
+
     private Clip m_clip;
 
-    /*
-     *        The clip will be played nLoopCount + 1 times.
+    /**
+     * The clip will be played nLoopCount + 1 times.
      */
     public ClipPlayer(File clipFile, int nLoopCount) {
         AudioInputStream audioInputStream = null;
         try {
             audioInputStream = AudioSystem.getAudioInputStream(clipFile);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
         if (audioInputStream != null) {
             AudioFormat format = audioInputStream.getFormat();
@@ -55,27 +62,23 @@ public class ClipPlayer implements LineListener {
                 m_clip = (Clip) AudioSystem.getLine(info);
                 m_clip.addLineListener(this);
                 m_clip.open(audioInputStream);
-            } catch (LineUnavailableException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (LineUnavailableException | IOException e) {
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
             m_clip.loop(nLoopCount);
         } else {
-            System.out.println("ClipPlayer.<init>(): can't get data from file " +
-                               clipFile.getName());
+            System.out.println("ClipPlayer.<init>(): can't get data from file " + clipFile.getName());
         }
     }
 
+    @Override
     public void update(LineEvent event) {
         if (event.getType().equals(LineEvent.Type.STOP)) {
             m_clip.close();
         } else if (event.getType().equals(LineEvent.Type.CLOSE)) {
-            /*
-             *        There is a bug in the jdk1.3.0.
-             *        It prevents correct termination of the VM.
-             *        So we have to exit ourselves.
-             */
+            // There is a bug in the jdk1.3.0.
+            // It prevents correct termination of the VM.
+            // So we have to exit ourselves.
             System.exit(0);
         }
     }

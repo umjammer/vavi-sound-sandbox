@@ -1,9 +1,3 @@
-package jse;
-/*
- *        SimpleAudioRecorder.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999 - 2001 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -23,15 +17,22 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-import java.io.IOException;
+
+package jse;
+
 import java.io.File;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.TargetDataLine;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.LineUnavailableException;
+import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.TargetDataLine;
+
+import static java.lang.System.getLogger;
 
 
 /*        +DocBookXML
@@ -80,25 +81,35 @@ import javax.sound.sampled.AudioFileFormat;
 
 -DocBookXML
 */
+
+/**
+ * SimpleAudioRecorder.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ */
 public class SimpleAudioRecorder extends Thread {
-    private TargetDataLine m_line;
-    private AudioFileFormat.Type m_targetType;
-    private AudioInputStream m_audioInputStream;
-    private File m_outputFile;
+
+    private static final Logger logger = getLogger(SimpleAudioRecorder.class.getName());
+
+    private final TargetDataLine m_line;
+    private final AudioFileFormat.Type m_targetType;
+    private final AudioInputStream m_audioInputStream;
+    private final File m_outputFile;
     private boolean m_bRecording;
 
-    public SimpleAudioRecorder(TargetDataLine line,
-                               AudioFileFormat.Type targetType, File file) {
+    public SimpleAudioRecorder(TargetDataLine line, AudioFileFormat.Type targetType, File file) {
         m_line = line;
         m_audioInputStream = new AudioInputStream(line);
         m_targetType = targetType;
         m_outputFile = file;
     }
 
-    /**        Starts the recording.
-     *        To accomplish this, (i) the line is started and (ii) the
-     *        thread is started.
+    /**
+     * Starts the recording.
+     * To accomplish this, (i) the line is started and (ii) the
+     * thread is started.
      */
+    @Override
     public void start() {
         m_line.start();
         super.start();
@@ -110,12 +121,13 @@ public class SimpleAudioRecorder extends Thread {
         m_bRecording = false;
     }
 
+    @Override
     public void run() {
         try {
             AudioSystem.write(m_audioInputStream, m_targetType, m_outputFile);
             System.out.println("after write()");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
     }
 
@@ -124,10 +136,8 @@ public class SimpleAudioRecorder extends Thread {
             printUsageAndExit();
         }
 
-        /*
-         *        We make shure that there is only one more argument, which
-         *        we take as the filename of the soundfile to store to.
-         */
+        // We make shure that there is only one more argument, which
+        // we take as the filename of the soundfile to store to.
         String strFilename = args[0];
         File outputFile = new File(strFilename);
 
@@ -137,7 +147,7 @@ public class SimpleAudioRecorder extends Thread {
         // audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 8000.0F, 8, 1, 1, 8000.0F, true);
         // 44.1 kHz, 16 bit, stereo
         audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                                      44100.0F, 16, 2, 4, 44100.0F, false);
+                44100.0F, 16, 2, 4, 44100.0F, false);
 
         DataLine.Info info = new DataLine.Info(TargetDataLine.class, audioFormat);
         TargetDataLine targetDataLine = null;
@@ -146,20 +156,19 @@ public class SimpleAudioRecorder extends Thread {
             targetDataLine.open(audioFormat);
         } catch (LineUnavailableException e) {
             System.out.println("unable to get a recording line");
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 
         AudioFileFormat.Type targetType = AudioFileFormat.Type.AU;
         SimpleAudioRecorder recorder = null;
-        recorder = new SimpleAudioRecorder(targetDataLine, targetType,
-                                           outputFile);
+        recorder = new SimpleAudioRecorder(targetDataLine, targetType, outputFile);
         System.out.println("Press ENTER to start the recording.");
         try {
-            // System.in.read();
+//            System.in.read();
             System.in.read();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
         recorder.start();
         System.out.println("Recording...");
@@ -167,12 +176,12 @@ public class SimpleAudioRecorder extends Thread {
         try {
             System.in.read();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
         recorder.stopRecording();
         System.out.println("Recording stopped.");
 
-        // System.exit(0);
+//        System.exit(0);
     }
 
     private static void printUsageAndExit() {

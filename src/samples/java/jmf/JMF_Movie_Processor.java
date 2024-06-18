@@ -193,6 +193,7 @@ public class JMF_Movie_Processor {
 
     /** Key Listener */
     KeyListener keyListener = new KeyAdapter() {
+        @Override
         public void keyPressed(KeyEvent e) {
             int keyCode = e.getKeyCode();
 
@@ -236,6 +237,7 @@ public class JMF_Movie_Processor {
 
     /** Action Listener (Buttons) */
     ActionListener actionListener = new ActionListener() {
+        @Override
         public void actionPerformed(ActionEvent e) {
 
             Object b = e.getSource();
@@ -271,6 +273,7 @@ public class JMF_Movie_Processor {
 
     /** Adjustment Listener (Scroll bar) */
     AdjustmentListener adjustmentListener = new AdjustmentListener() {
+        @Override
         public void adjustmentValueChanged(AdjustmentEvent evt) {
             Object s = evt.getSource();
             {
@@ -284,12 +287,14 @@ public class JMF_Movie_Processor {
 
     /** Window Listener */
     WindowListener windowListener = new WindowAdapter() {
+        @Override
         public void windowClosing(WindowEvent we) {
             end_flag = true;
             frm.setVisible(false);
             frm.dispose();
         }
 
+        @Override
         public void windowClosed(java.awt.event.WindowEvent evt) {
             p0.removeKeyListener(keyListener);
             MP.kill();
@@ -366,7 +371,7 @@ System.err.println("creating JMF data source");
         while (index > -1) {
             index = url.indexOf(' ');
             if (index > -1) {
-                url = url.substring(0, index) + "%20" + url.substring(index + 1, url.length());
+                url = url.substring(0, index) + "%20" + url.substring(index + 1);
             }
         }
         return url;
@@ -536,6 +541,7 @@ System.err.println("IJ: frameConverter.createImage FAILED!");
     }
 
     /** Controller Listener */
+    @Override
     public void controllerUpdate(ControllerEvent evt) {
 
         if (evt instanceof ConfigureCompleteEvent || evt instanceof RealizeCompleteEvent || evt instanceof PrefetchCompleteEvent) {

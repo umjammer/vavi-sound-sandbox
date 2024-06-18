@@ -57,7 +57,7 @@ public class RococoaClip implements Clip {
         listeners.forEach(l -> l.update(event));
     }
 
-    private Control[] controls;
+    private final Control[] controls;
 
     private AVAudioPlayer player;
 
@@ -198,7 +198,7 @@ Debug.println("volume: " + leftGain);
         }
     }
 
-    private Gain gainControl = new Gain();
+    private final Gain gainControl = new Gain();
     private final Mute muteControl = new Mute();
     private final Balance balanceControl = new Balance();
     private final Pan panControl = new Pan();

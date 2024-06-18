@@ -26,20 +26,25 @@ package jse;
  *
  */
 import java.io.PrintStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.SysexMessage;
 
+import static java.lang.System.getLogger;
+
 
 /**
  * Receiver that outputs MIDI events as text.
  */
 public class DumpReceiver implements Receiver {
-    private static final boolean DEBUG = false;
 
-    private static boolean sm_bPrintRawData = true;
+    private static final Logger logger = getLogger(DumpReceiver.class.getName());
+
+    private static final boolean sm_bPrintRawData = true;
 
     private static final String[] sm_astrKeyNames = {
         "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
@@ -192,38 +197,23 @@ public class DumpReceiver implements Receiver {
         null, // 0x7F, real-time universal
     };
 
-    private PrintStream m_printStream;
-
-    private boolean m_bDebug;
-
-    private boolean m_bPrintTimeStampAsTicks;
-
-    public DumpReceiver(PrintStream printStream) {
-        this(printStream, false);
-    }
-
-    public DumpReceiver(PrintStream printStream, boolean bPrintTimeStampAsTicks) {
-        m_printStream = printStream;
-        m_bDebug = false;
-        m_bPrintTimeStampAsTicks = bPrintTimeStampAsTicks;
-    }
-
+    @Override
     public void close() {
         // DO NOTHING
     }
 
+    @Override
     public void send(MidiMessage message, long lTimeStamp) {
-        if (DEBUG) {
-            m_printStream.println("DumpReceiver.send(): called");
-            m_printStream.println("Class of Message: " + message.getClass().getName());
-        }
+        logger.log(Level.DEBUG, "DumpReceiver.send(): called");
+        logger.log(Level.DEBUG, "Class of Message: " + message.getClass().getName());
+
         if (sm_bPrintRawData) {
-            m_printStream.print("[");
+            logger.log(Level.DEBUG, "[");
 
             byte[] abData = message.getMessage();
             int nLength = message.getLength();
-            m_printStream.print(getHexString(abData, 0, nLength));
-            m_printStream.println("] ");
+            logger.log(Level.DEBUG, getHexString(abData, 0, nLength));
+            logger.log(Level.DEBUG, "] ");
         }
 
         String strMessage = null;
@@ -238,19 +228,19 @@ public class DumpReceiver implements Receiver {
         }
 
         String strTimeStamp = null;
-        if (m_bPrintTimeStampAsTicks) {
+//        if (m_bPrintTimeStampAsTicks) {
             strTimeStamp = "tick " + lTimeStamp + ": ";
-        } else {
-            if (lTimeStamp == -1L) {
-                strTimeStamp = "timestamp [unknown]: ";
-            } else {
-                strTimeStamp = "timestamp " + lTimeStamp + " : ";
-            }
-        }
-        m_printStream.println(strTimeStamp + strMessage);
+//        } else {
+//            if (lTimeStamp == -1L) {
+//                strTimeStamp = "timestamp [unknown]: ";
+//            } else {
+//                strTimeStamp = "timestamp " + lTimeStamp + " : ";
+//            }
+//        }
+        logger.log(Level.DEBUG, strTimeStamp + strMessage);
     }
 
-    private String decodeMessage(ShortMessage message) {
+    private static String decodeMessage(ShortMessage message) {
         String strMessage = null;
         switch (message.getCommand()) {
         case 0x80:
@@ -315,29 +305,25 @@ public class DumpReceiver implements Receiver {
         byte[] abData = message.getData();
         String strMessage = null;
 
-        // System.out.println("sysex status: " + message.getStatus());
+//        logger.log(Level.DEBUG, "sysex status: " + message.getStatus());
         if (message.getStatus() == SysexMessage.SYSTEM_EXCLUSIVE) {
             strMessage = "Sysex message (F0): ";
 
             int nManufacturer = abData[0];
             int nStart = 1;
-            if (nManufacturer == 0x7E) // non real-time universal
-            {
+            if (nManufacturer == 0x7E) { // non real-time universal
                 strMessage += "[non real-time universal] (7E) ";
                 strMessage += getHexString(abData, nStart, abData.length - nStart);
-            } else if (nManufacturer == 0x7F) // real-time universal
-            {
+            } else if (nManufacturer == 0x7F) { // real-time universal
                 strMessage += "[real-time universal] (7F) ";
                 strMessage += getHexString(abData, nStart, abData.length - nStart);
-            } else if (nManufacturer == 0) // three byte manufacturer id
-            {
-                // strMessage += MANUFACTURER_ID_THREE_BYTE[/*nManufacturer*/] +
-                // " (" + getHexString(abData, nStart - 1, 1) + ") ";
+            } else if (nManufacturer == 0) { // three byte manufacturer id
+//                 strMessage += MANUFACTURER_ID_THREE_BYTE[/*nManufacturer*/]+
+//                        " (" + getHexString(abData, nStart - 1, 1) + ") ";
                 strMessage += ("[three byte manufacturer code]" + " (" + getHexString(abData, nStart - 1, 3) + ") ");
                 nStart += 2;
                 strMessage += getHexString(abData, nStart, abData.length - nStart);
-            } else // one byte manufacturer id
-            {
+            } else { // one byte manufacturer id
                 strMessage += MANUFACTURER_ID_ONE_BYTE[nManufacturer];
                 strMessage += (" (" + getHexString(abData, nStart - 1, 1) + ") ");
                 if (nManufacturer == 0x43) {
@@ -345,8 +331,7 @@ public class DumpReceiver implements Receiver {
                 } else {
                     strMessage += decodeSysexData(abData, nStart);
 
-                    // strMessage += getHexString(abData, nStart, abData.length
-                    // - nStart);
+//                    strMessage += getHexString(abData, nStart, abData.length - nStart);
                 }
             }
         } else if (message.getStatus() == SysexMessage.SPECIAL_SYSTEM_EXCLUSIVE) {
@@ -355,7 +340,7 @@ public class DumpReceiver implements Receiver {
         return strMessage;
     }
 
-    private String decodeSysexData(byte[] abData, int nStart) {
+    private static String decodeSysexData(byte[] abData, int nStart) {
         String strData = null;
         if (abData[abData.length - 1] == SysexMessage.SPECIAL_SYSTEM_EXCLUSIVE) {
             strData = getHexString(abData, nStart, abData.length - nStart - 1) + "EOX (F7)";
@@ -368,40 +353,36 @@ public class DumpReceiver implements Receiver {
     private String decodeYamahaSysexData(byte[] abData, int nStart) {
         return decodeSysexData(abData, nStart);
 
-        // String strData = null;
-        // strData = "device " + (abData[nStart + 0] + 1);
-        // switch (abData[nStart + 1])
-        // {
-        // case 0x4B:
-        // strData += " CS1x";
-        // break;
-        // case 0x4C:
-        // strData += " MU-80"; // or does it mean XG?
-        // break;
-        // default:
-        // strData += " unknown model";
-        // }
-        // // byte 2,3,4: address
-        // // byte 5: data
-        // strData += " " + abData[nStart + 5];
-        // if (abData[nStart + 6] == SysexMessage.SPECIAL_SYSTEM_EXCLUSIVE)
-        // {
-        // strData += " EOX";
-        // }
-        // else
-        // {
-        // strData += " [unknown data format, expected EOX]";
-        // }
-        // return strData;
+//        String strData = null;
+//        strData = "device " + (abData[nStart + 0] + 1);
+//        switch (abData[nStart + 1]) {
+//            case 0x4B:
+//                strData += " CS1x";
+//                break;
+//            case 0x4C:
+//                strData += " MU-80"; // or does it mean XG?
+//                break;
+//            default:
+//                strData += " unknown model";
+//        }
+//        // byte 2,3,4: address
+//        // byte 5: data
+//        strData += " " + abData[nStart + 5];
+//        if (abData[nStart + 6] == SysexMessage.SPECIAL_SYSTEM_EXCLUSIVE) {
+//            strData += " EOX";
+//        } else {
+//            strData += " [unknown data format, expected EOX]";
+//        }
+//        return strData;
     }
 
-    private String decodeMessage(MetaMessage message) {
+    private static String decodeMessage(MetaMessage message) {
         byte[] abMessage = message.getMessage();
         byte[] abData = message.getData();
         int nDataLength = message.getLength();
         String strMessage = null;
 
-        // System.out.println("data array length: " + abData.length);
+//        logger.log(Level.DEBUG, "data array length: " + abData.length);
         switch (message.getType()) {
         case 0:
 
@@ -453,20 +434,20 @@ public class DumpReceiver implements Receiver {
             break;
         case 0x51:
 
-            // int nTempo = signedByteToUnsigned(abData[0]) * 65536 +
-            // signedByteToUnsigned(abData[1]) * 256 +
-            // signedByteToUnsigned(abData[2]);
-            // strMessage = "Set Tempo (1s/quarter note): " + nTempo;
+//            int nTempo = signedByteToUnsigned(abData[0]) * 65536 +
+//                    signedByteToUnsigned(abData[1]) * 256 +
+//                    signedByteToUnsigned(abData[2]);
+//            strMessage = "Set Tempo (1s/quarter note): " + nTempo;
             int nTempo = ((abData[0] & 0xFF) << 16) | ((abData[1] & 0xFF) << 8) | (abData[2] & 0xFF); // tempo in microseconds per beat
             float bpm = convertTempo(nTempo);
 
             // truncate it to 2 digits after point
-            bpm = (Math.round(nTempo * 100) / 100.0f);
+            bpm = Math.round((nTempo * 100) / 100.0f);
             strMessage = "Set Tempo: " + bpm + " bpm";
             break;
         case 0x54:
 
-            // System.out.println("data array length: " + abData.length);
+//            System.out.println("data array length: " + abData.length);
             strMessage = "SMTPE Offset: " + (abData[0] & 0xFF) + ":" + (abData[1] & 0xFF) + ":" + (abData[2] & 0xFF) + "." + (abData[3] & 0xFF) + "." + (abData[4] & 0xFF);
             break;
         case 0x58:
@@ -531,7 +512,7 @@ public class DumpReceiver implements Receiver {
      * TODO:
      */
     private static String getHexString(byte[] aByte, int nStart, int nLength) {
-        StringBuffer sbuf = new StringBuffer((aByte.length * 3) + 2);
+        StringBuilder sbuf = new StringBuilder((aByte.length * 3) + 2);
         for (int i = nStart; i < nLength; i++) {
             sbuf.append(' ');
 

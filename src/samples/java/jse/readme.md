@@ -1,6 +1,8 @@
+# Java Sound Resources: Examples
+
 ## License
 
-  * [Java Sound Example](http://www.jsresources.org/)
+  * [Java Sound Example](https://jsresources.sourceforge.net/)
 
 > ```
 > /*

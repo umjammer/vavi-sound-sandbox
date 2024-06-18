@@ -20,7 +20,7 @@ public class OpusFileFormatType extends AudioFileFormat.Type {
     /**
      * Specifies an OPUS file.
      */
-    public static final AudioFileFormat.Type OPUS = new OpusFileFormatType("OPUS", "opus");
+    public static final AudioFileFormat.Type OPUS = new OpusFileFormatType("OPUS", "ogg");
 
     /**
      * Constructs a file type.

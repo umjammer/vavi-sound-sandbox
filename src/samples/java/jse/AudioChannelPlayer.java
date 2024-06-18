@@ -20,12 +20,16 @@
 package jse;
 
 import java.io.File;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+
+import static java.lang.System.getLogger;
 
 
 /* OLD DOCUMENTATION:
@@ -58,41 +62,42 @@ import javax.sound.sampled.SourceDataLine;
         <title>Plays several soundfiles in sequence</title>
 -DocBookXML
  */
-/*
- *        AudioChannelPlayer.java
+
+/**
+ * AudioChannelPlayer.java
  *
- *        This file is part of the Java Sound Examples.
+ * This file is part of the Java Sound Examples.
  */
 public class AudioChannelPlayer {
-    private static final boolean DEBUG = true;
+
+    private static final Logger logger = getLogger(AudioChannelPlayer.class.getName());
+
     private static final int BUFFER_SIZE = 16384;
 
     public static void main(String[] args) {
         // TODO: set AudioFormat after the first soundfile
         AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                                                  44100.0F, 16, 2, 4, 44100.0F,
-                                                  true);
+                44100.0F, 16, 2, 4, 44100.0F, true);
         SourceDataLine line = null;
 
         try {
-            DataLine.Info info = new DataLine.Info(SourceDataLine.class,
-                                                   audioFormat);
+            DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
             line = (SourceDataLine) AudioSystem.getLine(info);
             line.open(audioFormat, line.getBufferSize());
         } catch (LineUnavailableException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
         line.start();
 
         AudioChannel channel = new AudioChannel(line);
         channel.start();
-        for (int nArgPos = 0; nArgPos < args.length; nArgPos++) {
-            if (args[nArgPos].startsWith("-s")) {
-                String strDuration = args[nArgPos].substring(2);
+        for (String arg : args) {
+            if (arg.startsWith("-s")) {
+                String strDuration = arg.substring(2);
                 int nDuration = Integer.parseInt(strDuration);
                 handleSilence(nDuration, channel);
             } else {
-                handleFile(args[nArgPos], channel);
+                handleFile(arg, channel);
             }
         }
 
@@ -109,12 +114,10 @@ public class AudioChannelPlayer {
         try {
             audioInputStream = AudioSystem.getAudioInputStream(audioFile);
         } catch (Exception e) {
-            /*
-             *        In case of an exception, we dump the exception
-             *        including the stack trace to the console output.
-             *        Then, we exit the program.
-             */
-            e.printStackTrace();
+            // In case of an exception, we dump the exception
+            // including the stack trace to the console output.
+            // Then, we exit the program.
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
         if (audioInputStream != null) {

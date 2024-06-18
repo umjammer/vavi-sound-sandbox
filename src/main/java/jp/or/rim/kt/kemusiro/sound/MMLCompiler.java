@@ -17,13 +17,13 @@ public class MMLCompiler {
 
     private MusicScore score;
     private int tickPerBeat = 240;
-    private final int maxAmplitude = 127;
-    private final int currentTempo = 60;
-    private final int initialOctave = 4;
+    private static final int maxAmplitude = 127;
+    private static final int currentTempo = 60;
+    private static final int initialOctave = 4;
     private final int[] currentOctave;
     private int currentVolume = 8;
     private int currentTick = tickPerBeat;
-    private final int initialQuantity = 8;
+    private static final int initialQuantity = 8;
     private final int[] currentQuantity;
     private int tick = 0;
     private String mml;

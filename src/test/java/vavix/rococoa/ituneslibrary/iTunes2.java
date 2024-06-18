@@ -38,8 +38,8 @@ import vavix.util.selenium.SeleniumUtil;
  */
 public class iTunes2 {
 
-    private SeleniumUtil seleniumUtil = new SeleniumUtil();
-    private WebDriver driver = seleniumUtil.getWebDriver();
+    private final SeleniumUtil seleniumUtil = new SeleniumUtil();
+    private final WebDriver driver = seleniumUtil.getWebDriver();
 
     private iTunes2() {
         // authentication?
@@ -115,11 +115,10 @@ try {
         @Target(value = "//TABLE//TR/TD[4]/A/@href")
         String url;
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(CharNormalizerJa.ToHalfAns2.normalize(artist));
-            sb.append(", ");
-            sb.append(CharNormalizerJa.ToHalfAns2.normalize(title));
-            return sb.toString();
+            String sb = CharNormalizerJa.ToHalfAns2.normalize(artist) +
+                    ", " +
+                    CharNormalizerJa.ToHalfAns2.normalize(title);
+            return sb;
         }
     }
 
@@ -149,11 +148,10 @@ try {
         @Target(value = "//TABLE[4]//TR/TD[3]/DIV/text()")
         String type;
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(type);
-            sb.append(", ");
-            sb.append(CharNormalizerJa.ToHalfAns2.normalize(name));
-            return sb.toString();
+            String sb = type +
+                    ", " +
+                    CharNormalizerJa.ToHalfAns2.normalize(name);
+            return sb;
         }
     }
 
@@ -222,11 +220,10 @@ Debug.println("nextAnchor: " + nextAnchor);
         @Target(value = "//TABLE//TR/TD[3]/A/@href")
         String url;
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(CharNormalizerJa.ToHalfAns2.normalize(artist));
-            sb.append(", ");
-            sb.append(CharNormalizerJa.ToHalfAns2.normalize(title));
-            return sb.toString();
+            String sb = CharNormalizerJa.ToHalfAns2.normalize(artist) +
+                    ", " +
+                    CharNormalizerJa.ToHalfAns2.normalize(title);
+            return sb;
         }
     }
 
@@ -292,11 +289,10 @@ Debug.println("nextAnchor: " + nextAnchor);
         @Target(value = "//TABLE//TR/TD[4]/A/@href")
         String url;
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(CharNormalizerJa.ToHalfAns2.normalize(artist));
-            sb.append(", ");
-            sb.append(CharNormalizerJa.ToHalfAns2.normalize(title));
-            return sb.toString();
+            String sb = CharNormalizerJa.ToHalfAns2.normalize(artist) +
+                    ", " +
+                    CharNormalizerJa.ToHalfAns2.normalize(title);
+            return sb;
         }
     }
 

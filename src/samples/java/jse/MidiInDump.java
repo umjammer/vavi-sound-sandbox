@@ -1,9 +1,3 @@
-package jse;
-/*
- *        MidiInDump.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999 - 2001 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -22,17 +16,21 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-import javax.sound.midi.Transmitter;
-import javax.sound.midi.Receiver;
-import javax.sound.midi.MidiUnavailableException;
+
+package jse;
+
+import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
-import java.io.IOException;
+import javax.sound.midi.MidiUnavailableException;
+import javax.sound.midi.Receiver;
+import javax.sound.midi.Transmitter;
 
-/*        If the compilation fails because this class is not available,
-        get gnu.getopt from the URL given in the comment below.
-*/
 import gnu.getopt.Getopt;
+
+import static java.lang.System.getLogger;
 
 
 /*        +DocBookXML
@@ -84,56 +82,50 @@ import gnu.getopt.Getopt;
 
 -DocBookXML
 */
+
+/**
+ * MidiInDump.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ */
 public class MidiInDump {
-    /**        Flag for debugging messages.
-             If true, some messages are dumped to the console
-             during operation.
-     */
-    private static boolean DEBUG = true;
+
+    private static final Logger logger = getLogger(MidiInDump.class.getName());
 
     public static void main(String[] args) {
         try {
-            /*
-             *        The device name to listen to.
-             */
+            // The device name to listen to.
             String strDeviceName = null;
 
-            /*
-             *        Parsing of command-line options takes place...
-             */
+            // Parsing of command-line options takes place...
             Getopt g = new Getopt("MidiInDump", args, "hld:D");
             int c;
             while ((c = g.getopt()) != -1) {
                 switch (c) {
-                case 'h':
-                    printUsageAndExit();
-                case 'l':
-                    listDevicesAndExit();
-                case 'd':
-                    strDeviceName = g.getOptarg();
-                    if (DEBUG) {
-                        out("MidiInDump.main(): device name: " + strDeviceName);
-                    }
-                    break;
-                case 'D':
-                    DEBUG = true;
-                    break;
-                case '?':
-                    printUsageAndExit();
-                default:
-                    out("MidiInDump.main(): getopt() returned " + c);
-                    break;
+                    case 'h':
+                        printUsageAndExit();
+                    case 'l':
+                        listDevicesAndExit();
+                    case 'd':
+                        strDeviceName = g.getOptarg();
+                        logger.log(Level.DEBUG, "MidiInDump.main(): device name: " + strDeviceName);
+                        break;
+                    case '?':
+                        printUsageAndExit();
+                    default:
+                        logger.log(Level.DEBUG, "MidiInDump.main(): getopt() returned " + c);
+                        break;
                 }
             }
 
             if (strDeviceName == null) {
-                out("device name not specified!");
+                logger.log(Level.DEBUG, "device name not specified!");
                 printUsageAndExit();
             }
 
             MidiDevice.Info info = getMidiDeviceInfo(strDeviceName, false);
             if (info == null) {
-                out("no device info found for name " + strDeviceName);
+                logger.log(Level.DEBUG, "no device info found for name " + strDeviceName);
                 System.exit(1);
             }
 
@@ -142,25 +134,21 @@ public class MidiInDump {
                 inputDevice = MidiSystem.getMidiDevice(info);
                 inputDevice.open();
             } catch (MidiUnavailableException e) {
-                if (DEBUG) {
-                    out(e);
-                }
+                logger.log(Level.DEBUG, e);
             }
             if (inputDevice == null) {
-                out("wasn't able to retrieve MidiDevice");
+                logger.log(Level.DEBUG, "wasn't able to retrieve MidiDevice");
                 System.exit(1);
             }
 
-            Receiver r = new DumpReceiver(System.out);
+            Receiver r = new DumpReceiver();
             try {
                 Transmitter t = inputDevice.getTransmitter();
                 t.setReceiver(r);
             } catch (MidiUnavailableException e) {
-                if (DEBUG) {
-                    out(e);
-                }
+                logger.log(Level.DEBUG, e);
             }
-            out("now running; interupt the program with [ENTER] when finished");
+            logger.log(Level.DEBUG, "now running; interupt the program with [ENTER] when finished");
 
             try {
                 System.in.read();
@@ -168,35 +156,33 @@ public class MidiInDump {
             }
             inputDevice.close();
 
-//             out("Received "+((DumpReceiver) r).seCount+" sysex messages with a total of "+((DumpReceiver) r).seByteCount+" bytes");
-//             out("Received "+((DumpReceiver) r).smCount+" short messages.");
+//             logger.log(Level.DEBUG, "Received "+((DumpReceiver) r).seCount+" sysex messages with a total of "+((DumpReceiver) r).seByteCount+" bytes");
+//             logger.log(Level.DEBUG, "Received "+((DumpReceiver) r).smCount+" short messages.");
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                if (DEBUG) {
-                    out(e);
-                }
+                logger.log(Level.DEBUG, e);
             }
         } catch (Throwable t) {
-            out(t);
+            logger.log(Level.DEBUG, t);
         }
         System.exit(0);
     }
 
     private static void printUsageAndExit() {
-        out("MidiInDump: usage:");
-        out("  java MidiInDump -h");
-        out("    gives help information");
-        out("  java MidiInDump -l");
-        out("    lists available MIDI devices");
-        out("  java MidiInDump [-D] -d <input device name>");
-        out("    -d <input device name>\treads from named device (see '-l')");
-        out("    -D\tenables debugging output");
+        System.err.println("MidiInDump: usage:");
+        System.err.println("  java MidiInDump -h");
+        System.err.println("    gives help information");
+        System.err.println("  java MidiInDump -l");
+        System.err.println("    lists available MIDI devices");
+        System.err.println("  java MidiInDump [-D] -d <input device name>");
+        System.err.println("    -d <input device name>\treads from named device (see '-l')");
+        System.err.println("    -D\tenables debugging output");
         System.exit(1);
     }
 
     private static void listDevicesAndExit() {
-        out("Available MIDI Devices:");
+        logger.log(Level.DEBUG, "Available MIDI Devices:");
 
         MidiDevice.Info[] aInfos = MidiSystem.getMidiDeviceInfo();
         for (int i = 0; i < aInfos.length; i++) {
@@ -206,58 +192,48 @@ public class MidiInDump {
                 boolean bAllowsOutput = (device.getMaxReceivers() != 0);
                 //if (bAllowsInput)
                 {
-                    out("" + i + "  " + (bAllowsInput ? "IN " : "   ") +
-                        (bAllowsOutput ? "OUT " : "    ") +
-                        aInfos[i].getName() + ", " + aInfos[i].getVendor() +
-                        ", " + aInfos[i].getVersion() + ", " +
-                        aInfos[i].getDescription());
+                    logger.log(Level.DEBUG, i + "  " + (bAllowsInput ? "IN " : "   ") +
+                            (bAllowsOutput ? "OUT " : "    ") +
+                            aInfos[i].getName() + ", " + aInfos[i].getVendor() +
+                            ", " + aInfos[i].getVersion() + ", " +
+                            aInfos[i].getDescription());
                 }
             } catch (MidiUnavailableException e) {
-                out(e);
+                logger.log(Level.DEBUG, e);
             }
         }
         if (aInfos.length == 0) {
-            out("[No devices available]");
+            logger.log(Level.DEBUG, "[No devices available]");
         }
         System.exit(1);
     }
 
-    /*
-     *        This method tries to return a MidiDevice.Info whose name
-     *        matches the passed name. If no matching MidiDevice.Info is
-     *        found, null is returned.
-     *        If forOutput is true, then only output devices are searched,
-     *        otherwise only input devices.
+    /**
+     * This method tries to return a MidiDevice.Info whose name
+     * matches the passed name. If no matching MidiDevice.Info is
+     * found, null is returned.
+     * If forOutput is true, then only output devices are searched,
+     * otherwise only input devices.
      */
-    private static MidiDevice.Info getMidiDeviceInfo(String strDeviceName,
-                                                     boolean forOutput) {
+    private static MidiDevice.Info getMidiDeviceInfo(String strDeviceName, boolean forOutput) {
         MidiDevice.Info[] aInfos = MidiSystem.getMidiDeviceInfo();
 
-        //out("Searching '"+strDeviceName+"' for "+(forOutput?"output":"input"));
-        for (int i = 0; i < aInfos.length; i++) {
-            if (aInfos[i].getName().equals(strDeviceName)) {
+//        logger.log(Level.DEBUG, "Searching '" + strDeviceName + "' for " + (forOutput ? "output" : "input"));
+        for (MidiDevice.Info aInfo : aInfos) {
+            if (aInfo.getName().equals(strDeviceName)) {
                 try {
-                    MidiDevice device = MidiSystem.getMidiDevice(aInfos[i]);
+                    MidiDevice device = MidiSystem.getMidiDevice(aInfo);
                     boolean bAllowsInput = (device.getMaxTransmitters() != 0);
                     boolean bAllowsOutput = (device.getMaxReceivers() != 0);
 
-                    //out("Looking for at '"+aInfos[i].getName()+"' with "+dev.getMaxReceivers()+" receivers and "+dev.getMaxTransmitters()+" transmitters.");
-                    if ((bAllowsOutput && forOutput) ||
-                        (bAllowsInput && !forOutput)) {
-                        return aInfos[i];
+//                    logger.log(Level.DEBUG, "Looking for at '" + aInfos[i].getName() + "' with " + dev.getMaxReceivers() + " receivers and " + dev.getMaxTransmitters() + " transmitters.");
+                    if ((bAllowsOutput && forOutput) || (bAllowsInput && !forOutput)) {
+                        return aInfo;
                     }
                 } catch (MidiUnavailableException mue) {
                 }
             }
         }
         return null;
-    }
-
-    private static void out(String strMessage) {
-        System.out.println(strMessage);
-    }
-
-    private static void out(Throwable t) {
-        t.printStackTrace();
     }
 }

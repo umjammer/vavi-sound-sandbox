@@ -1,9 +1,3 @@
-package jse;
-/*
- *        AudioStreamPlayer.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999, 2000 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -23,10 +17,17 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+package jse;
+
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+
+import static java.lang.System.getLogger;
 
 
 /*        +DocBookXML
@@ -69,61 +70,52 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 -DocBookXML
 */
+
+/**
+ * AudioStreamPlayer.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ */
 public class AudioStreamPlayer {
+
+    private static final Logger logger = getLogger(AudioStreamPlayer.class.getName());
+
     public static void main(String[] args) {
-        /*
-         *        We check that there is exactely one command-line
-         *        argument. If not, we display the usage message and
-         *        exit.
-         */
+        // We check that there is exactely one command-line
+        // argument. If not, we display the usage message and
+        // exit.
         if (args.length != 1) {
             printUsageAndExit();
         }
 
-        /*
-         *        Now, that we're shure there is an argument, we take
-         *        it as the filename of the soundfile we want to play.
-         */
+        // Now, that we're shure there is an argument, we take
+        // it as the filename of the soundfile we want to play.
         String strFilename = args[0];
         File soundFile = new File(strFilename);
 
-        /*
-         *        We just create a SimpleAudioStream by passing a
-         *        File object for the soundfile to the constructor.
-         *        All hairy details are handled inside of this class.
-         */
+        // We just create a SimpleAudioStream by passing a
+        // File object for the soundfile to the constructor.
+        // All hairy details are handled inside of this class.
         SimpleAudioStream audioStream = null;
         try {
             audioStream = new SimpleAudioStream(soundFile);
         } catch (LineUnavailableException e) {
-            /*
-             *        In case of an exception, we dump the exception
-             *        including the stack trace to the console
-             *        output. Then, we exit the program.
-             */
-            e.printStackTrace();
+            // In case of an exception, we dump the exception
+            // including the stack trace to the console
+            // output. Then, we exit the program.
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
-        } catch (UnsupportedAudioFileException e) {
-            e.printStackTrace();
-            System.exit(1);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.exit(1);
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+        } catch (UnsupportedAudioFileException | IllegalArgumentException | IOException e) {
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 
-        /*
-         *        We start the playback.
-         */
+        // We start the playback.
         audioStream.start();
 
-        /*
-         *        TODO: use some (yet to be defined) function in
-         *        SimpleAudioStream to wait until it is finished, then
-         *        exit the VM.
-         */
+        // TODO: use some (yet to be defined) function in
+        // SimpleAudioStream to wait until it is finished, then
+        // exit the VM.
     }
 
     private static void printUsageAndExit() {

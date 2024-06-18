@@ -21,10 +21,15 @@ package jse;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.midi.InvalidMidiDataException;
+import javax.sound.midi.MidiFileFormat;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Track;
+
+import static java.lang.System.getLogger;
 
 
 /*        +DocBookXML
@@ -98,6 +103,9 @@ import javax.sound.midi.Track;
  * This file is part of the Java Sound Examples.
  */
 public class MidiConverter {
+
+    private static final Logger logger = getLogger(MidiConverter.class.getName());
+
     public static void main(String[] args) {
         if (args.length != 2) {
             System.out.println("usage:");
@@ -114,19 +122,16 @@ public class MidiConverter {
             bUseMultiMode = true;
         } else if (args[0].equals("-s")) {
             bUseMultiMode = false;
-//      } else {
-//             System.out.println("You have to specify either single mode (-s) or multi mode (-m).");
-//             System.exit(1);
+//        } else {
+//            System.out.println("You have to specify either single mode (-s) or multi mode (-m).");
+//            System.exit(1);
          }
         String strFilename = args[1];
         Sequence sequence = null;
         try {
             sequence = MidiSystem.getSequence(new File(strFilename));
-        } catch (InvalidMidiDataException e) {
-            e.printStackTrace();
-            System.exit(1);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (InvalidMidiDataException | IOException e) {
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 
@@ -144,7 +149,7 @@ public class MidiConverter {
                 try {
                     singleTrackSequence = new Sequence(fDivisionType, nResolution);
                 } catch (InvalidMidiDataException e) {
-                    e.printStackTrace();
+                    logger.log(Level.ERROR, e.getMessage(), e);
                     System.exit(1);
                 }
 
@@ -161,15 +166,15 @@ public class MidiConverter {
                     strSingleTrackFilename = strFilename.substring(0, nDotPosition) + "-" + nTrack + strFilename.substring(nDotPosition);
                 }
 
-//              MidiFileFormat fileFormat = new MidiFileFormat(0, fDivisionType, nResolution, MidiFileFormat.UNKNOWN_LENGTH, MidiFileFormat.UNKNOWN_LENGTH);
+//                MidiFileFormat fileFormat = new MidiFileFormat(0, fDivisionType, nResolution, MidiFileFormat.UNKNOWN_LENGTH, MidiFileFormat.UNKNOWN_LENGTH);
                 try {
                     MidiSystem.write(singleTrackSequence, 0, new File(strSingleTrackFilename));
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    logger.log(Level.ERROR, e.getMessage(), e);
                     System.exit(1);
                 }
             }
-        } else { // single mode
+        } else {
         }
 
         // This is only necessary because of a bug in jdk1.3.

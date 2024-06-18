@@ -24,7 +24,7 @@ public class WaveInputStream extends InputStream {
     private final Instrument[] insts;
     private final NoteOn[] notes;
     private int currentTick = 0;
-    private final double currentTime = 0.0;
+    private static final double currentTime = 0.0;
     private final double[] time;
     private int currentTempo = 60;
     private int pos = 0;

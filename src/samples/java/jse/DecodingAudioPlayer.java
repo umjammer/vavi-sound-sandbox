@@ -1,9 +1,3 @@
-package jse;
-/*
- *        DecodingAudioPlayer.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999, 2000 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -23,14 +17,20 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+package jse;
+
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+
+import static java.lang.System.getLogger;
 
 
 /*        +DocBookXML
@@ -83,7 +83,16 @@ import javax.sound.sampled.SourceDataLine;
 
 -DocBookXML
 */
+
+/**
+ * DecodingAudioPlayer.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ */
 public class DecodingAudioPlayer {
+
+    private static final Logger logger = getLogger(DecodingAudioPlayer.class.getName());
+
     private static final int EXTERNAL_BUFFER_SIZE = 128000;
 
     public static void main(String[] args) {
@@ -97,7 +106,7 @@ public class DecodingAudioPlayer {
         try {
             audioInputStream = AudioSystem.getAudioInputStream(new File(strFilename));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
         if (audioInputStream == null) {
             System.out.println("###  cannot read input file: " + strFilename);
@@ -105,21 +114,19 @@ public class DecodingAudioPlayer {
 
         AudioFormat sourceFormat = audioInputStream.getFormat();
 
-/*
-                AudioFormat        targetFormat = new AudioFormat(
-                        AudioFormat.Encoding.PCM_SIGNED,
-                        sourceFormat.getSampleRate(),
-                        16,
-                        sourceFormat.getChannels(),
-                        sourceFormat.getChannels() * 2,
-                        sourceFormat.getSampleRate(),
-                        false);
-*/
+//        AudioFormat targetFormat = new AudioFormat(
+//                AudioFormat.Encoding.PCM_SIGNED,
+//                sourceFormat.getSampleRate(),
+//                16,
+//                sourceFormat.getChannels(),
+//                sourceFormat.getChannels() * 2,
+//                sourceFormat.getSampleRate(),
+//                false);
+
         AudioFormat.Encoding targetEncoding = AudioFormat.Encoding.PCM_SIGNED;
 
-        // audioInputStream = AudioSystem.getAudioInputStream(targetFormat, audioInputStream);
-        audioInputStream = AudioSystem.getAudioInputStream(targetEncoding,
-                                                           audioInputStream);
+//        audioInputStream = AudioSystem.getAudioInputStream(targetFormat, audioInputStream);
+        audioInputStream = AudioSystem.getAudioInputStream(targetEncoding, audioInputStream);
 
         AudioFormat audioFormat = audioInputStream.getFormat();
 
@@ -128,10 +135,8 @@ public class DecodingAudioPlayer {
         try {
             line = (SourceDataLine) AudioSystem.getLine(info);
             line.open(audioFormat);
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
         line.start();
 
@@ -140,7 +145,7 @@ public class DecodingAudioPlayer {
             try {
                 nBytesRead = audioInputStream.read(abData, 0, abData.length);
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
             if (nBytesRead >= 0) {
                 int nBytesWritten = line.write(abData, 0, nBytesRead);

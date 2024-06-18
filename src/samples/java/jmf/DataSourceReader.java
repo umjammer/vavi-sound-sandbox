@@ -154,13 +154,12 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
 
             setLayout(new BorderLayout());
 
-            Control controls[] = p.getControls();
+            Control[] controls = p.getControls();
             Panel monitorPanel = null;
             Component monitorComp = null;
 
-            for (int i = 0; i < controls.length; i++) {
-                if (controls[i] instanceof MonitorControl) {
-                    MonitorControl mc = (MonitorControl) controls[i];
+            for (Control control : controls) {
+                if (control instanceof MonitorControl mc) {
                     monitorComp = mc.getControlComponent();
                     if (monitorPanel == null) {
                         monitorPanel = new Panel();
@@ -190,6 +189,7 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
         return true;
     }
 
+    @Override
     public void addNotify() {
         super.addNotify();
         pack();
@@ -230,6 +230,7 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
     /**
      * Controller Listener.
      */
+    @Override
     public void controllerUpdate(ControllerEvent evt) {
 
         if (evt instanceof ConfigureCompleteEvent ||
@@ -253,6 +254,7 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
     /**
      * DataSink Listener
      */
+    @Override
     public void dataSinkUpdate(DataSinkEvent evt) {
 
         if (evt instanceof EndOfStreamEvent) {
@@ -262,10 +264,9 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
         }
     }
 
-    /***************************************************************************
-     * Inner class
-     * 
-     **************************************************************************/
+    //
+    // Inner class
+    //
 
     /**
      * This DataSourceHandler class reads from a DataSource and display
@@ -274,20 +275,20 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
     class DataSourceHandler implements DataSink, BufferTransferHandler {
         DataSource source;
 
-        PullBufferStream pullStrms[] = null;
+        PullBufferStream[] pullStrms = null;
 
-        PushBufferStream pushStrms[] = null;
+        PushBufferStream[] pushStrms = null;
 
         // Data sink listeners.
-        private Vector<DataSinkListener> listeners = new Vector<>(1);
+        private final Vector<DataSinkListener> listeners = new Vector<>(1);
 
         // Stored all the streams that are not yet finished (i.e. EOM
         // has not been received.
-        SourceStream unfinishedStrms[] = null;
+        SourceStream[] unfinishedStrms = null;
 
         // Loop threads to pull data from a PullBufferDataSource.
         // There is one thread per each PullSourceStream.
-        Loop loops[] = null;
+        Loop[] loops = null;
 
         Buffer readBuffer;
 
@@ -295,6 +296,7 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
          * Sets the media source this <code>MediaHandler</code> should use to
          * obtain content.
          */
+        @Override
         public void setSource(DataSource source) throws IncompatibleSourceException {
 
             // Different types of DataSources need to handled differently.
@@ -338,13 +340,16 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
          * For completeness, DataSink's require this method. But we don't need
          * it.
          */
+        @Override
         public void setOutputLocator(MediaLocator ml) {
         }
 
+        @Override
         public MediaLocator getOutputLocator() {
             return null;
         }
 
+        @Override
         public String getContentType() {
             return source.getContentType();
         }
@@ -352,9 +357,11 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
         /**
          * Our DataSink does not need to be opened.
          */
+        @Override
         public void open() {
         }
 
+        @Override
         public void start() {
             try {
                 source.start();
@@ -365,11 +372,11 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
             // Start the processing loop if we are dealing with a
             // PullBufferDataSource.
             if (loops != null) {
-                for (int i = 0; i < loops.length; i++)
-                    loops[i].restart();
+                for (Loop loop : loops) loop.restart();
             }
         }
 
+        @Override
         public void stop() {
             try {
                 source.stop();
@@ -380,25 +387,26 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
             // Start the processing loop if we are dealing with a
             // PullBufferDataSource.
             if (loops != null) {
-                for (int i = 0; i < loops.length; i++)
-                    loops[i].pause();
+                for (Loop loop : loops) loop.pause();
             }
         }
 
+        @Override
         public void close() {
             stop();
             if (loops != null) {
-                for (int i = 0; i < loops.length; i++)
-                    loops[i].kill();
+                for (Loop loop : loops) loop.kill();
             }
         }
 
+        @Override
         public void addDataSinkListener(DataSinkListener dsl) {
             if (dsl != null)
                 if (!listeners.contains(dsl))
                     listeners.addElement(dsl);
         }
 
+        @Override
         public void removeDataSinkListener(DataSinkListener dsl) {
             if (dsl != null)
                 listeners.removeElement(dsl);
@@ -420,6 +428,7 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
          * This will get called when there's data pushed from the
          * PushBufferDataSource.
          */
+        @Override
         public void transferData(PushBufferStream stream) {
 
             try {
@@ -501,10 +510,12 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
                 System.err.printf("V: %7d, %07d, %d\n", buffer.getSequenceNumber(), buffer.getTimeStamp() / 1000000, buffer.getLength());
         }
 
+        @Override
         public Object[] getControls() {
             return new Object[0];
         }
 
+        @Override
         public Object getControl(String name) {
             return null;
         }
@@ -553,6 +564,7 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
         /**
          * This is the processing loop to pull data from a PullBufferDataSource.
          */
+        @Override
         public void run() {
             while (!killed) {
                 try {

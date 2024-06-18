@@ -1,9 +1,3 @@
-package jse;
-/*
- *        CookieCadence.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 2000 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -23,8 +17,13 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+package jse;
+
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiSystem;
@@ -32,11 +31,21 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Track;
 
+import static java.lang.System.getLogger;
 
-// IDEA: if filename is omitted, play it instantly.
+
+/**
+ * CookieCadence.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ * IDEA: if filename is omitted, play it instantly.
+ */
 public class CookieCadence {
-    /*
-     *        This velocity is used for all notes.
+
+    private static final Logger logger = getLogger(CookieCadence.class.getName());
+
+    /**
+     * This velocity is used for all notes.
      */
     private static final int VELOCITY = 127;
 
@@ -52,7 +61,7 @@ public class CookieCadence {
         try {
             sequence = new Sequence(Sequence.PPQ, 500000);
         } catch (InvalidMidiDataException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 
@@ -69,13 +78,11 @@ public class CookieCadence {
         try {
             MidiSystem.write(sequence, 0, new File(strFilename));
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 
-        /*
-         *        This is only necessary because of a bug in the Sun jdk1.3/1.4
-         */
+        // This is only necessary because of a bug in the Sun jdk1.3/1.4
         System.exit(0);
     }
 
@@ -87,14 +94,12 @@ public class CookieCadence {
         return createNoteEvent(ShortMessage.NOTE_OFF, nKey, 0, lTick);
     }
 
-    private static MidiEvent createNoteEvent(int nCommand, int nKey,
-                                             int nVelocity, long lTick) {
+    private static MidiEvent createNoteEvent(int nCommand, int nKey, int nVelocity, long lTick) {
         ShortMessage message = new ShortMessage();
         try {
-            message.setMessage(nCommand, 0, // always on channel 1
-                               nKey, nVelocity);
+            message.setMessage(nCommand, 0, /* always on channel 1 */ nKey, nVelocity);
         } catch (InvalidMidiDataException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 
