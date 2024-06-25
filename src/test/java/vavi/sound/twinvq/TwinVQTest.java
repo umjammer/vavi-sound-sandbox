@@ -13,12 +13,15 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteOrder;
+import java.util.Arrays;
+import java.util.stream.IntStream;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.SourceDataLine;
 
+import org.junit.jupiter.api.Test;
 import vavi.sound.twinvq.obsolate.TwinVQInputStream;
 import vavi.util.Debug;
 
@@ -26,6 +29,12 @@ import static vavi.sound.SoundUtil.volume;
 
 
 class TwinVQTest {
+
+    @Test
+    void test1() throws Exception {
+        TwinVQData d = new TwinVQData();
+//        IntStream.range(0, d.cb0808l0.length).map(i -> d.cb0808l0[i]).forEach(System.err::println);
+    }
 
     /**
      * Play TwinVQ.

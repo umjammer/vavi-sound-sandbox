@@ -1,7 +1,6 @@
 /*
- * Copyright (c) 2024 by Naohide Sano, All rights reserved.
- *
- * Programmed by Naohide Sano
+ * (c)Copyright 1996-2000 NTT Cyber Space Laboratories
+ *                Modified on 2000.09.06 by N. Iwakami
  */
 
 package vavi.sound.twinvq.obsolate;

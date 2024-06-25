@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2024 by Naohide Sano, All rights reserved.
- *
- * Programmed by Naohide Sano
+ * (c)Copyright 1996-2000 NTT Cyber Space Laboratories
+ *                Released on 2000.05.22 by N. Iwakami
+ *                Released on 2000.09.06 by N. Iwakami
  */
 
 package vavi.sound.twinvq.obsolate;
@@ -15,7 +15,11 @@ import vavi.sound.twinvq.obsolate.TwinVQ.HeaderInfo;
 import vavi.sound.twinvq.obsolate.TwinVQ.ConfInfo;
 import vavi.sound.twinvq.obsolate.TwinVQ.ConfInfoSubBlock;
 
-
+/**
+ * @version 24 Feb. 1999, changed header format by N. Iwakami
+ *          24 Feb. 1999, added function TvqSkipFrame() and TvqGetBsFramePoint() by N. Iwakami
+ *          17 Jun. 1999, bug fix at the function TvqSkipFrame() by N. Iwakami
+ */
 class BStream {
 
     /** */
