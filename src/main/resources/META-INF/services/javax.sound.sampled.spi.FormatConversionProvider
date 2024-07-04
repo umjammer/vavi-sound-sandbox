@@ -2,3 +2,4 @@ vavi.sound.sampled.opus.OpusFormatConversionProvider
 #vavi.sound.sampled.rococoa.RococoaFormatConversionProvider
 vavi.sound.sampled.opl3.Opl3FormatConversionProvider
 vavi.sound.sampled.ldclep.LdCelpFormatConversionProvider
+vavi.sound.sampled.ilbc.IlbcFormatConversionProvider
