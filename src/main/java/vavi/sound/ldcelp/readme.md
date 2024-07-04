@@ -4,6 +4,9 @@ Provides G.728 LD-CELP sound related classes.
 
 ## References
 
+ * https://github.com/ging/isabel/tree/master/lib/aCodecs/src/codecs/g728 (c++)
+ * https://github.com/ufwt/windows-XP-SP1/tree/master/XPSP1/NT/multimedia/dshow/filters.ks/tests/iphone (nearest of original)
+
 ### License
 
 ```
