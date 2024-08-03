@@ -14,7 +14,7 @@ package vavi.sound.ldcelp;
  */
 public class Decoder {
 
-    LdCelp ldCelp = new LdCelp();
+    final LdCelp ldCelp = new LdCelp();
 
     public Decoder(boolean postfilter) {
         ldCelp.postfiltering_p = postfilter;

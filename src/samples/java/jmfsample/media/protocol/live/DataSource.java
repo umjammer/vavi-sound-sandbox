@@ -39,7 +39,7 @@ import javax.media.protocol.PushBufferStream;
 
 public class DataSource extends PushBufferDataSource {
 
-    protected Object[] controls = new Object[0];
+    protected final Object[] controls = new Object[0];
 
     protected boolean started = false;
 

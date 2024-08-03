@@ -74,7 +74,7 @@ public class Split {
 
     SplitDataSource[] splitDS;
 
-    Object fileSync = new Object();
+    final Object fileSync = new Object();
 
     boolean allDone = false;
 
@@ -301,7 +301,7 @@ public class Split {
      */
     public static class StateWaiter implements ControllerListener {
 
-        Processor p;
+        final Processor p;
 
         boolean error = false;
 
@@ -435,15 +435,15 @@ public class Split {
      */
     static class SplitDataSource extends PushBufferDataSource {
 
-        Processor p;
+        final Processor p;
 
-        PushBufferDataSource ds;
+        final PushBufferDataSource ds;
 
-        PushBufferStream[] pbs;
+        final PushBufferStream[] pbs;
 
-        SplitStream[] streams;
+        final SplitStream[] streams;
 
-        int idx;
+        final int idx;
 
         boolean done = false;
 
@@ -521,7 +521,7 @@ public class Split {
      */
     static class SplitStream implements PushBufferStream, BufferTransferHandler {
 
-        PushBufferStream pbs;
+        final PushBufferStream pbs;
 
         BufferTransferHandler bth;
 

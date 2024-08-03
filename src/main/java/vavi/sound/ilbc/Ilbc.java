@@ -172,14 +172,14 @@ public class Ilbc {
         int state_short_len;
         ULP ULP_inst;
         /** analysis filter state */
-        double[] anaMem = new double[LPC_FILTERORDER];
+        final double[] anaMem = new double[LPC_FILTERORDER];
         /** old lsf parameters for interpolation */
-        double[] lsfold = new double[LPC_FILTERORDER];
-        double[] lsfdeqold = new double[LPC_FILTERORDER];
+        final double[] lsfold = new double[LPC_FILTERORDER];
+        final double[] lsfdeqold = new double[LPC_FILTERORDER];
         /* signal buffer for LP analysis */
-        double[] lpc_buffer = new double[LPC_LOOKBACK + BLOCKL_MAX];
+        final double[] lpc_buffer = new double[LPC_LOOKBACK + BLOCKL_MAX];
         /* state of input HP filter */
-        double[] hpimem = new double[4];
+        final double[] hpimem = new double[4];
     }
 
     /** type definition decoder instance */
@@ -195,25 +195,25 @@ public class Ilbc {
         int state_short_len;
         ULP ULP_inst;
         /** synthesis filter state */
-        double[] syntMem = new double[LPC_FILTERORDER];
+        final double[] syntMem = new double[LPC_FILTERORDER];
         /** old LSF for interpolation */
-        double[] lsfdeqold = new double[LPC_FILTERORDER];
+        final double[] lsfdeqold = new double[LPC_FILTERORDER];
         /** pitch lag estimated in enhancer and used in PLC */
         int last_lag;
         /** PLC state information */
         int prevLag, consPLICount, prevPLI, prev_enh_pl;
-        double[] prevLpc = new double[LPC_FILTERORDER + 1];
-        double[] prevResidual = new double[NSUB_MAX * SUBL];
+        final double[] prevLpc = new double[LPC_FILTERORDER + 1];
+        final double[] prevResidual = new double[NSUB_MAX * SUBL];
         double per;
         long seed;
         /** previous synthesis filter parameters */
-        double[] old_syntdenum = new double[(LPC_FILTERORDER + 1) * NSUB_MAX];
+        final double[] old_syntdenum = new double[(LPC_FILTERORDER + 1) * NSUB_MAX];
         /** state of output HP filter */
-        double[] hpomem = new double[4];
+        final double[] hpomem = new double[4];
         /** enhancer state information */
         int use_enhancer;
-        double[] enh_buf = new double[ENH_BUFL];
-        double[] enh_period = new double[ENH_NBLOCKS_TOT];
+        final double[] enh_buf = new double[ENH_BUFL];
+        final double[] enh_period = new double[ENH_NBLOCKS_TOT];
     }
 
 //#endregion

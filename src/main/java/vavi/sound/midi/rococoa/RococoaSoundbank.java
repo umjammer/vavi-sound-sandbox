@@ -92,7 +92,7 @@ public class RococoaSoundbank implements Soundbank {
 
     /** */
     public static class RococoaInstrument extends Instrument {
-        Object data;
+        final Object data;
         protected RococoaInstrument(RococoaSoundbank sounBbank, int bank, int program, String name, Object data) {
             super(sounBbank, new Patch(bank, program), name, Object.class);
             this.data = data;

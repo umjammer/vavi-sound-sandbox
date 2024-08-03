@@ -64,9 +64,9 @@ public class LdCelp {
     private final float[] pwf_rec = new float[LPCW + 1];
 
     // auto-correlation coefficients
-    private float[] _pwf_acorr = new float[LPCW + 1];
-    private float[] _pwf_lpcoeff = new float[LPCW + 1];
-    private float[] _pwf_temp = new float[LPCW + 1];
+    private final float[] _pwf_acorr = new float[LPCW + 1];
+    private final float[] _pwf_lpcoeff = new float[LPCW + 1];
+    private final float[] _pwf_temp = new float[LPCW + 1];
 
     /**
      * Adapter for Perceptual Weighting Filter.
@@ -119,11 +119,11 @@ public class LdCelp {
     private final float[] bsf_old_input = new float[LPC + NFRSZ + NONR];
     private final float[] bsf_rec = new float[LPC + 1];
 
-    private float[] _bsf_old_input = new float[LPC + NFRSZ + NONR];
+    private final float[] _bsf_old_input = new float[LPC + NFRSZ + NONR];
     // auto-correlation coefficients
-    private float[] _bsf_acorr = new float[LPC + 1];
-    private float[] _bsf_lpcoeff = new float[LPC + 1];
-    private float[] _bsf_temp = new float[LPC + 1];
+    private final float[] _bsf_acorr = new float[LPC + 1];
+    private final float[] _bsf_lpcoeff = new float[LPC + 1];
+    private final float[] _bsf_temp = new float[LPC + 1];
 
     /** Backward Synthesis Filter Adapter */
     void bsf_adapter(float[] input, float[] p_out) {
@@ -167,10 +167,10 @@ public class LdCelp {
     private final float[] g_old_input = new float[LPCLG + NUPDATE + NONRLG];
 
     // auto-correlation coefficients
-    private float[] _gain_acorr = new float[LPCLG + 1];
-    private float[] _gain_lpcoeff = new float[LPCLG + 1];
+    private final float[] _gain_acorr = new float[LPCLG + 1];
+    private final float[] _gain_lpcoeff = new float[LPCLG + 1];
 
-    private float[] _gain_temp = new float[LPCLG + 1];
+    private final float[] _gain_temp = new float[LPCLG + 1];
 
     /** recompute lpc_coeff */
     void gain_adapter(float[] log_gain, float[] coeff) {
@@ -281,7 +281,7 @@ public class LdCelp {
 
     // Levinson-Durbin Routines ----
 
-    private float[] _levdur_rc = new float[20];
+    private final float[] _levdur_rc = new float[20];
 
     /**
      * Levinson-Durbin algorithm
@@ -600,12 +600,12 @@ public class LdCelp {
         Arrays.fill(thequeue, 0);
     }
 
-    private float[] _encode_vector_zero_response = new float[IDIM];
-    private float[] _encode_vector_weighted_speech = new float[IDIM];
-    private float[] _encode_vector_target = new float[IDIM];
-    private float[] _encode_vector_normtarg = new float[IDIM];
-    private float[] _encode_vector_cb_vec = new float[IDIM];
-    private float[] _encode_vector_pn = new float[IDIM];
+    private final float[] _encode_vector_zero_response = new float[IDIM];
+    private final float[] _encode_vector_weighted_speech = new float[IDIM];
+    private final float[] _encode_vector_target = new float[IDIM];
+    private final float[] _encode_vector_normtarg = new float[IDIM];
+    private final float[] _encode_vector_cb_vec = new float[IDIM];
+    private final float[] _encode_vector_pn = new float[IDIM];
     private float _encode_vector_gain = 1.0f;
     private float _encode_vector_scale = 1.0f;
 
@@ -649,9 +649,9 @@ public class LdCelp {
         NEXT_FFASE(); // Update vector counter
     }
 
-    private float[] _adapt_frame_input = new float[NUPDATE * IDIM];
-    private float[] _adapt_frame_synth = new float[NUPDATE * IDIM];
-    private float[] _adapt_frame_lg = new float[NUPDATE];
+    private final float[] _adapt_frame_input = new float[NUPDATE * IDIM];
+    private final float[] _adapt_frame_synth = new float[NUPDATE * IDIM];
+    private final float[] _adapt_frame_lg = new float[NUPDATE];
 
     /**
      * Update the filter coeff if we are at the correct vector in the frame
@@ -700,8 +700,8 @@ public class LdCelp {
 
 //#region CodeBook
 
-    private float[] _iresp_vcalc_temp = new float[IDIM];
-    private float[] _iresp_vcalc_rc = new float[IDIM];
+    private final float[] _iresp_vcalc_temp = new float[IDIM];
+    private final float[] _iresp_vcalc_rc = new float[IDIM];
 
     /** Impulse Response Vector Calculator */
     void iresp_vcalc(float[] sf_co,
@@ -1013,9 +1013,9 @@ public class LdCelp {
         w_vec_start = 0;
     }
 
-    private float[] _decode_vector_zero_response = new float[IDIM];
-    private float[] _decode_vector_cb_vec = new float[IDIM];
-    private float[] _decode_vector_pf_speech = new float[IDIM];
+    private final float[] _decode_vector_zero_response = new float[IDIM];
+    private final float[] _decode_vector_cb_vec = new float[IDIM];
+    private final float[] _decode_vector_pf_speech = new float[IDIM];
     private float _decode_vector_gain = 1.0f;
 
     /** @param ix Computed Codebook Index */
@@ -1403,11 +1403,11 @@ public class LdCelp {
     // Synthesis and Perceptual Weighting Filter.
 
     /** */
-    float[] statelpc = new float[LPC + IDIM];
+    final float[] statelpc = new float[LPC + IDIM];
     /** */
-    float[] zirwfir = new float[LPCW];
+    final float[] zirwfir = new float[LPCW];
     /** */
-    float[] zirwiir = new float[LPCW];
+    final float[] zirwiir = new float[LPCW];
 
     /** Updateable coefficients */
     void sf_zresp(float[] output) {
@@ -1551,14 +1551,14 @@ public class LdCelp {
 
     // Global ----
 
-    float[] sf_coeff = new float[LPC + 1];
-    float[] gp_coeff = new float[LPCLG + 1];
-    float[] pwf_z_coeff = new float[LPCW + 1];
-    float[] pwf_p_coeff = new float[LPCW + 1];
-    float[] shape_energy = new float[NCWD];
-    float[] imp_resp = new float[IDIM];
+    final float[] sf_coeff = new float[LPC + 1];
+    final float[] gp_coeff = new float[LPCLG + 1];
+    final float[] pwf_z_coeff = new float[LPCW + 1];
+    final float[] pwf_p_coeff = new float[LPCW + 1];
+    final float[] shape_energy = new float[NCWD];
+    final float[] imp_resp = new float[IDIM];
 
-    float[][] _next = new float[][] {
+    final float[][] _next = new float[][] {
         new float[LPC + 1],
         new float[LPCLG + 1],
         new float[LPCW + 1],
@@ -1574,16 +1574,16 @@ public class LdCelp {
     static final int SHAPE_ENERGY = 4;
     static final int IMP_RESP = 5;
 
-    boolean[] _obsolete_p = new boolean[6];
+    final boolean[] _obsolete_p = new boolean[6];
 
     static final int QSIZE = 60;
 
     /** Synthesized Speech */
-    float[] synspeech = new float[QSIZE];
+    final float[] synspeech = new float[QSIZE];
     /** Quantized  Speech */
-    float[] qspeech = new float[QSIZE];
+    final float[] qspeech = new float[QSIZE];
     /** Logarithm of Gains */
-    float[] log_gains = new float[QSIZE / IDIM];
+    final float[] log_gains = new float[QSIZE / IDIM];
 
     volatile int ffase = -4;
 
@@ -1712,7 +1712,7 @@ public class LdCelp {
     }
 
     private int _inv_filter_ip = IDIM;
-    private float[] _inv_filter_mem1 = new float[SPORDER + NFRSZ];
+    private final float[] _inv_filter_mem1 = new float[SPORDER + NFRSZ];
 
     /** Inverse Filter */
     void inv_filter(float[] input, int offset) {
@@ -1737,9 +1737,9 @@ public class LdCelp {
     }
 
     /** Output of long term filter */
-    private float[] _postfilter_temp = new float[IDIM];
+    private final float[] _postfilter_temp = new float[IDIM];
     /** Input of short term filter */
-    private float[] _postfilter_temp2 = new float[IDIM];
+    private final float[] _postfilter_temp2 = new float[IDIM];
 
     // Smoother version of scale
     float _postfilter_scalefil = 1.0f;
@@ -1774,7 +1774,7 @@ public class LdCelp {
         }
     }
 
-    private float[] _longterm_lmemory = new float[Constants.KPMAX];
+    private final float[] _longterm_lmemory = new float[Constants.KPMAX];
 
     /** */
     private void longterm(float[] input, int inofs, float[] output, int outofs) {
@@ -1795,8 +1795,8 @@ public class LdCelp {
         System.arraycopy(input, inofs + 0, _longterm_lmemory, 135, IDIM);
     }
 
-    private float[] _shortterm_shpmem = new float[SPORDER];
-    private float[] _shortterm_shzmem = new float[SPORDER];
+    private final float[] _shortterm_shpmem = new float[SPORDER];
+    private final float[] _shortterm_shzmem = new float[SPORDER];
 
     /**
      * Again, memories (shpmem, shzmem) are in reverse order,

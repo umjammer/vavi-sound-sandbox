@@ -10,10 +10,10 @@ import javax.swing.JFrame;
 
 class VideoEncoder {
     /** */
-    MovieProcessor mp;
+    final MovieProcessor mp;
 
     /** */
-    Component vc;
+    final Component vc;
 
     /** */
     int skip = 1;

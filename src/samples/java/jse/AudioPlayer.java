@@ -29,7 +29,6 @@ import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 
 import gnu.getopt.Getopt;
-import org.apache.tools.ant.taskdefs.Java;
 
 import static java.lang.System.getLogger;
 

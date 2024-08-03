@@ -25,7 +25,7 @@ public class TitleMessage extends InformationMessage {
     }
 
     private String messageTitle;
-    public static String TAG = "titl";
+    public static final String TAG = "titl";
 
     public TitleMessage(byte[] byteData) {
         super(byteData, TAG);

@@ -41,7 +41,7 @@ import vavix.rococoa.avfoundation.AVAudioPlayer;
  */
 public class RococoaClip implements Clip {
 
-    public static javax.sound.sampled.DataLine.Info info =
+    public static final javax.sound.sampled.DataLine.Info info =
             new javax.sound.sampled.DataLine.Info(RococoaClip.class,
                     new AudioFormat(RcococaEncoding.ROCOCOA,
                             AudioSystem.NOT_SPECIFIED,

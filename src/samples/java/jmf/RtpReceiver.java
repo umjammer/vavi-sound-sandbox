@@ -39,9 +39,9 @@ import vavi.util.Debug;
 public class RtpReceiver {
     Processor processor;
     Timer timer;
-    MediaLocator sourceML;
+    final MediaLocator sourceML;
     /** in msec */
-    int interval;
+    final int interval;
     long playingTime = 0;
     public static void main(String[] args) throws Exception {
         new RtpReceiver(new File(args[0]).toURI().toString(), Integer.parseInt(args[1]));
@@ -254,7 +254,7 @@ System.err.print("X");
     /** Get the file corresponding to the current second {@link #interval} [mesc] */
     class MyUrlMaker implements UrlMaker {
         /** */
-        Calendar calendar = Calendar.getInstance();
+        final Calendar calendar = Calendar.getInstance();
         /** */
         MyUrlMaker() {
             calendar.roll(Calendar.SECOND, 10);

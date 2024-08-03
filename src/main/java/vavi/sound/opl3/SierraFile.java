@@ -34,7 +34,7 @@ class SierraFile extends MidiTypeFile {
                 dis.readUnsignedByte() != 0xf0;
     }
 
-    protected Opl3Instrument[] smyinsbank = new Opl3Instrument[128];
+    protected final Opl3Instrument[] smyinsbank = new Opl3Instrument[128];
     // sierra instruments
     protected int stins;
 

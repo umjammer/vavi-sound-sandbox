@@ -30,7 +30,6 @@ import javax.sound.sampled.AudioSystem;
 import org.tritonus.share.sampled.AudioSystemShadow;
 import org.tritonus.share.sampled.file.AudioOutputStream;
 import org.tritonus.share.sampled.file.TDataOutputStream;
-import org.tritonus.share.sampled.file.TSeekableDataOutputStream;
 
 import static java.lang.System.getLogger;
 

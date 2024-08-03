@@ -113,7 +113,7 @@ public class AudioChannel extends Thread {
                         logger.log(Level.ERROR, e.getMessage(), e);
                     }
                 }
-                audioStream = m_audioStreamQueue.remove(0);
+                audioStream = m_audioStreamQueue.removeFirst();
             }
             logger.log(Level.DEBUG, "AudioChannel.run(): playing " + audioStream);
 

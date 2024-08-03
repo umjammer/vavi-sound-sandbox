@@ -267,7 +267,7 @@ System.err.println("tc[" + i + "]: " + tc[i].getFormat());
 
         DataSink dsink;
 
-        String name;
+        final String name;
 
         FileWriter(String name) {
             this.name = name;

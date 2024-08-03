@@ -21,9 +21,9 @@ import vavi.util.StringUtil;
 class Mp3Decoder {
     /** */
     private static class GrInfo {
-        int length;
-        int bigValues;
-        int gain;
+        final int length;
+        final int bigValues;
+        final int gain;
         GrInfo(int length, int bigValues, int gain) {
             this.length = length;
             this.bigValues = bigValues;
@@ -85,7 +85,7 @@ class Mp3Decoder {
          * <li>11 - MPEG Version 1
          * </ul>
          */
-        int version;
+        final int version;
         /**
          * <ul>
          * <li>00 - reserved
@@ -94,11 +94,11 @@ class Mp3Decoder {
          * <li>11 - Layer I
          * </ul>
          */
-        int layer;
+        final int layer;
         /** */
-        int bitrate;
+        final int bitrate;
         /** */
-        int frequency;
+        final int frequency;
         /**
          * <ol>
          * <li> stereo
@@ -107,7 +107,7 @@ class Mp3Decoder {
          * <li> single channel
          * </ol>
          */
-        int mode;
+        final int mode;
         /** Gets header information. */
         public MpegHeader(byte[] buf, int offset) {
 Debug.println("offset: " + offset);

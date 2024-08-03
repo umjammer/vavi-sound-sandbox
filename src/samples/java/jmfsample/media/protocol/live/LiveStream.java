@@ -46,9 +46,9 @@ import javax.media.protocol.PushBufferStream;
 
 public class LiveStream implements PushBufferStream, Runnable {
 
-    protected ContentDescriptor cd = new ContentDescriptor(ContentDescriptor.RAW);
+    protected final ContentDescriptor cd = new ContentDescriptor(ContentDescriptor.RAW);
 
-    protected int maxDataLength;
+    protected final int maxDataLength;
 
     protected byte[] data;
 
@@ -66,7 +66,7 @@ public class LiveStream implements PushBufferStream, Runnable {
 
     protected BufferTransferHandler transferHandler;
 
-    protected Control[] controls = new Control[0];
+    protected final Control[] controls = new Control[0];
 
     protected boolean videoData = true;
 

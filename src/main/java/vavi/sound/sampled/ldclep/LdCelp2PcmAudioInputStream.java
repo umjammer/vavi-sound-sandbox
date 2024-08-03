@@ -52,7 +52,7 @@ class LdCelp2PcmAudioInputStream extends AudioInputStream {
         private final Decoder decoder;
 
         /** */
-        InputStream is;
+        final InputStream is;
 
         /** */
         public LdCelpOutputEngine(InputStream is) throws IOException {
@@ -70,13 +70,13 @@ Debug.println(Level.FINE, "LD-CELP");
             }
         }
 
-        byte[] buf = new byte[Short.BYTES];
-        byte[] decoded = new byte[5 * Short.BYTES];
+        final byte[] buf = new byte[Short.BYTES];
+        final byte[] decoded = new byte[5 * Short.BYTES];
 
-        short[] inDataS = new short[1];
-        ShortBuffer isb = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
-        short[] outDataS = new short[5];
-        ShortBuffer osb = ByteBuffer.wrap(decoded).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+        final short[] inDataS = new short[1];
+        final ShortBuffer isb = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+        final short[] outDataS = new short[5];
+        final ShortBuffer osb = ByteBuffer.wrap(decoded).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
 
         @Override
         public void execute() throws IOException {

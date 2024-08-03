@@ -315,7 +315,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
         return dsink;
     }
 
-    Object waitSync = new Object();
+    final Object waitSync = new Object();
 
     boolean stateTransitionOK = true;
 
@@ -360,7 +360,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
         }
     }
 
-    Object waitFileSync = new Object();
+    final Object waitFileSync = new Object();
 
     boolean fileDone = false;
 

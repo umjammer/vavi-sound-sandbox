@@ -47,7 +47,7 @@ public class PacketCaster {
     }
 
     /** */
-    int interval;
+    final int interval;
 
     /** */
     PacketCaster(String[] args) throws Exception {
@@ -159,7 +159,7 @@ System.err.println("  ...done cutting.");
     /**
      * Controller Listener.
      */
-    ControllerListener controllerListener = evt -> {
+    final ControllerListener controllerListener = evt -> {
 
         if (evt instanceof ControllerErrorEvent) {
             System.err.println("Failed to cut the file.");
@@ -196,7 +196,7 @@ System.err.println("  ...done cutting.");
     /**
      * Event handler for the file writer.
      */
-    DataSinkListener dataSinkListener = evt -> {
+    final DataSinkListener dataSinkListener = evt -> {
 
         if (evt instanceof EndOfStreamEvent) {
             synchronized (waitFileSync) {
@@ -217,7 +217,7 @@ System.err.print("X");
     /** Get the file corresponding to the current second {@link #interval} [mesc] */
     class MyUrlMaker implements UrlMaker {
         /** */
-        Calendar calendar = Calendar.getInstance();
+        final Calendar calendar = Calendar.getInstance();
         /** */
         MyUrlMaker() {
             calendar.roll(Calendar.SECOND, 10);

@@ -79,7 +79,7 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
 
     Processor p;
 
-    Object waitSync = new Object();
+    final Object waitSync = new Object();
 
     boolean stateTransitionOK = true;
 
@@ -527,9 +527,9 @@ public class DataSourceReader extends Frame implements ControllerListener, DataS
      */
     class Loop extends Thread {
 
-        DataSourceHandler handler;
+        final DataSourceHandler handler;
 
-        PullBufferStream stream;
+        final PullBufferStream stream;
 
         boolean paused = true;
 

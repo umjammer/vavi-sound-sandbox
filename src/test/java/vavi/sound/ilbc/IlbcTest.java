@@ -20,7 +20,6 @@ import javax.sound.sampled.SourceDataLine;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import vavi.util.Debug;
-import vavi.util.StringUtil;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
 import vavix.util.Checksum;
@@ -114,7 +113,7 @@ Debug.println(size);
             dos.write(decoded, 0, decoded.length);
 
             l += r;
-Debug.println(l + "/" + size);
+//Debug.println(l + "/" + size);
         }
 
         line.drain();

@@ -26,15 +26,12 @@ import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.TargetDataLine;
 
 import gnu.getopt.Getopt;
-import net.sf.saxon.expr.Component.M;
-import org.checkerframework.checker.units.qual.C;
 
 import static java.lang.System.getLogger;
 import static javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED;

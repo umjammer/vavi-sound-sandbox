@@ -682,71 +682,78 @@ Debug.println(line.getClass().getName());
                 throw new IllegalStateException("receiver is not open");
             }
 
-            if (message instanceof ShortMessage shortMessage) {
-                int channel = shortMessage.getChannel();
-                int command = shortMessage.getCommand();
-                int data1 = shortMessage.getData1();
-                int data2 = shortMessage.getData2();
-                switch (command) {
-                case ShortMessage.NOTE_OFF:
-                    channels[channel].noteOff(data1, data2);
-                    break;
-                case ShortMessage.NOTE_ON:
-                    channels[channel].noteOn(data1, data2);
-                    break;
-                case ShortMessage.POLY_PRESSURE:
-                    channels[channel].setPolyPressure(data1, data2);
-                    break;
-                case ShortMessage.CONTROL_CHANGE:
-                    channels[channel].controlChange(data1, data2);
-                    break;
-                case ShortMessage.PROGRAM_CHANGE:
-                    channels[channel].programChange(data1);
-                    break;
-                case ShortMessage.CHANNEL_PRESSURE:
-                    channels[channel].setChannelPressure(data1);
-                    break;
-                case ShortMessage.PITCH_BEND:
-                    channels[channel].setPitchBend(data1 | (data2 << 7));
-                    break;
-                default:
-Debug.printf("unhandled short: %02X\n", command);
-                }
-            } else if (message instanceof SysexMessage sysexMessage) {
-                byte[] data = sysexMessage.getData();
-Debug.printf("sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data));
-                switch (data[0]) {
-                case 0x7f: { // Universal Realtime
-                    int c = data[1]; // 0x7f: Disregards channel
-                    // Sub-ID, Sub-ID2
-                    if (data[2] == 0x04 && data[3] == 0x01) { // Device Control / Master Volume
-                        float gain = ((data[4] & 0x7f) | ((data[5] & 0x7f) << 7)) / 16383f;
-Debug.printf("sysex volume: gain: %3.0f%n", gain * 127);
-                        for (c = 0; c < 16; c++) {
-                            voiceStatus[c].volume = (int) (gain * 127); // TODO doesn't work
-                        }
+            switch (message) {
+                case ShortMessage shortMessage -> {
+                    int channel = shortMessage.getChannel();
+                    int command = shortMessage.getCommand();
+                    int data1 = shortMessage.getData1();
+                    int data2 = shortMessage.getData2();
+                    switch (command) {
+                        case ShortMessage.NOTE_OFF:
+                            channels[channel].noteOff(data1, data2);
+                            break;
+                        case ShortMessage.NOTE_ON:
+                            channels[channel].noteOn(data1, data2);
+                            break;
+                        case ShortMessage.POLY_PRESSURE:
+                            channels[channel].setPolyPressure(data1, data2);
+                            break;
+                        case ShortMessage.CONTROL_CHANGE:
+                            channels[channel].controlChange(data1, data2);
+                            break;
+                        case ShortMessage.PROGRAM_CHANGE:
+                            channels[channel].programChange(data1);
+                            break;
+                        case ShortMessage.CHANNEL_PRESSURE:
+                            channels[channel].setChannelPressure(data1);
+                            break;
+                        case ShortMessage.PITCH_BEND:
+                            channels[channel].setPitchBend(data1 | (data2 << 7));
+                            break;
+                        default:
+                            Debug.printf("unhandled short: %02X\n", command);
                     }
-                }   break;
-                case 0x7d: { // test
-                    switch (data[1]) {
-                    case 0x10: // 7D 10 ch -- set an instrument to ch
-                        adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
+                }
+                case SysexMessage sysexMessage -> {
+                    byte[] data = sysexMessage.getData();
+                    Debug.printf("sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data));
+                    switch (data[0]) {
+                        case 0x7f: { // Universal Realtime
+                            int c = data[1]; // 0x7f: Disregards channel
+                            // Sub-ID, Sub-ID2
+                            if (data[2] == 0x04 && data[3] == 0x01) { // Device Control / Master Volume
+                                float gain = ((data[4] & 0x7f) | ((data[5] & 0x7f) << 7)) / 16383f;
+                                Debug.printf("sysex volume: gain: %3.0f%n", gain * 127);
+                                for (c = 0; c < 16; c++) {
+                                    voiceStatus[c].volume = (int) (gain * 127); // TODO doesn't work
+                                }
+                            }
+                        }
+                        break;
+                        case 0x7d: { // test
+                            switch (data[1]) {
+                                case 0x10: // 7D 10 ch -- set an instrument to ch
+                                    adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
 
-                        int c = data[2];
-                        channels[c].ins = MidPlayer.fromSysex(data);
+                                    int c = data[2];
+                                    channels[c].ins = MidPlayer.fromSysex(data);
 
+                                    break;
+                            }
+                        }
                         break;
                     }
-                }   break;
                 }
-            } else if (message instanceof MetaMessage metaMessage) {
-Debug.printf("meta: %02x", metaMessage.getType());
-                switch (metaMessage.getType()) {
-                case 0x2f:
-                    break;
+                case MetaMessage metaMessage -> {
+                    Debug.printf("meta: %02x", metaMessage.getType());
+                    switch (metaMessage.getType()) {
+                        case 0x2f:
+                            break;
+                    }
                 }
-            } else {
-                assert false;
+                case null, default -> {
+                    assert false;
+                }
             }
         }
 

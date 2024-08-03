@@ -37,7 +37,7 @@ public class JSynOscillator extends ModelAbstractOscillator {
 
     /** */
     public class JSynInstrument extends SimpleInstrument {
-        UnitVoice data;
+        final UnitVoice data;
         protected JSynInstrument(int bank, int program, boolean isPercussion, String name, UnitVoice data) {
             setName(JSynOscillator.this.getName());
             add(getPerformer());
@@ -57,7 +57,7 @@ public class JSynOscillator extends ModelAbstractOscillator {
     }
 
     static class VoiceDescriptionAdapter extends VoiceDescription {
-        UnitVoice unitVoice;
+        final UnitVoice unitVoice;
         public VoiceDescriptionAdapter(UnitVoice unitVoice) {
             super(unitVoice.getClass().getSimpleName(), new String[] { unitVoice.getClass().getSimpleName() });
             this.unitVoice = unitVoice;

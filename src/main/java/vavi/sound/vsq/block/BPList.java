@@ -48,18 +48,13 @@ public class BPList implements Block {
      */
     String id;
 
-    /** */
-    public static class Pair {
-        public long tick;
-        public int id;
-        public Pair(long tick, int id) {
-            this.tick = tick;
-            this.id = id;
-        }
+    /**  */
+        public record Pair(long tick, int id) {
+
     }
 
     /** */
-    protected List<Pair> bps = new ArrayList<>();
+    protected final List<Pair> bps = new ArrayList<>();
 
     /** */
     public static Block newInstance(String label, List<String> params) {

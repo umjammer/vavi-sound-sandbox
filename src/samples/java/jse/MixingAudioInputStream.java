@@ -59,7 +59,7 @@ public class MixingAudioInputStream extends AudioInputStream {
 
     public MixingAudioInputStream(AudioFormat audioFormat, Collection<AudioInputStream> audioInputStreams) {
         super(new ByteArrayInputStream(new byte[0]), audioFormat, AudioSystem.NOT_SPECIFIED);
-        logger.log(Level.DEBUG, "MixingAudioInputStream.<init>(): begin");
+        logger.log(Level.TRACE, "MixingAudioInputStream.<init>(): begin");
         m_audioInputStreamList = new ArrayList<>(audioInputStreams);
         if (logger.isLoggable(Level.DEBUG)) {
             logger.log(Level.DEBUG, "MixingAudioInputStream.<init>(): stream list:");
@@ -67,12 +67,12 @@ public class MixingAudioInputStream extends AudioInputStream {
                 logger.log(Level.DEBUG, "  " + audioInputStream);
             }
         }
-        logger.log(Level.DEBUG, "MixingAudioInputStream.<init>(): end");
+        logger.log(Level.TRACE, "MixingAudioInputStream.<init>(): end");
     }
 
     // TODO remove
     private boolean addAudioInputStream(AudioInputStream audioStream) {
-        logger.log(Level.DEBUG, "MixingAudioInputStream.addAudioInputStream(): called.");
+        logger.log(Level.TRACE, "MixingAudioInputStream.addAudioInputStream(): called.");
 
         // Contract.check(audioStream != null);
         if (!getFormat().matches(audioStream.getFormat())) {
@@ -117,7 +117,7 @@ public class MixingAudioInputStream extends AudioInputStream {
 
     @Override
     public int read() throws IOException {
-        logger.log(Level.DEBUG, "MixingAudioInputStream.read(): begin");
+        logger.log(Level.TRACE, "MixingAudioInputStream.read(): begin");
 
         int nSample = 0;
         Iterator<AudioInputStream> streamIterator = m_audioInputStreamList.iterator();
@@ -134,13 +134,13 @@ public class MixingAudioInputStream extends AudioInputStream {
                 nSample += nByte;
             }
         }
-        logger.log(Level.DEBUG, "MixingAudioInputStream.read(): end");
+        logger.log(Level.TRACE, "MixingAudioInputStream.read(): end");
         return (byte) nSample;
     }
 
     @Override
     public int read(byte[] abData, int nOffset, int nLength) throws IOException {
-        logger.log(Level.DEBUG, "MixingAudioInputStream.read(byte[], int, int): begin");
+        logger.log(Level.TRACE, "MixingAudioInputStream.read(byte[], int, int): begin");
         logger.log(Level.DEBUG, "MixingAudioInputStream.read(byte[], int, int): requested length: " + nLength);
 
         int nChannels = getFormat().getChannels();
@@ -160,7 +160,7 @@ public class MixingAudioInputStream extends AudioInputStream {
         byte[] abBuffer = new byte[nFrameSize];
         int[] anMixedSamples = new int[nChannels];
         for (int nFrameBoundry = 0; nFrameBoundry < nLength; nFrameBoundry += nFrameSize) {
-            logger.log(Level.DEBUG, "MixingAudioInputStream.read(byte[], int, int): frame boundry: " + nFrameBoundry);
+            logger.log(Level.DEBUG, "MixingAudioInputStream.read(byte[], int, int): frame boundary: " + nFrameBoundry);
             Arrays.fill(anMixedSamples, 0);
 
             Iterator<AudioInputStream> streamIterator = m_audioInputStreamList.iterator();

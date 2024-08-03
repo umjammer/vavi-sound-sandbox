@@ -25,7 +25,6 @@ package jse;
  * Ave, Cambridge, MA 02139, USA.
  *
  */
-import java.io.PrintStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import javax.sound.midi.MetaMessage;
@@ -216,16 +215,12 @@ public class DumpReceiver implements Receiver {
             logger.log(Level.DEBUG, "] ");
         }
 
-        String strMessage = null;
-        if (message instanceof ShortMessage) {
-            strMessage = decodeMessage((ShortMessage) message);
-        } else if (message instanceof SysexMessage) {
-            strMessage = decodeMessage((SysexMessage) message);
-        } else if (message instanceof MetaMessage) {
-            strMessage = decodeMessage((MetaMessage) message);
-        } else {
-            strMessage = "unknown message type";
-        }
+        String strMessage = switch (message) {
+            case ShortMessage shortMessage -> decodeMessage(shortMessage);
+            case SysexMessage sysexMessage -> decodeMessage(sysexMessage);
+            case MetaMessage metaMessage -> decodeMessage(metaMessage);
+            default -> "unknown message type";
+        };
 
         String strTimeStamp = null;
 //        if (m_bPrintTimeStampAsTicks) {

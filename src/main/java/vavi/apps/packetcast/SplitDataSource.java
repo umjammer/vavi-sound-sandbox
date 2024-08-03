@@ -19,15 +19,15 @@ import javax.media.protocol.PushBufferStream;
  */
 class SplitDataSource extends PushBufferDataSource {
 
-    Processor p;
+    final Processor p;
 
-    PushBufferDataSource ds;
+    final PushBufferDataSource ds;
 
-    PushBufferStream[] pbss;
+    final PushBufferStream[] pbss;
 
-    SplitStream[] streams;
+    final SplitStream[] streams;
 
-    int idx;
+    final int idx;
 
     boolean done = false;
 
@@ -104,7 +104,7 @@ class SplitDataSource extends PushBufferDataSource {
      */
     static class SplitStream implements PushBufferStream, BufferTransferHandler {
 
-        PushBufferStream pbs;
+        final PushBufferStream pbs;
 
         BufferTransferHandler bth;
 

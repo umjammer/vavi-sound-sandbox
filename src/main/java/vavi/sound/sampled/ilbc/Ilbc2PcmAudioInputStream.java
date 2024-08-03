@@ -49,7 +49,7 @@ class Ilbc2PcmAudioInputStream extends AudioInputStream {
         private final Decoder decoder;
 
         /** */
-        InputStream is;
+        final InputStream is;
 
         /** */
         public IlbcOutputEngine(InputStream is) throws IOException {
@@ -69,8 +69,8 @@ Debug.println(Level.FINE, "iLBC");
             }
         }
 
-        byte[] decoded;
-        byte[] buf;
+        final byte[] decoded;
+        final byte[] buf;
 
         @Override
         public void execute() throws IOException {

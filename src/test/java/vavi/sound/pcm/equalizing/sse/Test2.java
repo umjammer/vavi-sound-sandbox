@@ -146,11 +146,13 @@ System.err.println("bands: " + model.bands);
     /** */
     class View {
         /** */
-        Model model;
+        final Model model;
         /** */
-        JSlider[] lgains, rgains;
+        final JSlider[] lgains;
+        final JSlider[] rgains;
         /** */
-        JSlider lpremain, rpremain;
+        final JSlider lpremain;
+        final JSlider rpremain;
         /** */
         View(Model model) {
             this.model = model;
@@ -222,14 +224,14 @@ System.err.println("bands: " + model.bands);
             frame.setVisible(true);
         }
 
-        MouseInputListener mouseInputListener = new MouseInputAdapter() {
+        final MouseInputListener mouseInputListener = new MouseInputAdapter() {
             @Override
             public void mouseReleased(MouseEvent event) {
                 doEqualize();
             }
         };
 
-        ChangeListener changeListener = new ChangeListener() {
+        final ChangeListener changeListener = new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent event) {
                 String name = ((Component) event.getSource()).getName();
@@ -259,7 +261,7 @@ System.err.println(name + ": " + value);
             }
         };
 
-        ActionListener actionListener = event -> {
+        final ActionListener actionListener = event -> {
             try {
                 doEqualize();
             } catch (Exception e) {
@@ -299,7 +301,7 @@ System.err.println(name + ": " + value);
     }
 
     /** */
-    Runnable player = new Runnable() {
+    final Runnable player = new Runnable() {
         @Override
         public void run() {
             while (true) {

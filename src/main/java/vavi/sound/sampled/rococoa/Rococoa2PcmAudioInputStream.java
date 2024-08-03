@@ -99,7 +99,7 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
             }
         }
 
-        ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
+        final ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
 
         @Override
         public void execute() throws IOException {

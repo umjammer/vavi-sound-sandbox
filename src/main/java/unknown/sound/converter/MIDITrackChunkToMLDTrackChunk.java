@@ -90,6 +90,7 @@ public class MIDITrackChunkToMLDTrackChunk {
         try {
             NoteMessage[] tempo = { null, null, null, null };
             int[] prevVelocity = { -1, -1, -1, -1 };
+label:
             do {
                 unknown.sound.midi.track.TrackMessage message = (unknown.sound.midi.track.TrackMessage) stream.readMessage();
                 presentTime = message.getAbsoluteTime();
@@ -115,99 +116,103 @@ public class MIDITrackChunkToMLDTrackChunk {
                         }
                     }
                 } while (timeOver);
-                if (message instanceof NoteOnMessage noteOn) {
-                    int index = noteOn.getChunnel();
-                    if (index < 4) {
-                        if (tempo[index] == null) {
-                            if (noteOn.getVelocity() != 0) {
-                                tempo[index] = new NoteMessage(0, index,
-                                                               toMLDNote(noteOn.getNote()),
-                                                               0);
-                                tempo[index].setAbsoluteTime(presentTime);
-                                if (inputStream.getPreferences().useVelocity &&
-                                    ((prevVelocity[index] != noteOn.getVelocity()) ||
-                                    (prevVelocity[index] == -1))) {
-                                    SoundMessage sound = new SoundMessage(0,
-                                                                          index,
-                                                                          noteOn.getVelocity() / 2);
-                                    sound.setAbsoluteTime(presentTime);
-                                    add(sound);
-                                    prevVelocity[index] = noteOn.getVelocity();
+                switch (message) {
+                    case NoteOnMessage noteOn: {
+                        int index = noteOn.getChunnel();
+                        if (index < 4) {
+                            if (tempo[index] == null) {
+                                if (noteOn.getVelocity() != 0) {
+                                    tempo[index] = new NoteMessage(0, index,
+                                            toMLDNote(noteOn.getNote()),
+                                            0);
+                                    tempo[index].setAbsoluteTime(presentTime);
+                                    if (inputStream.getPreferences().useVelocity &&
+                                            ((prevVelocity[index] != noteOn.getVelocity()) ||
+                                                    (prevVelocity[index] == -1))) {
+                                        SoundMessage sound = new SoundMessage(0,
+                                                index,
+                                                noteOn.getVelocity() / 2);
+                                        sound.setAbsoluteTime(presentTime);
+                                        add(sound);
+                                        prevVelocity[index] = noteOn.getVelocity();
+                                    }
+                                    add(tempo[index]);
                                 }
+                            } else if (noteOn.getVelocity() == 0) {
+                                if (toMLDNote(noteOn.getNote()) == tempo[index].getNote()) {
+                                    tempo[index].setSoundLength((int) (toMLDTime(presentTime) -
+                                            toMLDTime(tempo[index].getAbsoluteTime())));
+                                    tempo[index] = null;
+                                }
+                            } else {
+                                tempo[index].setSoundLength((int) (toMLDTime(presentTime) -
+                                        toMLDTime(tempo[index].getAbsoluteTime()) -
+                                        1L));
+                                tempo[index] = new NoteMessage(0, index,
+                                        toMLDNote(noteOn.getNote()),
+                                        0);
+                                tempo[index].setAbsoluteTime(presentTime);
                                 add(tempo[index]);
                             }
-                        } else if (noteOn.getVelocity() == 0) {
-                            if (toMLDNote(noteOn.getNote()) == tempo[index].getNote()) {
-                                tempo[index].setSoundLength((int) (toMLDTime(presentTime) -
-                                                            toMLDTime(tempo[index].getAbsoluteTime())));
-                                tempo[index] = null;
-                            }
-                        } else {
+                        }
+                        continue;
+                    }
+                    case NoteOffMessage noteOff: {
+                        int index = noteOff.getChunnel();
+                        if ((index < 4) && (tempo[index] != null) &&
+                                (tempo[index].getNote() == toMLDNote(noteOff.getNote()))) {
                             tempo[index].setSoundLength((int) (toMLDTime(presentTime) -
-                                                        toMLDTime(tempo[index].getAbsoluteTime()) -
-                                                        1L));
-                            tempo[index] = new NoteMessage(0, index,
-                                                           toMLDNote(noteOn.getNote()),
-                                                           0);
-                            tempo[index].setAbsoluteTime(presentTime);
-                            add(tempo[index]);
+                                    toMLDTime(tempo[index].getAbsoluteTime())));
+                            tempo[index] = null;
                         }
+                        continue;
                     }
-                    continue;
-                }
-                if (message instanceof NoteOffMessage noteOff) {
-                    int index = noteOff.getChunnel();
-                    if ((index < 4) && (tempo[index] != null) &&
-                        (tempo[index].getNote() == toMLDNote(noteOff.getNote()))) {
-                        tempo[index].setSoundLength((int) (toMLDTime(presentTime) -
-                                                    toMLDTime(tempo[index].getAbsoluteTime())));
-                        tempo[index] = null;
-                    }
-                    continue;
-                }
-                if (message instanceof ProgramChangeMessage program) {
-                    int index = program.getChunnel();
-                    if (index < 4) {
-                        ProgramChangePrevMessage prev = new ProgramChangePrevMessage(0,
-                                                                                     program.getChunnel(),
-                                                                                     program.getProgram());
-                        ProgramChangeNextMessage next = new ProgramChangeNextMessage(0,
-                                                                                     program.getChunnel(),
-                                                                                     program.getProgram());
-                        prev.setAbsoluteTime(presentTime);
-                        next.setAbsoluteTime(presentTime);
-                        add(prev);
-                        add(next);
-                    }
-                    continue;
-                }
-                if (message instanceof SetTempoMessage tempoChange) {
-                    TempoMessage tempoMessage = new TempoMessage(0,
-                                                                 inputStream.getPreferences().resolution,
-                                                                 tempoChange.getTempo());
-                    tempoChange.setAbsoluteTime(presentTime);
-                    add(tempoMessage);
-                    continue;
-                }
-                if (message instanceof EndOfTrackMessage) {
-                    break;
-                }
-                if (message instanceof SequenceTrackNameMessage name) {
-                    if (inputStream.getTitleName() == null) {
-                        inputStream.setTitleName(name.getTrackName());
-                    }
-                } else if (message instanceof TextMessage) {
-                    if (inputStream.getPreferences().fullChorus) {
-                        TextMessage text = (TextMessage) message;
-                        if (text.getText().equals("MIDIToMLD Full chorus")) {
-                            TrackBeginningMessage beginning = new TrackBeginningMessage(0,
-                                                                                        1);
-                            beginning.setAbsoluteTime(presentTime);
-                            add(beginning);
+                    case ProgramChangeMessage program: {
+                        int index = program.getChunnel();
+                        if (index < 4) {
+                            ProgramChangePrevMessage prev = new ProgramChangePrevMessage(0,
+                                    program.getChunnel(),
+                                    program.getProgram());
+                            ProgramChangeNextMessage next = new ProgramChangeNextMessage(0,
+                                    program.getChunnel(),
+                                    program.getProgram());
+                            prev.setAbsoluteTime(presentTime);
+                            next.setAbsoluteTime(presentTime);
+                            add(prev);
+                            add(next);
                         }
+                        continue;
                     }
-                } else if (message instanceof RightMessage right) {
-                    inputStream.setRightInformation(right.getRightText());
+                    case SetTempoMessage tempoChange:
+                        TempoMessage tempoMessage = new TempoMessage(0,
+                                inputStream.getPreferences().resolution,
+                                tempoChange.getTempo());
+                        tempoChange.setAbsoluteTime(presentTime);
+                        add(tempoMessage);
+                        continue;
+                    case EndOfTrackMessage endOfTrackMessage:
+                        break label;
+                    case SequenceTrackNameMessage name:
+                        if (inputStream.getTitleName() == null) {
+                            inputStream.setTitleName(name.getTrackName());
+                        }
+                        break;
+                    case TextMessage textMessage:
+                        if (inputStream.getPreferences().fullChorus) {
+                            TextMessage text = (TextMessage) message;
+                            if (text.getText().equals("MIDIToMLD Full chorus")) {
+                                TrackBeginningMessage beginning = new TrackBeginningMessage(0,
+                                        1);
+                                beginning.setAbsoluteTime(presentTime);
+                                add(beginning);
+                            }
+                        }
+                        break;
+                    case RightMessage right:
+                        inputStream.setRightInformation(right.getRightText());
+                        break;
+                    default:
+                        break;
                 }
             } while (true);
         } catch (IOException | InvalidMidiDataException e) {

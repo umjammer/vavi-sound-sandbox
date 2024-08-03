@@ -17,8 +17,8 @@ import javax.swing.JFrame;
  */
 public class MMLPlayerApplication extends JFrame {
 
-    Container container;
-    JDesktopPane desktop;
+    final Container container;
+    final JDesktopPane desktop;
 
     public MMLPlayerApplication() {
         super("MML Player");

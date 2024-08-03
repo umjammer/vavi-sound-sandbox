@@ -78,7 +78,7 @@ public class JSynSoundbank implements Soundbank {
 
     /** */
     public static class JSynInstrument extends Instrument {
-        UnitVoice data;
+        final UnitVoice data;
         protected JSynInstrument(JSynSoundbank sounBbank, int bank, int program, String name, UnitVoice data) {
             super(sounBbank, new Patch(bank, program), name, VoiceDescriptionAdapter.class);
             this.data = data;
@@ -91,7 +91,7 @@ public class JSynSoundbank implements Soundbank {
     }
 
     static class VoiceDescriptionAdapter extends VoiceDescription {
-        UnitVoice unitVoice;
+        final UnitVoice unitVoice;
         public VoiceDescriptionAdapter(UnitVoice unitVoice) {
             super(unitVoice.getClass().getSimpleName(), new String[] { unitVoice.getClass().getSimpleName() });
             this.unitVoice = unitVoice;

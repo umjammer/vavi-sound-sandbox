@@ -75,7 +75,7 @@ public class Polyphase {
         /** output samples 'in the pipe' */
         double inpipe;
         /** array of pointers to polystage structs */
-        PolyStage[] stage = new PolyStage[MF];
+        final PolyStage[] stage = new PolyStage[MF];
     }
 
     /** */

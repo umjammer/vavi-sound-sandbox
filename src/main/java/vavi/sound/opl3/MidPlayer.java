@@ -199,7 +199,7 @@ public class MidPlayer extends Opl3Player implements Sequencer {
     private FileType type;
     protected int subsongs;
 
-    protected MidiTrack[] tracks = new MidiTrack[MAX_CHANNELS];
+    protected final MidiTrack[] tracks = new MidiTrack[MAX_CHANNELS];
 
     protected int deltas;
     protected int msqtr;

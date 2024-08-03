@@ -177,7 +177,7 @@ label0:
 
     private int previousStatusByteTempo;
     private long trackAbsoluteTime;
-    public static String MYTAG = "MTrk";
+    public static final String MYTAG = "MTrk";
 
     public TrackChunkInputStream(byte[] dataBytes) {
         super(MYTAG, dataBytes);

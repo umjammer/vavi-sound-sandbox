@@ -166,15 +166,15 @@ class TransmitThread extends Thread {
         private byte marker;
 
         // version number 10000000
-        byte version = -128;
+        final byte version = -128;
         // padding
-        byte padding = 0;
+        final byte padding = 0;
         // expansion bit
-        byte extention = 0;
+        final byte extention = 0;
         // contribution count
-        byte contribute = 0;
+        final byte contribute = 0;
         // payload type
-        byte payload = 0;
+        final byte payload = 0;
 
         void writeTo(OutputStream os) throws IOException {
             // RTP header

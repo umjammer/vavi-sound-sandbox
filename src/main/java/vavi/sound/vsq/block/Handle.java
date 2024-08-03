@@ -71,40 +71,24 @@ public class Handle implements Block {
         block.id = label;
         for (String param : params) {
             String[] pair = param.split("=");
-            if ("L0".equals(pair[0])) {
-                block.l0 = pair[1];
-            } else if ("IconID".equals(pair[0])) {
-                block.iconID = pair[1];
-            } else if ("IDS".equals(pair[0])) {
-                block.ids = pair[1];
-            } else if ("Original".equals(pair[0])) {
-                block.original = Integer.parseInt(pair[1]);
-            } else if ("Caption".equals(pair[0])) {
-                block.caption = pair.length == 2 ? pair[1] : null;
-            } else if ("Length".equals(pair[0])) {
-                block.length = Integer.parseInt(pair[1]);
-            } else if ("StartDepth".equals(pair[0])) {
-                block.startDepth = Integer.parseInt(pair[1]);
-            } else if ("DepthBPNum".equals(pair[0])) {
-                block.depthBPNum = Integer.parseInt(pair[1]);
-            } else if ("StartRate".equals(pair[0])) {
-                block.startRate = Integer.parseInt(pair[1]);
-            } else if ("RateBPNum".equals(pair[0])) {
-                block.rateBPNum = Integer.parseInt(pair[1]);
-            } else if ("Language".equals(pair[0])) {
-                block.language = Integer.parseInt(pair[1]);
-            } else if ("OpusTest".equals(pair[0])) {
-                block.program = Integer.parseInt(pair[1]);
-            } else if ("DepthBPX".equals(pair[0])) {
-                block.depthBPX = pair[1];
-            } else if ("DepthBPY".equals(pair[0])) {
-                block.depthBPY = pair[1];
-            } else if ("RateBPX".equals(pair[0])) {
-                block.rateBPX = pair[1];
-            } else if ("RateBPY".equals(pair[0])) {
-                block.rateBPY = pair[1];
-            } else {
-Debug.println("unhandled param: " + pair[0]);
+            switch (pair[0]) {
+                case "L0" -> block.l0 = pair[1];
+                case "IconID" -> block.iconID = pair[1];
+                case "IDS" -> block.ids = pair[1];
+                case "Original" -> block.original = Integer.parseInt(pair[1]);
+                case "Caption" -> block.caption = pair.length == 2 ? pair[1] : null;
+                case "Length" -> block.length = Integer.parseInt(pair[1]);
+                case "StartDepth" -> block.startDepth = Integer.parseInt(pair[1]);
+                case "DepthBPNum" -> block.depthBPNum = Integer.parseInt(pair[1]);
+                case "StartRate" -> block.startRate = Integer.parseInt(pair[1]);
+                case "RateBPNum" -> block.rateBPNum = Integer.parseInt(pair[1]);
+                case "Language" -> block.language = Integer.parseInt(pair[1]);
+                case "OpusTest" -> block.program = Integer.parseInt(pair[1]);
+                case "DepthBPX" -> block.depthBPX = pair[1];
+                case "DepthBPY" -> block.depthBPY = pair[1];
+                case "RateBPX" -> block.rateBPX = pair[1];
+                case "RateBPY" -> block.rateBPY = pair[1];
+                case null, default -> Debug.println("unhandled param: " + pair[0]);
             }
         }
         return block;

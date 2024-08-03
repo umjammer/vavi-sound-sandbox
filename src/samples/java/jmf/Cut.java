@@ -439,7 +439,7 @@ public class Cut implements ControllerListener, DataSinkListener {
      */
     public static class StateWaiter implements ControllerListener {
 
-        Processor p;
+        final Processor p;
 
         boolean error = false;
 
@@ -534,7 +534,7 @@ public class Cut implements ControllerListener, DataSinkListener {
         }
     }
 
-    Object waitFileSync = new Object();
+    final Object waitFileSync = new Object();
 
     boolean fileDone = false;
 
@@ -662,13 +662,13 @@ System.err.print("X");
      */
     class SuperCutDataSource extends PushBufferDataSource {
 
-        Processor p;
+        final Processor p;
 
-        MediaLocator ml;
+        final MediaLocator ml;
 
-        PushBufferDataSource ds;
+        final PushBufferDataSource ds;
 
-        SuperCutStream[] streams;
+        final SuperCutStream[] streams;
 
         public SuperCutDataSource(Processor p, MediaLocator ml, long[] start, long[] end) {
 Debug.println("start: " + start.length + ", end: " + end.length);
@@ -747,13 +747,15 @@ Debug.println("start: " + start[0] + ", end: " + end[0]);
      */
     class SuperCutStream implements PushBufferStream, BufferTransferHandler {
 
-        TrackControl tc;
+        final TrackControl tc;
 
-        PushBufferStream pbs;
+        final PushBufferStream pbs;
 
-        long[] start, end;
+        final long[] start;
+        final long[] end;
 
-        boolean[] startReached, endReached;
+        final boolean[] startReached;
+        final boolean[] endReached;
 
         int idx = 0;
 
@@ -772,7 +774,7 @@ Debug.println("start: " + start[0] + ", end: " + end[0]);
         Format format;
 
         // Single buffer Queue.
-        Buffer buffer;
+        final Buffer buffer;
 
         int bufferFilled = 0;
 
