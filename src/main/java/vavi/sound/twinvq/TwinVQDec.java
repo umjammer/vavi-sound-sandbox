@@ -24,16 +24,16 @@ package vavi.sound.twinvq;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 
-import vavi.sound.twinvq.GetBits.GetBitContext;
 import vavi.sound.twinvq.LibAV.AVCodecContext;
 import vavi.sound.twinvq.LibAV.AVFloatDSPContext;
 import vavi.sound.twinvq.LibAV.AVTXContext;
 import vavi.sound.twinvq.LibAV.HeptaConsumer;
-import vavi.sound.twinvq.LibAV.HexaConsumer;
 import vavi.sound.twinvq.LibAV.TetraFunction;
 import vavi.util.ByteUtil;
+import vavi.util.Debug;
 
 import static java.lang.System.getLogger;
+import static vavi.sound.twinvq.LibAV.AVERROR_INVALIDDATA;
 import static vavi.sound.twinvq.MetaSoundTwinVQData.ff_metasound_lsp11;
 import static vavi.sound.twinvq.MetaSoundTwinVQData.ff_metasound_lsp16;
 import static vavi.sound.twinvq.MetaSoundTwinVQData.ff_metasound_lsp22;
@@ -51,16 +51,15 @@ import static vavi.sound.twinvq.TwinVQDec.TwinVQCodec.TWINVQ_CODEC_VQF;
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2024-04-05 nsano initial version <br>
+ * @see "https://github.com/libav/libav/blob/master/libavcodec/twinvqdec.c"
  */
 public class TwinVQDec {
 
     private static final Logger logger = getLogger(TwinVQDec.class.getName());
 
-    static final int AVERROR_INVALIDDATA = -1;
-
     /* assume b>0 */
     static int ROUNDED_DIV(int a, int b) {
-        return a >= 0 ? a + (b >> 1) : a - (int) ((b >> 1) / (float) b);
+        return (a > 0 ? a + (b >> 1) : a - (b >> 1)) / b;
     }
 
     static int FFSIGN(float a) { return a > 0 ? 1 : -1; }
@@ -68,7 +67,7 @@ public class TwinVQDec {
     enum TwinVQCodec {
         TWINVQ_CODEC_VQF,
         TWINVQ_CODEC_METASOUND,
-    };
+    }
 
     enum TwinVQFrameType {
         /** Short frame  (divided in n   sub-blocks) */
@@ -79,7 +78,7 @@ public class TwinVQDec {
         TWINVQ_FT_LONG,
         /** Periodic Peak Component (part of the long frame) */
         TWINVQ_FT_PPC,
-    };
+    }
 
     static final int TWINVQ_PPC_SHAPE_CB_SIZE = 64;
     static final int TWINVQ_PPC_SHAPE_LEN_MAX = 60;
@@ -104,27 +103,27 @@ public class TwinVQDec {
     static class TwinVQFrameMode {
 
         /** Number subblocks in each frame */
-        byte sub;
-        short[] bark_tab;
+        final byte sub;
+        final short[] bark_tab;
 
         /** number of distinct bark scale envelope values */
-        byte bark_env_size;
+        final byte bark_env_size;
 
         /** codebook for the bark scale envelope (BSE) */
-        short[] bark_cb;
+        final short[] bark_cb;
         /** number of BSE CB coefficients to read */
-        byte bark_n_coef;
+        final byte bark_n_coef;
         /** number of bits of the BSE coefs */
-        byte bark_n_bit;
+        final byte bark_n_bit;
 
         //@{
         /** main codebooks for spectrum data */
-        short[] cb0;
-        short[] cb1;
+        final short[] cb0;
+        final short[] cb1;
         //@}
 
         /** number of spectrum coefficients to read */
-        byte cb_len_read;
+        final byte cb_len_read;
 
         public TwinVQFrameMode(byte sub, short[] bark_tab, byte bark_env_size, short[] bark_cb, byte bark_n_coef, byte bark_n_bit, short[] cb0, short[] cb1, byte cb_len_read) {
             this.sub = sub;
@@ -144,21 +143,21 @@ public class TwinVQDec {
         int window_type;
         TwinVQFrameType ftype;
 
-        byte[] main_coeffs = new byte[1024];
-        byte[] ppc_coeffs = new byte[TWINVQ_PPC_SHAPE_LEN_MAX];
+        final byte[] main_coeffs = new byte[1024];
+        final byte[] ppc_coeffs = new byte[TWINVQ_PPC_SHAPE_LEN_MAX];
 
-        byte[] gain_bits = new byte[TWINVQ_CHANNELS_MAX];
-        byte[] sub_gain_bits = new byte[TWINVQ_CHANNELS_MAX * TWINVQ_SUBBLOCKS_MAX];
+        final byte[] gain_bits = new byte[TWINVQ_CHANNELS_MAX];
+        final byte[] sub_gain_bits = new byte[TWINVQ_CHANNELS_MAX * TWINVQ_SUBBLOCKS_MAX];
 
-        byte[][][] bark1 = new byte[TWINVQ_CHANNELS_MAX][TWINVQ_SUBBLOCKS_MAX][TWINVQ_BARK_N_COEF_MAX];
-        byte[][] bark_use_hist = new byte[TWINVQ_CHANNELS_MAX][TWINVQ_SUBBLOCKS_MAX];
+        final byte[][][] bark1 = new byte[TWINVQ_CHANNELS_MAX][TWINVQ_SUBBLOCKS_MAX][TWINVQ_BARK_N_COEF_MAX];
+        final byte[][] bark_use_hist = new byte[TWINVQ_CHANNELS_MAX][TWINVQ_SUBBLOCKS_MAX];
 
-        byte[] lpc_idx1 = new byte[TWINVQ_CHANNELS_MAX];
-        byte[][] lpc_idx2 = new byte[TWINVQ_CHANNELS_MAX][TWINVQ_LSP_SPLIT_MAX];
-        byte[] lpc_hist_idx = new byte[TWINVQ_CHANNELS_MAX];
+        final byte[] lpc_idx1 = new byte[TWINVQ_CHANNELS_MAX];
+        final byte[][] lpc_idx2 = new byte[TWINVQ_CHANNELS_MAX][TWINVQ_LSP_SPLIT_MAX];
+        final byte[] lpc_hist_idx = new byte[TWINVQ_CHANNELS_MAX];
 
-        int[] p_coef = new int[TWINVQ_CHANNELS_MAX];
-        int[] g_coef = new int[TWINVQ_CHANNELS_MAX];
+        final int[] p_coef = new int[TWINVQ_CHANNELS_MAX];
+        final int[] g_coef = new int[TWINVQ_CHANNELS_MAX];
     }
 
     /**
@@ -168,36 +167,36 @@ public class TwinVQDec {
     static class TwinVQModeTab {
 
         /** frame type-dependent parameters */
-        TwinVQFrameMode[] fmode;
+        final TwinVQFrameMode[] fmode;
 
         /** frame size in samples */
-        short size;
+        final short size;
         /** number of lsp coefficients */
-        byte n_lsp;
-        float[] lspcodebook;
+        final byte n_lsp;
+        final float[] lspcodebook;
 
         // number of bits of the different LSP CB coefficients
-        byte lsp_bit0;
-        byte lsp_bit1;
-        byte lsp_bit2;
+        final byte lsp_bit0;
+        final byte lsp_bit1;
+        final byte lsp_bit2;
 
         /** number of CB entries for the LSP decoding */
-        byte lsp_split;
+        final byte lsp_split;
         /** PPC shape CB */
-        short[] ppc_shape_cb;
+        final short[] ppc_shape_cb;
 
         /** number of the bits for the PPC period value */
-        byte ppc_period_bit;
+        final byte ppc_period_bit;
 
         /** number of bits of the PPC shape CB coeffs */
-        byte ppc_shape_bit;
+        final byte ppc_shape_bit;
         /** size of PPC shape CB */
-        byte ppc_shape_len;
+        final byte ppc_shape_len;
         /** bits for PPC gain */
-        byte pgain_bit;
+        final byte pgain_bit;
 
         /** finalant for peak period to peak width conversion */
-        short peak_per2wid;
+        final short peak_per2wid;
 
         public TwinVQModeTab(TwinVQFrameMode[] fmode, short size, byte n_lsp, float[] lspcodebook, byte lsp_bit0, byte lsp_bit1, byte lsp_bit2, byte lsp_split, short[] ppc_shape_cb, byte ppc_period_bit, byte ppc_shape_bit, byte ppc_shape_len, byte pgain_bit, short peak_per2wid) {
             this.fmode = fmode;
@@ -218,10 +217,10 @@ public class TwinVQDec {
     }
 
     static class TwinVQContext {
-        AVCodecContext avctx;
+        AVCodecContext avctx = new AVCodecContext();
         AVFloatDSPContext fdsp;
-        AVTXContext[] tx = new AVTXContext[3];
-        HexaConsumer[] tx_fn = new HexaConsumer[3];
+        final AVTXContext[] tx = new AVTXContext[3];
+        final AVTXContext.TXFunction[] tx_fn = new AVTXContext.TXFunction[3];
 
         TwinVQModeTab mtab;
 
@@ -229,44 +228,44 @@ public class TwinVQDec {
 
         // history
         /** LSP coefficients of the last frame */
-        float[][] lsp_hist = new float[2][20];
+        final float[][] lsp_hist = new float[2][20];
         /** BSE coefficients of last frame */
-        float[][][] bark_hist = new float[3][2][40];
+        final float[][][] bark_hist = new float[3][2][40];
 
         // bitstream parameters
-        short[][] permut = new short[4][4096];
+        final short[][] permut = new short[4][4096];
         /** main codebook stride */
-        byte[][] length = new byte[4][2];
-        byte[] length_change = new byte[4];
+        final byte[][] length = new byte[4][2];
+        final byte[] length_change = new byte[4];
         /** bits for the main codebook */
-        byte[][][] bits_main_spec = new byte[2][4][2];
-        int[] bits_main_spec_change = new int[4];
-        int[] n_div = new int[4];
+        final byte[][][] bits_main_spec = new byte[2][4][2];
+        final int[] bits_main_spec_change = new int[4];
+        final int[] n_div = new int[4];
 
         float[] spectrum;
         /** non-interleaved output */
         float[] curr_frame;
         /** non-interleaved previous frame */
         float[] prev_frame;
-        int[] last_block_pos = new int[2];
+        final int[] last_block_pos = new int[2];
         int discarded_packets;
 
-        float[][] cos_tabs = new float[3][];
+        final float[][] cos_tabs = new float[3][];
 
         // scratch buffers
         float[] tmp_buf;
 
         int frame_size, frames_per_packet, cur_frame;
-        TwinVQFrameData[] bits = new TwinVQFrameData[TWINVQ_MAX_FRAMES_PER_PACKET];
+        final TwinVQFrameData[] bits = new TwinVQFrameData[/* TWINVQ_MAX_FRAMES_PER_PACKET */] { new TwinVQFrameData(), new TwinVQFrameData() };
 
         TwinVQCodec codec;
 
         // int (read_bitstream)(AVCodecContext avctx, TwinVQContext tctx, byte[] buf, int buf_size);
-        TetraFunction<AVCodecContext, TwinVQContext, byte[], Integer, Integer> read_bitstream;
+        TetraFunction<AVCodecContext, TwinVQContext, byte[], Integer, Integer> read_bitstream = TwinVQDec::twinvq_read_bitstream;
         // void (dec_bark_env)( TwinVQContext tctx, byte[][] in, int use_hist, int ch, float[] out, float gain, TwinVQFrameType ftype);
-        HeptaConsumer<TwinVQContext, byte[], Integer, Integer, float[], Float, TwinVQFrameType> dec_bark_env;
+        HeptaConsumer<TwinVQContext, byte[], Integer, Integer, float[], Float, TwinVQFrameType> dec_bark_env = TwinVQDec::dec_bark_env;
         // void (decode_ppc)(TwinVQContext tctx, int period_coef, int g_coef, float[] shape, float[] speech);
-        HeptaConsumer<TwinVQContext, Integer, Integer, float[], Integer, float[], Integer> decode_ppc;
+        HeptaConsumer<TwinVQContext, Integer, Integer, float[], Integer, float[], Integer> decode_ppc = TwinVQDec::decode_ppc;
     }
 
     /**
@@ -282,16 +281,33 @@ public class TwinVQDec {
         else               return a;
     }
 
-    static byte[] ff_log2_tab = new byte[256];
+    static final byte[] ff_log2_tab= {
+            0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3,
+            4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+            5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+            5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+            6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+            6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+            6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+            6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+            7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+            7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+            7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+            7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+            7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+            7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+            7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+            7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
+    };
 
     static int ff_log2_c(int v) {
         int n = 0;
-        if ((v & 0xffff0000) != 0) {
-            v >>= 16;
+        if ((v & 0xffff_0000) != 0) {
+            v >>>= 16;
             n += 16;
         }
         if ((v & 0xff00) != 0) {
-            v >>= 8;
+            v >>>= 8;
             n += 8;
         }
         n += ff_log2_tab[v];
@@ -386,35 +402,36 @@ public class TwinVQDec {
     );
 
     /**
-     * Evaluate a * b / 400 rounded to the nearest integer. When, for example,
-     * a * b == 200 and the nearest integer is ill-defined, use a table to emulate
+     * Evaluate {@code a * b / 400} rounded to the nearest integer. When, for example,
+     * {@code a * b == 200} and the nearest integer is ill-defined, use a table to emulate
      * the following broken float-based implementation used by the binary decoder:
-     *
-     * @code static int very_broken_op(int a, int b)
+     * <pre>
+     * static int very_broken_op(int a, int b)
      * {
-     * static float test; // Ugh, force gcc to do the division first...
-     * <p>
-     * test = a / 400.0;
-     * return b * test + 0.5;
+     *   static float test; // Ugh, force gcc to do the division first...
+     *
+     *   test = a / 400.0;
+     *   return b * test + 0.5;
      * }
-     * @endcode
-     * @note if this function is replaced by just ROUNDED_DIV(a * b, 400.0), the
+     * </pre>
+     * if this function is replaced by just {@code ROUNDED_DIV(a * b, 400.0)}, the
      * stddev between the original file (before encoding with Yamaha encoder) and
      * the decoded output increases, which leads one to believe that the encoder
      * expects exactly this broken calculation.
      */
-    private int very_broken_op(int a, int b) {
+    private static int very_broken_op(int a, int b) {
         int x = a * b + 200;
-        int size;
-        final byte[] rtab;
 
-        if (x % 400 != 0 || b % 5 != 0)
+        if (x % 400 != 0 || b % 5 != 0) {
+//System.err.printf("center0: a: %d, b: %d, r: %d%n", a, b, x / 400);
             return x / 400;
+        }
 
         x /= 400;
 
-        size = tabs[b / 5].size;
-        rtab = tabs[b / 5].tab;
+        int size = tabs[b / 5].size;
+        byte[] rtab = tabs[b / 5].tab;
+//System.err.printf("index: %d%n", size * ff_log2_c(2 * (x - 1) / size) + (x - 1) % size);
         return x - rtab[size * ff_log2_c(2 * (x - 1) / size) + (x - 1) % size];
     }
 
@@ -423,45 +440,44 @@ public class TwinVQDec {
      *
      * @param period the period of the peak divided by 400.0
      */
-    private void add_peak(int period, int width, final float[] shape,
-                          float ppc_gain, float[] speech, int len) {
-        int i, j;
+    private static void add_peak(int period, int width, float[] shape, int shapeP, float ppc_gain, float[] speech, int speechP, int len) {
+        int i;
 
-        final int shape_end = len; // shape
-        int shapeP = 0;
+        int shape_end = len; // shape
         int center;
 
         // First peak centered around zero
         for (i = 0; i < width / 2; i++)
-            speech[i] += ppc_gain * shape[shapeP++];
+            speech[speechP + i] += ppc_gain * shape[shapeP++];
 
         for (i = 1; i < ROUNDED_DIV(len, width); i++) {
             center = very_broken_op(period, i);
-            for (j = -width / 2; j < (width + 1) / 2; j++)
-                speech[j + center] += ppc_gain * shape[shapeP++];
+            for (int j = -width / 2; j < (width + 1) / 2; j++)
+                speech[speechP + j + center] += ppc_gain * shape[shapeP++];
         }
 
         // For the last block, be careful not to go beyond the end of the buffer
         center = very_broken_op(period, i);
-        for (j = -width / 2; j < (width + 1) / 2 && shapeP < shape_end; j++)
-            speech[j + center] += ppc_gain * shape[shapeP++];
+        for (int j = -width / 2; j < (width + 1) / 2 && shapeP < shape_end; j++)
+            speech[speechP + j + center] += ppc_gain * shape[shapeP++];
     }
 
-    public void decode_ppc(TwinVQDec.TwinVQContext tctx, int period_coef, int g_coef, float[] shape, int shapeP, float[] speech, int speechP) {
+    static void decode_ppc(TwinVQDec.TwinVQContext tctx, int period_coef, int g_coef, float[] shape, int shapeP, float[] speech, int speechP) {
         TwinVQModeTab mtab = tctx.mtab;
         int isampf = tctx.avctx.sample_rate / 1000;
         int ibps = tctx.avctx.bit_rate / (1000 * tctx.avctx.ch_layout.nb_channels);
         int min_period = ROUNDED_DIV(40 * 2 * mtab.size, isampf);
         int max_period = ROUNDED_DIV(40 * 2 * mtab.size * 6, isampf);
         int period_range = max_period - min_period;
+//System.err.printf("isampf: %d, ibps: %d, min_period: %d, max_period: %d, period_range: %d, mtab.size: %d%n", isampf, ibps, min_period, max_period, period_range, mtab.size);
         float pgain_step = 25000.0f / ((1 << mtab.pgain_bit) - 1);
         float ppc_gain = 1.0f / 8192 *
                 twinvq_mulawinv(pgain_step * g_coef + pgain_step / 2, 25000.0f, TWINVQ_PGAIN_MU);
 
         // This is actually the period multiplied by 400. It is just linearly coded
         // between its maximum and minimum value.
-        int period = min_period +
-                ROUNDED_DIV(period_coef * period_range, (1 << mtab.ppc_period_bit) - 1);
+        int period = min_period + ROUNDED_DIV(period_coef * period_range, (1 << mtab.ppc_period_bit) - 1);
+//System.err.printf("period: %d, min_period: %d, period_coef: %d, period_range: %d, mtab.ppc_period_bit: %d%n", period, min_period, period_coef, period_range, mtab.ppc_period_bit);
         int width;
 
         if (isampf == 22 && ibps == 32) {
@@ -470,13 +486,12 @@ public class TwinVQDec {
         } else
             width = period * mtab.peak_per2wid / (400 * mtab.size);
 
-        add_peak(period, width, shape, ppc_gain, speech, mtab.ppc_shape_len);
+        add_peak(period, width, shape, shapeP, ppc_gain, speech, speechP, mtab.ppc_shape_len);
     }
 
-    public void dec_bark_env(TwinVQContext tctx, byte[] in, int use_hist,
+    static void dec_bark_env(TwinVQContext tctx, byte[] in, int use_hist,
                               int ch, float[] out, float gain, TwinVQDec.TwinVQFrameType ftype) {
-        final TwinVQModeTab mtab = tctx.mtab;
-        int i, j;
+        TwinVQModeTab mtab = tctx.mtab;
         float[] hist = tctx.bark_hist[ftype.ordinal()][ch];
         float val = new float[] {0.4f, 0.35f, 0.28f}[ftype.ordinal()];
         int bark_n_coef = mtab.fmode[ftype.ordinal()].bark_n_coef;
@@ -484,8 +499,8 @@ public class TwinVQDec {
         int idx = 0;
         int outP = 0; // TODO out
 
-        for (i = 0; i < fw_cb_len; i++)
-            for (j = 0; j < bark_n_coef; j++, idx++) {
+        for (int i = 0; i < fw_cb_len; i++)
+            for (int j = 0; j < bark_n_coef; j++, idx++) {
                 float tmp2 = mtab.fmode[ftype.ordinal()].bark_cb[fw_cb_len * in[j] + i] * (1.0f / 4096);
                 float st = use_hist != 0 ? (1.0f - val) * tmp2 + val * hist[idx] + 1.0f : tmp2 + 1.0f;
 
@@ -498,7 +513,7 @@ public class TwinVQDec {
             }
     }
 
-    private void read_cb_data(TwinVQContext tctx, GetBitContext gb, byte[] dst, TwinVQFrameType ftype) {
+    private static void read_cb_data(TwinVQContext tctx, GetBits gb, byte[] dst, TwinVQFrameType ftype) {
         int dstP = 0;
 
         for (int i = 0; i < tctx.n_div[ftype.ordinal()]; i++) {
@@ -506,21 +521,17 @@ public class TwinVQDec {
 
             dst[dstP++] = (byte) gb.get_bits(tctx.bits_main_spec[0][ftype.ordinal()][bs_second_part]);
             dst[dstP++] = (byte) gb.get_bits(tctx.bits_main_spec[1][ftype.ordinal()][bs_second_part]);
+//Debug.printf("cb[%3d]: %d, %02x, %d, %02x, %d", i, tctx.bits_main_spec[0][ftype.ordinal()][bs_second_part], dst[dstP - 2], tctx.bits_main_spec[1][ftype.ordinal()][bs_second_part], dst[dstP - 1], bs_second_part);
         }
     }
 
     /** */
-    public int twinvq_read_bitstream(AVCodecContext avctx, TwinVQContext tctx, byte[] buf, int buf_size) {
+    static int twinvq_read_bitstream(AVCodecContext avctx, TwinVQContext tctx, byte[] buf, int buf_size) {
         TwinVQDec.TwinVQFrameData bits = tctx.bits[0];
-        final TwinVQModeTab mtab = tctx.mtab;
+        TwinVQModeTab mtab = tctx.mtab;
         int channels = tctx.avctx.ch_layout.nb_channels;
-        int sub;
-        GetBitContext gb = new GetBitContext();
-        int i, j, k, ret;
 
-
-        if ((ret = gb.init_get_bits8(buf, buf_size)) < 0)
-            return ret;
+        GetBits gb = new GetBits(buf, buf_size);
         gb.skip_bits(gb.get_bits(8));
 
         bits.window_type = gb.get_bits(TWINVQ_WINDOW_TYPE_BITS);
@@ -532,42 +543,41 @@ public class TwinVQDec {
 
         bits.ftype = ff_twinvq_wtype_to_ftype_table[tctx.bits[0].window_type];
 
-        sub = mtab.fmode[bits.ftype.ordinal()].sub & 0xff;
+        int sub = mtab.fmode[bits.ftype.ordinal()].sub & 0xff;
 
         read_cb_data(tctx, gb, bits.main_coeffs, bits.ftype);
 
-        for (i = 0; i < channels; i++)
-            for (j = 0; j < sub; j++)
-                for (k = 0; k < mtab.fmode[bits.ftype.ordinal()].bark_n_coef; k++)
-                    bits.bark1[i][j][k] =
-                            (byte) gb.get_bits(mtab.fmode[bits.ftype.ordinal()].bark_n_bit);
+        for (int i = 0; i < channels; i++)
+            for (int j = 0; j < sub; j++)
+                for (int k = 0; k < mtab.fmode[bits.ftype.ordinal()].bark_n_coef; k++)
+                    bits.bark1[i][j][k] = (byte) gb.get_bits(mtab.fmode[bits.ftype.ordinal()].bark_n_bit);
 
-        for (i = 0; i < channels; i++)
-            for (j = 0; j < sub; j++)
-                bits.bark_use_hist[i][j] = gb.get_bits1();
+        for (int i = 0; i < channels; i++)
+            for (int j = 0; j < sub; j++)
+                bits.bark_use_hist[i][j] = (byte) gb.get_bits1();
 
         if (bits.ftype == TwinVQFrameType.TWINVQ_FT_LONG) {
-            for (i = 0; i < channels; i++)
+            for (int i = 0; i < channels; i++)
                 bits.gain_bits[i] = (byte) gb.get_bits(TWINVQ_GAIN_BITS);
         } else {
-            for (i = 0; i < channels; i++) {
+            for (int i = 0; i < channels; i++) {
                 bits.gain_bits[i] = (byte) gb.get_bits(TWINVQ_GAIN_BITS);
-                for (j = 0; j < sub; j++)
+                for (int j = 0; j < sub; j++)
                     bits.sub_gain_bits[i * sub + j] = (byte) gb.get_bits(TWINVQ_SUB_GAIN_BITS);
             }
         }
 
-        for (i = 0; i < channels; i++) {
+        for (int i = 0; i < channels; i++) {
             bits.lpc_hist_idx[i] = (byte) gb.get_bits(mtab.lsp_bit0);
             bits.lpc_idx1[i] = (byte) gb.get_bits(mtab.lsp_bit1);
 
-            for (j = 0; j < mtab.lsp_split; j++)
+            for (int j = 0; j < mtab.lsp_split; j++)
                 bits.lpc_idx2[i][j] = (byte) gb.get_bits(mtab.lsp_bit2);
         }
 
         if (bits.ftype == TwinVQFrameType.TWINVQ_FT_LONG) {
             read_cb_data(tctx, gb, bits.ppc_coeffs, TwinVQFrameType.TWINVQ_FT_PPC);
-            for (i = 0; i < channels; i++) {
+            for (int i = 0; i < channels; i++) {
                 bits.p_coef[i] = gb.get_bits(mtab.ppc_period_bit);
                 bits.g_coef[i] = gb.get_bits(mtab.pgain_bit);
             }
@@ -576,7 +586,8 @@ public class TwinVQDec {
         return (gb.get_bits_count() + 7) / 8;
     }
 
-    private int twinvq_decode_init(AVCodecContext avctx) {
+    /** @override init */
+    static int twinvq_decode_init(AVCodecContext avctx) {
         int isampf, ibps, channels;
         TwinVQContext tctx = avctx.priv_data;
 
@@ -584,14 +595,17 @@ public class TwinVQDec {
             logger.log(Level.ERROR, "Missing or incomplete extradata");
             return AVERROR_INVALIDDATA;
         }
-        channels = ByteUtil.readLeInt(avctx.extradata) + 1;
-        avctx.bit_rate = (short) (ByteUtil.readLeInt(avctx.extradata, 4) * 1000);
-        isampf = ByteUtil.readLeInt(avctx.extradata, 8);
+        channels = ByteUtil.readBeInt(avctx.extradata) + 1;
+Debug.println("channels: " + channels);
+        avctx.bit_rate = ByteUtil.readBeInt(avctx.extradata, 4) * 1000;
+Debug.println("bit_rate: " + avctx.bit_rate);
+        isampf = ByteUtil.readBeInt(avctx.extradata, 8);
 
         if (isampf < 8 || isampf > 44) {
             logger.log(Level.ERROR, "Unsupported sample rate");
             return AVERROR_INVALIDDATA;
         }
+Debug.println("isampf: " + isampf);
         switch (isampf) {
             case 44:
                 avctx.sample_rate = 44100;
@@ -613,13 +627,16 @@ public class TwinVQDec {
         }
 //        av_channel_layout_uninit(avctx.ch_layout);
 //        av_channel_layout_default(avctx.ch_layout, channels);
+        avctx.ch_layout.nb_channels = channels;
 
-        ibps = (int) (avctx.bit_rate / (1000 * channels));
+        ibps = avctx.bit_rate / (1000 * channels);
+Debug.println("ibps: " + ibps);
         if (ibps < 8 || ibps > 48) {
             logger.log(Level.ERROR, "Bad bitrate per channel value %d", ibps);
             return AVERROR_INVALIDDATA;
         }
 
+Debug.println("mtab: " + (isampf << 8) + ibps);
         switch ((isampf << 8) + ibps) {
             case (8 << 8) + 8:
                 tctx.mtab = mode_08_08;
@@ -655,9 +672,9 @@ public class TwinVQDec {
         }
 
         tctx.codec = TWINVQ_CODEC_VQF;
-        tctx.read_bitstream = this::twinvq_read_bitstream;
-        tctx.dec_bark_env = this::dec_bark_env;
-        tctx.decode_ppc = this::decode_ppc;
+        tctx.read_bitstream = TwinVQDec::twinvq_read_bitstream;
+        tctx.dec_bark_env = TwinVQDec::dec_bark_env;
+        tctx.decode_ppc = TwinVQDec::decode_ppc;
         tctx.frame_size = avctx.bit_rate * tctx.mtab.size / avctx.sample_rate + 8;
         tctx.is_6kbps = 0;
         if (avctx.block_align != 0 && avctx.block_align * 8L / tctx.frame_size > 1) {

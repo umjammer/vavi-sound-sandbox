@@ -7,8 +7,10 @@
 package vavi.sound.twinvq.obsolate;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 import java.util.Arrays;
-
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -17,18 +19,18 @@ import javax.sound.sampled.SourceDataLine;
 import vavi.sound.twinvq.obsolate.TwinVQ.HeaderInfo;
 import vavi.sound.twinvq.obsolate.TwinVQ.Index;
 
+import static vavi.sound.twinvq.obsolate.TwinVQ.twinVq;
+
 
 /**
  * Dreamplayer - multi format sound player
  */
 class Player {
-    /** */
-    static BStream bstream = BStream.getInstance();
 
     /** */
-    TwinVQ twinVq = TwinVQ.getInstance();
+    static final BStream bstream = BStream.getInstance();
 
-    private int INIT_ERR_DISP_MBOX;
+    private static final int INIT_ERR_DISP_MBOX = 0;
 
     static final int N = 64;
 
@@ -37,8 +39,11 @@ class Player {
         new Player(args[0]);
     }
 
+    /**
+     * @param filename in file
+     */
     Player(String filename) throws Exception {
-        BFile bfile = new BFile(filename, "rb");
+        BFile bfile = new BFile(filename, "r");
 
         ChunkChunk twinChunk = bstream.getBsHeaderInfo(bfile);
         if (twinChunk == null) {
@@ -48,8 +53,7 @@ class Player {
         if (headerManager == null) {
             throw new IllegalStateException("theHeaderManager=null");
         }
-        HeaderInfo setupInfo = new HeaderInfo();
-        getStandardChunkInfo(headerManager, setupInfo);
+        HeaderInfo setupInfo = getStandardChunkInfo(headerManager);
 
         Index index = new Index();
         int errcode = twinVq.TvqInitialize(setupInfo, index, INIT_ERR_DISP_MBOX);
@@ -92,11 +96,15 @@ class Player {
 //      byte hours, minutes, secs;
         int wout_flag = 2;
         @SuppressWarnings("unused")
-        int counter = 0/*, acttime = 0*/;
+        int counter = 0 /*, acttime = 0 */;
+        short[] bufS = new short[buf.length / Short.BYTES];
+        ShortBuffer sb = ByteBuffer.wrap(buf).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
 
-        while (bstream.readBsFrame(index, bfile) != 0/* &&!skip_song */) {
+        while (bstream.readBsFrame(index, bfile) != 0 /* && !skip_song */) {
             twinVq.TvqDecodeFrame(index, frame);
-            froat2buf(frame, buf, frameSize, channels);
+            fr2buf(frame, bufS, frameSize, channels);
+            sb.put(bufS);
+            sb.flip();
             if (wout_flag == 0) {
                 counter += line.write(buf, 0, frameSize * channels * 2 /* sizeof(short) */);
             }
@@ -133,7 +141,7 @@ class Player {
         TwinChunk.putData(chunkSize, chunkData);
         byte[] lbuf = new byte[TwinVQ.BUFSIZ];
 
-        getString(lbuf, TwinVQ.KEYWORD_BYTES, bfile);
+        BStream.getString(lbuf, TwinVQ.KEYWORD_BYTES, bfile);
         if (Arrays.equals(lbuf, "DATA".getBytes())) {
             throw new IllegalStateException("DEBUG: get_info . no 'DATA' chumk was found");
         }
@@ -144,12 +152,19 @@ class Player {
             return null;
         }
 
-        HeaderInfo setupInfo = new HeaderInfo();
-        getStandardChunkInfo(theHeaderManager, setupInfo);
+        HeaderInfo setupInfo = getStandardChunkInfo(theHeaderManager);
         return setupInfo;
     }
 
-    static void froat2buf(float[] out, byte[] bufout, int frameSize, int numChannels) {
+    /**
+     * Copies frame data to output buffer.
+     *
+     * @param out input data frame
+     * @param bufout output data buffer array
+     * @param frameSize frame size
+     * @param numChannels number of channels
+     */
+    static void fr2buf(float[] out, short[] bufout, int frameSize, int numChannels) {
         int ismp, ich/* , uflag, lflag */;
         int ptr;
         float dtmp;
@@ -165,42 +180,26 @@ class Player {
                         dtmp = 32700f;
                         // uflag = 1;
                     }
-                    bufout[ismp * numChannels + ich] = (byte) (dtmp + 0.5); // TODO float -> short
+                    bufout[ismp * numChannels + ich] = (short) (dtmp + 0.5);
                 } else {
                     if (dtmp < -32700.) {
                         dtmp = -32700f;
                         // lflag = 1;
                     }
-                    bufout[ismp * numChannels + ich] = (byte) (dtmp - 0.5); // TODO float -> short
+                    bufout[ismp * numChannels + ich] = (short) (dtmp - 0.5);
                 }
             }
         }
     }
 
-    private static int getString(byte[] buf, int nbytes, BFile bfile) throws IOException {
-        int ichar, ibit;
-        int[] c = new int[1];
-
-        for (ichar = 0; ichar < nbytes; ichar++) {
-            ibit = bfile.getBStream(c, 0, BFile.CHAR_BITS);
-            if (ibit < BFile.CHAR_BITS) {
-                break;
-            }
-            buf[ichar] = (byte) c[0];
-        }
-
-        buf[ichar] = '\0';
-        return ichar;
-    }
-
-    private static int getStandardChunkInfo(HeaderManager theManager, HeaderInfo setupInfo) {
-        setupInfo = new HeaderInfo();
+    private static HeaderInfo getStandardChunkInfo(HeaderManager theManager) {
+        HeaderInfo setupInfo = new HeaderInfo();
         setupInfo.id = theManager.getID().getBytes();
         CommChunk commChunk = new CommChunk(theManager.getPrimaryChunk("COMM"), "TWIN97012000");
         setupInfo.channelMode = commChunk.getChannelMode();
         setupInfo.bitRate = commChunk.getBitRate();
         setupInfo.samplingRate = commChunk.getSamplingRate();
         setupInfo.securityLevel = commChunk.getSecurityLevel();
-        return 0;
+        return setupInfo;
     }
 }

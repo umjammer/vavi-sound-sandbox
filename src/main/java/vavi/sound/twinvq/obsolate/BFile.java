@@ -12,14 +12,14 @@ import java.io.RandomAccessFile;
 /**
  * definitions related to the bitstream file operating tools
  *
- * @version 1.1 added function bseek() by N.Iwakami on 1999/2/24
- * @version 1.2 added a member "readable" to structure BFILE to improve bseek
- *          reliability, by NI, 1999/6/18
- * @version 0.0 written by N.Iwakami on 1994/4/21
- * @version 1.0 modified by N.Iwakami on 1999/1/8
- * @version 1.1 added function bseek() by N.Iwakami on 1999/2/24
- * @version 1.2 bugfix about skipping frames by NI, 1999/6/18
- * @version 1.3 bugfix about skipping frames by NI, 1999/6/24
+ * @version 1.1 1999/02/24 added function bseek() <br/>
+ *          1.2 1999/06/18 added a member "readable" to structure BFILE to improve bseek reliability <br/>
+ *          0.0 1994/04/21 <br/>
+ *          1.0 1999/01/08 <br/>
+ *          1.1 1999/02/24 added function bseek() <br/>
+ *          1.2 1999/06/18 bugfix about skipping frames <br/>
+ *          1.3 1999/06/24 bugfix about skipping frames <br/>
+ * @author N.Iwakami
  */
 class BFile {
 
@@ -51,7 +51,7 @@ class BFile {
     int readable;
 
     /** the bit buffer */
-    byte[] buf = new byte[BBUFSIZ];
+    final byte[] buf = new byte[BBUFSIZ];
 
     /** R/W mode */
     String mode;
@@ -197,7 +197,7 @@ class BFile {
             iptr = this.ptr;
             // If data file is empty then return
             if (iptr >= this.nbuf) {
-                return (retval);
+                return retval;
             }
             // current file data buffer address
             ibufadr = (int) (iptr / BYTE_BIT);
@@ -205,7 +205,7 @@ class BFile {
             ibufbit = iptr % BYTE_BIT;
             // tmpdat = stream.buf[ibufadr] >> (BYTE_BIT-ibufbit-1);
             tmpdat = this.buf[ibufadr];
-            tmpdat = (byte) (tmpdat >> (BYTE_BIT - ibufbit - 1));
+            tmpdat = (byte) (tmpdat >>> (BYTE_BIT - ibufbit - 1));
             // current data bit
 
             // output data address
@@ -224,10 +224,10 @@ class BFile {
             }
             ++retval;
         }
-        return (retval);
+        return retval;
     }
 
-    static final int BITS_INT = (4 * 8);
+    static final int BITS_INT = 4 * 8;
 
     /**
      * @param data input data
@@ -237,9 +237,9 @@ class BFile {
         byte[] tmpbit = new byte[BITS_INT];
 
         if (nbits > BITS_INT) {
-            throw new IllegalArgumentException(String.format("get_bstm(): %d: %d Error.", nbits, BITS_INT));
+            throw new IllegalArgumentException(String.format("getBStream: %d: %d Error.", nbits, BITS_INT));
         }
-        int retval = read(tmpbit, BITS_INT, nbits);
+        int retval = read(tmpbit, 1, nbits);
         for (int ibit = retval; ibit < nbits; ibit++) {
             tmpbit[ibit] = 0;
         }
@@ -247,7 +247,7 @@ class BFile {
         int work = 0;
         for (int ibit = 0; ibit < nbits; ibit++) {
             work += mask * tmpbit[ibit];
-            mask >>= 1;
+            mask >>>= 1;
         }
         data[offset] = work;
         return retval;

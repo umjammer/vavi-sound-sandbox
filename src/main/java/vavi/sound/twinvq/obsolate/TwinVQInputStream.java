@@ -17,6 +17,8 @@ import java.nio.ByteOrder;
 
 import vavi.util.Debug;
 
+import static vavi.sound.twinvq.obsolate.TwinVQ.twinVq;
+
 
 /**
  * TwinVQInputStream.
@@ -29,8 +31,7 @@ public class TwinVQInputStream extends FilterInputStream {
     /** byte order of the stream obtained with this class */
     private final ByteOrder byteOrder;
 
-    /**
-     */
+    /** */
     public TwinVQInputStream(InputStream in,
                              int samplesPerBlock,
                              int channels,
@@ -44,8 +45,7 @@ public class TwinVQInputStream extends FilterInputStream {
              ByteOrder.BIG_ENDIAN);
     }
 
-    /**
-     */
+    /** */
     public TwinVQInputStream(InputStream in,
                              int samplesPerBlock,
                              int channels,
@@ -64,8 +64,6 @@ Debug.println("byteOrder: " + this.byteOrder);
 
         //
 
-        TwinVQ decoder = TwinVQ.getInstance();
-
         InputStream is = new BufferedInputStream(in);
 
         byte[] packet = new byte[blockSize];
@@ -73,54 +71,49 @@ Debug.println("byteOrder: " + this.byteOrder);
 
         //
 
-        @SuppressWarnings("resource") PipedOutputStream pos =
-            new PipedOutputStream((PipedInputStream) this.in);
+        PipedOutputStream pos = new PipedOutputStream((PipedInputStream) this.in);
 
-        Thread thread = new Thread(new Runnable() {
-            /** */
-            @Override
-            public void run() {
+        Thread thread = new Thread(() -> {
 
-                DataOutputStream os = null;
+            DataOutputStream os = null;
 
-                try {
-                    // big endian
-                    os = new DataOutputStream(pos);
+            try {
+                // big endian
+                os = new DataOutputStream(pos);
 
-                    int done = 0;
-                    while (done < -1) {
+                int done = 0;
+                while (done < -1) {
 
-                        int l = 0;
-                        while (l < packet.length && is.available() > 0) {
-                            l += is.read(packet, l, packet.length - l);
-                        }
+                    int l = 0;
+                    while (l < packet.length && is.available() > 0) {
+                        l += is.read(packet, l, packet.length - l);
+                    }
 
-                        int samplesThisBlock = samplesPerBlock;
+                    int samplesThisBlock = samplesPerBlock;
 //Debug.println("samplesThisBlock: " + samplesThisBlock + ", " + l);
 
-                        TwinVQ.Index index = new TwinVQ.Index();
-                        decoder.TvqDecodeFrame(index , null);
+                    TwinVQ.Index index = new TwinVQ.Index();
+                    twinVq.TvqDecodeFrame(index , null);
 
-                        for (int i = 0; i < samplesThisBlock; i++) {
-                            if (ByteOrder.BIG_ENDIAN.equals(byteOrder)) {
-                                os.writeShort(samples[i]);
-                            } else {
-                                os.write( samples[i] & 0x00ff);
-                                os.write((samples[i] & 0xff00) >> 8);
-                            }
+                    for (int i = 0; i < samplesThisBlock; i++) {
+                        if (ByteOrder.BIG_ENDIAN.equals(byteOrder)) {
+                            os.writeShort(samples[i]);
+                        } else {
+                            os.write( samples[i] & 0x00ff);
+                            os.write((samples[i] & 0xff00) >> 8);
                         }
-                        done += samplesThisBlock;
+                    }
+                    done += samplesThisBlock;
 //Debug.println("done: " + done);
-                    }
-                } catch (IOException e) {
+                }
+            } catch (IOException e) {
 Debug.printStackTrace(e);
-                } finally {
-                    try {
-                        os.flush();
-                        os.close();
-                    } catch (IOException e) {
+            } finally {
+                try {
+                    os.flush();
+                    os.close();
+                } catch (IOException e) {
 Debug.println(e);
-                    }
                 }
             }
         });

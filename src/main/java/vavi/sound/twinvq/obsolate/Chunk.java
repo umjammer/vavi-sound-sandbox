@@ -5,6 +5,7 @@
 
 package vavi.sound.twinvq.obsolate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -15,7 +16,7 @@ class Chunk {
 
     private final String id;
 
-    private List<Byte> data;
+    private final List<Byte> data = new ArrayList<>();
 
     private int pos;
 
@@ -23,7 +24,7 @@ class Chunk {
      * Gets size byte integer from current position.
      * @param size default: long integer
      */
-    protected long getNInt(int size/* =sizeof(long) */) {
+    protected long getNInt(int size /* = sizeof(long) */) {
         final int mask = 0xff;
         int ibyte;
         long retval;
@@ -41,7 +42,7 @@ class Chunk {
      * Gets a vector of size bytes from the current position.
      * @param size default: all the rest
      */
-    protected byte[] getVector(int size/* = 0 */) {
+    protected byte[] getVector(int size /* = 0 */) {
 
         if (size == 0) {
             size = data.size() - pos;
@@ -63,7 +64,7 @@ class Chunk {
      * Gets length string from current position.
      * @param length default: all the rest
      */
-    protected String getRndString(int length/* = 0 */) {
+    protected String getRndString(int length /* = 0 */) {
         if (length == 0) {
             length = getSize();
         }
@@ -74,7 +75,7 @@ class Chunk {
 
         StringBuilder theString = new StringBuilder();
         for (int ii = 0; ii < length; ii++) {
-            theString.append(data.get(pos++));
+            theString.append((char) (byte) data.get(pos++));
         }
 
         return theString.toString();
@@ -85,7 +86,7 @@ class Chunk {
      * 
      * @param size default: long integer
      */
-    protected void putNInt(int inputData, int size/* =sizeof(long) */) {
+    protected void putNInt(int inputData, int size /* = sizeof(long) */) {
         final int mask = 0xff;
         int ibyte;
         byte data_tmp;
@@ -123,6 +124,7 @@ class Chunk {
     /** constructor */
     public Chunk(Chunk parent) {
         id = parent.id;
+        data.addAll(parent.data);
         pos = 0;
     }
 
@@ -177,7 +179,7 @@ class Chunk {
         return 0;
     }
 
-    public String toString() {
+    @Override public String toString() {
         return "Raw";
     }
 }
@@ -201,7 +203,7 @@ class StringChunk extends Chunk {
             putData(data);
     }
 
-    public String toString() {
+    @Override public String toString() {
         return "String";
     }
 }
@@ -210,7 +212,7 @@ class StringChunk extends Chunk {
  * Chunk type template that stores only one integer, general purpose chunk type.
  */
 class IntChunk extends Chunk {
-    int m_dataSize;
+    final int m_dataSize;
 
     // Gets integer data.
     public final long getInt() {
@@ -234,7 +236,7 @@ class IntChunk extends Chunk {
         putNInt((int) data, m_dataSize);
     }
 
-    public String toString() {
+    @Override public String toString() {
         return String.format("Integer, size=%d", m_dataSize);
     }
 }
@@ -249,7 +251,7 @@ class ChunkChunk extends Chunk {
         if (!(id = this.getRndString(idSize)).isEmpty()) {
             Chunk subChunk = new Chunk(id);
 
-            int size = (int) this.getNInt(8);
+            int size = (int) this.getNInt(4); // sizeof(unsigned long) TODO
             if (size > 0) {
                 byte[] theData;
                 theData = this.getVector(size);
@@ -272,7 +274,7 @@ class ChunkChunk extends Chunk {
         String id = src.getID();
         putData(id);
 
-        putNInt(src.getSize(), 8);
+        putNInt(src.getSize(), 4);
 
         byte[] data = src.getData();
         putData(data);
@@ -298,7 +300,7 @@ class ChunkChunk extends Chunk {
     public static class FailPutChunkException extends Exception {
     }
 
-    public String toString() {
+    @Override public String toString() {
         return "Chunk";
     }
 }
@@ -328,13 +330,13 @@ class CommChunk extends Chunk {
         this.version = version;
 
         this.rewindChunk();
-        this.channelMode = (int) this.getNInt(8);
-        this.bitRate = (int) this.getNInt(8);
-        this.samplingRate = (int) this.getNInt(8);
-        this.securityLevel = (int) this.getNInt(8);
+        this.channelMode = (int) this.getNInt(4);
+        this.bitRate = (int) this.getNInt(4);
+        this.samplingRate = (int) this.getNInt(4);
+        this.securityLevel = (int) this.getNInt(4);
     }
 
-    public CommChunk(int channelMode, int bitRate, int samplingRate, int securityLevel, String version/* ="TWIN97012000" */) {
+    public CommChunk(int channelMode, int bitRate, int samplingRate, int securityLevel, String version /* ="TWIN97012000" */) {
         super("COMM");
         this.version = version;
 
@@ -344,11 +346,10 @@ class CommChunk extends Chunk {
         this.securityLevel = securityLevel;
 
         this.rewindChunk();
-        this.putNInt(channelMode, 8);
-        this.putNInt(bitRate, 8);
-        this.putNInt(samplingRate, 8);
-        this.putNInt(securityLevel, 8);
-
+        this.putNInt(channelMode, 4);
+        this.putNInt(bitRate, 4);
+        this.putNInt(samplingRate, 4);
+        this.putNInt(securityLevel, 4);
     }
 
     /** Gets channel mode. */
@@ -380,7 +381,7 @@ class CommChunk extends Chunk {
     static class FailConstructionException extends Exception {
     }
 
-    public String toString() {
+    @Override public String toString() {
         return "COMM";
     }
 }
@@ -389,9 +390,9 @@ class CommChunk extends Chunk {
  * YearChunk
  */
 class YearChunk extends Chunk {
-    int year;
+    final int year;
 
-    int month;
+    final int month;
 
     public final int getYear() {
         return year;
@@ -416,7 +417,7 @@ class YearChunk extends Chunk {
         month = (int) getNInt(1);
     }
 
-    public String toString() {
+    @Override public String toString() {
         return "YEAR";
     }
 }
@@ -425,17 +426,17 @@ class YearChunk extends Chunk {
  * EncdChunk
  */
 class EncdChunk extends Chunk {
-    int year;
+    final int year;
 
-    int month;
+    final int month;
 
-    int day;
+    final int day;
 
-    int hour;
+    final int hour;
 
-    int minute;
+    final int minute;
 
-    int timeZone;
+    final int timeZone;
 
     public final int getYear() {
         return year;
@@ -489,7 +490,7 @@ class EncdChunk extends Chunk {
         timeZone = (int) getNInt(1);
     }
 
-    public String toString() {
+    @Override public String toString() {
         return "ENCD";
     }
 }

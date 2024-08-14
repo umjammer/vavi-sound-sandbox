@@ -23,24 +23,23 @@ package vavi.sound.twinvq;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 
 import vavi.sound.twinvq.LibAV.AVCodecContext;
 import vavi.sound.twinvq.LibAV.AVFloatDSPContext;
 import vavi.sound.twinvq.LibAV.AVFrame;
 import vavi.sound.twinvq.LibAV.AVPacket;
 import vavi.sound.twinvq.LibAV.AVTXContext;
-import vavi.sound.twinvq.LibAV.HexaConsumer;
 import vavi.sound.twinvq.TwinVQDec.TwinVQContext;
 import vavi.sound.twinvq.TwinVQDec.TwinVQFrameData;
 import vavi.sound.twinvq.TwinVQDec.TwinVQFrameType;
 import vavi.sound.twinvq.TwinVQDec.TwinVQModeTab;
+import vavi.util.Debug;
 
 import static java.lang.System.getLogger;
+import static vavi.sound.twinvq.LibAV.AVERROR_INVALIDDATA;
 import static vavi.sound.twinvq.LibAV.AV_CODEC_FLAG_BITEXACT;
 import static vavi.sound.twinvq.LibAV.AV_SAMPLE_FMT_FLTP;
 import static vavi.sound.twinvq.LibAV.AV_TX_FLOAT_MDCT;
@@ -49,7 +48,6 @@ import static vavi.sound.twinvq.LibAV.av_tx_init;
 import static vavi.sound.twinvq.LibAV.ff_get_buffer;
 import static vavi.sound.twinvq.LibAV.ff_init_ff_sine_windows;
 import static vavi.sound.twinvq.LibAV.ff_sine_windows;
-import static vavi.sound.twinvq.TwinVQDec.AVERROR_INVALIDDATA;
 import static vavi.sound.twinvq.TwinVQDec.TWINVQ_AMP_MAX;
 import static vavi.sound.twinvq.TwinVQDec.TWINVQ_CHANNELS_MAX;
 import static vavi.sound.twinvq.TwinVQDec.TWINVQ_GAIN_BITS;
@@ -75,6 +73,7 @@ import static vavi.sound.twinvq.TwinVQDec.twinvq_mulawinv;
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2024-04-06 nsano initial version <br>
+ * @see "https://github.com/libav/libav/blob/master/libavcodec/twinvq.c"
  */
 public class TwinVQ {
 
@@ -83,7 +82,7 @@ public class TwinVQ {
     enum TwinVQCodec {
         TWINVQ_CODEC_VQF,
         TWINVQ_CODEC_METASOUND,
-    };
+    }
 
     /** @note not speed critical, hence not optimized */
     static void twinvq_memset_float(float[] buf, int bufP, float val, int size) {
@@ -127,9 +126,9 @@ public class TwinVQ {
     /**
      * Evaluate the LPC amplitude spectrum envelope from the line spectrum pairs.
      */
-    static void eval_lpcenv(TwinVQContext tctx, final float[] cos_vals, float[] lpc) {
+    static void eval_lpcenv(TwinVQContext tctx, float[] cos_vals, float[] lpc) {
         int i;
-        final TwinVQModeTab mtab = tctx.mtab;
+        TwinVQModeTab mtab = tctx.mtab;
         int size_s = mtab.size / mtab.fmode[TWINVQ_FT_SHORT.ordinal()].sub;
 
         for (i = 0; i < size_s / 2; i++) {
@@ -150,7 +149,7 @@ public class TwinVQ {
     }
 
     /** */
-    static float get_cos(int idx, int part, final float[] cos_tab, int size) {
+    static float get_cos(int idx, int part, float[] cos_tab, int size) {
         return part != 0 ? -cos_tab[size - idx - 1]
                 : cos_tab[idx];
     }
@@ -158,7 +157,9 @@ public class TwinVQ {
     /**
      * Evaluate the LPC amplitude spectrum envelope from the line spectrum pairs.
      * Probably for speed reasons, the coefficients are evaluated as
+     * <pre>
      * siiiibiiiisiiiibiiiisiiiibiiiisiiiibiiiis ...
+     * </pre>
      * where s is an evaluated value, i is a value interpolated from the others
      * and b might be either calculated or interpolated, depending on an
      * unexplained condition.
@@ -196,7 +197,7 @@ public class TwinVQ {
 
     /** */
     static void eval_lpcenv_2parts(TwinVQContext tctx, TwinVQFrameType ftype,
-                                   final float[] buf, float[] lpc, int size, int step) {
+                                   float[] buf, float[] lpc, int size, int step) {
         eval_lpcenv_or_interp(tctx, ftype, lpc, 0, buf, 0, size / 2, step, 0);
         eval_lpcenv_or_interp(tctx, ftype, lpc, size / 2, buf, 0, size / 2, 2 * step, 1);
 
@@ -210,21 +211,19 @@ public class TwinVQ {
      * bitstream, sum the corresponding vectors and write the result to *out
      * after permutation.
      */
-    static void dequant(TwinVQContext tctx, final byte[] cb_bits, float[] out,
-                        TwinVQFrameType ftype, final short[] cb0, final short[] cb1, int cb1P, int cb_len) {
+    static void dequant(TwinVQContext tctx, byte[] cb_bits, float[] out,
+                        TwinVQFrameType ftype, short[] cb0, short[] cb1, int cb1P, int cb_len) {
         int pos = 0;
 
+        int cb_bitsP = 0;
         for (int i = 0; i < tctx.n_div[ftype.ordinal()]; i++) {
-            int tmp0, tmp1;
             int sign0 = 1;
             int sign1 = 1;
-            final int tab0, tab1;
-            int length = tctx.length[ftype.ordinal()][i >= tctx.length_change[ftype.ordinal()] ? 1 : 0];
+            int length = tctx.length[ftype.ordinal()][i >= (tctx.length_change[ftype.ordinal()] & 0xff) ? 1 : 0];
             int bitstream_second_part = (i >= tctx.bits_main_spec_change[ftype.ordinal()]) ? 1 : 0;
 
-            int cb_bitsP = 0;
             int bits = tctx.bits_main_spec[0][ftype.ordinal()][bitstream_second_part];
-            tmp0 = cb_bits[cb_bitsP++];
+            int tmp0 = cb_bits[cb_bitsP++];
             if (bits == 7) {
                 if ((tmp0 & 0x40) != 0)
                     sign0 = -1;
@@ -232,19 +231,23 @@ public class TwinVQ {
             }
 
             bits = tctx.bits_main_spec[1][ftype.ordinal()][bitstream_second_part];
-            tmp1 = cb_bits[cb_bitsP++];
+            int tmp1 = cb_bits[cb_bitsP++];
             if (bits == 7) {
                 if ((tmp1 & 0x40) != 0)
                     sign1 = -1;
                 tmp1 &= 0x3F;
             }
 
-            tab0 = tmp0 * cb_len; // cb0
-            tab1 = tmp1 * cb_len; // cb1
+            int tab0 = tmp0 * cb_len; // cb0
+            int tab1 = tmp1 * cb_len; // cb1
+//Debug.printf("dq[%3d]: %d, %02x, %d, %02x, %d", i, tctx.bits_main_spec[0][ftype.ordinal()][bitstream_second_part], tmp0, tctx.bits_main_spec[1][ftype.ordinal()][bitstream_second_part], tmp1, bitstream_second_part);
+//Debug.println("bits: " + bits + ", tmp0: " + tmp0 + ", tmp1: " + tmp1 + ", cb_len: " + cb_len + ", tab0: " + tab0 + ", tab1: " + tab1 + ", cb0: " + cb0.length + ", cb1: " + cb1.length + ", cb1P: " + cb1P);
 
-            for (int j = 0; j < length; j++)
-                out[tctx.permut[ftype.ordinal()][pos + j]] = sign0 * cb0[tab0 + j] +
+            for (int j = 0; j < length; j++) {
+//System.err.printf("%d, %d, %d, %d%n", pos + j, tab0 + j, cb1P + tab1 + j, tctx.permut[ftype.ordinal()][pos + j] & 0xffff);
+                out[tctx.permut[ftype.ordinal()][pos + j] & 0xffff] = sign0 * cb0[tab0 + j] +
                         sign1 * cb1[cb1P + tab1 + j];
+            }
 
             pos += length;
         }
@@ -298,8 +301,8 @@ public class TwinVQ {
         TwinVQModeTab mtab = tctx.mtab;
 
         float[] cb = mtab.lspcodebook;
-        int cb2 = (1 << mtab.lsp_bit1) * mtab.n_lsp; // cb
-        int cb3 = cb2 + (1 << mtab.lsp_bit2) * mtab.n_lsp; // cb
+        int cb2 = (1 << (mtab.lsp_bit1 & 0xff)) * (mtab.n_lsp & 0xff); // cb
+        int cb3 = cb2 + (1 << (mtab.lsp_bit2 & 0xff)) * (mtab.n_lsp & 0xff); // cb
 
         byte[] funny_rounding = new byte[] {
                 (byte) -2,
@@ -310,25 +313,24 @@ public class TwinVQ {
 
         int j = 0;
         for (int i = 0; i < mtab.lsp_split; i++) {
-            int chunk_end = ((i + 1) * mtab.n_lsp + funny_rounding[i]) /
-                    mtab.lsp_split;
+            int chunk_end = ((i + 1) * (mtab.n_lsp & 0xff) + funny_rounding[i]) / (mtab.lsp_split & 0xff);
             for (; j < chunk_end; j++)
-                lsp[j] = cb[lpc_idx1 * mtab.n_lsp + j] +
-                        cb[cb2 + lpc_idx2[i] * mtab.n_lsp + j];
+                lsp[j] = cb[lpc_idx1 * (mtab.n_lsp & 0xff) + j] +
+                        cb[cb2 + lpc_idx2[i] * (mtab.n_lsp & 0xff) + j];
         }
 
         rearrange_lsp(mtab.n_lsp, lsp, 0.0001f);
 
         for (int i = 0; i < mtab.n_lsp; i++) {
-            float tmp1 = 1.0f - cb[cb3 + lpc_hist_idx * mtab.n_lsp + i];
-            float tmp2 = hist[i] * cb[cb3 + lpc_hist_idx * mtab.n_lsp + i];
+            float tmp1 = 1.0f - cb[cb3 + lpc_hist_idx * (mtab.n_lsp & 0xff) + i];
+            float tmp2 = hist[i] * cb[cb3 + lpc_hist_idx * (mtab.n_lsp & 0xff) + i];
             hist[i] = lsp[i];
             lsp[i] = lsp[i] * tmp1 + tmp2;
         }
 
-        rearrange_lsp(mtab.n_lsp, lsp, 0.0001f);
-        rearrange_lsp(mtab.n_lsp, lsp, 0.000095f);
-        ff_sort_nearly_sorted_floats(lsp, mtab.n_lsp);
+        rearrange_lsp(mtab.n_lsp & 0xff, lsp, 0.0001f);
+        rearrange_lsp(mtab.n_lsp & 0xff, lsp, 0.000095f);
+        ff_sort_nearly_sorted_floats(lsp, mtab.n_lsp & 0xff);
     }
 
     static void ff_sort_nearly_sorted_floats(float[] vals, int len) {
@@ -366,8 +368,9 @@ public class TwinVQ {
     static void imdct_and_window(TwinVQContext tctx, TwinVQFrameType ftype,
                                  int wtype, float[] in, int inP, float[] prev, int prev_bufP, int ch) {
         AVTXContext tx = tctx.tx[ftype.ordinal()];
-        HexaConsumer tx_fn = tctx.tx_fn[ftype.ordinal()];
-        final TwinVQModeTab mtab = tctx.mtab;
+        AVTXContext.TXFunction tx_fn = tctx.tx_fn[ftype.ordinal()];
+Debug.println("ftype: " + ftype + "(" + ftype.ordinal() + ")");
+        TwinVQModeTab mtab = tctx.mtab;
         int bsize = mtab.size / mtab.fmode[ftype.ordinal()].sub;
         int size = mtab.size;
         float[] buf1 = tctx.tmp_buf;
@@ -396,11 +399,11 @@ public class TwinVQ {
 
             wsize = types_sizes[wtype_to_wsize[sub_wtype]];
 
-            tx_fn.accept(tx, buf1, bsize * j, in, bsize * j, Float.BYTES);
+            tx_fn.accept(tx, buf1, bsize * j, in, bsize * j /*, Float.BYTES */); // TODO not implemented
 
-            tctx.fdsp.vector_fmul_window(out2, prev_buf, (bsize - wsize) / 2,
+            tctx.fdsp.vector_fmul_window(tctx.curr_frame, out2, prev_buf, (bsize - wsize) / 2,
                     buf1, bsize * j,
-                    ff_sine_windows[(int) Math.log(wsize)],
+                    ff_sine_windows.get((int) Math.log(wsize)),
                     wsize / 2);
             out2 += wsize;
 
@@ -416,7 +419,7 @@ public class TwinVQ {
     }
 
     static void imdct_output(TwinVQContext tctx, TwinVQFrameType ftype, int wtype, float[][] out, int offset) {
-        final TwinVQModeTab mtab = tctx.mtab;
+        TwinVQModeTab mtab = tctx.mtab;
         int prev_buf = tctx.last_block_pos[0]; // tctx.prev_frame
         int channels = tctx.avctx.ch_layout.nb_channels;
         int size1, size2, i;
@@ -455,34 +458,32 @@ public class TwinVQ {
         float[] gain = new float[TWINVQ_CHANNELS_MAX * TWINVQ_SUBBLOCKS_MAX];
         float[] ppc_shape = new float[TWINVQ_PPC_SHAPE_LEN_MAX * TWINVQ_CHANNELS_MAX * 4];
 
-        int i, j;
-
         dequant(tctx, bits.main_coeffs, out, ftype,
                 mtab.fmode[ftype.ordinal()].cb0, mtab.fmode[ftype.ordinal()].cb1, 0,
-                mtab.fmode[ftype.ordinal()].cb_len_read);
+                mtab.fmode[ftype.ordinal()].cb_len_read & 0xff);
 
         dec_gain(tctx, ftype, gain);
 
         if (ftype == TWINVQ_FT_LONG) {
-            int cb_len_p = (tctx.n_div[3] + mtab.ppc_shape_len * channels - 1) / tctx.n_div[3];
+            int cb_len_p = (tctx.n_div[3] + (mtab.ppc_shape_len & 0xff) * channels - 1) / tctx.n_div[3];
             dequant(tctx, bits.ppc_coeffs, ppc_shape,
                     TWINVQ_FT_PPC, mtab.ppc_shape_cb,
                     mtab.ppc_shape_cb,cb_len_p * TWINVQ_PPC_SHAPE_CB_SIZE,
                     cb_len_p);
         }
 
-        for (i = 0; i < channels; i++) {
+        for (int i = 0; i < channels; i++) {
             int chunk = mtab.size * i; // out
             float[] lsp = new float[TWINVQ_LSP_COEFS_MAX];
 
-            for (j = 0; j < sub; j++) {
+            for (int j = 0; j < sub; j++) {
                 tctx.dec_bark_env.accept(tctx, bits.bark1[i][j],
                         bits.bark_use_hist[i][j] & 0xff, i,
                         tctx.tmp_buf, gain[sub * i + j], ftype);
 
-                tctx.fdsp.vector_fmul(chunk + block_size * j,
-                        chunk + block_size * j,
-                        tctx.tmp_buf, block_size);
+                tctx.fdsp.vector_fmul(out, chunk + block_size * j,
+                        out, chunk + block_size * j,
+                        tctx.tmp_buf, 0, block_size);
             }
 
             if (ftype == TWINVQ_FT_LONG)
@@ -494,8 +495,8 @@ public class TwinVQ {
 
             dec_lpc_spectrum_inv(tctx, lsp, ftype, tctx.tmp_buf);
 
-            for (j = 0; j < mtab.fmode[ftype.ordinal()].sub; j++) {
-                tctx.fdsp.vector_fmul(chunk, chunk, tctx.tmp_buf, block_size);
+            for (int j = 0; j < mtab.fmode[ftype.ordinal()].sub; j++) {
+                tctx.fdsp.vector_fmul(out, chunk, out, chunk, tctx.tmp_buf, 0, block_size);
                 chunk += block_size;
             }
         }
@@ -507,11 +508,15 @@ public class TwinVQ {
             TWINVQ_FT_MEDIUM
     };
 
-    int ff_twinvq_decode_frame(AVCodecContext avctx, AVFrame frame, int[] got_frame_ptr, AVPacket avpkt) {
-        final byte[] buf = avpkt.data;
+    /**
+     * @override decode
+     * @return block align
+     */
+    static int ff_twinvq_decode_frame(AVCodecContext avctx, AVFrame frame, int[] got_frame_ptr, AVPacket avpkt) {
+        byte[] buf = avpkt.data;
         int buf_size = avpkt.size;
         TwinVQContext tctx = avctx.priv_data;
-        final TwinVQModeTab mtab = tctx.mtab;
+        TwinVQModeTab mtab = tctx.mtab;
         float[][] out = null;
         int ret;
 
@@ -524,18 +529,15 @@ public class TwinVQ {
         }
 
         if (buf_size < avctx.block_align) {
-            logger.log(Level.ERROR,
-                    "Frame too small (%d bytes). Truncated file?", buf_size);
+            logger.log(Level.ERROR, "Frame too small (%d bytes). Truncated file?", buf_size);
             return -1;
         }
 
         if ((ret = tctx.read_bitstream.apply(avctx, tctx, buf, buf_size)) < 0)
             return ret;
 
-        for (tctx.cur_frame = 0; tctx.cur_frame < tctx.frames_per_packet;
-             tctx.cur_frame++) {
-            read_and_decode_spectrum(tctx, tctx.spectrum,
-                    tctx.bits[tctx.cur_frame].ftype);
+        for (tctx.cur_frame = 0; tctx.cur_frame < tctx.frames_per_packet; tctx.cur_frame++) {
+            read_and_decode_spectrum(tctx, tctx.spectrum, tctx.bits[tctx.cur_frame].ftype);
 
             imdct_output(tctx, tctx.bits[tctx.cur_frame].ftype,
                     tctx.bits[tctx.cur_frame].window_type, out,
@@ -564,18 +566,18 @@ public class TwinVQ {
      * Init IMDCT and windowing tables
      */
     static int init_mdct_win(TwinVQContext tctx) {
-        int i, j, ret;
-        final TwinVQModeTab mtab = tctx.mtab;
+        int ret;
+        TwinVQModeTab mtab = tctx.mtab;
         int size_s = mtab.size / mtab.fmode[TWINVQ_FT_SHORT.ordinal()].sub;
         int size_m = mtab.size / mtab.fmode[TWINVQ_FT_MEDIUM.ordinal()].sub;
         int channels = tctx.avctx.ch_layout.nb_channels;
         float norm = channels == 1 ? 2.0f : 1.0f;
         int table_size = 2 * mtab.size * channels;
 
-        for (i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
             int bsize = tctx.mtab.size / tctx.mtab.fmode[i].sub;
             float[] scale = new float[] { (float) (-Math.sqrt(norm / bsize) / (1 << 15)) };
-            if ((ret = av_tx_init(tctx.tx[i], tctx.tx_fn[i], AV_TX_FLOAT_MDCT, 1, bsize, scale, 0)) != 0)
+            if ((ret = av_tx_init(tctx.tx, tctx.tx_fn, i, AV_TX_FLOAT_MDCT, 1, bsize, scale, 0)) != 0)
                 return ret;
         }
 
@@ -584,32 +586,36 @@ public class TwinVQ {
         tctx.curr_frame = new float[table_size];
         tctx.prev_frame = new float[table_size];
 
-        for (i = 0; i < 3; i++) {
+        for (int i = 0; i < 3; i++) {
             int m = 4 * mtab.size / mtab.fmode[i].sub;
             double freq = 2 * Math.PI / m;
             tctx.cos_tabs[i] = new float[m / 4];
-            for (j = 0; j <= m / 8; j++)
+            for (int j = 0; j <= m / 8; j++)
                 tctx.cos_tabs[i][j] = (float) Math.cos((2 * j + 1) * freq);
-            for (j = 1; j < m / 8; j++)
+            for (int j = 1; j < m / 8; j++)
                 tctx.cos_tabs[i][m / 4 - j] = tctx.cos_tabs[i][j];
         }
 
-        ff_init_ff_sine_windows(Math.log(size_m));
-        ff_init_ff_sine_windows(Math.log(size_s / 2d));
-        ff_init_ff_sine_windows(Math.log(mtab.size));
+        ff_init_ff_sine_windows((int) Math.log(size_m));
+        ff_init_ff_sine_windows((int) Math.log(size_s / 2d));
+        ff_init_ff_sine_windows((int) Math.log(mtab.size));
 
         return 0;
     }
 
     /**
-     * Interpret the data as if it were a num_blocks x line_len[0] matrix and for
+     * Interpret the data as if it were a {@code num_blocks x line_len[0]} matrix and for
      * each line do a cyclic permutation, i.e.
-     * abcdefghijklm . defghijklmabc
+     * <pre>
+     * abcdefghijklm -> defghijklmabc
+     * </pre>
      * where the amount to be shifted is evaluated depending on the column.
+     *
+     * @param tab output
      */
-    static void permutate_in_line(byte[] tab, int num_vect, int num_blocks,
+    static void permutate_in_line(short[] tab, int num_vect, int num_blocks,
                                   int block_size,
-                                  final byte[] line_len,
+                                  byte[] line_len,
                                   int length_div,
                                   TwinVQFrameType ftype) {
         for (int i = 0; i < line_len[0]; i++) {
@@ -626,21 +632,26 @@ public class TwinVQ {
                 shift = i * i;
 
             for (int j = 0; j < num_vect && (j + num_vect * i < block_size * num_blocks); j++)
-                tab[i * num_vect + j] = (byte) (i * num_vect + (j + shift) % num_vect);
+                tab[i * num_vect + j] = (short) (i * num_vect + (j + shift) % num_vect);
         }
     }
 
     /**
      * Interpret the input data as in the following table:
      *
-     * @verbatim abcdefgh
+     * <pre>
+     * abcdefgh
      * ijklmnop
      * qrstuvw
      * x123456
-     * @endverbatim and transpose it, giving the output
+     * </pre>
+     *
+     * and transpose it, giving the output
+     * <pre>
      * aiqxbjr1cks2dlt3emu4fvn5gow6hp
+     * </pre>
      */
-    static void transpose_perm(byte[] out, byte[] in, int num_vect, byte[] line_len, int length_div) {
+    static void transpose_perm(short[] out, short[] in, int num_vect, byte[] line_len, int length_div) {
         int cont = 0;
 
         for (int i = 0; i < num_vect; i++)
@@ -649,18 +660,17 @@ public class TwinVQ {
     }
 
     /** */
-    static void linear_perm(byte[] out, short[] in, int n_blocks, int size) {
+    static void linear_perm(short[] out, short[] in, int n_blocks, int size) {
         int block_size = size / n_blocks;
 
         for (int i = 0; i < size; i++)
-            out[i] = (byte) (block_size * (in[i] % n_blocks) + in[i] / n_blocks);
+            out[i] = (short) (block_size * (in[i] % n_blocks) + in[i] / n_blocks);
     }
 
     /** */
     static void construct_perm_table(TwinVQContext tctx, TwinVQFrameType ftype) {
         int block_size, size;
         TwinVQModeTab mtab = tctx.mtab;
-        ByteBuffer bbs = ByteBuffer.allocate(tctx.permut[ftype.ordinal()].length * Short.BYTES).order(ByteOrder.LITTLE_ENDIAN);
         ByteBuffer bbf = ByteBuffer.allocate(tctx.tmp_buf.length * Float.BYTES).order(ByteOrder.LITTLE_ENDIAN);
         FloatBuffer tmp_perm = bbf.asFloatBuffer();
         tmp_perm.put(tctx.tmp_buf);
@@ -672,17 +682,18 @@ public class TwinVQ {
             size = tctx.avctx.ch_layout.nb_channels * mtab.fmode[ftype.ordinal()].sub;
             block_size = mtab.size / mtab.fmode[ftype.ordinal()].sub;
         }
+Debug.println("size: " + size + ", block_size: " + block_size);
 
-        permutate_in_line(bbf.array(), tctx.n_div[ftype.ordinal()], size,
+        short[] bbfs = new short[bbf.capacity() / Short.BYTES];
+        permutate_in_line(bbfs, tctx.n_div[ftype.ordinal()], size,
                 block_size, tctx.length[ftype.ordinal()],
-                tctx.length_change[ftype.ordinal()], ftype);
+                tctx.length_change[ftype.ordinal()] & 0xff, ftype);
 
-        transpose_perm(bbs.array(), bbf.array(), tctx.n_div[ftype.ordinal()],
-                tctx.length[ftype.ordinal()], tctx.length_change[ftype.ordinal()]);
-        bbs.asShortBuffer().get(tctx.permut[ftype.ordinal()]);
+        transpose_perm(tctx.permut[ftype.ordinal()], bbfs, tctx.n_div[ftype.ordinal()],
+                tctx.length[ftype.ordinal()], tctx.length_change[ftype.ordinal()] & 0xff);
+        bbf.asShortBuffer().get(bbfs);
 
-        linear_perm(bbs.array(), tctx.permut[ftype.ordinal()], size, size * block_size);
-        bbs.asShortBuffer().get(tctx.permut[ftype.ordinal()]);
+        linear_perm(tctx.permut[ftype.ordinal()], tctx.permut[ftype.ordinal()], size, size * block_size);
     }
 
     /** */
@@ -744,14 +755,15 @@ public class TwinVQ {
             tctx.length[i][0] = (byte) rounded_up;
             tctx.length[i][1] = (byte) rounded_down;
             tctx.length_change[i] = (byte) num_rounded_up;
+Debug.println("rounded_up: " + rounded_up + ", rounded_down: " + rounded_down + ", num_rounded_up: " + num_rounded_up);
         }
 
         for (int frametype = TWINVQ_FT_SHORT.ordinal(); frametype <= TWINVQ_FT_PPC.ordinal(); frametype++)
             construct_perm_table(tctx, TwinVQFrameType.values()[frametype]);
     }
 
-    /** */
-    int ff_twinvq_decode_close(AVCodecContext avctx) {
+    /** @override close */
+    static int ff_twinvq_decode_close(AVCodecContext avctx) {
         TwinVQContext tctx = avctx.priv_data;
 
         return 0;
