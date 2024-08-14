@@ -60,7 +60,7 @@ public class Mp3InputStream extends FilterInputStream {
         int firstSyncAddress = Mp3Decoder.findSync(buf, 0, readBytes);
 Debug.printf("firstSyncAddress: %08x", firstSyncAddress);
         decodeInfo = decoder.getInfo(buf, firstSyncAddress, readBytes - firstSyncAddress);
-Debug.println(StringUtil.paramStringDeep(decodeInfo, 2));
+Debug.println(decodeInfo);
 
         //
         in.reset();
@@ -133,9 +133,9 @@ Debug.println("End of Frames");
         Mp3Decoder.MpegDecodeParam param = new Mp3Decoder.MpegDecodeParam();
 
 //Debug.println("length: " + length);
-//Debug.println("decodeInfo: " + StringUtil.paramString(decodeInfo));
+Debug.println("decodeInfo: " + decodeInfo);
         param.inputSize = decodeInfo.inputSize;
-//Debug.println("param.inputSize: " + param.inputSize);
+Debug.println("param.inputSize: " + param.inputSize);
         param.inputBuf = new byte[param.inputSize];
         int readBytes = 0;
         while (readBytes < param.inputSize) {

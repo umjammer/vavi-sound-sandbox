@@ -6,12 +6,15 @@
 
 package vavi.sound.mp3;
 
+import java.util.Arrays;
+import java.util.StringJoiner;
+
 import vavi.util.Debug;
 import vavi.util.StringUtil;
 
 
 /**
- * MPEG Audio Layer III Decorder.
+ * MPEG Audio Layer III Decoder.
  *
  * @author 小杉 篤史 (Kosugi Atsushi)
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
@@ -29,8 +32,13 @@ class Mp3Decoder {
             this.bigValues = bigValues;
             this.gain = gain;
         }
-        public String toString() {
-            return StringUtil.paramString(this);
+
+        @Override public String toString() {
+            return new StringJoiner(", ", GrInfo.class.getSimpleName() + "[", "]")
+                    .add("length=" + length)
+                    .add("bigValues=" + bigValues)
+                    .add("gain=" + gain)
+                    .toString();
         }
     }
 
@@ -43,6 +51,16 @@ class Mp3Decoder {
         /** pcm */
         byte[] outputBuf;
         int outputSize;
+
+        @Override public String toString() {
+            return new StringJoiner(", ", MpegDecodeParam.class.getSimpleName() + "[", "]")
+                    .add("header=" + header)
+                    .add("inputBuf=" + Arrays.toString(inputBuf))
+                    .add("inputSize=" + inputSize)
+                    .add("outputBuf=" + Arrays.toString(outputBuf))
+                    .add("outputSize=" + outputSize)
+                    .toString();
+        }
     }
 
     /** */
@@ -58,6 +76,17 @@ class Mp3Decoder {
         int inputSize;
         /** 1 frame output size */
         int outputSize;
+
+        @Override public String toString() {
+            return new StringJoiner(", ", MpegDecodeInfo.class.getSimpleName() + "[", "]")
+                    .add("header=" + header)
+                    .add("channels=" + channels)
+                    .add("frequency=" + frequency)
+                    .add("bitRate=" + bitRate)
+                    .add("inputSize=" + inputSize)
+                    .add("outputSize=" + outputSize)
+                    .toString();
+        }
     }
 
     /** header information 4 byte */
@@ -116,7 +145,17 @@ Debug.println("offset: " + offset);
             this.bitrate   = m_bitrate[3 - layer][(buf[offset + 2] & 0xf0) >> 4];
             this.frequency = m_frequency[version == 3 ? 0 : 1][(buf[offset + 2] & 0x0c) >> 2];
             this.mode      = (buf[offset + 3] & 0xc0) >> 6;
-Debug.println(StringUtil.paramString(this));
+//Debug.println(this);
+        }
+
+        @Override public String toString() {
+            return new StringJoiner(", ", MpegHeader.class.getSimpleName() + "[", "]")
+                    .add("version=" + version)
+                    .add("layer=" + layer)
+                    .add("bitrate=" + bitrate)
+                    .add("frequency=" + frequency)
+                    .add("mode=" + mode)
+                    .toString();
         }
     }
 
@@ -229,9 +268,10 @@ Debug.println(StringUtil.paramString(this));
         MpegHeader header = param.header;
 
         m_frame_size = (144 * header.bitrate * 1000) / m_freq;
+Debug.println("m_frame_size: " + m_frame_size + ", bitrate: "+ header.bitrate);
 
         if (param.inputSize < m_frame_size) {
-            throw new IllegalArgumentException("inputSize: " + param.inputSize + " < frameSize");
+            throw new IllegalArgumentException("inputSize: " + param.inputSize + " < frameSize: " + m_frame_size);
         }
 
         decode_frame(param.outputBuf, param.inputBuf);
