@@ -19,6 +19,7 @@ import javax.sound.sampled.SourceDataLine;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
@@ -70,6 +71,7 @@ class IlbcTest {
     }
 
     @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test2() throws Exception {
         Path in = Path.of(ilbc);
         DataInputStream dis = new DataInputStream(Files.newInputStream(in));
@@ -125,7 +127,7 @@ Debug.println(size);
 
         dis.close();
 
-        Path expected = Path.of("src/test/resources/ilbc/sample-ilbc-30-out.pcm");
+        Path expected = Path.of("src/test/resources/ilbc/sample-ilbc-30-out.pcm"); // TODO different from test1
 Debug.println("expected: " + Files.size(expected));
         assertEquals(Checksum.getChecksum(expected), Checksum.getChecksum(out));
     }

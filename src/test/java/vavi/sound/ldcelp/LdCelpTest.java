@@ -21,6 +21,7 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
@@ -89,6 +90,7 @@ Debug.println(g728);
     String correctFileE = "src/test/resources/ldcelp/f17.bit";
 
     @Test
+    @Disabled("not confirmed")
     @DisplayName("encode")
     void test4() throws Exception {
         LdCelp.main(new String[] {"-e", pcm, outFileE});

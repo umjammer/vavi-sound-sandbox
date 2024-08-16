@@ -809,7 +809,7 @@ public class Ilbc {
         // do the actual encoding
 
         iLBC_encode(encoded_data, block, encoder);
-Debug.println("\n" + StringUtil.getDump(encoded_data, 64));
+//Debug.println("\n" + StringUtil.getDump(encoded_data, 64));
 
         return encoder.no_of_bytes;
     }
