@@ -42,7 +42,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>properties-maven-plugin</artifactId>
-            <version>1.1.0</version>
+            <version>1.2.1</version>
             <executions>
               <execution>
                 <id>read-properties</id>
@@ -118,18 +118,53 @@
       </plugin>
 
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>generate-test-sources</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/samples/java</source>
+              </sources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>generate-test-resources</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>add-test-resource</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/samples/resources</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.2.2</version>
         <configuration>
           <argLine>
             -Xmx4G
+            --add-modules jdk.incubator.vector
             --add-exports java.desktop/com.sun.media.sound=ALL-UNNAMED
             -javaagent:${project.build.directory}/vavi-instrumentation.jar
             -Dvavix.lang.instrumentation.VaviInstrumentation.1=vavix.lang.instrumentation.PropertiesClassFileTransformer
             -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
-            -Dvavi.test.volume=${vavi.test.volume}
-            -Dvavi.test.volume.midi=${vavi.test.volume.midi}
+            -Dvavi.test.volume=@{vavi.test.volume}
+            -Dvavi.test.volume.midi=@{vavi.test.volume.midi}
             -Dvavi.test.version=${project.version}
           </argLine>
           <trimStackTrace>false</trimStackTrace>
@@ -223,12 +258,12 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.12</version>
+      <version>1.1.13</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.18</version>
+      <version>1.0.19</version>
       <exclusions>
         <exclusion>
           <groupId>com.github.umjammer</groupId>
@@ -421,9 +456,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.github.umjammer</groupId>
+      <groupId>com.github.umjammer</groupId> <!-- com.github.umjammer -->
       <artifactId>vavi-util-screenscraping</artifactId>
-      <version>1.0.13</version>
+      <version>1.0.14</version>
       <scope>test</scope>
     </dependency>
 

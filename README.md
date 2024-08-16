@@ -13,8 +13,8 @@
 |:------------|:-------------|:--------------|:---------------|:---------------|:---------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------|:-------------------------------------------------------------|
 | midi        | unknown      | 🚫            | 🚫             | -              | this                                                                 | MFi by [unknown]()                                                                                                           |                                                              |
 | midi        | ittake       | 🚫            | 🚫             | -              | this                                                                 | MFi by [ittake](https://web.archive.org/web/20090515001654/http://tokyo.cool.ne.jp/ittake/java/MIDIToMLDv013/MIDIToMLD.html) |                                                              |
-| sampled     | ilbc         | 🚫            | 🚫             | -              | this                                                                 | [c](http://www.ilbcfreeware.org/)                                                                                            |                                                              |
-| sampled     | ldcelp       | 🚫            | 🚫             | -              | this                                                                 | [c](ftp://svr-ftp.eng.cam.ac.uk/pub/comp.speech/coding/ldcelp-2.0.tar.gz)                                                    |                                                              |
+| sampled     | ilbc         | ✅             | ?              | ✅              | this                                                                 | [c](http://www.ilbcfreeware.org/)                                                                                            |                                                              |
+| sampled     | ldcelp       | ✅             | ?              | ✅              | this                                                                 | [c](https://archive.org/details/2014.12.svr-ftp.eng.cam.ac.uk#/pub/comp.speech/coding/ldcelp-2.0.tar.gz)                     |                                                              |
 | sampled     | mp3          | 🚫            | -              | -              | this                                                                 | [mp3](https://github.com/umjammer/vavi-sound-sandbox/tree/master/src/main/java/vavi/sound/mp3)                               | need to deal tags                                            |
 | sampled     | mp3          | ✅             | -              | ✅              | [mp3spi](https://github.com/umjammer/mp3spi)                         | [jlayer](https://github.com/umjammer/jlayer)                                                                                 |                                                              |
 | sampled     | sse          | 🚫            | -              | 🚫             | this                                                                 | [sse](http://shibatch.sourceforge.net/download/)                                                                             |                                                              |
@@ -42,8 +42,9 @@
 | sampled     | flac         | ✅             | -              | ✅              | [jFLAC](http://jflac.sourceforge.net/)                               |                                                                                                                              |                                                              |
 | sampled     | aac          | -             | -              | ✅              | [JAADec](https://github.com/umjammer/vavi-sound-aac)                 |                                                                                                                              |                                                              |
 | sampled     | vorbis       | -             | -              | ✅              | [tritonus-jorbis](https://github.com/umjammer/tritonus-jorbis)       |                                                                                                                              |                                                              |
-| sampled     | atrac3       | 🚧            | -              | 🚧             | this                                                                 | jpcsp                                                                                                                        | Sony MD                                                      |
-| sampled     | atrac3+      | 🚧            | -              | 🚧             | this                                                                 | jpcsp                                                                                                                        | Sony MD                                                      |
+| sampled     | atrac3       | ✅             | -              | ?              | [vavi-sound-atrack](https://github.com/umjammer/vavi-sound-atrack)   | jpcsp                                                                                                                        | Sony MD                                                      |
+| sampled     | atrac3+      | ✅             | -              | ✅              | [vavi-sound-atrack](https://github.com/umjammer/vavi-sound-atrack)   | jpcsp                                                                                                                        | Sony MD                                                      |
+| sampled     | atrac9       | ✅             | -              | ✅              | [vavi-sound-atrack](https://github.com/umjammer/vavi-sound-atrack)   | jpcsp                                                                                                                        | Sony MD                                                      |
 
 ### Features
 
@@ -107,10 +108,12 @@ clip.loop(Clip.LOOP_CONTINUOUSLY);
 
 ### codec
 
- * https://github.com/hendriks73/ffsampledsp (twinvq)
- * https://github.com/Icenowy/jcadencii (twinvq?)
+ * twinvq
+   * https://github.com/hendriks73/ffsampledsp
+   * https://github.com/Icenowy/jcadencii (?)
+   * http://k-takata.o.oo7.jp/mysoft/tvqdec.html
  * https://github.com/hendriks73/casampledsp/tree/master (coreaudio is base of avfoundation?)
- * ~~https://github.com/drogatkin/JustFLAC~~ → [vavi-sound-lc3](https://github.com/umjammer/vavi-sound-flac)
+ * ~~https://github.com/drogatkin/JustFLAC~~ → [vavi-sound-flac](https://github.com/umjammer/vavi-sound-flac)
  * ~~lc3~~ → [vavi-sound-lc3](https://github.com/umjammer/vavi-sound-lc3)
    * https://github.com/ninjasource/lc3-codec
    * https://www.iis.fraunhofer.de/ja/ff/amm/communication/lc3.html
@@ -152,6 +155,7 @@ clip.loop(Clip.LOOP_CONTINUOUSLY);
  * ~~mml (cmd sing)~~
     * [thanks](http://asamomiji.jp/contents/mml-player)
     * crackling at end https://stackoverflow.com/a/9630897
+    * https://github.com/trrk/FlMML-for-Android
 
 ### ebml
 
