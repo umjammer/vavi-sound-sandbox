@@ -111,9 +111,6 @@
           <!-- https://stackoverflow.com/a/30472473 -->
           <fork>true</fork>
           <showWarnings>true</showWarnings>
-          <excludes>
-            <exclude>vavi/sound/twinvq/*.java</exclude>
-          </excludes>
         </configuration>
       </plugin>
 
