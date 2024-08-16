@@ -46,7 +46,7 @@ class IlbcTest {
     String ilbc = "src/test/resources/ilbc/sample-30.ilbc";
 
     @Property(name = "pcm")
-    String pcm;
+    String pcm = "src/test/resources/ilbc/sample_16k.pcm";
 
     @BeforeEach
     void setup() throws Exception {
