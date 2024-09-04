@@ -22,7 +22,7 @@ import vavi.util.Debug;
  */
 public class JSynMidiDeviceProvider extends MidiDeviceProvider {
 
-    /**  */
+    /** */
     public final static int MANUFACTURER_ID = 0x5e;
 
     /** */

@@ -43,7 +43,7 @@ class ResamplerTest {
     static final String inFile = "src/test/resources/test.wav";
     static final String outFile = "tmp/out.wav";
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume", "0.2"));
 
     @BeforeAll
     static void setup() throws IOException {

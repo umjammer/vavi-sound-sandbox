@@ -342,7 +342,7 @@ public class TwinVQ {
             }
     }
 
-    /**  */
+    /** */
     static void dec_lpc_spectrum_inv(TwinVQContext tctx, float[] lsp, TwinVQFrameType ftype, float[] lpc) {
         int size = tctx.mtab.size / tctx.mtab.fmode[ftype.ordinal()].sub;
 
@@ -364,7 +364,7 @@ public class TwinVQ {
 
     static final byte[] wtype_to_wsize = new byte[] {0, 0, 2, 2, 2, 1, 0, 1, 1};
 
-    /**  */
+    /** */
     static void imdct_and_window(TwinVQContext tctx, TwinVQFrameType ftype,
                                  int wtype, float[] in, int inP, float[] prev, int prev_bufP, int ch) {
         AVTXContext tx = tctx.tx[ftype.ordinal()];

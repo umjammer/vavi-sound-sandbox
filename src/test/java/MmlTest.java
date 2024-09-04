@@ -34,7 +34,7 @@ public class MmlTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
-    static final float volume = Float.parseFloat(System.getProperty("vavi.test.volume",  "0.2"));
+    static final float volume = Float.parseFloat(System.getProperty("vavi.test.volume", "0.2"));
 
     @Property(name = "mml")
     String mml = "src/test/resources/mml/BADINERIE.mml";

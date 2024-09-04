@@ -57,7 +57,7 @@ class LineTest2 {
                            "vavi\\.sound\\.DebugInputStream#\\w+");
     }
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume", "0.2"));
 
     @Property(name = "line2.test")
     String inFile = "src/test/resources/test.caf";

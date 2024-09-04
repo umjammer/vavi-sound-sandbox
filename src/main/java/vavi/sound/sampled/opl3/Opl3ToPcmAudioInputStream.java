@@ -36,7 +36,7 @@ public class Opl3ToPcmAudioInputStream extends AudioInputStream {
         super(new OutputEngineInputStream(new Opl3OutputEngine(stream, sourceFormat)), format, length);
     }
 
-    /**  */
+    /** */
     private static class Opl3OutputEngine implements OutputEngine {
 
         /** */

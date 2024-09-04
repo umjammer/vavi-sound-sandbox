@@ -44,7 +44,7 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
         super(init(in), format, length);
     }
 
-    /**  */
+    /** */
     static InputStream init(InputStream in) {
         AdvancedPipedInputStream source = new AdvancedPipedInputStream();
         AdvancedPipedInputStream.OutputStreamEx sink = source.getOutputStream();
@@ -77,7 +77,7 @@ public class Rococoa2PcmAudioInputStream extends AudioInputStream {
         return source;
     }
 
-    /**  */
+    /** */
     static class TempFileInputEngine implements InputEngine {
 
         InputStream in;

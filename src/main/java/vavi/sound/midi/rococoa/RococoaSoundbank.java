@@ -26,7 +26,7 @@ public class RococoaSoundbank implements Soundbank {
 
     static {
         try {
-            try (InputStream is = RococoaSynthesizer.class.getResourceAsStream("/META-INF/maven/vavi/vavi-sound-sandbox/pom.properties")) {
+            try (InputStream is = RococoaSoundbank.class.getResourceAsStream("/META-INF/maven/vavi/vavi-sound-sandbox/pom.properties")) {
                 if (is != null) {
                     Properties props = new Properties();
                     props.load(is);

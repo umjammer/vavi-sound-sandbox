@@ -47,7 +47,7 @@ public class Test2 {
     String inFile;
     String outFile = "tmp/out.vavi.wav";
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume", "0.2"));
 
     /** */
     public static void main(String[] args) throws Exception {

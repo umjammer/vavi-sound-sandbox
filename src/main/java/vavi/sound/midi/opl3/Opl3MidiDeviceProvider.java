@@ -22,7 +22,7 @@ import vavi.util.Debug;
  */
 public class Opl3MidiDeviceProvider extends MidiDeviceProvider {
 
-    /**  */
+    /** */
     public final static int MANUFACTURER_ID = 0x43;
 
     /** */

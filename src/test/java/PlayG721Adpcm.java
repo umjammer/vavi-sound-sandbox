@@ -29,7 +29,7 @@ import static vavi.sound.SoundUtil.volume;
  */
 public class PlayG721Adpcm {
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume", "0.2"));
 
     /**
      * usage: java PlayG721Adpcm g721_file [sampleRate]

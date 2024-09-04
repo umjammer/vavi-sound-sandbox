@@ -49,7 +49,7 @@ public class ClipTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume", "0.2"));
 
     @Property(name = "clip.test")
     String clipTest = "src/test/resources/test.flac";

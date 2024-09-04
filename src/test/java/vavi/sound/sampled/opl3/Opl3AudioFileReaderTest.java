@@ -43,7 +43,7 @@ class Opl3AudioFileReaderTest {
 
     static long time = System.getProperty("vavi.test", "").equals("ide") ? 1000 * 1000 : 10 * 1000;
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume", "0.2"));
 
     @BeforeAll
     static void setup() {
@@ -205,11 +205,11 @@ Debug.println(targetAudioFormat);
 
     @ParameterizedTest
     @ValueSource(strings = {
-//            "/opl3/dro_v2.dro",
-//            "/opl3/samurai.dro",
-//            "/opl3/ice_thnk.sci",
-//            "/opl3/michaeld.cmf",
-//            "/opl3/mi2.laa",
+            "/opl3/dro_v2.dro",
+            "/opl3/samurai.dro",
+            "/opl3/ice_thnk.sci",
+            "/opl3/michaeld.cmf",
+            "/opl3/mi2.laa",
             "/opl3/2.cmf",
     })
     @DisplayName("spi, stream")

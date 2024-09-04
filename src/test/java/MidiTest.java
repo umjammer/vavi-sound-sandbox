@@ -56,7 +56,7 @@ public class MidiTest {
 //        System.setProperty("javax.sound.midi.Receiver", "#Rococoa MIDI Synthesizer");
     }
 
-    static final float volume = Float.parseFloat(System.getProperty("vavi.test.volume",  "0.2"));
+    static final float volume = Float.parseFloat(System.getProperty("vavi.test.volume", "0.2"));
 
     @Property(name = "midi.test")
     String filename;

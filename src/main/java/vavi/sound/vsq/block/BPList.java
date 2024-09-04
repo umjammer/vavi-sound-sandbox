@@ -48,7 +48,7 @@ public class BPList implements Block {
      */
     String id;
 
-    /**  */
+    /** */
         public record Pair(long tick, int id) {
 
     }
