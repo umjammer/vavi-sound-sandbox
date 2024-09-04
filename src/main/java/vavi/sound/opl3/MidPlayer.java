@@ -380,12 +380,12 @@ logger.finer(String.format("[%2X]", v));
                         case 0xc0: // patch change
                             data1 = takeBE(1);
                             midiMessage = new ShortMessage();
-                            ((ShortMessage) midiMessage).setMessage(ShortMessage.PROGRAM_CHANGE, c, data1);
+                            ((ShortMessage) midiMessage).setMessage(ShortMessage.PROGRAM_CHANGE, c, data1, 0);
                             break;
                         case 0xd0: // channel touch
                             data1 = takeBE(1);
                             midiMessage = new ShortMessage();
-                            ((ShortMessage) midiMessage).setMessage(ShortMessage.CHANNEL_PRESSURE, c, data1);
+                            ((ShortMessage) midiMessage).setMessage(ShortMessage.CHANNEL_PRESSURE, c, data1, 0);
                             break;
                         case 0xe0: // pitch wheel
                             data1 = takeBE(1);
@@ -433,7 +433,7 @@ logger.finer(String.format("[%2X]", v));
                             case 0xf3:
                                 data1 = takeBE(1);
                                 midiMessage = new ShortMessage();
-                                ((ShortMessage) midiMessage).setMessage(ShortMessage.SONG_SELECT, c, data1);
+                                ((ShortMessage) midiMessage).setMessage(ShortMessage.SONG_SELECT, c, data1, 0);
                                 break;
                             case 0xf6: // something
                             case 0xf8:
