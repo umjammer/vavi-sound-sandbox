@@ -50,8 +50,11 @@ logger.fine("format: " + format);
 
     @Override
     void rewind(int subSong, MidPlayer player) throws IOException {
-        player.tins = 128;
-        player.takeBE(4 + 4 + 2 + 2); // skip header
+        if (!(this instanceof LucasFile)) {
+            player.tins = 128;
+            player.takeBE(1);
+        }
+        player.takeBE(3 + 4 + 2 + 2); // skip header
         player.deltas = player.takeBE(2);
 logger.fine(String.format("deltas: %d", player.deltas));
         player.takeBE(4);

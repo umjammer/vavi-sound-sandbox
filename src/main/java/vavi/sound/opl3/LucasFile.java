@@ -13,12 +13,13 @@ import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 
 
 /**
- * LucasFile.
+ * LucasFile. (LAA)
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/25 umjammer initial version <br>
  */
 class LucasFile extends MidiFile {
+
     @Override
     int markSize() {
         return 3;
@@ -33,7 +34,7 @@ class LucasFile extends MidiFile {
 
     @Override
     void rewind(int subSong, MidPlayer player) throws IOException {
-        player.takeBE(24); //skip junk and get to the midi.
+        player.takeBE(1 + 24); // skip junk and get to the midi.
         // note: no break, we go right into midi headers...
         super.rewind(subSong, player);
     }

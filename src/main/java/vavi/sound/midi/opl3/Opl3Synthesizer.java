@@ -417,10 +417,9 @@ Debug.println(line.getClass().getName());
                     ++percussions[i].volume;
                 }
 
-                int voice;
+                int voice = -1;
                 if (channel < 11 || adlib.mode == Adlib.MELODIC) {
                     boolean f = false;
-                    voice = -1;
                     int onl = 0;
 
                     for (int i = 0; i < numchan; ++i) {
@@ -468,21 +467,29 @@ Debug.println(line.getClass().getName());
                         adlib.write(0xbd, adlib.read(0xbd) & ~(16 >> (channel - 11)));
                         adlib.write(0xbd, adlib.read(0xbd) | 16 >> (channel - 11));
                     }
-                } else if (velocity == 0) { // same code as end note
+                } else {
+                    if (velocity == 0) { // same code as end note
+                        if (adlib.mode == Adlib.RYTHM && channel >= 11) {
+                            // Turn off the percussion instrument
+                            adlib.write(0xbd, adlib.read((0xbd) & ~(0x10 >> (channel - 11))));
+                            // midi_fm_endnote(percussion_map[c]);
+                            percussions[Adlib.percussion_map[channel - 11]].channel = -1;
+                        } else {
                             for (int i = 0; i < 9; ++i) {
                                 if (percussions[i].channel == channel && percussions[i].note == noteNumber) {
                                     adlib.endNote(i);
                                     percussions[i].channel = -1;
                                 }
                             }
+                        }
                     } else { // i forget what this is for.
                         percussions[voice].channel = -1;
                         percussions[voice].volume = 0;
                     }
-
-                logger.fine(String.format("note on[%d]: %d %d %d", channel, inum, noteNumber, velocity));
+                }
+logger.finest(String.format("note on[%d]: (%d %d) %d", channel, inum, noteNumber, velocity));
             } else {
-                logger.fine("note is off");
+logger.finer("note is off");
             }
             //
             voiceStatus[channel].note = noteNumber;
@@ -551,8 +558,9 @@ logger.fine(String.format("control change unhandled[%d]: (%02x): %d", channel, c
 
         @Override
         public void programChange(int program) {
-            inum = program;
+            inum = program & 0x7f;
             setIns(instruments[inum]);
+logger.fine(String.format("program change[%d]: %d", channel, inum));
             //
             voiceStatus[channel].program = program;
         }
@@ -573,6 +581,7 @@ logger.fine(String.format("control change unhandled[%d]: (%02x): %d", channel, c
 
         @Override
         public void setPitchBend(int bend) {
+            //
             pitchBend = bend;
         }
 
@@ -691,44 +700,46 @@ logger.fine(String.format("control change unhandled[%d]: (%02x): %d", channel, c
                             channels[channel].setPitchBend(data1 | (data2 << 7));
                             break;
                         default:
-                            Debug.printf("unhandled short: %02X\n", command);
+                            Debug.printf("unhandled short: %02X", command);
                     }
                 }
                 case SysexMessage sysexMessage -> {
                     byte[] data = sysexMessage.getData();
-                    Debug.printf("sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data));
-                    switch (data[0]) {
-                        case 0x7f: { // Universal Realtime
-                            int c = data[1]; // 0x7f: Disregards channel
+Debug.printf("sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data, 32));
+                    switch (data[1]) {
+                        case 0x7 -> { // Universal Realtime
+                            int c = data[2]; // 0x7f: Disregards channel
                             // Sub-ID, Sub-ID2
-                            if (data[2] == 0x04 && data[3] == 0x01) { // Device Control / Master Volume
-                                float gain = ((data[4] & 0x7f) | ((data[5] & 0x7f) << 7)) / 16383f;
-                                Debug.printf("sysex volume: gain: %3.0f%n", gain * 127);
+                            if (data[3] == 0x04 && data[4] == 0x01) { // Device Control / Master Volume
+                                float gain = ((data[5] & 0x7f) | ((data[6] & 0x7f) << 7)) / 16383f;
+Debug.printf("sysex volume: gain: %3.0f", gain * 127);
                                 for (c = 0; c < 16; c++) {
                                     voiceStatus[c].volume = (int) (gain * 127); // TODO doesn't work
                                 }
                             }
                         }
-                        break;
-                        case 0x7d: { // test
-                            switch (data[1]) {
+                        case 0x7d -> { // test
+                            switch (data[2]) {
                                 case 0x10: // 7D 10 ch -- set an instrument to ch
+                                    // TODO maybe for LUCAS only
+if (type != FileType.LUCAS) {
+ Debug.println(Level.WARNING, "sysex test: set LUCAS_STYLE for " + type);
+}
                                     adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
 
-                                    int c = data[2];
+                                    int c = data[3];
                                     channels[c].ins = MidPlayer.fromSysex(data);
 
                                     break;
                             }
                         }
-                        break;
+                        default -> Debug.printf("sysex unhandled: %02x", data[1]);
                     }
                 }
                 case MetaMessage metaMessage -> {
 Debug.printf("meta: %02x", metaMessage.getType());
                     switch (metaMessage.getType()) {
-                        case 0x2f:
-                            break;
+                        case 0x2f -> {}
                     }
                 }
                 case null, default -> {

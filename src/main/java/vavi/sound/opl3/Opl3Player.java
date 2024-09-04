@@ -72,6 +72,7 @@ logger.fine("encoding: " + encoding);
         public static AudioFileFormat.Type getType(AudioFormat.Encoding encoding) {
             return Arrays.stream(values()).filter(e -> e.encoding == encoding).findFirst().get().type;
         }
+        /** mark/reset will be done internally */
         public static AudioFormat.Encoding getEncoding(InputStream is) {
             return Arrays.stream(values()).filter(e -> e.player.matchFormat(is)).findFirst().get().encoding;
         }

@@ -6,6 +6,11 @@
 
 package vavi.sound.opl3;
 
+import java.util.logging.Level;
+
+import vavi.util.Debug;
+
+
 /**
  * Adlib.
  *
@@ -190,7 +195,7 @@ public class Adlib {
     /** for outer opl3 */
     @FunctionalInterface
     public interface Writer {
-        void write(int a, int b, int c);
+        void write(int array, int address, int data);
     }
 
     /** internal opl3 */
@@ -224,6 +229,7 @@ public class Adlib {
     }
 
     public void write(int address, int data) {
+Debug.printf(Level.FINEST, "write: %04x, %02x", address, data);
         writer.write(0, address, data);
         this.data[address] = data;
     }
@@ -238,6 +244,7 @@ public class Adlib {
 
         write(0x20 + opadd[voice], inst[0]);
         write(0x23 + opadd[voice], inst[1]);
+
         if ((style & LUCAS_STYLE) != 0) {
             write(0x43 + opadd[voice], 0x3f);
             if ((inst[10] & 1) == 0) {
@@ -245,7 +252,7 @@ public class Adlib {
             } else {
                 write(0x40 + opadd[voice], 0x3f);
             }
-        } else if ((style & SIERRA_STYLE) != 0) {
+        } else if ((style & SIERRA_STYLE) != 0 || (style & CMF_STYLE) != 0) {
             write(0x40 + opadd[voice], inst[2]);
             write(0x43 + opadd[voice], inst[3]);
         } else {
@@ -304,7 +311,7 @@ public class Adlib {
         int oct = note / 12;
         volume(voice, volume);
         write(0xa0 + voice, freq & 0xff);
-        int c = ((freq & 0x300) >> 8) + (oct << 2) + (mode == MELODIC || voice < 6 ? (1 << 5) : 0);
+        int c = ((freq & 0x300) >> 8) + ((oct & 7) << 2) + (mode == MELODIC || voice < 6 ? (1 << 5) : 0);
         write(0xb0 + voice, c);
     }
 

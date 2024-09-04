@@ -43,7 +43,9 @@ import javax.sound.midi.SysexMessage;
 import javax.sound.midi.Track;
 import javax.sound.midi.Transmitter;
 
+import vavi.sound.midi.MidiConstants;
 import vavi.sound.midi.MidiConstants.MetaEvent;
+import vavi.sound.midi.MidiUtil;
 import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Synthesizer;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
@@ -342,7 +344,7 @@ logger.fine("type: " + type);
 
                     tracks[t].pv = v;
                     int c = v & 0x0f;
-                    logger.fine(String.format("[%2X]", v));
+logger.finer(String.format("[%2X]", v));
 
                     int data1;
                     int data2;
@@ -406,10 +408,10 @@ logger.fine("type: " + type);
                                 for (int i = 2; i < b.length; i++) {
                                     b[i] = (byte) (takeBE(1) & 0xff);
                                 }
-                                logger.fine("sysex:\n" + StringUtil.getDump(b));
+                                logger.finer(String.format("sysex: %02x, %d\n%s", v, l, StringUtil.getDump(b, Math.min(l + 2, 64))));
                                 midiMessage = new SysexMessage();
                                 ((SysexMessage) midiMessage).setMessage(b, b.length);
-                                logger.fine("sysex: " + midiMessage.getLength());
+                                logger.finest("sysex: len: " + midiMessage.getLength());
                                 if (f) {
                                     takeBE(1);
                                 }
@@ -445,23 +447,25 @@ logger.fine("type: " + type);
                                 }
                                 break;
                             case 0xff: // meta
-                                logger.fine("meta:\n" + StringUtil.getDump(data, 0, 64));
                                 v = takeBE(1);
+                                l = takeBE(1);
+logger.fine(String.format("meta: %02x, %s\n%s", v, MidiConstants.MetaEvent.valueOf(v), StringUtil.getDump(data, 0, l)));
                                 switch (v) {
                                 case 0x2f:
                                     logger.info(String.format("meta: %02x", v));
-                                    takeBE(data.available()); // TODO out of spec.
+                                    if (data.available() > 0) {
+                                        logger.fine("out of spec data for meta:0x2f: " + data.available());
+                                    }
+                                    takeBE(l); // TODO out of spec.
                                     break;
                                 case 0x51:
-                                    l = takeLen();
                                     msqtr = takeBE(l); // set tempo
                                     logger.fine(String.format("(qtr=%d)", msqtr));
                                     break;
                                 default:
-                                    l = takeLen();
-                                    logger.fine(String.format("meta: %02x, %02x", v, l));
+                                    logger.finer(String.format("meta unhandled: %02x, %02x", v, l));
                                     for (int i = 0; i < l; ++i) {
-                                        logger.fine(String.format("%2X ", takeBE(1)));
+                                        takeBE(1);
                                     }
                                     break;
                                 }
@@ -470,7 +474,7 @@ logger.fine("type: " + type);
                             break;
                         default:
                             // if we get down here, an error occurred
-                            logger.warning(String.format("!: %02x at %d", v, pos));
+                            logger.warning(String.format("unknown midi command!: %02x at %d", v, pos));
                             break;
                         }
                     } catch (InvalidMidiDataException e) {
@@ -481,6 +485,7 @@ logger.fine("type: " + type);
                         transmitter.getReceiver().send(midiMessage, -1);
                     }
 
+logger.finer(String.format("pos: %d, end: %d", pos, tracks[t].tend));
                     if (pos < tracks[t].tend) {
                         int w;
                         if (type != FileType.SIERRA && type != FileType.ADVSIERRA) {
@@ -509,7 +514,7 @@ logger.fine("type: " + type);
             }
 
             if (eos) {
-                iwait = 0xffffff; // bigger than any wait can be!
+                iwait = 0xff_ffff; // bigger than any wait can be!
 
                 for (int t = 0; t < MAX_CHANNELS; ++t) {
                     if (tracks[t].on && tracks[t].pos < tracks[t].tend && tracks[t].iwait < iwait) {
@@ -542,9 +547,9 @@ logger.fine("type: " + type);
         for (int t = 0; t < MAX_CHANNELS; ++t) {
             if (tracks[t].on) {
                 if (tracks[t].pos < tracks[t].tend) {
-                    logger.fine(String.format("iwait: %d", tracks[t].iwait));
+                    logger.finer(String.format("iwait: %d", tracks[t].iwait));
                 } else {
-                    logger.fine("stop");
+                    logger.finer("stop");
                 }
             }
         }
@@ -553,6 +558,7 @@ logger.fine("type: " + type);
     }
 
     /**
+     * TODO maybe for LUCAS only
      * @param data {@link SysexMessage#getData()}
      */
     public static int[] fromSysex(byte[] data) {
@@ -569,6 +575,7 @@ logger.fine("type: " + type);
         x[7] = 0xff - (((data[pos + 20] & 0xff) << 4) + (data[pos + 21] & 0xff));
         x[9] = ((data[pos + 22] & 0xff) << 4) + (data[pos + 23] & 0xff);
         x[10] = ((data[pos + 24] & 0xff) << 4) + (data[pos + 24] & 0xff);
+logger.fine(String.format("%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x", x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10]));
         return x;
     }
 

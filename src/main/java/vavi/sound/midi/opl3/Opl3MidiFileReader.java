@@ -46,6 +46,5 @@ public class Opl3MidiFileReader extends BasicMidiFileReader {
             super(divisionType, resolution);
             // TODO Auto-generated constructor stub
         }
-        
     }
 }
