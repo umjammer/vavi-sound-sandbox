@@ -279,9 +279,17 @@ public class LibAV {
         }
     }
 
+    static Map<Integer, float[]> ff_sine_windows = new HashMap<>();
+
+    static {
+        for (int i = 5; i < 14; i++)
+            ff_init_ff_sine_windows(i);
+    }
+
     static void ff_init_ff_sine_windows(int index) {
         float[] windows = new float[1 << index];
         ff_sine_window_init(windows, 1 << index);
+Debug.println("index: " + index + ", windows: " + windows.length);
         ff_sine_windows.put(index, windows);
     }
 
@@ -290,8 +298,6 @@ public class LibAV {
         for (int i = 0; i < n; i++)
             window[i] = (float) Math.sin((i + 0.5) * (Math.PI / (2.0 * n)));
     }
-
-    static Map<Integer, float[]> ff_sine_windows = new HashMap<>();
 
     static int ff_get_buffer(AVCodecContext avctx, AVFrame frame, int flags) {
         int ret = 0;

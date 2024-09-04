@@ -401,6 +401,7 @@ Debug.println("ftype: " + ftype + "(" + ftype.ordinal() + ")");
 
             tx_fn.accept(tx, buf1, bsize * j, in, bsize * j /*, Float.BYTES */); // TODO not implemented
 
+System.err.printf("j: %d, win: %d, size: %d%n", j, ff_sine_windows.get((int) Math.log(wsize)).length, wsize / 2);
             tctx.fdsp.vector_fmul_window(tctx.curr_frame, out2, prev_buf, (bsize - wsize) / 2,
                     buf1, bsize * j,
                     ff_sine_windows.get((int) Math.log(wsize)),
