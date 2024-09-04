@@ -49,6 +49,7 @@ public class Opl3ToPcmAudioInputStream extends AudioInputStream {
         public Opl3OutputEngine(InputStream is, AudioFormat format) throws IOException {
             player = FileType.getPlayer(format.getEncoding());
             player.load(is);
+            player.setProperties(format.properties());
 
             sampleRate = format.getSampleRate();
         }

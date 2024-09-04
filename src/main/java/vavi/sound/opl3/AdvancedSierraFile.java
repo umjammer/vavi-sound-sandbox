@@ -8,6 +8,7 @@ package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Logger;
@@ -17,7 +18,7 @@ import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 
 
 /**
- * AdvancedSierraFile.
+ * AdvancedSierraFile. (SCI)
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/26 umjammer initial version <br>
@@ -26,6 +27,8 @@ class AdvancedSierraFile extends SierraFile {
 
     private static final Logger logger = Logger.getLogger(MidiFile.class.getName());
 
+    private URI uri;
+
     @Override
     int markSize() {
         return 3;
@@ -33,7 +36,7 @@ class AdvancedSierraFile extends SierraFile {
 
     @Override
     boolean matchFormatImpl(DataInputStream dis) throws IOException {
-        //loadSierraIns(null)) { // TODO null
+        if (uri != null) loadSierraIns(Path.of(uri));
         return dis.readUnsignedByte() == 0x84 &&
                 dis.readUnsignedByte() == 0 &&
                 dis.readUnsignedByte() == 0xf0;
@@ -57,8 +60,7 @@ class AdvancedSierraFile extends SierraFile {
         return x;
     }
 
-    // TODO
-    private boolean loadSierraIns(Path path) throws IOException {
+    private void loadSierraIns(Path path) throws IOException {
 
         Path patch = path.getParent().resolve("patch.003");
         DataInputStream dis = new DataInputStream(Files.newInputStream(patch.toFile().toPath()));
@@ -85,7 +87,6 @@ class AdvancedSierraFile extends SierraFile {
         }
 
         dis.close();
-        return true;
     }
 
     private void sierra_next_section(MidPlayer player) throws IOException {
@@ -119,6 +120,7 @@ logger.info(String.format("track %d starts at %x", t, player.tracks[t].spos));
 
     @Override
     void rewind(int subSong, MidPlayer player) throws IOException {
+        this.uri = (URI) player.getProperties().get("uri");
         player.tins = stins;
         player.deltas = 32;
         player.takeBE(12); // worthless empty space and "stuff" :)

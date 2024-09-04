@@ -10,8 +10,12 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -36,9 +40,12 @@ import static vavi.sound.opl3.Opl3Player.opl3;
  */
 public class Opl3AudioFileReader extends AudioFileReader {
 
+    private URI uri;
+
     @Override
     public AudioFileFormat getAudioFileFormat(File file) throws UnsupportedAudioFileException, IOException {
         try (InputStream inputStream = Files.newInputStream(file.toPath())) {
+            uri = file.toURI();
             return getAudioFileFormat(inputStream, (int) file.length());
         }
     }
@@ -46,6 +53,10 @@ public class Opl3AudioFileReader extends AudioFileReader {
     @Override
     public AudioFileFormat getAudioFileFormat(URL url) throws UnsupportedAudioFileException, IOException {
         try (InputStream inputStream = url.openStream()) {
+            try {
+                uri = url.toURI();
+            } catch (URISyntaxException ignore) {
+            }
             return getAudioFileFormat(inputStream);
         }
     }
@@ -77,8 +88,10 @@ Debug.printStackTrace(Level.FINEST, e);
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException().initCause(e);
         }
         AudioFileFormat.Type type = FileType.getType(encoding);
+        Map<String, Object> props = new HashMap<>();
+        props.put("uri", uri); // for advanced sierra file
         // specification for around frame might cause AudioInputStream modification at below (*1)
-        AudioFormat format = new AudioFormat(encoding, opl3.getSampleRate(), AudioSystem.NOT_SPECIFIED, opl3.getChannels(), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, opl3.isBigEndian());
+        AudioFormat format = new AudioFormat(encoding, opl3.getSampleRate(), AudioSystem.NOT_SPECIFIED, opl3.getChannels(), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, opl3.isBigEndian(), props);
         return new AudioFileFormat(type, format, AudioSystem.NOT_SPECIFIED);
     }
 

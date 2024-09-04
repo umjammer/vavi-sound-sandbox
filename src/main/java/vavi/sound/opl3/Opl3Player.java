@@ -23,6 +23,8 @@ package vavi.sound.opl3;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -39,6 +41,9 @@ import vavi.sound.sampled.opl3.Opl3FileFormatType;
 public abstract class Opl3Player {
 
     private static final Logger logger = Logger.getLogger(Opl3Player.class.getName());
+
+    /** generic properties */
+    protected  Map<String, Object> props = new HashMap<>();
 
     /** TODO who defined 49700? */
     public static final AudioFormat opl3 = new AudioFormat(49700.0f, 16, 2, true, false);
@@ -111,4 +116,13 @@ logger.fine("encoding: " + encoding);
     public abstract boolean update() throws IOException;
 
     public abstract int getTotalMilliseconds();
+
+    public void setProperties(Map<String, Object> props) {
+        this.props.clear();
+        this.props.putAll(props);
+    }
+
+    public Map<String, Object> getProperties() {
+        return this.props;
+    }
 }
