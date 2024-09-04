@@ -160,6 +160,8 @@ public class MidPlayer extends Opl3Player implements Sequencer {
         abstract boolean matchFormatImpl(DataInputStream dis) throws IOException;
         abstract void rewind(int subSong, MidPlayer player) throws IOException;
         public abstract void init(Context context);
+        public int nativeVelocity(int channel, int velocity) { return velocity; }
+        public void controlChange(int channel, int controller, int value) {}
     }
 
     public static class MidiTrack {

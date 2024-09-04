@@ -40,7 +40,29 @@ class LucasFile extends MidiFile {
 
     @Override
     public void init(Context context) {
+        this.context = context;
+
         context.adlib().style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
         super.init(context);
+    }
+
+    @Override
+    public int nativeVelocity(int channel, int velocity) {
+//        if ((adlib.style & Adlib.MIDI_STYLE) != 0) {
+        int nv = (context.voiceStatus()[channel].volume * velocity) / 128;
+//        if ((adlib.style & Adlib.LUCAS_STYLE) != 0) {
+        nv *= 2;
+//        }
+
+        if (nv > 127) {
+            nv = 127;
+        }
+
+        nv = Adlib.my_midi_fm_vol_table[nv];
+//        if ((adlib.style & Adlib.LUCAS_STYLE) != 0) {
+        nv = (int) ((float) Math.sqrt((nv)) * 11.0F);
+//        }
+        return nv;
+//        }
     }
 }

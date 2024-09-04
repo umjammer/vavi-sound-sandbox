@@ -93,8 +93,12 @@ logger.info(String.format("pos2: 0x%04x", player.pos));
         player.tracks[0].spos = m; // jump to midi music
     }
 
+    protected Context context;
+
     @Override
     public void init(Context context) {
+        this.context = context;
+
         for (int p = 0; p < this.tins; ++p) {
             context.instruments()[p] = this.instruments[p];
         }
@@ -104,5 +108,44 @@ logger.info(String.format("pos2: 0x%04x", player.pos));
         }
 
         context.adlib().style = Adlib.CMF_STYLE;
+    }
+
+    @Override
+    public int nativeVelocity(int channel, int velocity) {
+//        if ((adlib.style & Adlib.CMF_STYLE) != 0) {
+        // CMF doesn't support note velocity (even though some files have them!)
+        return 127;
+//        }
+    }
+
+    @Override
+    public void controlChange(int channel, int controller, int value) {
+        Adlib adlib = context.adlib();
+        switch (controller) {
+            case 0x63 -> {
+//                if ((adlib.style & Adlib.CMF_STYLE) != 0) {
+                // Custom extension to allow CMF files to switch the
+                // AM+VIB depth on and off (officially this is on,
+                // and there's no way to switch it off.) Controller
+                // values:
+                // 0 == AM+VIB off
+                // 1 == VIB on
+                // 2 == AM on
+                // 3 == AM+VIB on
+                adlib.write(0xbd, (adlib.read(0xbd) & ~0xc0) | (value << 6));
+//                }
+            }
+            case 0x67 -> { // 103: undefined
+                logger.fine(String.format("control change[%d]: (%02x): %d", channel, controller, value));
+//                if ((adlib.style & Adlib.CMF_STYLE) != 0) {
+                adlib.mode = value;
+                if (adlib.mode == Adlib.RYTHM) {
+                    adlib.write(0xbd, adlib.read(0xbd) | (1 << 5));
+                } else {
+                    adlib.write(0xbd, adlib.read(0xbd) & ~(1 << 5));
+                }
+//                }
+            }
+        }
     }
 }

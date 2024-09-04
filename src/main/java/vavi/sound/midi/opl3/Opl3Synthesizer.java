@@ -106,6 +106,8 @@ public class Opl3Synthesizer implements Synthesizer {
 
     // ----
 
+    private FileType type;
+
     private Adlib adlib;
 
     private Opl3Soundbank soundBank;
@@ -181,6 +183,7 @@ Debug.println(Level.WARNING, "already open: " + hashCode());
         }
 
 Debug.println("type: " + type);
+        this.type = type;
         type.midiTypeFile.init(new Context());
 
         adlib.reset();
@@ -453,24 +456,7 @@ Debug.println(line.getClass().getName());
                         adlib.percussion(channel, ins);
                     }
 
-                    int nv;
-                    if ((adlib.style & Adlib.MIDI_STYLE) != 0) {
-                        nv = voiceStatus[channel].volume * velocity / 128;
-                        if ((adlib.style & Adlib.LUCAS_STYLE) != 0) {
-                            nv *= 2;
-                        }
-
-                        if (nv > 127) {
-                            nv = 127;
-                        }
-
-                        nv = Adlib.my_midi_fm_vol_table[nv];
-                        if ((adlib.style & Adlib.LUCAS_STYLE) != 0) {
-                            nv = (int) ((float) Math.sqrt((nv)) * 11.0F);
-                        }
-                    } else {
-                        nv = velocity;
-                    }
+                    int nv = type.midiTypeFile.nativeVelocity(channel, velocity);
 
                     adlib.playNote(voice, noteNumber + nshift, nv * 2);
 
@@ -483,16 +469,16 @@ Debug.println(line.getClass().getName());
                         adlib.write(0xbd, adlib.read(0xbd) | 16 >> (channel - 11));
                     }
                 } else if (velocity == 0) { // same code as end note
-                    for (int i = 0; i < 9; ++i) {
-                        if (percussions[i].channel == channel && percussions[i].note == noteNumber) {
-                            adlib.endNote(i);
-                            percussions[i].channel = -1;
-                        }
+                            for (int i = 0; i < 9; ++i) {
+                                if (percussions[i].channel == channel && percussions[i].note == noteNumber) {
+                                    adlib.endNote(i);
+                                    percussions[i].channel = -1;
+                                }
+                            }
+                    } else { // i forget what this is for.
+                        percussions[voice].channel = -1;
+                        percussions[voice].volume = 0;
                     }
-                } else { // i forget what this is for.
-                    percussions[voice].channel = -1;
-                    percussions[voice].volume = 0;
-                }
 
                 logger.fine(String.format("note on[%d]: %d %d %d", channel, inum, noteNumber, velocity));
             } else {
@@ -544,22 +530,16 @@ Debug.println(line.getClass().getName());
         @Override
         public void controlChange(int controller, int value) {
             switch (controller) {
-            case 0x07: // channel volume
-                voiceStatus[channel].volume = value;
-                logger.fine(String.format("control change[%d]: vol(%02x): %d", channel, controller, value));
-                break;
-            case 0x67: // 103: undefined
-                logger.fine(String.format("control change[%d]: (%02x): %d", channel, controller, value));
-                if ((adlib.style & Adlib.CMF_STYLE) != 0) {
-                    adlib.mode = value;
-                    if (adlib.mode == Adlib.RYTHM) {
-                        adlib.write(0xbd, adlib.read(0xbd) | (1 << 5));
-                    } else {
-                        adlib.write(0xbd, adlib.read(0xbd) & ~(1 << 5));
-                    }
+                case 0x07 -> { // channel volume
+                    voiceStatus[channel].volume = value;
+logger.fine(String.format("control change[%d]: vol(%02x): %d", channel, controller, value));
                 }
-                break;
+                default ->
+logger.fine(String.format("control change unhandled[%d]: (%02x): %d", channel, controller, value));
             }
+
+            type.midiTypeFile.controlChange(channel, controller, value);
+
             //
             control[controller] = value;
         }
@@ -745,7 +725,7 @@ Debug.println(line.getClass().getName());
                     }
                 }
                 case MetaMessage metaMessage -> {
-                    Debug.printf("meta: %02x", metaMessage.getType());
+Debug.printf("meta: %02x", metaMessage.getType());
                     switch (metaMessage.getType()) {
                         case 0x2f:
                             break;

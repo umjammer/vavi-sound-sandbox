@@ -62,7 +62,24 @@ logger.fine(String.format("deltas: %d", player.deltas));
 logger.fine(String.format("tracklen: %d", player.tracks[0].tend));
     }
 
+    protected Context context;
+
     @Override
     public void init(Context context) {
+        this.context = context;
+    }
+
+    @Override
+    public int nativeVelocity(int channel, int velocity) {
+//        if ((adlib.style & Adlib.MIDI_STYLE) != 0) {
+        int nv = (context.voiceStatus()[channel].volume * velocity) / 128;
+
+        if (nv > 127) {
+            nv = 127;
+        }
+
+        nv = Adlib.my_midi_fm_vol_table[nv];
+        return nv;
+//        }
     }
 }
