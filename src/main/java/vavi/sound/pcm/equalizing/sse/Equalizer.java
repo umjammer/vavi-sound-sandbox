@@ -77,7 +77,7 @@ class Equalizer {
     private final double[] fact = new double[M + 1];
 
     /** */
-    private final double aa = 96;
+    private static final double aa = 96;
 
     /** */
     private final double iza;
@@ -246,11 +246,11 @@ System.err.println("property band." + c + " not found, break");
     /**
      * @param param2 TODO does index 0 have any meaning???
      */
-    private double hn(int n, List<Parameter> param2, double fs) {
+    private static double hn(int n, List<Parameter> param2, double fs) {
         double ret, lhn;
 
-        lhn = hn_lpf(n, param2.get(0).upper, fs);
-        ret = param2.get(0).gain * lhn;
+        lhn = hn_lpf(n, param2.getFirst().upper, fs);
+        ret = param2.getFirst().gain * lhn;
 
         Parameter e = null;
         for (int i = 1; i < param2.size(); i++) {
@@ -986,7 +986,7 @@ Debug.println("---- init ----");
 
     /** */
     private static final class RAOutputStream extends OutputStream {
-        RandomAccessFile raf;
+        final RandomAccessFile raf;
         public RAOutputStream(RandomAccessFile raf) throws IOException {
             this.raf = raf;
         }

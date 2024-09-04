@@ -53,7 +53,7 @@ public class PerfectResampler {
     }
 
     /** */
-    private double[] prepare_coefs(double[] coefs, int num_coefs, int num_phases, int interp_order, int multiplier) {
+    private static double[] prepare_coefs(double[] coefs, int num_coefs, int num_phases, int interp_order, int multiplier) {
         int length = num_coefs * num_phases;
         double[] result = new double[length * (interp_order + 1)];
         double fm1 = coefs[0];
@@ -108,7 +108,7 @@ Debug.printf(Level.FINE, "coefs:%d, index:%d\n", coefs.length, pos - 1);
     static class HalfBand {
         int dft_length;
         int num_taps;
-        int[] post_peak = new int[1];
+        final int[] post_peak = new int[1];
         double[] coefs;
     }
 
@@ -116,7 +116,7 @@ Debug.printf(Level.FINE, "coefs:%d, index:%d\n", coefs.length, pos - 1);
     static class RateShared {
         double[] poly_fir_coefs;
         /** [0]: halve; [1]: down/up: halve/double */
-        HalfBand[] half_band = { new HalfBand(), new HalfBand() };
+        final HalfBand[] half_band = { new HalfBand(), new HalfBand() };
         /** For Ooura fft */
         double[] sin_cos_table;
         /** ditto */
@@ -156,7 +156,8 @@ Debug.printf(Level.FINE, "coefs:%d, index:%d\n", coefs.length, pos - 1);
         /** For poly_fir & spline: */
         StageFunction fn;
         /** 32bit.32bit fixed point arithmetic */
-        Union at, step;
+        final Union at;
+        final Union step;
         /** For step: > 1 for rational; 1 otherwise */
         int divisor;
         double out_in_ratio;
@@ -178,7 +179,7 @@ Debug.printf(Level.FINE, "coefs:%d, index:%d\n", coefs.length, pos - 1);
     }
 
     /** */
-    StageFunction cubic_spline = (stage, output_fifo) -> {
+    final StageFunction cubic_spline = (stage, output_fifo) -> {
         int i;
         int num_in = stage_occupancy(stage);
         int max_num_out = (int) (1 + num_in * stage.out_in_ratio);
@@ -202,7 +203,7 @@ Debug.printf(Level.FINE, "coefs:%d, index:%d\n", coefs.length, pos - 1);
     };
 
     /** */
-    StageFunction half_sample = (stage, output_fifo) -> {
+    final StageFunction half_sample = (stage, output_fifo) -> {
         double[] output;
         int i, j;
         int num_in = Math.max(0, stage.fifo.occupancy());
@@ -249,7 +250,7 @@ System.arraycopy(o, 0, output, outputP, f.dft_length);
     };
 
     /** */
-    StageFunction double_sample = (stage, output_fifo) -> {
+    final StageFunction double_sample = (stage, output_fifo) -> {
         double[] output;
         int i, j;
         int num_in = Math.max(0, stage.fifo.occupancy());
@@ -469,15 +470,15 @@ System.arraycopy(o, 0, output, outputP, f.dft_length);
     }
 
     /** */
-    private void half_band_filter_init(RateShared rateShared,
-                                       /* unsigned */int which,
-                                       int[] num_taps,
-                                       double[] h,
-                                       double Fp,
-                                       double atten,
-                                       int multiplier,
-                                       double phase,
-                                       boolean allow_aliasing) {
+    private static void half_band_filter_init(RateShared rateShared,
+            /* unsigned */int which,
+                                              int[] num_taps,
+                                              double[] h,
+                                              double Fp,
+                                              double atten,
+                                              int multiplier,
+                                              double phase,
+                                              boolean allow_aliasing) {
         HalfBand f = rateShared.half_band[which];
         int dft_length, i;
 
@@ -550,9 +551,10 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
 
     /** */
     static class Filter {
-        int[] len = new int[1];
-        double[] h;
-        double bw, a;
+        final int[] len = new int[1];
+        final double[] h;
+        final double bw;
+        final double a;
         Filter(int len, double[] h, double bw, double a) {
             this.len[0] = len;
             this.h = h;
@@ -563,8 +565,8 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
 
     /** */
     static class PolyFir1 {
-        int phase_bits;
-        StageFunction fn;
+        final int phase_bits;
+        final StageFunction fn;
         PolyFir1(int phase_bits, StageFunction fn) {
             this.phase_bits = phase_bits;
             this.fn = fn;
@@ -573,10 +575,10 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
 
     /** */
     static class PolyFir {
-        int num_coefs;
-        double pass;
-        double stop;
-        double att;
+        final int num_coefs;
+        final double pass;
+        final double stop;
+        final double att;
         PolyFir1[] interp = new PolyFir1[4];
         PolyFir(int num_coefs, double pass, double stop, double att, PolyFir1[] interp) {
             this.num_coefs = num_coefs;
@@ -624,7 +626,7 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
      * Down-sample by a factor of 2 using a FIR with odd length (LEN).
      * Input must be preceded and followed by LEN >> 1 samples.
      */
-    abstract class RateHalfFir implements StageFunction {
+    abstract static class RateHalfFir implements StageFunction {
         abstract double[] COEFS();
         abstract int CONVOLVE();
         @Override
@@ -656,7 +658,7 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
      * Input must be preceded by LEN >> 1 samples.
      * Input must be followed by (LEN-1) >> 1 samples.
      */
-    abstract class RatePolyFir0 implements StageFunction {
+    abstract static class RatePolyFir0 implements StageFunction {
         abstract int FIR_LENGTH();
         abstract int CONVOLVE();
         @Override
@@ -699,7 +701,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
      * Input must be preceded by LEN >> 1 samples.
      * Input must be followed by (LEN-1) >> 1 samples.
      */
-    abstract class RatePolyFir implements StageFunction {
+    abstract static class RatePolyFir implements StageFunction {
         abstract int CONVOLVE();
         abstract int COEF_INTERP();
         abstract int FIR_LENGTH();
@@ -764,7 +766,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     }
 
     // assert_static(!((array_length(COEFS)- 1) & 1), HALF_FIR_LENGTH_25 );
-    StageFunction half_sample_25 = new RateHalfFir() {
+    final StageFunction half_sample_25 = new RateHalfFir() {
         // _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
         @Override
         int CONVOLVE() { return 22; }
@@ -773,7 +775,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     // assert_static(!((array_length(COEFS)- 1) & 1), HALF_FIR_LENGTH_low);
-    StageFunction half_sample_low = new RateHalfFir() {
+    final StageFunction half_sample_low = new RateHalfFir() {
         // _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
         @Override
         int CONVOLVE() { return 44; }
@@ -783,14 +785,14 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
 
     static final int d100_l = 16;
     // poly_fir_convolve_d100 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-    StageFunction d100_0 = new RatePolyFir0() {
+    final StageFunction d100_0 = new RatePolyFir0() {
         @Override
         int FIR_LENGTH() { return d100_l; }
         @Override
         int CONVOLVE() { return 16; }
     };
 
-    StageFunction d100_1 = new RatePolyFir() {
+    final StageFunction d100_1 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 1; }
         @Override
@@ -802,7 +804,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     static final int d100_1_b = 9;
-    StageFunction d100_2 = new RatePolyFir() {
+    final StageFunction d100_2 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 2; }
         @Override
@@ -814,7 +816,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     static final int d100_2_b = 7;
-    StageFunction d100_3 = new RatePolyFir() {
+    final StageFunction d100_3 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 3; }
         @Override
@@ -828,14 +830,14 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     static final int d100_3_b = 6;
     static final int d120_l = 30;
     // poly_fir_convolve_d120 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-    StageFunction d120_0 = new RatePolyFir0() {
+    final StageFunction d120_0 = new RatePolyFir0() {
         @Override
         int FIR_LENGTH() { return d120_l; }
         @Override
         int CONVOLVE() { return 30; }
     };
 
-    StageFunction d120_1 = new RatePolyFir() {
+    final StageFunction d120_1 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 1; }
         @Override
@@ -847,7 +849,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     static final int d120_1_b = 10;
-    StageFunction d120_2 = new RatePolyFir() {
+    final StageFunction d120_2 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 2; }
         @Override
@@ -859,7 +861,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     static final int  d120_2_b = 9;
-    StageFunction d120_3 = new RatePolyFir() {
+    final StageFunction d120_3 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 3; }
         @Override
@@ -873,14 +875,14 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     static final int d120_3_b = 7;
     static final int d150_l = 38;
 //    poly_fir_convolve_d150 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-    StageFunction d150_0 = new RatePolyFir0() {
+final StageFunction d150_0 = new RatePolyFir0() {
         @Override
         int FIR_LENGTH() { return d150_l; }
         @Override
         int CONVOLVE() { return 38; }
     };
 
-    StageFunction d150_1 = new RatePolyFir() {
+    final StageFunction d150_1 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 1; }
         @Override
@@ -892,7 +894,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     static final int d150_1_b = 12;
-    StageFunction d150_2 = new RatePolyFir() {
+    final StageFunction d150_2 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 2; }
         @Override
@@ -904,7 +906,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     static final int d150_2_b = 10;
-    StageFunction d150_3 = new RatePolyFir() {
+    final StageFunction d150_3 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 3; }
         @Override
@@ -918,14 +920,14 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     static final int d150_3_b = 8;
     static final int U100_l = 42;
     // poly_fir_convolve_U100 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-    StageFunction U100_0 = new RatePolyFir0() {
+    final StageFunction U100_0 = new RatePolyFir0() {
         @Override
         int FIR_LENGTH() { return U100_l; }
         @Override
         int CONVOLVE() { return 42; }
     };
 
-    StageFunction U100_1 = new RatePolyFir() {
+    final StageFunction U100_1 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 1; }
         @Override
@@ -937,7 +939,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     static final int U100_1_b = 10;
-    StageFunction U100_2 = new RatePolyFir() {
+    final StageFunction U100_2 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 2; }
         @Override
@@ -949,7 +951,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     static final int U100_2_b = 8;
-    StageFunction U100_3 = new RatePolyFir() {
+    final StageFunction U100_3 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 3; }
         @Override
@@ -963,14 +965,14 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     static final int U100_3_b = 6;
     static final int u100_l = 10;
 //     poly_fir_convolve_u100 _ _ _ _ _ _ _ _ _ _
-    StageFunction u100_0 = new RatePolyFir0() {
+final StageFunction u100_0 = new RatePolyFir0() {
         @Override
         int FIR_LENGTH() { return u100_l; }
         @Override
         int CONVOLVE() { return 10; }
     };
 
-    StageFunction u100_1 = new RatePolyFir() {
+    final StageFunction u100_1 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 1; }
         @Override
@@ -982,7 +984,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     static final int u100_1_b = 9;
-    StageFunction u100_2 = new RatePolyFir() {
+    final StageFunction u100_2 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 2; }
         @Override
@@ -994,7 +996,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     static final int u100_2_b = 7;
-    StageFunction u100_3 = new RatePolyFir() {
+    final StageFunction u100_3 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 3; }
         @Override
@@ -1008,14 +1010,14 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     static final int u100_3_b = 6;
     static final int u120_l = 14;
     // poly_fir_convolve_u120 _ _ _ _ _ _ _ _ _ _ _ _ _ _
-    StageFunction u120_0 = new RatePolyFir0() {
+    final StageFunction u120_0 = new RatePolyFir0() {
         @Override
         int FIR_LENGTH() { return u120_l; }
         @Override
         int CONVOLVE() { return 14; }
     };
 
-    StageFunction u120_1 = new RatePolyFir() {
+    final StageFunction u120_1 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 1; }
         @Override
@@ -1027,7 +1029,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     static final int u120_1_b = 10;
-    StageFunction u120_2 = new RatePolyFir() {
+    final StageFunction u120_2 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 2; }
         @Override
@@ -1039,7 +1041,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     static final int u120_2_b = 8;
-    StageFunction u120_3 = new RatePolyFir() {
+    final StageFunction u120_3 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 3; }
         @Override
@@ -1053,14 +1055,14 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     static final int u120_3_b = 6;
     static final int u150_l = 20;
     // poly_fir_convolve_u150 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
-    StageFunction u150_0 = new RatePolyFir0() {
+    final StageFunction u150_0 = new RatePolyFir0() {
         @Override
         int FIR_LENGTH() { return u150_l; }
         @Override
         int CONVOLVE() { return 20; }
     };
 
-    StageFunction u150_1 = new RatePolyFir() {
+    final StageFunction u150_1 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 1; }
         @Override
@@ -1072,7 +1074,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     static final int  u150_1_b = 11;
-    StageFunction u150_2 = new RatePolyFir() {
+    final StageFunction u150_2 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 2; }
         @Override
@@ -1084,7 +1086,7 @@ Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
     };
 
     static final int u150_2_b = 9;
-    StageFunction u150_3 = new RatePolyFir() {
+    final StageFunction u150_3 = new RatePolyFir() {
         @Override
         int COEF_INTERP() { return 3; }
         @Override
@@ -1297,7 +1299,7 @@ Debug.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, s.pre
     }
 
     /** */
-    private void rate_flush(Rate p) {
+    private static void rate_flush(Rate p) {
         Fifo fifo = p.stages[p.output_stage_num + 1].fifo;
         int samples_out = (int) (p.samples_in / p.factor + .5);
         int remaining = samples_out - p.samples_out;
@@ -1321,8 +1323,8 @@ Debug.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, s.pre
         Quality quality;
         double coef_interp, phase, bandwidth;
         boolean allow_aliasing;
-        Rate rate;
-        RateShared shared;
+        final Rate rate;
+        final RateShared shared;
         int shared_ptr;
         Priv() {
             rate = new Rate();

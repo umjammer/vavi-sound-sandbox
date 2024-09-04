@@ -1,9 +1,3 @@
-package jse;
-/*
- *        Oscillator.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999 - 2001 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -21,72 +15,79 @@ package jse;
  *   License along with this program; if not, write to the Free Software
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+
+package jse;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import static java.lang.System.getLogger;
 
+
+/**
+ * Oscillator.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ */
 public class Oscillator extends AudioInputStream {
-    private static final boolean DEBUG = false;
+
+    private static final Logger logger = getLogger(Oscillator.class.getName());
+
     public static final int WAVEFORM_SINE = 0;
     public static final int WAVEFORM_SQUARE = 1;
     public static final int WAVEFORM_TRIANGLE = 2;
     public static final int WAVEFORM_SAWTOOTH = 3;
-    private byte[] m_abData;
+    private final byte[] m_abData;
     private int m_nBufferPosition;
     private long m_lRemainingFrames;
 
     public Oscillator(int nWaveformType, float fSignalFrequency,
                       float fAmplitude, AudioFormat audioFormat, long lLength) {
-        super(new ByteArrayInputStream(new byte[0]),
-              new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                              audioFormat.getSampleRate(), 16, 2, 4,
-                              audioFormat.getFrameRate(),
-                              audioFormat.isBigEndian()), lLength);
-        if (DEBUG) {
-            System.out.println("Oscillator.<init>(): begin");
-        }
+        super(new ByteArrayInputStream(new byte[0]), new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
+                        audioFormat.getSampleRate(), 16, 2, 4,
+                        audioFormat.getFrameRate(),
+                        audioFormat.isBigEndian()), lLength);
+        logger.log(Level.DEBUG, "Oscillator.<init>(): begin");
         m_lRemainingFrames = lLength;
-        fAmplitude = (float) (fAmplitude * Math.pow(2,
-                                                    getFormat()
-                                                        .getSampleSizeInBits() -
-                                                    1));
+        fAmplitude = (float) (fAmplitude * Math.pow(2, getFormat().getSampleSizeInBits() - 1));
 
         // length of one period in frames
         int nPeriodLengthInFrames = Math.round(getFormat().getFrameRate() / fSignalFrequency);
         int nBufferLength = nPeriodLengthInFrames * getFormat().getFrameSize();
         m_abData = new byte[nBufferLength];
         for (int nFrame = 0; nFrame < nPeriodLengthInFrames; nFrame++) {
-            /**        The relative position inside the period
-                    of the waveform. 0.0 = beginning, 1.0 = end
-            */
+            // The relative position inside the period
+            // of the waveform. 0.0 = beginning, 1.0 = end
             float fPeriodPosition = (float) nFrame / (float) nPeriodLengthInFrames;
             float fValue = 0;
             switch (nWaveformType) {
-            case WAVEFORM_SINE:
-                fValue = (float) Math.sin(fPeriodPosition * 2.0 * Math.PI);
-                break;
-            case WAVEFORM_SQUARE:
-                fValue = (fPeriodPosition < 0.5F) ? 1.0F : (-1.0F);
-                break;
-            case WAVEFORM_TRIANGLE:
-                if (fPeriodPosition < 0.25F) {
-                    fValue = 4.0F * fPeriodPosition;
-                } else if (fPeriodPosition < 0.75F) {
-                    fValue = -4.0F * (fPeriodPosition - 0.5F);
-                } else {
-                    fValue = 4.0F * (fPeriodPosition - 1.0F);
-                }
-                break;
-            case WAVEFORM_SAWTOOTH:
-                if (fPeriodPosition < 0.5F) {
-                    fValue = 2.0F * fPeriodPosition;
-                } else {
-                    fValue = 2.0F * (fPeriodPosition - 1.0F);
-                }
-                break;
+                case WAVEFORM_SINE:
+                    fValue = (float) Math.sin(fPeriodPosition * 2.0 * Math.PI);
+                    break;
+                case WAVEFORM_SQUARE:
+                    fValue = (fPeriodPosition < 0.5F) ? 1.0F : (-1.0F);
+                    break;
+                case WAVEFORM_TRIANGLE:
+                    if (fPeriodPosition < 0.25F) {
+                        fValue = 4.0F * fPeriodPosition;
+                    } else if (fPeriodPosition < 0.75F) {
+                        fValue = -4.0F * (fPeriodPosition - 0.5F);
+                    } else {
+                        fValue = 4.0F * (fPeriodPosition - 1.0F);
+                    }
+                    break;
+                case WAVEFORM_SAWTOOTH:
+                    if (fPeriodPosition < 0.5F) {
+                        fValue = 2.0F * fPeriodPosition;
+                    } else {
+                        fValue = 2.0F * (fPeriodPosition - 1.0F);
+                    }
+                    break;
             }
 
             int nValue = Math.round(fValue * fAmplitude);
@@ -99,49 +100,44 @@ public class Oscillator extends AudioInputStream {
             m_abData[nBaseAddr + 3] = (byte) ((nValue >>> 8) & 0xFF);
         }
         m_nBufferPosition = 0;
-        if (DEBUG) {
-            System.out.println("Oscillator.<init>(): end");
-        }
+        logger.log(Level.DEBUG, "Oscillator.<init>(): end");
     }
 
-    /**        Returns the number of bytes that can be read without blocking.
-            Since there is no blocking possible here, we simply try to
-            return the number of bytes available at all. In case the
-            length of the stream is indefinite, we return the highest
-            number that can be represented in an integer. If the length
-            if finite, this length is returned, clipped by the maximum
-            that can be represented.
-    */
+    /**
+     * Returns the number of bytes that can be read without blocking.
+     * Since there is no blocking possible here, we simply try to
+     * return the number of bytes available at all. In case the
+     * length of the stream is indefinite, we return the highest
+     * number that can be represented in an integer. If the length
+     * if finite, this length is returned, clipped by the maximum
+     * that can be represented.
+     */
+    @Override
     public int available() {
         int nAvailable = 0;
         if (m_lRemainingFrames == AudioSystem.NOT_SPECIFIED) {
             nAvailable = Integer.MAX_VALUE;
         } else {
-            long lBytesAvailable = m_lRemainingFrames * getFormat()
-                                                            .getFrameSize();
-            nAvailable = (int) Math.min(lBytesAvailable,
-                                        Integer.MAX_VALUE);
+            long lBytesAvailable = m_lRemainingFrames * getFormat().getFrameSize();
+            nAvailable = (int) Math.min(lBytesAvailable, Integer.MAX_VALUE);
         }
         return nAvailable;
     }
 
-    /*
-      this method should throw an IOException if the frame size is not 1.
-      Since we currently always use 16 bit samples, the frame size is
-      always greater than 1. So we always throw an exception.
-    */
+    /**
+     * this method should throw an IOException if the frame size is not 1.
+     * Since we currently always use 16 bit samples, the frame size is
+     * always greater than 1. So we always throw an exception.
+     */
+    @Override
     public int read() throws IOException {
-        if (DEBUG) {
-            System.out.println("Oscillator.read(): begin");
-        }
+        logger.log(Level.DEBUG, "Oscillator.read(): begin");
         throw new IOException("cannot use this method currently");
     }
 
-    public int read(byte[] abData, int nOffset, int nLength)
-        throws IOException {
-        if (DEBUG) {
-            System.out.println("Oscillator.read(): begin");
-        }
+    @Override
+    public int read(byte[] abData, int nOffset, int nLength) throws IOException {
+        logger.log(Level.DEBUG, "Oscillator.read(): begin");
         if ((nLength % getFormat().getFrameSize()) != 0) {
             throw new IOException("length must be an integer multiple of frame size");
         }
@@ -151,8 +147,7 @@ public class Oscillator extends AudioInputStream {
         while (nRemainingLength > 0) {
             int nNumBytesToCopyNow = m_abData.length - m_nBufferPosition;
             nNumBytesToCopyNow = Math.min(nNumBytesToCopyNow, nRemainingLength);
-            System.arraycopy(m_abData, m_nBufferPosition, abData, nOffset,
-                             nNumBytesToCopyNow);
+            System.arraycopy(m_abData, m_nBufferPosition, abData, nOffset, nNumBytesToCopyNow);
             nRemainingLength -= nNumBytesToCopyNow;
             nOffset += nNumBytesToCopyNow;
             m_nBufferPosition = (m_nBufferPosition + nNumBytesToCopyNow) % m_abData.length;
@@ -167,9 +162,7 @@ public class Oscillator extends AudioInputStream {
         if (m_lRemainingFrames == 0) {
             nReturn = -1;
         }
-        if (DEBUG) {
-            System.out.println("Oscillator.read(): end");
-        }
+        logger.log(Level.DEBUG, "Oscillator.read(): end");
         return nReturn;
     }
 }

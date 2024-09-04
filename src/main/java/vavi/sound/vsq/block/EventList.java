@@ -22,8 +22,8 @@ public class EventList implements Block {
 
     /** */
     public static class Pair {
-        public long tick;
-        public String id;
+        public final long tick;
+        public final String id;
         public Pair(long tick, String id) {
             this.tick = tick;
             this.id = id;

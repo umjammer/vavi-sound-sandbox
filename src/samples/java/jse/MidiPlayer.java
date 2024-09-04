@@ -19,27 +19,27 @@
 
 package jse;
 
-import gnu.getopt.Getopt;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import javax.sound.midi.ControllerEventListener;
 import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MetaEventListener;
-import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequencer;
-import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Transmitter;
+
+import gnu.getopt.Getopt;
+
+import static java.lang.System.getLogger;
 
 
 /*
@@ -100,10 +100,8 @@ import javax.sound.midi.Transmitter;
  * This file is part of the Java Sound Examples.
  */
 public class MidiPlayer {
-    /**
-     * If true, some messages are dumped to the console during operation.
-     */
-    private static boolean DEBUG = false;
+
+    private static final Logger logger = getLogger(MidiPlayer.class.getName());
 
     private static Sequencer sm_sequencer = null;
 
@@ -159,55 +157,44 @@ public class MidiPlayer {
         int c;
         while ((c = g.getopt()) != -1) {
             switch (c) {
-            case 'h':
-                printUsageAndExit();
-            case 'l':
-                listDevicesAndExit(false, true);
-            case 's':
-                bUseSynthesizer = true;
-                break;
-            case 'm':
-                bUseMidiPort = true;
-                break;
-            case 'd':
-                bUseDevice = true;
-                strDeviceName = g.getOptarg();
-                if (DEBUG) {
-                    System.out.println("MidiPlayer.main(): device name: " + strDeviceName);
-                }
-                break;
-            case 'c':
-                bUseConsoleDump = true;
-                break;
-            case 'S':
-                strSequencerName = g.getOptarg();
-                if (DEBUG) {
-                    System.out.println("MidiPlayer.main(): sequencer name: " + strSequencerName);
-                }
-                break;
-            case 'D':
-                DEBUG = true;
-                break;
-            case '?':
-                printUsageAndExit();
-            default:
-                System.out.println("getopt() returned " + c);
-                break;
+                case 'h':
+                    printUsageAndExit();
+                case 'l':
+                    listDevicesAndExit(false, true);
+                case 's':
+                    bUseSynthesizer = true;
+                    break;
+                case 'm':
+                    bUseMidiPort = true;
+                    break;
+                case 'd':
+                    bUseDevice = true;
+                    strDeviceName = g.getOptarg();
+                    logger.log(Level.DEBUG, "MidiPlayer.main(): device name: " + strDeviceName);
+                    break;
+                case 'c':
+                    bUseConsoleDump = true;
+                    break;
+                case 'S':
+                    strSequencerName = g.getOptarg();
+                    logger.log(Level.DEBUG, "MidiPlayer.main(): sequencer name: " + strSequencerName);
+                    break;
+                case '?':
+                    printUsageAndExit();
+                default:
+                    System.out.println("getopt() returned " + c);
+                    break;
             }
         }
 
-        /*
-         * If no destination option is choosen at all, we default to playing on
-         * the internal synthesizer.
-         */
+        // If no destination option is choosen at all, we default to playing on
+        // the internal synthesizer.
         if (!(bUseSynthesizer | bUseMidiPort | bUseDevice | bUseConsoleDump)) {
             bUseSynthesizer = true;
         }
 
-        /*
-         * We make shure that there is only one more argument, which we take as
-         * the filename of the MIDI file we want to play.
-         */
+        // We make shure that there is only one more argument, which we take as
+        // the filename of the MIDI file we want to play.
         String strFilename = null;
         for (int i = g.getOptind(); i < args.length; i++) {
             if (strFilename == null) {
@@ -246,7 +233,7 @@ public class MidiPlayer {
              * In case of an exception, we dump the exception including the
              * stack trace to the console output. Then, we exit the program.
              */
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 
@@ -267,7 +254,7 @@ public class MidiPlayer {
                 sm_sequencer = MidiSystem.getSequencer();
             }
         } catch (MidiUnavailableException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
         if (sm_sequencer == null) {
@@ -283,44 +270,32 @@ public class MidiPlayer {
          *
          * Thanks to Espen Riskedal for finding this trick.
          */
-        sm_sequencer.addMetaEventListener(new MetaEventListener() {
-            public void meta(MetaMessage event) {
-                if (event.getType() == 47) {
-                    if (DEBUG) {
-                        out("MidiPlayer.<...>.meta(): end of track message received, closing sequencer and attached MidiDevices...");
-                    }
-                    sm_sequencer.close();
+        sm_sequencer.addMetaEventListener(event -> {
+            if (event.getType() == 47) {
+                logger.log(Level.DEBUG, "MidiPlayer.<...>.meta(): end of track message received, closing sequencer and attached MidiDevices...");
+                sm_sequencer.close();
 
-                    Iterator<MidiDevice> iterator = sm_openedMidiDeviceList.iterator();
-                    while (iterator.hasNext()) {
-                        MidiDevice device = iterator.next();
-                        device.close();
-                    }
-                    if (DEBUG) {
-                        out("MidiPlayer.<...>.meta(): ...closed, now exiting");
-                    }
-                    System.exit(0);
+                for (MidiDevice device : sm_openedMidiDeviceList) {
+                    device.close();
                 }
+                logger.log(Level.DEBUG, "MidiPlayer.<...>.meta(): ...closed, now exiting");
+                System.exit(0);
             }
         });
 
         // If we are in debug mode, we set additional listeners to produce
         // interesting (?) debugging output.
-        if (DEBUG) {
-            sm_sequencer.addMetaEventListener(new MetaEventListener() {
-                public void meta(MetaMessage message) {
-                    System.out.println("%%% MetaMessage: " + message);
-                    System.out.println("%%% MetaMessage type: " + message.getType());
-                    System.out.println("%%% MetaMessage length: " + message.getLength());
-                }
+        if (logger.isLoggable(Level.DEBUG)) {
+            sm_sequencer.addMetaEventListener(message -> {
+                logger.log(Level.DEBUG, "%%% MetaMessage: " + message);
+                logger.log(Level.DEBUG, "%%% MetaMessage type: " + message.getType());
+                logger.log(Level.DEBUG, "%%% MetaMessage length: " + message.getLength());
             });
 
-            sm_sequencer.addControllerEventListener(new ControllerEventListener() {
-                public void controlChange(ShortMessage message) {
-                    System.out.println("%%% ShortMessage: " + message);
-                    System.out.println("%%% ShortMessage controller: " + message.getData1());
-                    System.out.println("%%% ShortMessage value: " + message.getData2());
-                }
+            sm_sequencer.addControllerEventListener(message -> {
+                logger.log(Level.DEBUG, "%%% ShortMessage: " + message);
+                logger.log(Level.DEBUG, "%%% ShortMessage controller: " + message.getData1());
+                logger.log(Level.DEBUG, "%%% ShortMessage value: " + message.getData2());
             }, null);
         }
 
@@ -332,7 +307,7 @@ public class MidiPlayer {
         try {
             sm_sequencer.open();
         } catch (MidiUnavailableException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 
@@ -342,11 +317,8 @@ public class MidiPlayer {
          */
         try {
             sm_sequencer.setSequence(sequenceStream);
-        } catch (InvalidMidiDataException e) {
-            e.printStackTrace();
-            System.exit(1);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (InvalidMidiDataException | IOException e) {
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 
@@ -366,7 +338,7 @@ public class MidiPlayer {
                 Transmitter seqTransmitter = sm_sequencer.getTransmitter();
                 seqTransmitter.setReceiver(synthReceiver);
             } catch (MidiUnavailableException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
 
@@ -380,7 +352,7 @@ public class MidiPlayer {
                 Transmitter midiTransmitter = sm_sequencer.getTransmitter();
                 midiTransmitter.setReceiver(midiReceiver);
             } catch (MidiUnavailableException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
 
@@ -403,7 +375,7 @@ public class MidiPlayer {
                 Transmitter midiTransmitter = sm_sequencer.getTransmitter();
                 midiTransmitter.setReceiver(midiReceiver);
             } catch (MidiUnavailableException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
 
@@ -414,24 +386,20 @@ public class MidiPlayer {
              * linked to a sequencer's Transmitter.
              */
             try {
-                Receiver dumpReceiver = new DumpReceiver(System.out);
+                Receiver dumpReceiver = new DumpReceiver();
                 Transmitter dumpTransmitter = sm_sequencer.getTransmitter();
                 dumpTransmitter.setReceiver(dumpReceiver);
             } catch (MidiUnavailableException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
 
         /*
          * Now, we can start over.
          */
-        if (DEBUG) {
-            out("MidiPlayer.main(): starting sequencer...");
-        }
+        logger.log(Level.DEBUG, "MidiPlayer.main(): starting sequencer...");
         sm_sequencer.start();
-        if (DEBUG) {
-            out("MidiPlayer.main(): ...started");
-        }
+        logger.log(Level.DEBUG, "MidiPlayer.main(): ...started");
     }
 
     private static void printUsageAndExit() {
@@ -454,11 +422,11 @@ public class MidiPlayer {
 
     private static void listDevicesAndExit(boolean forInput, boolean forOutput) {
         if (forInput && !forOutput) {
-            out("Available MIDI IN Devices:");
+            logger.log(Level.DEBUG, "Available MIDI IN Devices:");
         } else if (!forInput && forOutput) {
-            out("Available MIDI OUT Devices:");
+            logger.log(Level.DEBUG, "Available MIDI OUT Devices:");
         } else {
-            out("Available MIDI Devices:");
+            logger.log(Level.DEBUG, "Available MIDI Devices:");
         }
 
         MidiDevice.Info[] aInfos = MidiSystem.getMidiDeviceInfo();
@@ -468,7 +436,7 @@ public class MidiPlayer {
                 boolean bAllowsInput = (device.getMaxTransmitters() != 0);
                 boolean bAllowsOutput = (device.getMaxReceivers() != 0);
                 if ((bAllowsInput && forInput) || (bAllowsOutput && forOutput)) {
-                    out("" + i + "  " + (bAllowsInput ? "IN " : "   ") + (bAllowsOutput ? "OUT " : "    ") + new String(aInfos[i].getName().getBytes("ISO8859-1")) + ", " + aInfos[i].getVendor() + ", " + aInfos[i].getVersion() + ", " + aInfos[i].getDescription());
+                    logger.log(Level.DEBUG, i + "  " + (bAllowsInput ? "IN " : "   ") + (bAllowsOutput ? "OUT " : "    ") + new String(aInfos[i].getName().getBytes("ISO8859-1")) + ", " + aInfos[i].getVendor() + ", " + aInfos[i].getVersion() + ", " + aInfos[i].getDescription());
                 }
             } catch (MidiUnavailableException e) {
                 // device is obviously not available...
@@ -479,12 +447,12 @@ public class MidiPlayer {
             }
         }
         if (aInfos.length == 0) {
-            out("[No devices available]");
+            logger.log(Level.DEBUG, "[No devices available]");
         }
         System.exit(0);
     }
 
-    /*
+    /**
      * This method tries to return a MidiDevice.Info whose name matches the
      * passed name. If no matching MidiDevice.Info is found, null is returned.
      * If forOutput is true, then only output devices are searched, otherwise
@@ -492,15 +460,15 @@ public class MidiPlayer {
      */
     private static MidiDevice.Info getMidiDeviceInfo(String strDeviceName, boolean forOutput) {
         MidiDevice.Info[] aInfos = MidiSystem.getMidiDeviceInfo();
-        for (int i = 0; i < aInfos.length; i++) {
+        for (MidiDevice.Info aInfo : aInfos) {
             try {
-                if (new String(aInfos[i].getName().getBytes("ISO8859-1")).equals(strDeviceName)) {
+                if (new String(aInfo.getName().getBytes("ISO8859-1")).equals(strDeviceName)) {
                     try {
-                        MidiDevice device = MidiSystem.getMidiDevice(aInfos[i]);
+                        MidiDevice device = MidiSystem.getMidiDevice(aInfo);
                         boolean bAllowsInput = (device.getMaxTransmitters() != 0);
                         boolean bAllowsOutput = (device.getMaxReceivers() != 0);
                         if ((bAllowsOutput && forOutput) || (bAllowsInput && !forOutput)) {
-                            return aInfos[i];
+                            return aInfo;
                         }
                     } catch (MidiUnavailableException mue) {
                     }
@@ -509,9 +477,5 @@ public class MidiPlayer {
             }
         }
         return null;
-    }
-
-    private static void out(String strMessage) {
-        System.out.println(strMessage);
     }
 }

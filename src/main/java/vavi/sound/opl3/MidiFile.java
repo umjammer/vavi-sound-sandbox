@@ -50,8 +50,11 @@ logger.fine("format: " + format);
 
     @Override
     void rewind(int subSong, MidPlayer player) throws IOException {
-        player.tins = 128;
-        player.takeBE(4 + 4 + 2 + 2); // skip header
+        if (!(this instanceof LucasFile)) {
+            player.tins = 128;
+            player.takeBE(1);
+        }
+        player.takeBE(3 + 4 + 2 + 2); // skip header
         player.deltas = player.takeBE(2);
 logger.fine(String.format("deltas: %d", player.deltas));
         player.takeBE(4);
@@ -62,7 +65,24 @@ logger.fine(String.format("deltas: %d", player.deltas));
 logger.fine(String.format("tracklen: %d", player.tracks[0].tend));
     }
 
+    protected Context context;
+
     @Override
     public void init(Context context) {
+        this.context = context;
+    }
+
+    @Override
+    public int nativeVelocity(int channel, int velocity) {
+//        if ((adlib.style & Adlib.MIDI_STYLE) != 0) {
+        int nv = (context.voiceStatus()[channel].volume * velocity) / 128;
+
+        if (nv > 127) {
+            nv = 127;
+        }
+
+        nv = Adlib.my_midi_fm_vol_table[nv];
+        return nv;
+//        }
     }
 }

@@ -1,23 +1,26 @@
 /*
- * Copyright (c) 2024 by Naohide Sano, All rights reserved.
- *
- * Programmed by Naohide Sano
+ * (c)Copyright 1996-2000 NTT Cyber Space Laboratories
+ *                Modified on 2000.09.06 by N. Iwakami
  */
 
 package vavi.sound.twinvq.obsolate;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import vavi.util.Debug;
 
 
 /**
  * HeaderManager
  */
 class HeaderManager {
+
     /** Chunk bank of normal chunks */
-    private Map<String, Chunk> primaryChunkBank;
+    private final Map<String, Chunk> primaryChunkBank = new HashMap<>();
 
     /** Auxiliary chunk chunk bank */
-    private Map<String, Chunk> secondaryChunkBank;
+    private final Map<String, Chunk> secondaryChunkBank = new HashMap<>();
 
     /** TWIN chunk ID, unlike a normal ID, consists of "TWIN" + "version identifier". */
     private String chunkID;
@@ -32,7 +35,7 @@ class HeaderManager {
         }
 
         // If there are no chunks, the process is abandoned.
-        throw new FailGetChunkException();
+        throw new FailGetChunkException(id + " / " + chunkBank);
     }
 
     /**
@@ -60,7 +63,6 @@ class HeaderManager {
         } catch (ChunkChunk.FailGetChunkException e) {
             throw new WrongChunkFormatException();
         }
-
     }
 
     /**
@@ -76,9 +78,9 @@ class HeaderManager {
             ChunkChunk scndChunk = (ChunkChunk) getPrimaryChunk("SCND");
             PickUpSubChunks(secondaryChunkBank, scndChunk);
         } catch (ChunkChunk.FailGetChunkException e) {
-            // Debug.pprintln("Fail!!");
+//            Debug.println("Fail!!");
         } catch (FailGetChunkException e) {
-            // Debug.pprintln("Fail getting SCND chnunk");
+//            Debug.println("Fail getting SCND chnunk");
         }
     }
 
@@ -135,6 +137,7 @@ class HeaderManager {
 
     /** Failed to get chunk */
     static class FailGetChunkException extends RuntimeException {
+        FailGetChunkException(String m) { super(m); }
     }
 }
 
@@ -239,7 +242,7 @@ class UniStringInfo {
     /**
      * Constructor, give all necessary information.
      *
-     * @param secondary deault = ""
+     * @param secondary default = ""
      * @param primCode default = unknown_code
      * @param scndCode default = unknown_code
      */
@@ -276,6 +279,7 @@ class UniStringInfo {
             StringChunk scndChunk = new StringChunk(theManager.getSecondaryChunk(id));
             putSecondaryInfo(scndChunk);
         } catch (HeaderManager.FailGetChunkException e) {
+Debug.println(e);
         } catch (NoCharCodeException e) {
             throw new FailConstructionException();
         }

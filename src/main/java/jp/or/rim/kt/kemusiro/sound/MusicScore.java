@@ -65,7 +65,7 @@ public final class MusicScore {
                 return;
             }
         }
-        eventList.add(0, event);
+        eventList.addFirst(event);
     }
 
     public void dump(OutputStream output) {

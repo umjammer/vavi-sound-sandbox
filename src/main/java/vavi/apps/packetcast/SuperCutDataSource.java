@@ -31,13 +31,13 @@ import javax.media.protocol.PushBufferStream;
  */
 public class SuperCutDataSource extends PushBufferDataSource {
 
-    Processor p;
+    final Processor p;
 
-    MediaLocator ml;
+    final MediaLocator ml;
 
-    PushBufferDataSource ds;
+    final PushBufferDataSource ds;
 
-    SuperCutStream[] streams;
+    final SuperCutStream[] streams;
 
     /**
      * Creates special data source.
@@ -120,13 +120,15 @@ public class SuperCutDataSource extends PushBufferDataSource {
      */
     static class SuperCutStream implements PushBufferStream, BufferTransferHandler {
 
-        TrackControl tc;
+        final TrackControl tc;
 
-        PushBufferStream pbs;
+        final PushBufferStream pbs;
 
-        long[] start, end;
+        final long[] start;
+        final long[] end;
 
-        boolean[] startReached, endReached;
+        final boolean[] startReached;
+        final boolean[] endReached;
 
         int idx = 0;
 

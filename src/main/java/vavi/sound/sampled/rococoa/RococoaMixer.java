@@ -44,7 +44,7 @@ public class RococoaMixer implements Mixer {
 
     private static final String version;
 
-    public static Mixer.Info mixerInfo = new Mixer.Info(
+    public static final Mixer.Info mixerInfo = new Mixer.Info(
             "Rococoa Mixer",
             "vavi",
             "Mixer for Rococoa",

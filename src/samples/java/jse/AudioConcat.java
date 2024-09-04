@@ -25,12 +25,16 @@ package jse;
 import gnu.getopt.Getopt;
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+
+import static java.lang.System.getLogger;
 
 
 // TODO: the name AudioConcat is no longer appropriate. There should be a name that is neutral to concat/mix.
@@ -107,16 +111,12 @@ import javax.sound.sampled.AudioSystem;
 -DocBookXML
 */
 public class AudioConcat {
+
+    private static final Logger logger = getLogger(AudioConcat.class.getName());
+
     private static final int MODE_NONE = 0;
     private static final int MODE_MIXING = 1;
     private static final int MODE_CONCATENATION = 2;
-
-    /**
-     * Flag for debugging messages.
-     * If true, some messages are dumped to the console
-     * during operation.
-     */
-    private static boolean DEBUG = false;
 
     public static void main(String[] args) {
         // Mode of operation.
@@ -139,10 +139,7 @@ public class AudioConcat {
                 printUsageAndExit();
             case 'o':
                 strOutputFilename = g.getOptarg();
-                if (DEBUG) {
-                    System.out.println("AudioConcat.main(): output filename: " +
-                                       strOutputFilename);
-                }
+                logger.log(Level.DEBUG, "AudioConcat.main(): output filename: " + strOutputFilename);
                 break;
             case 'c':
                 nMode = MODE_CONCATENATION;
@@ -150,14 +147,10 @@ public class AudioConcat {
             case 'm':
                 nMode = MODE_MIXING;
                 break;
-            case 'D':
-                DEBUG = true;
-                break;
             case '?':
                 printUsageAndExit();
             default:
-                System.out.println("AudioConcat.main(): getopt() returned " +
-                                   c);
+                System.out.println("AudioConcat.main(): getopt() returned " + c);
                 break;
             }
         }
@@ -178,7 +171,7 @@ public class AudioConcat {
                 // In case of an exception, we dump the exception
                 // including the stack trace to the console output.
                 // Then, we exit the program.
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
                 System.exit(1);
             }
 
@@ -189,17 +182,12 @@ public class AudioConcat {
             // this format.
             if (audioFormat == null) {
                 audioFormat = format;
-                if (DEBUG) {
-                    System.out.println("AudioConcat.main(): format: " +
-                                       audioFormat);
-                }
+                logger.log(Level.DEBUG, "AudioConcat.main(): format: " + audioFormat);
             } else if (!audioFormat.matches(format)) {
                 // TODO try to convert
                 System.out.println("AudioConcat.main(): WARNING: AudioFormats don't match");
-                System.out.println("AudioConcat.main(): master format: " +
-                                   audioFormat);
-                System.out.println("AudioConcat.main(): this format: " +
-                                   format);
+                System.out.println("AudioConcat.main(): master format: " + audioFormat);
+                System.out.println("AudioConcat.main(): this format: " + format);
             }
             audioInputStreamList.add(audioInputStream);
         }
@@ -212,12 +200,10 @@ public class AudioConcat {
         AudioInputStream audioInputStream = null;
         switch (nMode) {
         case MODE_CONCATENATION:
-            audioInputStream = new SequenceAudioInputStream(audioFormat,
-                                                            audioInputStreamList);
+            audioInputStream = new SequenceAudioInputStream(audioFormat, audioInputStreamList);
             break;
         case MODE_MIXING:
-            audioInputStream = new MixingAudioInputStream(audioFormat,
-                                                          audioInputStreamList);
+            audioInputStream = new MixingAudioInputStream(audioFormat, audioInputStreamList);
             break;
         default:
             System.out.println("you have to specify a mode (either -m or -c).");
@@ -231,15 +217,12 @@ public class AudioConcat {
 
         File outputFile = new File(strOutputFilename);
         try {
-            AudioSystem.write(audioInputStream, AudioFileFormat.Type.WAVE,
-                              outputFile);
+            AudioSystem.write(audioInputStream, AudioFileFormat.Type.WAVE, outputFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
 
-        if (DEBUG) {
-            System.out.println("AudioConcat.main(): before exit");
-        }
+        logger.log(Level.DEBUG, "AudioConcat.main(): before exit");
         System.exit(0);
     }
 

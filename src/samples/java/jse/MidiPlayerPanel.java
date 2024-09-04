@@ -1,9 +1,3 @@
-package jse;
-/*
- *        MidiPlayerPanel.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999, 2000 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -23,15 +17,16 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+package jse;
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MetaEventListener;
-import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequencer;
@@ -41,20 +36,28 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+
+import static java.lang.System.getLogger;
 
 
+/**
+ * MidiPlayerPanel.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ */
 public class MidiPlayerPanel extends JPanel {
+
+    private static final Logger logger = getLogger(MidiPlayerPanel.class.getName());
+
     private JSlider m_positionSlider;
-    private JButton m_startButton;
-    private JButton m_stopButton;
-    private JButton m_pauseButton;
-    private JButton m_resumeButton;
-    private JSlider m_tempoSlider;
+    private final JButton m_startButton;
+    private final JButton m_stopButton;
+    private final JButton m_pauseButton;
+    private final JButton m_resumeButton;
+    private final JSlider m_tempoSlider;
     private Sequencer m_sequencer;
-    private JList m_destinationList;
-    private MidiDestinationListModel m_destinationListModel;
+    private final JList<?> m_destinationList;
+    private final MidiDestinationListModel m_destinationListModel;
 
     public MidiPlayerPanel(JPanel northPanel) {
         super();
@@ -68,19 +71,12 @@ public class MidiPlayerPanel extends JPanel {
         add(positionPanel, BorderLayout.CENTER);
 
         // positionPanel.add(new JLabel("Position"));
-/*
-  m_positionSlider = new JSlider(JSlider.HORIZONTAL, 0, 1000, 0);
-  m_positionSlider.addChangeListener(new ChangeListener()
-  {
-  public void stateChanged(ChangeEvent ce)
-  {
-  // changeTempoFactor();
-  }
-  });
-  positionPanel.add(m_positionSlider);
-*/
+//        m_positionSlider = new JSlider(JSlider.HORIZONTAL, 0, 1000, 0);
+//        m_positionSlider.addChangeListener(this::changeTempoFactor);
+//        positionPanel.add(m_positionSlider);
+
         m_destinationListModel = new MidiDestinationListModel(m_sequencer);
-        m_destinationList = new JList(m_destinationListModel);
+        m_destinationList = new JList<>(m_destinationListModel);
 
         JScrollPane scrollPane = new JScrollPane(m_destinationList);
         positionPanel.add(scrollPane);
@@ -89,36 +85,22 @@ public class MidiPlayerPanel extends JPanel {
         controlPanel.setLayout(new FlowLayout());
         add(controlPanel, BorderLayout.SOUTH);
         m_startButton = new JButton("Start");
-        m_startButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ae) {
-                    // TODO: hacky; should fade
-                    m_destinationListModel.commitDestinations(m_destinationList.getSelectionModel());
+        m_startButton.addActionListener(ae -> {
+            // TODO: hacky; should fade
+            m_destinationListModel.commitDestinations(m_destinationList.getSelectionModel());
 
-                    // end hacky
-                    startSequencer();
-                }
-            });
+            // end hacky
+            startSequencer();
+        });
         controlPanel.add(m_startButton);
         m_stopButton = new JButton("Stop");
-        m_stopButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ae) {
-                    stopSequencer();
-                }
-            });
+        m_stopButton.addActionListener(ae -> stopSequencer());
         controlPanel.add(m_stopButton);
         m_pauseButton = new JButton("Pause");
-        m_pauseButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ae) {
-                    pauseSequencer();
-                }
-            });
+        m_pauseButton.addActionListener(ae -> pauseSequencer());
         controlPanel.add(m_pauseButton);
         m_resumeButton = new JButton("Resume");
-        m_resumeButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ae) {
-                    resumeSequencer();
-                }
-            });
+        m_resumeButton.addActionListener(ae -> resumeSequencer());
         controlPanel.add(m_resumeButton);
         m_startButton.setEnabled(false);
         m_stopButton.setEnabled(false);
@@ -126,20 +108,14 @@ public class MidiPlayerPanel extends JPanel {
         m_resumeButton.setEnabled(false);
         controlPanel.add(new JLabel("Tempo"));
         m_tempoSlider = new JSlider(JSlider.HORIZONTAL, -100, 100, 0);
-        m_tempoSlider.addChangeListener(new ChangeListener() {
-                public void stateChanged(ChangeEvent ce) {
-                    changeTempoFactor();
-                }
-            });
+        m_tempoSlider.addChangeListener(ce -> changeTempoFactor());
         controlPanel.add(m_tempoSlider);
     }
 
     private void initSequencer() {
-        /*
-         *        Now, we need a Sequencer to play the Sequence.
-         *        By means of passing null to getSequence(), we request
-         *        the default sequencer.
-         */
+        // Now, we need a Sequencer to play the Sequence.
+        // By means of passing null to getSequence(), we request
+        // the default sequencer.
         m_sequencer = null;
         try {
             m_sequencer = MidiSystem.getSequencer();
@@ -151,23 +127,19 @@ public class MidiPlayerPanel extends JPanel {
             System.exit(1);
         }
 
-        m_sequencer.addMetaEventListener(new MetaEventListener() {
-                public void meta(MetaMessage event) {
-                    if (event.getType() == 47) {
-                        stopSequencer();
-                    }
-                }
-            });
+        m_sequencer.addMetaEventListener(event -> {
+            if (event.getType() == 47) {
+                stopSequencer();
+            }
+        });
 
-        /*
-         *        The Sequencer is still a dead object.
-         *        We have to open() it to become live.
-         */
+        // The Sequencer is still a dead object.
+        // We have to open() it to become live.
         try {
             m_sequencer.open();
         } catch (MidiUnavailableException e) {
             // TODO: gui message
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
     }
@@ -179,16 +151,11 @@ public class MidiPlayerPanel extends JPanel {
             m_stopButton.setEnabled(false);
             m_pauseButton.setEnabled(false);
             m_resumeButton.setEnabled(false);
-        } catch (IOException e) {
+        } catch (IOException | InvalidMidiDataException e) {
             // TODO: gui message
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
 
-            // System.exit(1);
-        } catch (InvalidMidiDataException e) {
-            // TODO: gui message
-            e.printStackTrace();
-
-            // System.exit(1);
+//            System.exit(1);
         }
     }
 

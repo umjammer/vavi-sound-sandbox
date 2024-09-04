@@ -1,9 +1,3 @@
-package jse;
-/*
- *        OscillatorPlayer.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999 -2001 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -22,18 +16,21 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+package jse;
+
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
-/*        If the compilation fails because this class is not available,
-        get gnu.getopt from the URL given in the comment below.
-*/
 import gnu.getopt.Getopt;
+
+import static java.lang.System.getLogger;
 
 
 /*        +DocBookXML
@@ -95,9 +92,17 @@ import gnu.getopt.Getopt;
 
 -DocBookXML
 */
+
+/**
+ * OscillatorPlayer.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ */
 public class OscillatorPlayer {
+
+    private static final Logger logger = getLogger(OscillatorPlayer.class.getName());
+
     private static final int BUFFER_SIZE = 128000;
-    private static boolean DEBUG = false;
 
     public static void main(String[] args) throws IOException {
         byte[] abData;
@@ -107,100 +112,76 @@ public class OscillatorPlayer {
         float fSignalFrequency = 1000.0F;
         float fAmplitude = 0.7F;
 
-        /*
-         *        Parsing of command-line options takes place...
-         */
+        // Parsing of command-line options takes place...
         Getopt g = new Getopt("AudioPlayer", args, "ht:r:f:a:D");
         int c;
         while ((c = g.getopt()) != -1) {
             switch (c) {
-            case 'h':
-                printUsageAndExit();
-            case 't':
-                nWaveformType = getWaveformType(g.getOptarg());
-                break;
-            case 'r':
-                fSampleRate = Float.parseFloat(g.getOptarg());
-                break;
-            case 'f':
-                fSignalFrequency = Float.parseFloat(g.getOptarg());
-                break;
-            case 'a':
-                fAmplitude = Float.parseFloat(g.getOptarg());
-                break;
-            case 'D':
-                DEBUG = true;
-                break;
-            case '?':
-                printUsageAndExit();
-            default:
-                if (DEBUG) {
-                    out("getopt() returned " + c);
-                }
-                break;
+                case 'h':
+                    printUsageAndExit();
+                case 't':
+                    nWaveformType = getWaveformType(g.getOptarg());
+                    break;
+                case 'r':
+                    fSampleRate = Float.parseFloat(g.getOptarg());
+                    break;
+                case 'f':
+                    fSignalFrequency = Float.parseFloat(g.getOptarg());
+                    break;
+                case 'a':
+                    fAmplitude = Float.parseFloat(g.getOptarg());
+                    break;
+                case '?':
+                    printUsageAndExit();
+                default:
+                    logger.log(Level.DEBUG, "getopt() returned " + c);
+                    break;
             }
         }
 
         audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                                      fSampleRate, 16, 2, 4, fSampleRate, false);
+                fSampleRate, 16, 2, 4, fSampleRate, false);
 
         AudioInputStream oscillator = new Oscillator(nWaveformType,
-                                                     fSignalFrequency,
-                                                     fAmplitude, audioFormat,
-                                                     AudioSystem.NOT_SPECIFIED);
+                fSignalFrequency, fAmplitude, audioFormat, AudioSystem.NOT_SPECIFIED);
         SourceDataLine line = null;
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         try {
             line = (SourceDataLine) AudioSystem.getLine(info);
             line.open(audioFormat);
-        } catch (LineUnavailableException e) {
-            e.printStackTrace();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
         line.start();
 
         abData = new byte[BUFFER_SIZE];
         while (true) {
-            if (DEBUG) {
-                out("OscillatorPlayer.main(): trying to read (bytes): " +
-                    abData.length);
-            }
+            logger.log(Level.DEBUG, "OscillatorPlayer.main(): trying to read (bytes): " + abData.length);
 
             int nRead = oscillator.read(abData);
-            if (DEBUG) {
-                out("OscillatorPlayer.main(): in loop, read (bytes): " + nRead);
-            }
+            logger.log(Level.DEBUG, "OscillatorPlayer.main(): in loop, read (bytes): " + nRead);
 
             int nWritten = line.write(abData, 0, nRead);
-            if (DEBUG) {
-                out("OscillatorPlayer.main(): written: " + nWritten);
-            }
+            logger.log(Level.DEBUG, "OscillatorPlayer.main(): written: " + nWritten);
         }
     }
 
     private static int getWaveformType(String strWaveformType) {
         int nWaveformType = Oscillator.WAVEFORM_SINE;
         strWaveformType = strWaveformType.trim().toLowerCase();
-        if (strWaveformType.equals("sine")) {
-            nWaveformType = Oscillator.WAVEFORM_SINE;
-        } else if (strWaveformType.equals("square")) {
-            nWaveformType = Oscillator.WAVEFORM_SQUARE;
-        } else if (strWaveformType.equals("triangle")) {
-            nWaveformType = Oscillator.WAVEFORM_TRIANGLE;
-        } else if (strWaveformType.equals("sawtooth")) {
-            nWaveformType = Oscillator.WAVEFORM_SAWTOOTH;
-        }
+        nWaveformType = switch (strWaveformType) {
+            case "sine" -> Oscillator.WAVEFORM_SINE;
+            case "square" -> Oscillator.WAVEFORM_SQUARE;
+            case "triangle" -> Oscillator.WAVEFORM_TRIANGLE;
+            case "sawtooth" -> Oscillator.WAVEFORM_SAWTOOTH;
+            default -> nWaveformType;
+        };
         return nWaveformType;
     }
 
     private static void printUsageAndExit() {
-        out("OscillatorPlayer: usage:");
-        out("\tjava OscillatorPlayer [-t <waveformtype>] [-f <signalfrequency>] [-r <samplerate>]");
+        logger.log(Level.DEBUG, "OscillatorPlayer: usage:");
+        logger.log(Level.DEBUG, "\tjava OscillatorPlayer [-t <waveformtype>] [-f <signalfrequency>] [-r <samplerate>]");
         System.exit(1);
-    }
-
-    private static void out(String strMessage) {
-        System.out.println(strMessage);
     }
 }

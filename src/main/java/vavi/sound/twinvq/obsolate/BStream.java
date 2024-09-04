@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2024 by Naohide Sano, All rights reserved.
- *
- * Programmed by Naohide Sano
+ * (c)Copyright 1996-2000 NTT Cyber Space Laboratories
+ *                Released on 2000.05.22 by N. Iwakami
+ *                Released on 2000.09.06 by N. Iwakami
  */
 
 package vavi.sound.twinvq.obsolate;
@@ -14,24 +14,31 @@ import vavi.sound.twinvq.obsolate.TwinVQ.Index;
 import vavi.sound.twinvq.obsolate.TwinVQ.HeaderInfo;
 import vavi.sound.twinvq.obsolate.TwinVQ.ConfInfo;
 import vavi.sound.twinvq.obsolate.TwinVQ.ConfInfoSubBlock;
+import vavi.util.Debug;
+
+import static vavi.sound.twinvq.obsolate.TwinVQ.asciiz;
+import static vavi.sound.twinvq.obsolate.TwinVQ.twinVq;
 
 
+/**
+ * @version 24 Feb. 1999, changed header format
+ *          24 Feb. 1999, added function TvqSkipFrame() and TvqGetBsFramePoint()
+ *          17 Jun. 1999, bug fix at the function TvqSkipFrame()
+ * @author N. Iwakami
+ */
 class BStream {
-
-    /** */
-    TwinVQ twinVq = TwinVQ.getInstance();
 
     /**
      * bits table for VQ
      */
-    static int[][] bits_0 = new int[TwinVQ.N_INTR_TYPE][];
+    static final int[][] bits_0 = new int[TwinVQ.N_INTR_TYPE][];
 
-    static int[][] bits_1 = new int[TwinVQ.N_INTR_TYPE][];
+    static final int[][] bits_1 = new int[TwinVQ.N_INTR_TYPE][];
 
     /**
      * lookup parameters
      */
-    private ConfInfo cf;
+    private final ConfInfo cf = new ConfInfo();
 
     private int iframe;
 
@@ -39,16 +46,15 @@ class BStream {
 
     /**
      * get string from the bitstream file
-     *
-     * @return none
      */
-    private static int getString(byte[] buf, int nbytes, BFile bfp) throws IOException {
+    static int getString(byte[] buf, int nbytes, BFile bfp) throws IOException {
         int ichar, ibit;
         int[] c = new int[1];
 
         for (ichar = 0; ichar < nbytes; ichar++) {
             ibit = bfp.getBStream(c, 0, BFile.CHAR_BITS);
             if (ibit < BFile.CHAR_BITS) {
+Debug.println("getString: bits underflow");
                 break;
             }
             buf[ichar] = (byte) c[0];
@@ -68,14 +74,16 @@ class BStream {
 
         byte[] chunkID = new byte[TwinVQ.KEYWORD_BYTES + TwinVQ.VERSION_BYTES + 1];
         getString(chunkID, TwinVQ.KEYWORD_BYTES + TwinVQ.VERSION_BYTES, bfp);
-        TVQ_VERSION = twinVq.TvqCheckVersion(new String(chunkID));
+        TVQ_VERSION = twinVq.TvqCheckVersion(asciiz(chunkID));
+Debug.println("chunkID: " + TVQ_VERSION);
         if (TVQ_VERSION == TwinVQ.TVQ_UNKNOWN_VERSION) {
-            throw new IllegalArgumentException(String.format("Header reading error: Unknown version (%s).\n", chunkID));
+            throw new IllegalArgumentException(String.format("Header reading error: Unknown version (%s).", TVQ_VERSION));
         }
 
         if (bfp.getBStream(chunkSize, 0, TwinVQ.ELEM_BYTES * BFile.CHAR_BITS) <= 0) {
             throw new IllegalArgumentException("Header reading error: Failed to get header size.");
         }
+Debug.println("chunkSize: " + chunkSize[0]);
 
         byte[] chunkData = new byte[chunkSize[0] + 1];
         if (getString(chunkData, chunkSize[0], bfp) < chunkSize[0]) {
@@ -103,9 +111,9 @@ class BStream {
 
         byte[] lbuf = new byte[TwinVQ.BUFSIZ];
         getString(lbuf, TwinVQ.KEYWORD_BYTES, bfp);
-        if (Arrays.equals(lbuf, "DATA".getBytes())) {
+        if (!Arrays.equals(lbuf, 0, 4, "DATA".getBytes(), 0, TwinVQ.KEYWORD_BYTES)) {
             throw new IllegalArgumentException(
-                    String.format("TwinVQ format error. No \"DATA\" chunk was found. found %s chunk", lbuf));
+                    String.format("TwinVQ format error. No \"DATA\" chunk was found. found %s chunk", new String(lbuf, 0, TwinVQ.KEYWORD_BYTES)));
         }
 
         return twinChunk;
@@ -116,8 +124,9 @@ class BStream {
      */
     int initBsReader(HeaderInfo setupInfo) {
 
-        TVQ_VERSION = twinVq.TvqCheckVersion(new String(setupInfo.id));
+        TVQ_VERSION = twinVq.TvqCheckVersion(asciiz(setupInfo.id));
         if (TVQ_VERSION == TwinVQ.TVQ_UNKNOWN_VERSION) {
+Debug.println("unsupported version: " + TVQ_VERSION);
             return 1;
         }
 
@@ -285,7 +294,7 @@ class BStream {
         // Window type
         bitcount += bfp.getBStream(index.w_type, 0, cf.BITS_WTYPE);
         if (twinVq.TvqWtypeToBtype(index.w_type[0], index.btype) != 0) {
-            System.err.printf("Error: unknown window type: %d\n", index.w_type);
+            System.err.printf("Error: unknown window type: %d", index.w_type[0]);
             return 0;
         }
         int btype = index.btype[0];
@@ -316,6 +325,7 @@ class BStream {
 
         iframe += 1;
 
+Debug.printf("bitcount: %d, numFixedBitsPerFrame: %d",  bitcount, numFixedBitsPerFrame);
         return bitcount == numFixedBitsPerFrame ? 1 : 0;
     }
 

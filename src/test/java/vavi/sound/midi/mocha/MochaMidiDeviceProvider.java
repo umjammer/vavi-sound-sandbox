@@ -6,11 +6,9 @@
 
 package vavi.sound.midi.mocha;
 
-import java.io.IOException;
 import java.util.logging.Level;
 
 import javax.sound.midi.MidiDevice;
-import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.spi.MidiDeviceProvider;
 
 import vavi.util.Debug;
@@ -30,7 +28,6 @@ public class MochaMidiDeviceProvider extends MidiDeviceProvider {
     /** */
     private static final MidiDevice.Info[] infos = new MidiDevice.Info[] { MochaSynthesizer.info };
 
-    /* */
     @Override
     public MidiDevice.Info[] getDeviceInfo() {
         return infos;

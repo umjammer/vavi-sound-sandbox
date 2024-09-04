@@ -8,7 +8,7 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-sound-sandbox</artifactId>
-  <version>1.0.8</version>
+  <version>1.0.9</version>
 
   <name>Vavi Sound API (Sandbox)</name>
   <url>https://github.com/umjammer/vavi-sound-sandbox</url>
@@ -42,7 +42,7 @@
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>properties-maven-plugin</artifactId>
-            <version>1.1.0</version>
+            <version>1.2.1</version>
             <executions>
               <execution>
                 <id>read-properties</id>
@@ -99,36 +99,69 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
+        <version>3.12.1</version>
         <configuration>
-          <source>17</source> <!-- TODO release causes compilation failure why? -->
-          <target>17</target>
+          <source>21</source> <!-- TODO release causes compilation failure why? -->
+          <target>21</target>
           <compilerArgs>
+            <arg>--add-modules=jdk.incubator.vector</arg>
             <arg>--add-exports</arg>
             <arg>java.desktop/com.sun.media.sound=ALL-UNNAMED</arg>
           </compilerArgs>
           <!-- https://stackoverflow.com/a/30472473 -->
           <fork>true</fork>
           <showWarnings>true</showWarnings>
-          <excludes>
-            <exclude>vavi/sound/twinvq/*.java</exclude>
-          </excludes>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>generate-test-sources</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/samples/java</source>
+              </sources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>generate-test-resources</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>add-test-resource</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/samples/resources</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.2.2</version>
+        <version>3.2.5</version>
         <configuration>
           <argLine>
             -Xmx4G
+            --add-modules jdk.incubator.vector
             --add-exports java.desktop/com.sun.media.sound=ALL-UNNAMED
             -javaagent:${project.build.directory}/vavi-instrumentation.jar
             -Dvavix.lang.instrumentation.VaviInstrumentation.1=vavix.lang.instrumentation.PropertiesClassFileTransformer
             -Djava.util.logging.config.file=${project.build.testOutputDirectory}/logging.properties
-            -Dvavi.test.volume=${vavi.test.volume}
-            -Dvavi.test.volume.midi=${vavi.test.volume.midi}
+            -Dvavi.test.volume=@{vavi.test.volume}
+            -Dvavi.test.volume.midi=@{vavi.test.volume.midi}
             -Dvavi.test.version=${project.version}
           </argLine>
           <trimStackTrace>false</trimStackTrace>
@@ -199,11 +232,6 @@
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
     </repository>
-    <repository>
-      <id>maven_central</id>
-      <name>Maven Central</name>
-      <url>https://repo.maven.apache.org/maven2/</url>
-    </repository>
   </repositories>
 
   <dependencyManagement>
@@ -211,7 +239,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.10.2</version>
+        <version>5.10.3</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -222,12 +250,12 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.12</version>
+      <version>1.1.14</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.18</version>
+      <version>1.0.19</version>
       <exclusions>
         <exclusion>
           <groupId>com.github.umjammer</groupId>
@@ -420,9 +448,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.github.umjammer</groupId>
+      <groupId>com.github.umjammer</groupId> <!-- com.github.umjammer -->
       <artifactId>vavi-util-screenscraping</artifactId>
-      <version>1.0.13</version>
+      <version>1.0.14</version>
       <scope>test</scope>
     </dependency>
 

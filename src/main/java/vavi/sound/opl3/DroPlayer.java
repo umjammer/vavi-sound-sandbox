@@ -26,7 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import vavi.io.LittleEndianDataInputStream;
-import vavi.util.Debug;
 
 
 /**
@@ -46,6 +45,7 @@ import vavi.util.Debug;
  * <li> 10-jun-12: the DRO 1 format is finalized, but capturing is buggy.
  */
 class DroPlayer extends Opl3Player {
+
     private static final Logger logger = Logger.getLogger(DroPlayer.class.getName());
 
     protected static final String ID = "DBRAWOPL";
@@ -107,12 +107,19 @@ class DroPlayer extends Opl3Player {
         dis.skipBytes(8); // id
         dis.skipBytes(4); // version
 
-        length = dis.readInt();
         mstotal = dis.readInt();
+        length = dis.readInt();
         opl3_mode = dis.readUnsignedByte();
-        dis.readUnsignedByte();
-        dis.readUnsignedByte();
-        dis.readUnsignedByte();
+        dis.mark(3);
+        byte[] zero = new byte[3];
+        zero[0] = dis.readByte();
+        zero[1] = dis.readByte();
+        zero[2] = dis.readByte();
+        if (zero[0] != 0 || zero[1] != 0 || zero[2] != 0) {
+            // need these three bytes!
+            dis.reset();
+logger.fine("not zero: " + Arrays.toString(zero));
+        }
 
 logger.fine("id: " +  ID);
 logger.fine("version: " + 1);
@@ -144,12 +151,12 @@ logger.fine("oplType: " + opl3_mode);
                 ++pos;
                 switch (iIndex) {
                 case 0:
-                    if (pos < length) return false;
+                    if (pos >= length) return false;
                     delay = 1 + data.readUnsignedByte();
                     ++pos;
                     return true;
                 case 1:
-                    if (pos + 1 < length) return false;
+                    if (pos + 1 >= length) return false;
                     delay = 1 + data.readUnsignedShort();
                     pos += 2;
                     return true;
@@ -161,11 +168,14 @@ logger.fine("oplType: " + opl3_mode);
                     break;
                 default:
                     if (iIndex == 4) {
+                        if (pos >= length) return false;
                         iIndex = data.readUnsignedByte();
                         ++pos;
                     }
 
+                    if (pos >= length) return false;
                     int v = data.readUnsignedByte();
+logger.fine(String.format("%d, %d, %d, %02x", opl3_mode, currChip, iIndex, v));
                     ++pos;
                     if (opl3_mode == 0) {
                         write(0, iIndex, v);

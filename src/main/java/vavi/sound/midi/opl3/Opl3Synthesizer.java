@@ -106,6 +106,8 @@ public class Opl3Synthesizer implements Synthesizer {
 
     // ----
 
+    private FileType type;
+
     private Adlib adlib;
 
     private Opl3Soundbank soundBank;
@@ -181,6 +183,7 @@ Debug.println(Level.WARNING, "already open: " + hashCode());
         }
 
 Debug.println("type: " + type);
+        this.type = type;
         type.midiTypeFile.init(new Context());
 
         adlib.reset();
@@ -414,10 +417,9 @@ Debug.println(line.getClass().getName());
                     ++percussions[i].volume;
                 }
 
-                int voice;
+                int voice = -1;
                 if (channel < 11 || adlib.mode == Adlib.MELODIC) {
                     boolean f = false;
-                    voice = -1;
                     int onl = 0;
 
                     for (int i = 0; i < numchan; ++i) {
@@ -453,24 +455,7 @@ Debug.println(line.getClass().getName());
                         adlib.percussion(channel, ins);
                     }
 
-                    int nv;
-                    if ((adlib.style & Adlib.MIDI_STYLE) != 0) {
-                        nv = voiceStatus[channel].volume * velocity / 128;
-                        if ((adlib.style & Adlib.LUCAS_STYLE) != 0) {
-                            nv *= 2;
-                        }
-
-                        if (nv > 127) {
-                            nv = 127;
-                        }
-
-                        nv = Adlib.my_midi_fm_vol_table[nv];
-                        if ((adlib.style & Adlib.LUCAS_STYLE) != 0) {
-                            nv = (int) ((float) Math.sqrt((nv)) * 11.0F);
-                        }
-                    } else {
-                        nv = velocity;
-                    }
+                    int nv = type.midiTypeFile.nativeVelocity(channel, velocity);
 
                     adlib.playNote(voice, noteNumber + nshift, nv * 2);
 
@@ -482,21 +467,29 @@ Debug.println(line.getClass().getName());
                         adlib.write(0xbd, adlib.read(0xbd) & ~(16 >> (channel - 11)));
                         adlib.write(0xbd, adlib.read(0xbd) | 16 >> (channel - 11));
                     }
-                } else if (velocity == 0) { // same code as end note
-                    for (int i = 0; i < 9; ++i) {
-                        if (percussions[i].channel == channel && percussions[i].note == noteNumber) {
-                            adlib.endNote(i);
-                            percussions[i].channel = -1;
+                } else {
+                    if (velocity == 0) { // same code as end note
+                        if (adlib.mode == Adlib.RYTHM && channel >= 11) {
+                            // Turn off the percussion instrument
+                            adlib.write(0xbd, adlib.read((0xbd) & ~(0x10 >> (channel - 11))));
+                            // midi_fm_endnote(percussion_map[c]);
+                            percussions[Adlib.percussion_map[channel - 11]].channel = -1;
+                        } else {
+                            for (int i = 0; i < 9; ++i) {
+                                if (percussions[i].channel == channel && percussions[i].note == noteNumber) {
+                                    adlib.endNote(i);
+                                    percussions[i].channel = -1;
+                                }
+                            }
                         }
+                    } else { // i forget what this is for.
+                        percussions[voice].channel = -1;
+                        percussions[voice].volume = 0;
                     }
-                } else { // i forget what this is for.
-                    percussions[voice].channel = -1;
-                    percussions[voice].volume = 0;
                 }
-
-                logger.fine(String.format("note on[%d]: %d %d %d", channel, inum, noteNumber, velocity));
+logger.finest(String.format("note on[%d]: (%d %d) %d", channel, inum, noteNumber, velocity));
             } else {
-                logger.fine("note is off");
+logger.finer("note is off");
             }
             //
             voiceStatus[channel].note = noteNumber;
@@ -544,22 +537,16 @@ Debug.println(line.getClass().getName());
         @Override
         public void controlChange(int controller, int value) {
             switch (controller) {
-            case 0x07: // channel volume
-                voiceStatus[channel].volume = value;
-                logger.fine(String.format("control change[%d]: vol(%02x): %d", channel, controller, value));
-                break;
-            case 0x67: // 103: undefined
-                logger.fine(String.format("control change[%d]: (%02x): %d", channel, controller, value));
-                if ((adlib.style & Adlib.CMF_STYLE) != 0) {
-                    adlib.mode = value;
-                    if (adlib.mode == Adlib.RYTHM) {
-                        adlib.write(0xbd, adlib.read(0xbd) | (1 << 5));
-                    } else {
-                        adlib.write(0xbd, adlib.read(0xbd) & ~(1 << 5));
-                    }
+                case 0x07 -> { // channel volume
+                    voiceStatus[channel].volume = value;
+logger.fine(String.format("control change[%d]: vol(%02x): %d", channel, controller, value));
                 }
-                break;
+                default ->
+logger.fine(String.format("control change unhandled[%d]: (%02x): %d", channel, controller, value));
             }
+
+            type.midiTypeFile.controlChange(channel, controller, value);
+
             //
             control[controller] = value;
         }
@@ -571,8 +558,9 @@ Debug.println(line.getClass().getName());
 
         @Override
         public void programChange(int program) {
-            inum = program;
+            inum = program & 0x7f;
             setIns(instruments[inum]);
+logger.fine(String.format("program change[%d]: %d", channel, inum));
             //
             voiceStatus[channel].program = program;
         }
@@ -593,6 +581,7 @@ Debug.println(line.getClass().getName());
 
         @Override
         public void setPitchBend(int bend) {
+            //
             pitchBend = bend;
         }
 
@@ -682,71 +671,80 @@ Debug.println(line.getClass().getName());
                 throw new IllegalStateException("receiver is not open");
             }
 
-            if (message instanceof ShortMessage shortMessage) {
-                int channel = shortMessage.getChannel();
-                int command = shortMessage.getCommand();
-                int data1 = shortMessage.getData1();
-                int data2 = shortMessage.getData2();
-                switch (command) {
-                case ShortMessage.NOTE_OFF:
-                    channels[channel].noteOff(data1, data2);
-                    break;
-                case ShortMessage.NOTE_ON:
-                    channels[channel].noteOn(data1, data2);
-                    break;
-                case ShortMessage.POLY_PRESSURE:
-                    channels[channel].setPolyPressure(data1, data2);
-                    break;
-                case ShortMessage.CONTROL_CHANGE:
-                    channels[channel].controlChange(data1, data2);
-                    break;
-                case ShortMessage.PROGRAM_CHANGE:
-                    channels[channel].programChange(data1);
-                    break;
-                case ShortMessage.CHANNEL_PRESSURE:
-                    channels[channel].setChannelPressure(data1);
-                    break;
-                case ShortMessage.PITCH_BEND:
-                    channels[channel].setPitchBend(data1 | (data2 << 7));
-                    break;
-                default:
-Debug.printf("unhandled short: %02X\n", command);
-                }
-            } else if (message instanceof SysexMessage sysexMessage) {
-                byte[] data = sysexMessage.getData();
-Debug.printf("sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data));
-                switch (data[0]) {
-                case 0x7f: { // Universal Realtime
-                    int c = data[1]; // 0x7f: Disregards channel
-                    // Sub-ID, Sub-ID2
-                    if (data[2] == 0x04 && data[3] == 0x01) { // Device Control / Master Volume
-                        float gain = ((data[4] & 0x7f) | ((data[5] & 0x7f) << 7)) / 16383f;
-Debug.printf("sysex volume: gain: %3.0f%n", gain * 127);
-                        for (c = 0; c < 16; c++) {
-                            voiceStatus[c].volume = (int) (gain * 127); // TODO doesn't work
-                        }
+            switch (message) {
+                case ShortMessage shortMessage -> {
+                    int channel = shortMessage.getChannel();
+                    int command = shortMessage.getCommand();
+                    int data1 = shortMessage.getData1();
+                    int data2 = shortMessage.getData2();
+                    switch (command) {
+                        case ShortMessage.NOTE_OFF:
+                            channels[channel].noteOff(data1, data2);
+                            break;
+                        case ShortMessage.NOTE_ON:
+                            channels[channel].noteOn(data1, data2);
+                            break;
+                        case ShortMessage.POLY_PRESSURE:
+                            channels[channel].setPolyPressure(data1, data2);
+                            break;
+                        case ShortMessage.CONTROL_CHANGE:
+                            channels[channel].controlChange(data1, data2);
+                            break;
+                        case ShortMessage.PROGRAM_CHANGE:
+                            channels[channel].programChange(data1);
+                            break;
+                        case ShortMessage.CHANNEL_PRESSURE:
+                            channels[channel].setChannelPressure(data1);
+                            break;
+                        case ShortMessage.PITCH_BEND:
+                            channels[channel].setPitchBend(data1 | (data2 << 7));
+                            break;
+                        default:
+                            Debug.printf("unhandled short: %02X", command);
                     }
-                }   break;
-                case 0x7d: { // test
+                }
+                case SysexMessage sysexMessage -> {
+                    byte[] data = sysexMessage.getData();
+Debug.printf("sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data, 32));
                     switch (data[1]) {
-                    case 0x10: // 7D 10 ch -- set an instrument to ch
-                        adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
+                        case 0x7 -> { // Universal Realtime
+                            int c = data[2]; // 0x7f: Disregards channel
+                            // Sub-ID, Sub-ID2
+                            if (data[3] == 0x04 && data[4] == 0x01) { // Device Control / Master Volume
+                                float gain = ((data[5] & 0x7f) | ((data[6] & 0x7f) << 7)) / 16383f;
+Debug.printf("sysex volume: gain: %3.0f", gain * 127);
+                                for (c = 0; c < 16; c++) {
+                                    voiceStatus[c].volume = (int) (gain * 127); // TODO doesn't work
+                                }
+                            }
+                        }
+                        case 0x7d -> { // test
+                            switch (data[2]) {
+                                case 0x10: // 7D 10 ch -- set an instrument to ch
+                                    // TODO maybe for LUCAS only
+if (type != FileType.LUCAS) {
+ Debug.println(Level.WARNING, "sysex test: set LUCAS_STYLE for " + type);
+}
+                                    adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
 
-                        int c = data[2];
-                        channels[c].ins = MidPlayer.fromSysex(data);
+                                    int c = data[3];
+                                    channels[c].ins = MidPlayer.fromSysex(data);
 
-                        break;
+                                    break;
+                            }
+                        }
+                        default -> Debug.printf("sysex unhandled: %02x", data[1]);
                     }
-                }   break;
                 }
-            } else if (message instanceof MetaMessage metaMessage) {
+                case MetaMessage metaMessage -> {
 Debug.printf("meta: %02x", metaMessage.getType());
-                switch (metaMessage.getType()) {
-                case 0x2f:
-                    break;
+                    switch (metaMessage.getType()) {
+                        case 0x2f -> {}
+                    }
                 }
-            } else {
-                assert false;
+                case null, default -> {
+                    assert false;
+                }
             }
         }
 

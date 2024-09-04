@@ -37,22 +37,19 @@ public class Common implements Block {
         Common block = new Common();
         for (String param : params) {
             String[] pair = param.split("=");
-            if ("Version".equals(pair[0])) {
-                block.version = pair[1];
-            } else if ("Name".equals(pair[0])) {
-                block.name = pair[1];
-            } else if ("Color".equals(pair[0])) {
-                String[] rgb = pair[1].split(",");
-                int r = Integer.parseInt(rgb[0]);
-                int g = Integer.parseInt(rgb[1]);
-                int b = Integer.parseInt(rgb[2]);
-                block.color = new Color(r, g, b);
-            } else if ("DynamicsMode".equals(pair[0])) {
-                block.dynamicsMode = Integer.parseInt(pair[1]);
-            } else if ("PlayMode".equals(pair[0])) {
-                block.playMode = Integer.parseInt(pair[1]);
-            } else {
-Debug.println("unhandled param: " + pair[0]);
+            switch (pair[0]) {
+                case "Version" -> block.version = pair[1];
+                case "Name" -> block.name = pair[1];
+                case "Color" -> {
+                    String[] rgb = pair[1].split(",");
+                    int r = Integer.parseInt(rgb[0]);
+                    int g = Integer.parseInt(rgb[1]);
+                    int b = Integer.parseInt(rgb[2]);
+                    block.color = new Color(r, g, b);
+                }
+                case "DynamicsMode" -> block.dynamicsMode = Integer.parseInt(pair[1]);
+                case "PlayMode" -> block.playMode = Integer.parseInt(pair[1]);
+                case null, default -> Debug.println("unhandled param: " + pair[0]);
             }
         }
         return block;

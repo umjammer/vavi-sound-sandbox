@@ -188,7 +188,7 @@ public class RTPExport implements ControllerListener, DataSinkListener {
      */
     boolean setTrackFormats(Processor p) {
 
-        Format supported[];
+        Format[] supported;
 
         TrackControl[] tracks = p.getTrackControls();
 
@@ -222,24 +222,24 @@ public class RTPExport implements ControllerListener, DataSinkListener {
      */
     void setJPEGQuality(Player p, float val) {
 
-        Control cs[] = p.getControls();
+        Control[] cs = p.getControls();
         QualityControl qc = null;
         VideoFormat jpegFmt = new VideoFormat(VideoFormat.JPEG);
 
         // Loop through the controls to find the Quality control for
         // the JPEG encoder.
-        for (int i = 0; i < cs.length; i++) {
+        for (Control c : cs) {
 
-            if (cs[i] instanceof QualityControl && cs[i] instanceof Owned) {
-                Object owner = ((Owned) cs[i]).getOwner();
+            if (c instanceof QualityControl && c instanceof Owned) {
+                Object owner = ((Owned) c).getOwner();
 
                 // Check to see if the owner is a Codec.
                 // Then check for the output format.
                 if (owner instanceof Codec) {
-                    Format fmts[] = ((Codec) owner).getSupportedOutputFormats(null);
-                    for (int j = 0; j < fmts.length; j++) {
-                        if (fmts[j].matches(jpegFmt)) {
-                            qc = (QualityControl) cs[i];
+                    Format[] fmts = ((Codec) owner).getSupportedOutputFormats(null);
+                    for (Format fmt : fmts) {
+                        if (fmt.matches(jpegFmt)) {
+                            qc = (QualityControl) c;
                             qc.setQuality(val);
                             System.err.println("- Set quality to " + val + " on " + qc);
                             break;
@@ -278,7 +278,7 @@ public class RTPExport implements ControllerListener, DataSinkListener {
         return dsink;
     }
 
-    Object waitSync = new Object();
+    final Object waitSync = new Object();
 
     boolean stateTransitionOK = true;
 
@@ -300,6 +300,7 @@ public class RTPExport implements ControllerListener, DataSinkListener {
     /**
      * Controller Listener.
      */
+    @Override
     public void controllerUpdate(ControllerEvent evt) {
 
         if (evt instanceof ConfigureCompleteEvent || evt instanceof RealizeCompleteEvent || evt instanceof PrefetchCompleteEvent) {
@@ -320,7 +321,7 @@ public class RTPExport implements ControllerListener, DataSinkListener {
         }
     }
 
-    Object waitFileSync = new Object();
+    final Object waitFileSync = new Object();
 
     boolean fileDone = false;
 
@@ -342,13 +343,14 @@ public class RTPExport implements ControllerListener, DataSinkListener {
             } catch (Exception e) {
             }
         }
-        System.err.println("");
+        System.err.println();
         return fileSuccess;
     }
 
     /**
      * Event handler for the file writer.
      */
+    @Override
     public void dataSinkUpdate(DataSinkEvent evt) {
 
         if (evt instanceof EndOfStreamEvent) {
@@ -399,7 +401,7 @@ public class RTPExport implements ControllerListener, DataSinkListener {
         try {
             Class<?> clazz = Class.forName("com.sun.media.MimeManager");
             Method method = clazz.getMethod("getMimeType", String.class);
-            return String.class.cast(method.invoke(null, name));
+            return (String) method.invoke(null, name);
         } catch (Exception e) {
             return null;
         }
@@ -410,7 +412,8 @@ public class RTPExport implements ControllerListener, DataSinkListener {
      */
     public static void main(String[] args) {
 
-        String outputURL = null, inputURL = null;
+        String outputURL = null;
+        StringBuilder inputURL = null;
         int duration = -1;
 
         if (args.length == 0)
@@ -430,11 +433,11 @@ public class RTPExport implements ControllerListener, DataSinkListener {
                     prUsage();
                 Integer integer = Integer.valueOf(args[i]);
                 if (integer != null)
-                    duration = integer.intValue();
+                    duration = integer;
             } else if (inputURL == null) {
-                inputURL = "rtp://" + args[i];
+                inputURL = new StringBuilder("rtp://" + args[i]);
             } else {
-                inputURL = inputURL + "&" + args[i];
+                inputURL.append("&").append(args[i]);
             }
             i++;
         }
@@ -452,7 +455,7 @@ public class RTPExport implements ControllerListener, DataSinkListener {
         // Generate the input and output media locators.
         MediaLocator iml, oml;
 
-        if ((iml = createMediaLocator(inputURL)) == null) {
+        if ((iml = createMediaLocator(inputURL.toString())) == null) {
             System.err.println("Cannot build media locator from: " + inputURL);
             System.exit(0);
         }

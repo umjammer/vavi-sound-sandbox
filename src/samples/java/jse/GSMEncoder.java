@@ -22,6 +22,8 @@ package jse;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -29,8 +31,8 @@ import javax.sound.sampled.AudioSystem;
 import org.tritonus.share.sampled.AudioFileTypes;
 import org.tritonus.share.sampled.Encodings;
 
+import static java.lang.System.getLogger;
 
-// TODO: try a single conversion to 8kHz, 16 bit linear signed, mono
 
 /*        +DocBookXML
         <title>Encoding an audio file to GSM 06.10</title>
@@ -93,8 +95,12 @@ import org.tritonus.share.sampled.Encodings;
  * GSMEncoder.java
  *
  * This file is part of the Java Sound Examples.
+ * TODO: try a single conversion to 8kHz, 16 bit linear signed, mono
  */
 public class GSMEncoder {
+
+    private static final Logger logger = getLogger(GSMEncoder.class.getName());
+
     public static void main(String[] args) {
         if (args.length != 2) {
             printUsageAndExit();
@@ -106,7 +112,7 @@ public class GSMEncoder {
         try {
             ais = AudioSystem.getAudioInputStream(pcmFile);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
         if (ais == null) {
             System.out.println("cannot open audio file");
@@ -121,7 +127,7 @@ public class GSMEncoder {
         try {
             nWrittenFrames = AudioSystem.write(gsmAIS, fileType, gsmFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
     }
 

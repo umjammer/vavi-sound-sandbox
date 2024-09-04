@@ -38,8 +38,8 @@ import vavix.util.selenium.SeleniumUtil;
  */
 public class iTunes2 {
 
-    private SeleniumUtil seleniumUtil = new SeleniumUtil();
-    private WebDriver driver = seleniumUtil.getWebDriver();
+    private final SeleniumUtil seleniumUtil = new SeleniumUtil();
+    private final WebDriver driver = seleniumUtil.getWebDriver();
 
     private iTunes2() {
         // authentication?
@@ -115,11 +115,10 @@ try {
         @Target(value = "//TABLE//TR/TD[4]/A/@href")
         String url;
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(CharNormalizerJa.ToHalfAns2.normalize(artist));
-            sb.append(", ");
-            sb.append(CharNormalizerJa.ToHalfAns2.normalize(title));
-            return sb.toString();
+            String sb = CharNormalizerJa.ToHalfAns2.normalize(artist) +
+                    ", " +
+                    CharNormalizerJa.ToHalfAns2.normalize(title);
+            return sb;
         }
     }
 
@@ -149,11 +148,10 @@ try {
         @Target(value = "//TABLE[4]//TR/TD[3]/DIV/text()")
         String type;
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(type);
-            sb.append(", ");
-            sb.append(CharNormalizerJa.ToHalfAns2.normalize(name));
-            return sb.toString();
+            String sb = type +
+                    ", " +
+                    CharNormalizerJa.ToHalfAns2.normalize(name);
+            return sb;
         }
     }
 
@@ -222,11 +220,10 @@ Debug.println("nextAnchor: " + nextAnchor);
         @Target(value = "//TABLE//TR/TD[3]/A/@href")
         String url;
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(CharNormalizerJa.ToHalfAns2.normalize(artist));
-            sb.append(", ");
-            sb.append(CharNormalizerJa.ToHalfAns2.normalize(title));
-            return sb.toString();
+            String sb = CharNormalizerJa.ToHalfAns2.normalize(artist) +
+                    ", " +
+                    CharNormalizerJa.ToHalfAns2.normalize(title);
+            return sb;
         }
     }
 
@@ -292,17 +289,16 @@ Debug.println("nextAnchor: " + nextAnchor);
         @Target(value = "//TABLE//TR/TD[4]/A/@href")
         String url;
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append(CharNormalizerJa.ToHalfAns2.normalize(artist));
-            sb.append(", ");
-            sb.append(CharNormalizerJa.ToHalfAns2.normalize(title));
-            return sb.toString();
+            String sb = CharNormalizerJa.ToHalfAns2.normalize(artist) +
+                    ", " +
+                    CharNormalizerJa.ToHalfAns2.normalize(title);
+            return sb;
         }
     }
 
     /** Sort by artist name */
     static class MyComparator3 implements Comparator<TitleUrl3> {
-        String artist;
+        final String artist;
         MyComparator3(String artist) {
             this.artist = artist.toUpperCase();
         }
@@ -314,7 +310,7 @@ Debug.println("nextAnchor: " + nextAnchor);
 
     /** Sort by title of work */
     static class MyComparator4 implements Comparator<TitleUrl4> {
-        String name;
+        final String name;
         MyComparator4(String name) {
             this.name = name.toUpperCase();
         }
@@ -432,10 +428,10 @@ Debug.println("too many errors: " + errorCount);
         enum Probability {
             RESULT, RESULTa, RESULTn, RESULTp, MAYBEa, MAYBEn, NONE
         }
-        Probability probability;
-        String artist;
-        String title;
-        String composer;
+        final Probability probability;
+        final String artist;
+        final String title;
+        final String composer;
         Result(String artist, String title, String composer, Probability probability) {
             this.artist = artist;
             this.title = title;
@@ -448,9 +444,9 @@ Debug.println("too many errors: " + errorCount);
     }
 
     static class Result2 extends Result {
-        String artist2;
-        String title2;
-        int index;
+        final String artist2;
+        final String title2;
+        final int index;
         Result2(String artist, String title, String composer, Probability probability, int index, String artist2, String title2) {
             super(artist, title, composer, probability);
             this.artist2 = artist2;
@@ -473,7 +469,7 @@ Debug.println("too many errors: " + errorCount);
         List<TitleUrl> urls = WebScraper.Util.scrape(TitleUrl.class, artist, title);
         if (!urls.isEmpty()) {
             sleep();
-            result.add(new Result(artist, title, getComposer(urls.get(0).url), Result.Probability.RESULT));
+            result.add(new Result(artist, title, getComposer(urls.getFirst().url), Result.Probability.RESULT));
             return result;
         }
 
@@ -485,7 +481,7 @@ Debug.println("too many errors: " + errorCount);
             List<TitleUrl> urls2 = WebScraper.Util.scrape(TitleUrl.class, normalizedArtist, title);
             if (!urls2.isEmpty()) {
                 sleep();
-                result.add(new Result(artist, title, getComposer(urls2.get(0).url), Result.Probability.RESULTa));
+                result.add(new Result(artist, title, getComposer(urls2.getFirst().url), Result.Probability.RESULTa));
                 return result;
             }
         }
@@ -505,7 +501,7 @@ Debug.println("too many errors: " + errorCount);
         List<TitleUrl> urls3 = WebScraper.Util.scrape(TitleUrl.class, normalizedArtist, normalizedName);
         if (!urls3.isEmpty()) {
             sleep();
-            result.add(new Result(artist, title, getComposer(urls3.get(0).url), Result.Probability.RESULTn));
+            result.add(new Result(artist, title, getComposer(urls3.getFirst().url), Result.Probability.RESULTn));
             return result;
         }
 

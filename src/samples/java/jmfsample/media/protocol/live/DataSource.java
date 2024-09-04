@@ -39,7 +39,7 @@ import javax.media.protocol.PushBufferStream;
 
 public class DataSource extends PushBufferDataSource {
 
-    protected Object[] controls = new Object[0];
+    protected final Object[] controls = new Object[0];
 
     protected boolean started = false;
 
@@ -56,6 +56,7 @@ public class DataSource extends PushBufferDataSource {
     public DataSource() {
     }
 
+    @Override
     public String getContentType() {
         if (!connected) {
             System.err.println("Error: DataSource not connected");
@@ -64,12 +65,14 @@ public class DataSource extends PushBufferDataSource {
         return contentType;
     }
 
+    @Override
     public void connect() throws IOException {
         if (connected)
             return;
         connected = true;
     }
 
+    @Override
     public void disconnect() {
         try {
             if (started)
@@ -79,6 +82,7 @@ public class DataSource extends PushBufferDataSource {
         connected = false;
     }
 
+    @Override
     public void start() throws IOException {
         // we need to throw error if connect() has not been called
         if (!connected)
@@ -89,6 +93,7 @@ public class DataSource extends PushBufferDataSource {
         stream.start(true);
     }
 
+    @Override
     public void stop() throws IOException {
         if ((!connected) || (!started))
             return;
@@ -96,17 +101,19 @@ public class DataSource extends PushBufferDataSource {
         stream.start(false);
     }
 
+    @Override
     public Object[] getControls() {
         return controls;
     }
 
+    @Override
     public Object getControl(String controlType) {
         try {
             Class<?> cls = Class.forName(controlType);
-            Object cs[] = getControls();
-            for (int i = 0; i < cs.length; i++) {
-                if (cls.isInstance(cs[i]))
-                    return cs[i];
+            Object[] cs = getControls();
+            for (Object c : cs) {
+                if (cls.isInstance(c))
+                    return c;
             }
             return null;
 
@@ -115,10 +122,12 @@ public class DataSource extends PushBufferDataSource {
         }
     }
 
+    @Override
     public Time getDuration() {
         return duration;
     }
 
+    @Override
     public PushBufferStream[] getStreams() {
         if (streams == null) {
             streams = new LiveStream[1];
@@ -126,5 +135,4 @@ public class DataSource extends PushBufferDataSource {
         }
         return streams;
     }
-
 }

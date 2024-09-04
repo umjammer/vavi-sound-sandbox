@@ -18,13 +18,13 @@ import javax.sound.sampled.AudioFormat;
  */
 public class OpusEncoding extends AudioFormat.Encoding {
 
-    /** Specifies any ALAC encoded data. */
+    /** Specifies any Opus encoded data. */
     public static final OpusEncoding OPUS = new OpusEncoding("OPUS");
 
     /**
      * Constructs a new encoding.
      *
-     * @param name Name of the ALAC encoding.
+     * @param name Name of the Opus encoding.
      */
     public OpusEncoding(String name) {
         super(name);

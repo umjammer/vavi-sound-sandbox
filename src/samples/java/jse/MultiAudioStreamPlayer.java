@@ -1,11 +1,3 @@
-
-package jse;
-
-/*
- *        MultiAudioStreamPlayer.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -25,13 +17,18 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+package jse;
+
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import static java.lang.System.getLogger;
 
-// import AudioStream;
 
 /*
  * +DocBookXML <title>Playing multiple audio files concurrently</title>
@@ -61,7 +58,16 @@ import javax.sound.sampled.UnsupportedAudioFileException;
  *
  * -DocBookXML
  */
+
+/**
+ * MultiAudioStreamPlayer.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ */
 public class MultiAudioStreamPlayer {
+
+    private static final Logger logger = getLogger(MultiAudioStreamPlayer.class.getName());
+
     public static void main(String[] args) {
         /*
          * We check that there is at least one command-line argument. If not, we
@@ -77,8 +83,7 @@ public class MultiAudioStreamPlayer {
          * Now, that we're shure there is at least one argument, we take each
          * argument as the filename of the soundfile we want to play.
          */
-        for (int i = 0; i < args.length; i++) {
-            String strFilename = args[i];
+        for (String strFilename : args) {
             File soundFile = new File(strFilename);
 
             /*
@@ -94,16 +99,10 @@ public class MultiAudioStreamPlayer {
                  * In case of an exception, we dump the exception including the
                  * stack trace to the console output. Then, we exit the program.
                  */
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
                 System.exit(1);
-            } catch (UnsupportedAudioFileException e) {
-                e.printStackTrace();
-                System.exit(1);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-                System.exit(1);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (UnsupportedAudioFileException | IOException | IllegalArgumentException e) {
+                logger.log(Level.ERROR, e.getMessage(), e);
                 System.exit(1);
             }
 

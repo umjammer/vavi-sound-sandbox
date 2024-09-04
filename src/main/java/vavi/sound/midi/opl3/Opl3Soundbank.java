@@ -83,7 +83,7 @@ public class Opl3Soundbank implements Soundbank {
 
     /** */
     public static class Opl3Instrument extends Instrument {
-        int[] data;
+        final int[] data;
         protected Opl3Instrument(Opl3Soundbank sounBbank, int bank, int program, String name, int[] data) {
             super(sounBbank, new Patch(bank, program), name, int[].class);
             this.data = data;

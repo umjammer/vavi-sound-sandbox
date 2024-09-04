@@ -47,15 +47,16 @@ import javax.swing.JFileChooser;
 
 public class JMF_Movie_Processor {
 
-    MovieProcessor MP;
+    final MovieProcessor MP;
 
-    Frame frm;
+    final Frame frm;
 
     int skip = 1;
 
     Rectangle theRoi = null;
 
-    int firstF, lastF;
+    final int firstF;
+    final int lastF;
 
     boolean playing = false;
 
@@ -65,15 +66,20 @@ public class JMF_Movie_Processor {
 
     int framecount;
 
-    Panel p0, p1, p2;
+    final Panel p0;
+    final Panel p1;
+    final Panel p2;
 
-    Button stepBW, stepFW;
+    final Button stepBW;
+    final Button stepFW;
 
-    Button playF, playB, pauseB;
+    final Button playF;
+    final Button playB;
+    final Button pauseB;
 
-    Button goToAcqB;
+    final Button goToAcqB;
 
-    Scrollbar delaySB;
+    final Scrollbar delaySB;
 
     int timeDelay = 25;
 
@@ -192,7 +198,8 @@ public class JMF_Movie_Processor {
     // LISTENERS...
 
     /** Key Listener */
-    KeyListener keyListener = new KeyAdapter() {
+    final KeyListener keyListener = new KeyAdapter() {
+        @Override
         public void keyPressed(KeyEvent e) {
             int keyCode = e.getKeyCode();
 
@@ -235,7 +242,8 @@ public class JMF_Movie_Processor {
     };
 
     /** Action Listener (Buttons) */
-    ActionListener actionListener = new ActionListener() {
+    final ActionListener actionListener = new ActionListener() {
+        @Override
         public void actionPerformed(ActionEvent e) {
 
             Object b = e.getSource();
@@ -270,7 +278,8 @@ public class JMF_Movie_Processor {
     };
 
     /** Adjustment Listener (Scroll bar) */
-    AdjustmentListener adjustmentListener = new AdjustmentListener() {
+    final AdjustmentListener adjustmentListener = new AdjustmentListener() {
+        @Override
         public void adjustmentValueChanged(AdjustmentEvent evt) {
             Object s = evt.getSource();
             {
@@ -283,13 +292,15 @@ public class JMF_Movie_Processor {
     };
 
     /** Window Listener */
-    WindowListener windowListener = new WindowAdapter() {
+    final WindowListener windowListener = new WindowAdapter() {
+        @Override
         public void windowClosing(WindowEvent we) {
             end_flag = true;
             frm.setVisible(false);
             frm.dispose();
         }
 
+        @Override
         public void windowClosed(java.awt.event.WindowEvent evt) {
             p0.removeKeyListener(keyListener);
             MP.kill();
@@ -311,7 +322,7 @@ class MovieProcessor implements ControllerListener {
 
     FrameGrabbingControl fgc;
 
-    Object waitSync = new Object();
+    final Object waitSync = new Object();
 
     boolean stateTransitionOK = true;
 
@@ -366,7 +377,7 @@ System.err.println("creating JMF data source");
         while (index > -1) {
             index = url.indexOf(' ');
             if (index > -1) {
-                url = url.substring(0, index) + "%20" + url.substring(index + 1, url.length());
+                url = url.substring(0, index) + "%20" + url.substring(index + 1);
             }
         }
         return url;
@@ -536,6 +547,7 @@ System.err.println("IJ: frameConverter.createImage FAILED!");
     }
 
     /** Controller Listener */
+    @Override
     public void controllerUpdate(ControllerEvent evt) {
 
         if (evt instanceof ConfigureCompleteEvent || evt instanceof RealizeCompleteEvent || evt instanceof PrefetchCompleteEvent) {

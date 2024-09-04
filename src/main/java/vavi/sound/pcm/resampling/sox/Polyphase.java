@@ -75,7 +75,7 @@ public class Polyphase {
         /** output samples 'in the pipe' */
         double inpipe;
         /** array of pointers to polystage structs */
-        PolyStage[] stage = new PolyStage[MF];
+        final PolyStage[] stage = new PolyStage[MF];
     }
 
     /** */
@@ -334,7 +334,7 @@ fail:
     }
 
     /** parenthesize this way to avoid st_sample_t overflow in product term */
-    private float st_lcm(float a, float b) {
+    private static float st_lcm(float a, float b) {
         return a * (b / st_gcd(a, b));
     }
 
@@ -470,7 +470,7 @@ Debug.printf("Poly:  output samples %d, oskip %d\n", -1 /* size */, work.oskip);
     }
 
     /** */
-    private void polyphase(double[] output, int oP, PolyStage s) {
+    private static void polyphase(double[] output, int oP, PolyStage s) {
         int up = s.up;
         int down = s.down;
         int f_len = s.filt_len;

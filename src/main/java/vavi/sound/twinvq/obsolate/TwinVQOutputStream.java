@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 by Naohide Sano, All rights reserved.
+ * Copyright (c) 2007 by Naohide Sano, All rights reserved.
  *
  * Programmed by Naohide Sano
  */
@@ -15,6 +15,8 @@ import java.nio.ByteOrder;
 
 import vavi.io.LittleEndianDataInputStream;
 import vavi.util.Debug;
+
+import static vavi.sound.twinvq.obsolate.TwinVQ.twinVq;
 
 
 /**
@@ -58,8 +60,6 @@ Debug.println("byteOrder: " + this.byteOrder);
     @Override
     public void close() throws IOException {
 
-        TwinVQ encoder = TwinVQ.getInstance();
-
         try {
             LittleEndianDataInputStream ledis = new LittleEndianDataInputStream(new ByteArrayInputStream(((ByteArrayOutputStream) out).toByteArray()));
             int length = ledis.available();
@@ -72,7 +72,7 @@ Debug.println("length: " + length);
             ledis.close();
 
             TwinVQ.Index i = new TwinVQ.Index();
-            encoder.TvqEncodeFrame(null, i);
+            twinVq.TvqEncodeFrame(null, i);
 
             realOut.write(adpcm);
 

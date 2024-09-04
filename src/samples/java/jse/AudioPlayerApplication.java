@@ -18,16 +18,17 @@ package jse;
  */
 
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.lang.System.Logger;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -36,18 +37,18 @@ import javax.swing.JPanel;
  * This file is part of the Java Sound Examples.
  */
 public class AudioPlayerApplication extends JFrame {
-    // Flag for debugging messages.
-    // If true, some messages are dumped to the console
-    // during operation.
-    private static boolean DEBUG = false;
-    private JButton m_loadButton;
-    private JLabel m_fileLabel;
+
+    private static final Logger logger = getLogger(AudioPlayerApplication.class.getName());
+
+    private final JButton m_loadButton;
+    private final JLabel m_fileLabel;
     private JFileChooser m_fileChooser;
-    private AudioPlayerPanel m_audioPlayerPanel;
+    private final AudioPlayerPanel m_audioPlayerPanel;
 
     public AudioPlayerApplication() {
         super("AudioPlayerApplication");
         this.addWindowListener(new WindowAdapter() {
+                @Override
                 public void windowClosing(WindowEvent we) {
                     System.exit(0);
                 }
@@ -56,11 +57,7 @@ public class AudioPlayerApplication extends JFrame {
         JPanel filePanel = new JPanel();
         filePanel.setLayout(new FlowLayout());
         m_loadButton = new JButton("Load...");
-        m_loadButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ae) {
-                    loadAudioFile();
-                }
-            });
+        m_loadButton.addActionListener(ae -> loadAudioFile());
         filePanel.add(m_loadButton);
         m_fileLabel = new JLabel("No audio file loaded");
         filePanel.add(m_fileLabel);

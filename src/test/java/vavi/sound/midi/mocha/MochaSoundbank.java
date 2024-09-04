@@ -76,7 +76,7 @@ public class MochaSoundbank implements Soundbank {
 
     /** */
     public static class MochaInstrument extends Instrument {
-        Instrumental data;
+        final Instrumental data;
         protected MochaInstrument(MochaSoundbank sounBbank, int bank, int program, String name, Instrumental data) {
             super(sounBbank, new Patch(bank, program), name, Instrumental.class);
             this.data = data;

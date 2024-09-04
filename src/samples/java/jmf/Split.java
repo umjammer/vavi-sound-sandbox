@@ -72,9 +72,9 @@ import javax.media.protocol.PushBufferStream;
  */
 public class Split {
 
-    SplitDataSource splitDS[];
+    SplitDataSource[] splitDS;
 
-    Object fileSync = new Object();
+    final Object fileSync = new Object();
 
     boolean allDone = false;
 
@@ -182,7 +182,7 @@ public class Split {
         // Get the output data streams from the first processor.
         // Create a SplitDataSource for each of these elementary stream.
         PushBufferDataSource pbds = (PushBufferDataSource) p.getDataOutput();
-        PushBufferStream pbs[] = pbds.getStreams();
+        PushBufferStream[] pbs = pbds.getStreams();
         splitDS = new SplitDataSource[pbs.length];
 
         allDone = false;
@@ -215,8 +215,8 @@ public class Split {
      */
     void doneFile() {
         synchronized (fileSync) {
-            for (int i = 0; i < splitDS.length; i++) {
-                if (!splitDS[i].done) {
+            for (SplitDataSource splitD : splitDS) {
+                if (!splitD.done) {
                     return;
                 }
             }
@@ -238,7 +238,7 @@ public class Split {
                 }
             }
         }
-        System.err.println("");
+        System.err.println();
     }
 
     /**
@@ -247,15 +247,15 @@ public class Split {
      */
     void transcodeMPEGToRaw(Processor p) {
 
-        TrackControl tc[] = p.getTrackControls();
+        TrackControl[] tc = p.getTrackControls();
         AudioFormat afmt;
 
-        for (int i = 0; i < tc.length; i++) {
-            if (tc[i].getFormat() instanceof VideoFormat)
-                tc[i].setFormat(new VideoFormat(VideoFormat.JPEG));
-            else if (tc[i].getFormat() instanceof AudioFormat) {
-                afmt = (AudioFormat) tc[i].getFormat();
-                tc[i].setFormat(new AudioFormat(AudioFormat.LINEAR, afmt.getSampleRate(), afmt.getSampleSizeInBits(), afmt.getChannels()));
+        for (TrackControl trackControl : tc) {
+            if (trackControl.getFormat() instanceof VideoFormat)
+                trackControl.setFormat(new VideoFormat(VideoFormat.JPEG));
+            else if (trackControl.getFormat() instanceof AudioFormat) {
+                afmt = (AudioFormat) trackControl.getFormat();
+                trackControl.setFormat(new AudioFormat(AudioFormat.LINEAR, afmt.getSampleRate(), afmt.getSampleSizeInBits(), afmt.getChannels()));
             }
         }
     }
@@ -266,24 +266,24 @@ public class Split {
      */
     void setJPEGQuality(Player p, float val) {
 
-        Control cs[] = p.getControls();
+        Control[] cs = p.getControls();
         QualityControl qc = null;
         VideoFormat jpegFmt = new VideoFormat(VideoFormat.JPEG);
 
         // Loop through the controls to find the Quality control for
         // the JPEG encoder.
-        for (int i = 0; i < cs.length; i++) {
+        for (Control c : cs) {
 
-            if (cs[i] instanceof QualityControl && cs[i] instanceof Owned) {
-                Object owner = ((Owned) cs[i]).getOwner();
+            if (c instanceof QualityControl && c instanceof Owned) {
+                Object owner = ((Owned) c).getOwner();
 
                 // Check to see if the owner is a Codec.
                 // Then check for the output format.
                 if (owner instanceof Codec) {
-                    Format fmts[] = ((Codec) owner).getSupportedOutputFormats(null);
-                    for (int j = 0; j < fmts.length; j++) {
-                        if (fmts[j].matches(jpegFmt)) {
-                            qc = (QualityControl) cs[i];
+                    Format[] fmts = ((Codec) owner).getSupportedOutputFormats(null);
+                    for (Format fmt : fmts) {
+                        if (fmt.matches(jpegFmt)) {
+                            qc = (QualityControl) c;
                             qc.setQuality(val);
                             System.err.println("- Set quality to " + val + " on " + qc);
                             break;
@@ -299,9 +299,9 @@ public class Split {
     /**
      * Utility class to block until a certain state had reached.
      */
-    public class StateWaiter implements ControllerListener {
+    public static class StateWaiter implements ControllerListener {
 
-        Processor p;
+        final Processor p;
 
         boolean error = false;
 
@@ -337,6 +337,7 @@ public class Split {
             return !(error);
         }
 
+        @Override
         public void controllerUpdate(ControllerEvent ce) {
             if (ce instanceof ControllerErrorEvent) {
                 error = true;
@@ -389,7 +390,7 @@ public class Split {
         try {
             Class<?> clazz = Class.forName("com.sun.media.MimeManager");
             Method method = clazz.getMethod("getMimeType", String.class);
-            return String.class.cast(method.invoke(null, name));
+            return (String) method.invoke(null, name);
         } catch (Exception e) {
             return null;
         }
@@ -425,25 +426,24 @@ public class Split {
         System.exit(0);
     }
 
-    // //////////////////////////////////////
     //
     // Inner classes.
-    // //////////////////////////////////////
+    //
 
     /**
      * The custom DataSource to split input.
      */
-    class SplitDataSource extends PushBufferDataSource {
+    static class SplitDataSource extends PushBufferDataSource {
 
-        Processor p;
+        final Processor p;
 
-        PushBufferDataSource ds;
+        final PushBufferDataSource ds;
 
-        PushBufferStream pbs[];
+        final PushBufferStream[] pbs;
 
-        SplitStream streams[];
+        final SplitStream[] streams;
 
-        int idx;
+        final int idx;
 
         boolean done = false;
 
@@ -456,9 +456,11 @@ public class Split {
             streams[0] = new SplitStream(pbs[idx]);
         }
 
+        @Override
         public void connect() throws java.io.IOException {
         }
 
+        @Override
         public PushBufferStream[] getStreams() {
             return streams;
         }
@@ -467,39 +469,48 @@ public class Split {
             return pbs[idx].getFormat();
         }
 
+        @Override
         public void start() throws java.io.IOException {
             p.start();
             ds.start();
         }
 
+        @Override
         public void stop() throws java.io.IOException {
         }
 
+        @Override
         public Object getControl(String name) {
             // No controls
             return null;
         }
 
+        @Override
         public Object[] getControls() {
             // No controls
             return new Control[0];
         }
 
+        @Override
         public Time getDuration() {
             return ds.getDuration();
         }
 
+        @Override
         public void disconnect() {
         }
 
+        @Override
         public String getContentType() {
             return ContentDescriptor.RAW;
         }
 
+        @Override
         public MediaLocator getLocator() {
             return ds.getLocator();
         }
 
+        @Override
         public void setLocator(MediaLocator ml) {
             System.err.println("Not interested in a media locator");
         }
@@ -508,9 +519,9 @@ public class Split {
     /**
      * Utility Source stream for the SplitDataSource.
      */
-    class SplitStream implements PushBufferStream, BufferTransferHandler {
+    static class SplitStream implements PushBufferStream, BufferTransferHandler {
 
-        PushBufferStream pbs;
+        final PushBufferStream pbs;
 
         BufferTransferHandler bth;
 
@@ -521,40 +532,49 @@ public class Split {
             pbs.setTransferHandler(this);
         }
 
+        @Override
         public void read(Buffer buf) /* throws IOException */{
             // This wouldn't be used.
         }
 
+        @Override
         public ContentDescriptor getContentDescriptor() {
             return new ContentDescriptor(ContentDescriptor.RAW);
         }
 
+        @Override
         public boolean endOfStream() {
             return pbs.endOfStream();
         }
 
+        @Override
         public long getContentLength() {
             return LENGTH_UNKNOWN;
         }
 
+        @Override
         public Format getFormat() {
             return pbs.getFormat();
         }
 
+        @Override
         public void setTransferHandler(BufferTransferHandler bth) {
             this.bth = bth;
         }
 
+        @Override
         public Object getControl(String name) {
             // No controls
             return null;
         }
 
+        @Override
         public Object[] getControls() {
             // No controls
             return new Control[0];
         }
 
+        @Override
         public synchronized void transferData(PushBufferStream pbs) {
             if (bth != null)
                 bth.transferData(pbs);
@@ -654,6 +674,7 @@ public class Split {
         /**
          * Controller Listener.
          */
+        @Override
         public void controllerUpdate(ControllerEvent evt) {
 
             if (evt instanceof ControllerErrorEvent) {
@@ -667,6 +688,7 @@ public class Split {
         /**
          * Event handler for the file writer.
          */
+        @Override
         public void dataSinkUpdate(DataSinkEvent evt) {
 
             if (evt instanceof EndOfStreamEvent || evt instanceof DataSinkErrorEvent) {

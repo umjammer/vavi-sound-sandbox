@@ -1,9 +1,3 @@
-package jse;
-/*
- *        AudioLoop.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999 - 2001 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -23,7 +17,11 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-import gnu.getopt.Getopt;
+
+package jse;
+
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -31,6 +29,10 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
+
+import gnu.getopt.Getopt;
+
+import static java.lang.System.getLogger;
 
 
 // TODO: params for audio quality, optionally use compression and decompression in the loop (see ~/AudioLoop.java)
@@ -113,39 +115,38 @@ import javax.sound.sampled.TargetDataLine;
 
 -DocBookXML
 */
+
+/**
+ * AudioLoop.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ */
 public class AudioLoop extends Thread {
-    /**        Flag for debugging messages.
-     *        If true, some messages are dumped to the console
-     *        during operation.
-     */
-    private static boolean DEBUG = true;
+
+    private static final Logger logger = getLogger(AudioLoop.class.getName());
+
     private static final int DEFAULT_INTERNAL_BUFSIZ = 40960;
     private static final int DEFAULT_EXTERNAL_BUFSIZ = 40960;
-    private TargetDataLine m_targetLine;
-    private SourceDataLine m_sourceLine;
+    private final TargetDataLine m_targetLine;
+    private final SourceDataLine m_sourceLine;
     private boolean m_bRecording;
-    private int m_nExternalBufferSize;
+    private final int m_nExternalBufferSize;
 
-    /*
-     *        We have to pass an AudioFormat to describe in which
-     *        format the audio data should be recorded and played.
+    /**
+     * We have to pass an AudioFormat to describe in which
+     * format the audio data should be recorded and played.
      */
-    public AudioLoop(AudioFormat format, int nInternalBufferSize,
-                     int nExternalBufferSize, String strMixerName)
-        throws LineUnavailableException {
+    public AudioLoop(AudioFormat format, int nInternalBufferSize, int nExternalBufferSize, String strMixerName)
+            throws LineUnavailableException {
         Mixer mixer = null;
         if (strMixerName != null) {
             Mixer.Info mixerInfo = getMixerInfo(strMixerName);
             mixer = AudioSystem.getMixer(mixerInfo);
         }
 
-        /*
-         *        We retrieve and open the recording and the playback line.
-         */
-        DataLine.Info targetInfo = new DataLine.Info(TargetDataLine.class,
-                                                     format, nInternalBufferSize);
-        DataLine.Info sourceInfo = new DataLine.Info(SourceDataLine.class,
-                                                     format, nInternalBufferSize);
+        // We retrieve and open the recording and the playback line.
+        DataLine.Info targetInfo = new DataLine.Info(TargetDataLine.class, format, nInternalBufferSize);
+        DataLine.Info sourceInfo = new DataLine.Info(SourceDataLine.class, format, nInternalBufferSize);
         if (mixer != null) {
             m_targetLine = (TargetDataLine) mixer.getLine(targetInfo);
             m_sourceLine = (SourceDataLine) mixer.getLine(sourceInfo);
@@ -158,6 +159,7 @@ public class AudioLoop extends Thread {
         m_nExternalBufferSize = nExternalBufferSize;
     }
 
+    @Override
     public void start() {
         m_targetLine.start();
         m_sourceLine.start();
@@ -166,35 +168,25 @@ public class AudioLoop extends Thread {
         super.start();
     }
 
-/*
-  public void stopRecording()
-  {
-  m_line.stop();
-  m_line.close();
-  m_bRecording = false;
-  }
-*/
+//    public void stopRecording() {
+//        m_line.stop();
+//        m_line.close();
+//        m_bRecording = false;
+//    }
+
+    @Override
     public void run() {
         byte[] abBuffer = new byte[m_nExternalBufferSize];
         int nBufferSize = abBuffer.length;
         m_bRecording = true;
         while (m_bRecording) {
-            if (DEBUG) {
-                System.out.println("Trying to read: " + nBufferSize);
-            }
+            logger.log(Level.DEBUG, "Trying to read: " + nBufferSize);
 
-            /*
-             *        read a block of data from the recording line.
-             */
+            // read a block of data from the recording line.
             int nBytesRead = m_targetLine.read(abBuffer, 0, nBufferSize);
-            if (DEBUG) {
-                System.out.println("Read: " + nBytesRead);
-            }
+            logger.log(Level.DEBUG, "Read: " + nBytesRead);
 
-            /*
-             *        And now, we write the block to the playback
-             *        line.
-             */
+            // And now, we write the block to the playback line.
             m_sourceLine.write(abBuffer, 0, nBytesRead);
         }
     }
@@ -209,67 +201,44 @@ public class AudioLoop extends Thread {
         int c;
         while ((c = g.getopt()) != -1) {
             switch (c) {
-            case 'h':
-                printUsageAndExit();
-            case 'l':
-                listMixersAndExit();
-            case 'r':
-                fFrameRate = Float.parseFloat(g.getOptarg());
+                case 'h':
+                    printUsageAndExit();
+                case 'l':
+                    listMixersAndExit();
+                case 'r':
+                    fFrameRate = Float.parseFloat(g.getOptarg());
 
-/*
-  if (DEBUG)
-  {
-  System.out.println("AudioPlayer.main(): mixer name: " + strMixerName);
-  }
-*/
-                break;
-            case 'i':
-                nInternalBufferSize = Integer.parseInt(g.getOptarg());
+//                    logger.log(Level.TRACE, "AudioPlayer.main(): mixer name: " + strMixerName);
+                    break;
+                case 'i':
+                    nInternalBufferSize = Integer.parseInt(g.getOptarg());
 
-/*
-  if (DEBUG)
-  {
-  System.out.println("AudioPlayer.main(): mixer name: " + strMixerName);
-  }
-*/
-                break;
-            case 'e':
-                nExternalBufferSize = Integer.parseInt(g.getOptarg());
+//                    logger.log(Level.TRACE, "AudioPlayer.main(): mixer name: " + strMixerName);
+                    break;
+                case 'e':
+                    nExternalBufferSize = Integer.parseInt(g.getOptarg());
 
-/*
-  if (DEBUG)
-  {
-  System.out.println("AudioPlayer.main(): mixer name: " + strMixerName);
-  }
-*/
-                break;
-            case 'M':
-                strMixerName = g.getOptarg();
-                if (DEBUG) {
-                    System.out.println("AudioPlayer.main(): mixer name: " +
-                                       strMixerName);
-                }
-                break;
-            case 'D':
-                DEBUG = true;
-                break;
-            case '?':
-                printUsageAndExit();
-            default:
-                System.out.println("getopt() returned " + c);
-                break;
+//                    logger.log(Level.TRACE, "AudioPlayer.main(): mixer name: " + strMixerName);
+                    break;
+                case 'M':
+                    strMixerName = g.getOptarg();
+                    logger.log(Level.DEBUG, "AudioPlayer.main(): mixer name: " + strMixerName);
+                    break;
+                case '?':
+                    printUsageAndExit();
+                default:
+                    System.out.println("getopt() returned " + c);
+                    break;
             }
         }
 
         AudioFormat audioFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                                                  fFrameRate, 16, 2, 4,
-                                                  fFrameRate, false);
+                fFrameRate, 16, 2, 4, fFrameRate, false);
         AudioLoop audioLoop = null;
         try {
-            audioLoop = new AudioLoop(audioFormat, nInternalBufferSize,
-                                      nExternalBufferSize, strMixerName);
+            audioLoop = new AudioLoop(audioFormat, nInternalBufferSize, nExternalBufferSize, strMixerName);
         } catch (LineUnavailableException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
         audioLoop.start();
@@ -286,8 +255,8 @@ public class AudioLoop extends Thread {
         System.out.println("Available Mixers:");
 
         Mixer.Info[] aInfos = AudioSystem.getMixerInfo();
-        for (int i = 0; i < aInfos.length; i++) {
-            System.out.println(aInfos[i].getName());
+        for (Mixer.Info aInfo : aInfos) {
+            System.out.println(aInfo.getName());
         }
         if (aInfos.length == 0) {
             System.out.println("[No mixers available]");
@@ -295,16 +264,16 @@ public class AudioLoop extends Thread {
         System.exit(0);
     }
 
-    /*
-     *        This method tries to return a MidiDevice.Info whose name
-     *        matches the passed name. If no matching MidiDevice.Info is
-     *        found, null is returned.
+    /**
+     * This method tries to return a MidiDevice.Info whose name
+     * matches the passed name. If no matching MidiDevice.Info is
+     * found, null is returned.
      */
     private static Mixer.Info getMixerInfo(String strMixerName) {
         Mixer.Info[] aInfos = AudioSystem.getMixerInfo();
-        for (int i = 0; i < aInfos.length; i++) {
-            if (aInfos[i].getName().equals(strMixerName)) {
-                return aInfos[i];
+        for (Mixer.Info aInfo : aInfos) {
+            if (aInfo.getName().equals(strMixerName)) {
+                return aInfo;
             }
         }
         return null;

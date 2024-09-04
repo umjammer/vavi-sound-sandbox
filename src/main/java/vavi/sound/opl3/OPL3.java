@@ -47,6 +47,7 @@ package vavi.sound.opl3;
  * @version 1.0.6
  */
 public final class OPL3 {
+
     private final int[] registers = new int[0x200];
 
     private Operator[][] operators;
@@ -433,9 +434,9 @@ public final class OPL3 {
      * Channels
      */
     private abstract class Channel {
-        int channelBaseAddress;
+        final int channelBaseAddress;
 
-        double[] feedback;
+        final double[] feedback;
 
         int fNumL, fNumH, kon, block, chA, chB, chC, chD, fb, cnt;
 
@@ -517,7 +518,8 @@ public final class OPL3 {
     }
 
     private class Channel2Op extends Channel {
-        Operator op1, op2;
+        final Operator op1;
+        final Operator op2;
 
         Channel2Op(int baseAddress, Operator o1, Operator o2) {
             super(baseAddress);
@@ -592,7 +594,10 @@ public final class OPL3 {
     }
 
     private class Channel4Op extends Channel {
-        Operator op1, op2, op3, op4;
+        final Operator op1;
+        final Operator op2;
+        final Operator op3;
+        final Operator op4;
 
         Channel4Op(int baseAddress, Operator o1, Operator o2, Operator o3, Operator o4) {
             super(baseAddress);
@@ -735,12 +740,12 @@ public final class OPL3 {
      * Operators
      */
     private class Operator {
-        PhaseGenerator phaseGenerator;
-        EnvelopeGenerator envelopeGenerator;
+        final PhaseGenerator phaseGenerator;
+        final EnvelopeGenerator envelopeGenerator;
 
         double envelope, phase;
 
-        int operatorBaseAddress;
+        final int operatorBaseAddress;
         int am, vib, ksr, egt, mult, ksl, tl, ar, dr, sl, rr, ws;
         int keyScaleNumber, f_number, block;
 

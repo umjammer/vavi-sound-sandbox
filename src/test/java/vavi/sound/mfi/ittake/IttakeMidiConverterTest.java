@@ -46,7 +46,5 @@ Debug.println("type: " + type);
         file = new File(args[1]);
         int r = MfiSystem.write(mfiSequence, VaviMfiFileFormat.FILE_TYPE, file);
 Debug.println("write: " + r);
-
-        System.exit(0);
     }
 }

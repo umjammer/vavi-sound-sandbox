@@ -80,7 +80,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
      * formats, this method will transcode the source to the dest into the
      * specified formats.
      */
-    public boolean doIt(MediaLocator inML, MediaLocator outML, Format fmts[], int start, int end) {
+    public boolean doIt(MediaLocator inML, MediaLocator outML, Format[] fmts, int start, int end) {
 
         Processor p;
 
@@ -191,12 +191,12 @@ public class Transcode implements ControllerListener, DataSinkListener {
     /**
      * Set the target transcode format on the processor.
      */
-    boolean setTrackFormats(Processor p, Format fmts[]) {
+    boolean setTrackFormats(Processor p, Format[] fmts) {
 
         if (fmts.length == 0)
             return true;
 
-        TrackControl tcs[];
+        TrackControl[] tcs;
 
         if ((tcs = p.getTrackControls()) == null) {
             // The processor does not support any track control.
@@ -204,12 +204,12 @@ public class Transcode implements ControllerListener, DataSinkListener {
             return false;
         }
 
-        for (int i = 0; i < fmts.length; i++) {
+        for (Format fmt : fmts) {
 
-            System.err.println("- set track format to: " + fmts[i]);
+            System.err.println("- set track format to: " + fmt);
 
-            if (!setEachTrackFormat(p, tcs, fmts[i])) {
-                System.err.println("Cannot transcode any track to: " + fmts[i]);
+            if (!setEachTrackFormat(p, tcs, fmt)) {
+                System.err.println("Cannot transcode any track to: " + fmt);
                 return false;
             }
         }
@@ -221,9 +221,9 @@ public class Transcode implements ControllerListener, DataSinkListener {
      * We'll loop through the tracks and try to find a track that can be
      * converted to the given format.
      */
-    boolean setEachTrackFormat(Processor p, TrackControl tcs[], Format fmt) {
+    boolean setEachTrackFormat(Processor p, TrackControl[] tcs, Format fmt) {
 
-        Format supported[];
+        Format[] supported;
         Format f;
 
         // for (int i = 0; i < tcs.length; i++) {
@@ -233,16 +233,16 @@ public class Transcode implements ControllerListener, DataSinkListener {
         // }
         // }
 
-        for (int i = 0; i < tcs.length; i++) {
+        for (TrackControl tc : tcs) {
 
-            supported = tcs[i].getSupportedFormats();
+            supported = tc.getSupportedFormats();
 
             if (supported == null)
                 continue;
 
-            for (int j = 0; j < supported.length; j++) {
+            for (Format format : supported) {
 
-                if (fmt.matches(supported[j]) && (f = fmt.intersects(supported[j])) != null && tcs[i].setFormat(f) != null) {
+                if (fmt.matches(format) && (f = fmt.intersects(format)) != null && tc.setFormat(f) != null) {
 
                     // Success.
                     return true;
@@ -259,24 +259,24 @@ public class Transcode implements ControllerListener, DataSinkListener {
      */
     void setJPEGQuality(Player p, float val) {
 
-        Control cs[] = p.getControls();
+        Control[] cs = p.getControls();
         QualityControl qc = null;
         VideoFormat jpegFmt = new VideoFormat(VideoFormat.JPEG);
 
         // Loop through the controls to find the Quality control for
         // the JPEG encoder.
-        for (int i = 0; i < cs.length; i++) {
+        for (Control c : cs) {
 
-            if (cs[i] instanceof QualityControl && cs[i] instanceof Owned) {
-                Object owner = ((Owned) cs[i]).getOwner();
+            if (c instanceof QualityControl && c instanceof Owned) {
+                Object owner = ((Owned) c).getOwner();
 
                 // Check to see if the owner is a Codec.
                 // Then check for the output format.
                 if (owner instanceof Codec) {
-                    Format fmts[] = ((Codec) owner).getSupportedOutputFormats(null);
-                    for (int j = 0; j < fmts.length; j++) {
-                        if (fmts[j].matches(jpegFmt)) {
-                            qc = (QualityControl) cs[i];
+                    Format[] fmts = ((Codec) owner).getSupportedOutputFormats(null);
+                    for (Format fmt : fmts) {
+                        if (fmt.matches(jpegFmt)) {
+                            qc = (QualityControl) c;
                             qc.setQuality(val);
                             System.err.println("- Set quality to " + val + " on " + qc);
                             break;
@@ -315,7 +315,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
         return dsink;
     }
 
-    Object waitSync = new Object();
+    final Object waitSync = new Object();
 
     boolean stateTransitionOK = true;
 
@@ -337,6 +337,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
     /**
      * Controller Listener.
      */
+    @Override
     public void controllerUpdate(ControllerEvent evt) {
 
         if (evt instanceof ConfigureCompleteEvent || evt instanceof RealizeCompleteEvent || evt instanceof PrefetchCompleteEvent) {
@@ -359,7 +360,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
         }
     }
 
-    Object waitFileSync = new Object();
+    final Object waitFileSync = new Object();
 
     boolean fileDone = false;
 
@@ -379,13 +380,14 @@ public class Transcode implements ControllerListener, DataSinkListener {
             } catch (Exception e) {
             }
         }
-        System.err.println("");
+        System.err.println();
         return fileSuccess;
     }
 
     /**
      * Event handler for the file writer.
      */
+    @Override
     public void dataSinkUpdate(DataSinkEvent evt) {
 
         if (evt instanceof EndOfStreamEvent) {
@@ -436,7 +438,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
         try {
             Class<?> clazz = Class.forName("com.sun.media.MimeManager");
             Method method = clazz.getMethod("getMimeType", String.class);
-            return String.class.cast(method.invoke(null, name));
+            return (String) method.invoke(null, name);
         } catch (Exception e) {
             return null;
         }
@@ -458,37 +460,42 @@ public class Transcode implements ControllerListener, DataSinkListener {
         int i = 0;
         while (i < args.length) {
 
-            if (args[i].equals("-v")) {
-                i++;
-                if (i >= args.length)
-                    prUsage();
-                vidFmt.addElement(args[i]);
-            } else if (args[i].equals("-a")) {
-                i++;
-                if (i >= args.length)
-                    prUsage();
-                audFmt.addElement(args[i]);
-            } else if (args[i].equals("-o")) {
-                i++;
-                if (i >= args.length)
-                    prUsage();
-                outputURL = args[i];
-            } else if (args[i].equals("-s")) {
-                i++;
-                if (i >= args.length)
-                    prUsage();
-                Integer integer = Integer.valueOf(args[i]);
-                if (integer != null)
-                    mediaStart = integer.intValue();
-            } else if (args[i].equals("-e")) {
-                i++;
-                if (i >= args.length)
-                    prUsage();
-                Integer integer = Integer.valueOf(args[i]);
-                if (integer != null)
-                    mediaEnd = integer.intValue();
-            } else {
-                inputURL = args[i];
+            switch (args[i]) {
+                case "-v" -> {
+                    i++;
+                    if (i >= args.length)
+                        prUsage();
+                    vidFmt.addElement(args[i]);
+                }
+                case "-a" -> {
+                    i++;
+                    if (i >= args.length)
+                        prUsage();
+                    audFmt.addElement(args[i]);
+                }
+                case "-o" -> {
+                    i++;
+                    if (i >= args.length)
+                        prUsage();
+                    outputURL = args[i];
+                }
+                case "-s" -> {
+                    i++;
+                    if (i >= args.length)
+                        prUsage();
+                    Integer integer = Integer.valueOf(args[i]);
+                    if (integer != null)
+                        mediaStart = integer;
+                }
+                case "-e" -> {
+                    i++;
+                    if (i >= args.length)
+                        prUsage();
+                    Integer integer = Integer.valueOf(args[i]);
+                    if (integer != null)
+                        mediaEnd = integer;
+                }
+                default -> inputURL = args[i];
             }
             i++;
         }
@@ -504,7 +511,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
         }
 
         int j = 0;
-        Format fmts[] = new Format[audFmt.size() + vidFmt.size()];
+        Format[] fmts = new Format[audFmt.size() + vidFmt.size()];
         Format fmt;
 
         // Parse the audio format spec. into real AudioFormat's.
@@ -585,14 +592,14 @@ public class Transcode implements ControllerListener, DataSinkListener {
 
         // Parser the media locator to extract the requested format.
 
-        if (fmtStr != null && fmtStr.length() > 0) {
+        if (fmtStr != null && !fmtStr.isEmpty()) {
             while (fmtStr.length() > 1 && fmtStr.charAt(0) == ':')
                 fmtStr = fmtStr.substring(1);
 
             // Now see if there's a encode rate specified.
             int off = fmtStr.indexOf(':');
             if (off == -1) {
-                if (!fmtStr.equals(""))
+                if (!fmtStr.isEmpty())
                     encodeStr = fmtStr;
             } else {
                 encodeStr = fmtStr.substring(0, off);
@@ -600,7 +607,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
                 // Now see if there's a sample rate specified
                 off = fmtStr.indexOf(':');
                 if (off == -1) {
-                    if (!fmtStr.equals(""))
+                    if (!fmtStr.isEmpty())
                         rateStr = fmtStr;
                 } else {
                     rateStr = fmtStr.substring(0, off);
@@ -608,7 +615,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
                     // Now see if there's a size specified
                     off = fmtStr.indexOf(':');
                     if (off == -1) {
-                        if (!fmtStr.equals(""))
+                        if (!fmtStr.isEmpty())
                             bitsStr = fmtStr;
                     } else {
                         bitsStr = fmtStr.substring(0, off);
@@ -616,7 +623,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
                         // Now see if there's channels specified.
                         off = fmtStr.indexOf(':');
                         if (off == -1) {
-                            if (!fmtStr.equals(""))
+                            if (!fmtStr.isEmpty())
                                 channelsStr = fmtStr;
                         } else {
                             channelsStr = fmtStr.substring(0, off);
@@ -624,11 +631,11 @@ public class Transcode implements ControllerListener, DataSinkListener {
                             // Now see if there's endian specified.
                             off = fmtStr.indexOf(':');
                             if (off == -1) {
-                                if (!fmtStr.equals(""))
+                                if (!fmtStr.isEmpty())
                                     endianStr = fmtStr.substring(off + 1);
                             } else {
                                 endianStr = fmtStr.substring(0, off);
-                                if (!fmtStr.equals(""))
+                                if (!fmtStr.isEmpty())
                                     signedStr = fmtStr.substring(off + 1);
                             }
                         }
@@ -643,7 +650,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
             try {
                 Integer integer = Integer.valueOf(rateStr);
                 if (integer != null)
-                    rate = integer.intValue();
+                    rate = integer;
             } catch (Throwable t) {
             }
         }
@@ -654,7 +661,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
             try {
                 Integer integer = Integer.valueOf(bitsStr);
                 if (integer != null)
-                    bits = integer.intValue();
+                    bits = integer;
             } catch (Throwable t) {
             }
         }
@@ -665,7 +672,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
             try {
                 Integer integer = Integer.valueOf(channelsStr);
                 if (integer != null)
-                    channels = integer.intValue();
+                    channels = integer;
             } catch (Throwable t) {
             }
         }
@@ -701,14 +708,14 @@ public class Transcode implements ControllerListener, DataSinkListener {
 
         // Parser the media locator to extract the requested format.
 
-        if (fmtStr != null && fmtStr.length() > 0) {
+        if (fmtStr != null && !fmtStr.isEmpty()) {
             while (fmtStr.length() > 1 && fmtStr.charAt(0) == ':')
                 fmtStr = fmtStr.substring(1);
 
             // Now see if there's a encode rate specified.
             int off = fmtStr.indexOf(':');
             if (off == -1) {
-                if (!fmtStr.equals(""))
+                if (!fmtStr.isEmpty())
                     encodeStr = fmtStr;
             } else {
                 encodeStr = fmtStr.substring(0, off);
@@ -716,7 +723,7 @@ public class Transcode implements ControllerListener, DataSinkListener {
             }
         }
 
-        if (encodeStr == null || encodeStr.equals(""))
+        if (encodeStr == null || encodeStr.isEmpty())
             prUsage();
 
         if (sizeStr == null)
@@ -738,10 +745,10 @@ public class Transcode implements ControllerListener, DataSinkListener {
             try {
                 Integer integer = Integer.valueOf(widthStr);
                 if (integer != null)
-                    width = integer.intValue();
+                    width = integer;
                 integer = Integer.valueOf(heightStr);
                 if (integer != null)
-                    height = integer.intValue();
+                    height = integer;
             } catch (Throwable t) {
                 prUsage();
             }

@@ -98,7 +98,7 @@ public class MochaSynthesizer implements Synthesizer {
 
     final MochaAudioInpuStream mocha;
 
-    TimeLine timeline = new TimeLine();
+    final TimeLine timeline = new TimeLine();
 
     // ----
 
@@ -501,49 +501,53 @@ Debug.println(line.getClass().getName());
                 throw new IllegalStateException("receiver is not open");
             }
 
-            if (message instanceof ShortMessage shortMessage) {
-                int channel = shortMessage.getChannel();
-                int command = shortMessage.getCommand();
-                int data1 = shortMessage.getData1();
-                int data2 = shortMessage.getData2();
-                switch (command) {
-                case ShortMessage.NOTE_OFF:
-                    channels[channel].noteOff(data1, data2);
-                    break;
-                case ShortMessage.NOTE_ON:
-                    channels[channel].noteOn(data1, data2);
-                    break;
-                case ShortMessage.POLY_PRESSURE:
-                    channels[channel].setPolyPressure(data1, data2);
-                    break;
-                case ShortMessage.CONTROL_CHANGE:
-                    channels[channel].controlChange(data1, data2);
-                    break;
-                case ShortMessage.PROGRAM_CHANGE:
-                    channels[channel].programChange(data1);
-                    break;
-                case ShortMessage.CHANNEL_PRESSURE:
-                    channels[channel].setChannelPressure(data1);
-                    break;
-                case ShortMessage.PITCH_BEND:
-                    channels[channel].setPitchBend(data1 | (data2 << 7));
-                    break;
-                default:
-Debug.printf("unhandled short: %02X\n", command);
+            switch (message) {
+                case ShortMessage shortMessage -> {
+                    int channel = shortMessage.getChannel();
+                    int command = shortMessage.getCommand();
+                    int data1 = shortMessage.getData1();
+                    int data2 = shortMessage.getData2();
+                    switch (command) {
+                        case ShortMessage.NOTE_OFF:
+                            channels[channel].noteOff(data1, data2);
+                            break;
+                        case ShortMessage.NOTE_ON:
+                            channels[channel].noteOn(data1, data2);
+                            break;
+                        case ShortMessage.POLY_PRESSURE:
+                            channels[channel].setPolyPressure(data1, data2);
+                            break;
+                        case ShortMessage.CONTROL_CHANGE:
+                            channels[channel].controlChange(data1, data2);
+                            break;
+                        case ShortMessage.PROGRAM_CHANGE:
+                            channels[channel].programChange(data1);
+                            break;
+                        case ShortMessage.CHANNEL_PRESSURE:
+                            channels[channel].setChannelPressure(data1);
+                            break;
+                        case ShortMessage.PITCH_BEND:
+                            channels[channel].setPitchBend(data1 | (data2 << 7));
+                            break;
+                        default:
+                            Debug.printf("unhandled short: %02X\n", command);
+                    }
                 }
-            } else if (message instanceof SysexMessage sysexMessage) {
-                byte[] data = sysexMessage.getData();
+                case SysexMessage sysexMessage -> {
+                    byte[] data = sysexMessage.getData();
 //Debug.print("sysex:\n" + StringUtil.getDump(data));
-Debug.printf(Level.FINE, "sysex: %02x %02x %02x", data[1], data[2], data[3]);
-
-            } else if (message instanceof MetaMessage metaMessage) {
-                Debug.printf("meta: %02x", metaMessage.getType());
-                switch (metaMessage.getType()) {
-                case 0x2f:
-                    break;
+                    Debug.printf(Level.FINE, "sysex: %02x %02x %02x", data[1], data[2], data[3]);
                 }
-            } else {
-                assert false;
+                case MetaMessage metaMessage -> {
+                    Debug.printf("meta: %02x", metaMessage.getType());
+                    switch (metaMessage.getType()) {
+                        case 0x2f:
+                            break;
+                    }
+                }
+                case null, default -> {
+                    assert false;
+                }
             }
         }
 

@@ -24,7 +24,7 @@ public class WaveInputStream extends InputStream {
     private final Instrument[] insts;
     private final NoteOn[] notes;
     private int currentTick = 0;
-    private final double currentTime = 0.0;
+    private static final double currentTime = 0.0;
     private final double[] time;
     private int currentTempo = 60;
     private int pos = 0;
@@ -66,19 +66,23 @@ public class WaveInputStream extends InputStream {
         while (e != null && e.getTick() == currentTick) {
             int ch = e.getChannel();
 
-            if (e instanceof ChangeInstrument) {
-                insts[ch] = ((ChangeInstrument) e).getInstrument();
-                insts[ch].setTimeStep(1.0 / (double) samplingRate);
-            } else if (e instanceof ChangeTempo) {
-                currentTempo = ((ChangeTempo) e).getTempo();
-            } else if (e instanceof NoteOn) {
-                notes[ch] = (NoteOn) e;
-                insts[ch].press();
-            } else if (e instanceof NoteOff) {
-                // notes[ch] = null;
-                insts[ch].release();
+            switch (e) {
+                case ChangeInstrument changeInstrument -> {
+                    insts[ch] = changeInstrument.getInstrument();
+                    insts[ch].setTimeStep(1.0 / (double) samplingRate);
+                }
+                case ChangeTempo changeTempo -> currentTempo = changeTempo.getTempo();
+                case NoteOn noteOn -> {
+                    notes[ch] = noteOn;
+                    insts[ch].press();
+                }
+                case NoteOff noteOff ->
+                    // notes[ch] = null;
+                        insts[ch].release();
+                default -> {
+                }
             }
-            events.remove(0);
+            events.removeFirst();
             if (events.isEmpty()) {
                 break;
             }
@@ -119,7 +123,7 @@ public class WaveInputStream extends InputStream {
             if (events.isEmpty()) {
                 break;
             }
-            if (events.get(0).getTick() == currentTick) {
+            if (events.getFirst().getTick() == currentTick) {
                 processEvent();
             }
 

@@ -21,6 +21,8 @@ package jse;
 import gnu.getopt.Getopt;
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -29,8 +31,10 @@ import org.tritonus.share.sampled.AudioSystemShadow;
 import org.tritonus.share.sampled.file.AudioOutputStream;
 import org.tritonus.share.sampled.file.TDataOutputStream;
 
+import static java.lang.System.getLogger;
 
-/**
+
+/*
  * +DocBookXML <title>Saving waveform data to a file (<classname>AudioOutputStream</classname>
  * version)</title>
  *
@@ -76,10 +80,15 @@ import org.tritonus.share.sampled.file.TDataOutputStream;
  *
  * -DocBookXML
  */
-public class OscillatorFileAOS {
-    private static final int BUFFER_SIZE = 128000;
 
-    private static boolean DEBUG = false;
+/**
+ * OscillatorFileAOS
+ */
+public class OscillatorFileAOS {
+
+    private static final Logger logger = getLogger(OscillatorFileAOS.class.getName());
+
+    private static final int BUFFER_SIZE = 128000;
 
     public static void main(String[] args) throws IOException {
         AudioFormat audioFormat;
@@ -89,15 +98,11 @@ public class OscillatorFileAOS {
         float fAmplitude = 0.7F;
         AudioFileFormat.Type targetType = AudioFileFormat.Type.AU;
 
-        /**
-         * The desired duration of the file in seconds. This can be set by the
-         * '-d' command line switch. Default is 10 seconds.
-         */
+        // The desired duration of the file in seconds. This can be set by the
+        // '-d' command line switch. Default is 10 seconds.
         int nDuration = 10;
 
-        /*
-         * Parsing of command-line options takes place...
-         */
+        // Parsing of command-line options takes place...
         Getopt g = new Getopt("AudioPlayer", args, "ht:r:f:a:d:D");
         int c;
         while ((c = g.getopt()) != -1) {
@@ -119,15 +124,10 @@ public class OscillatorFileAOS {
             case 'd':
                 nDuration = Integer.parseInt(g.getOptarg());
                 break;
-            case 'D':
-                DEBUG = true;
-                break;
             case '?':
                 printUsageAndExit();
             default:
-                if (DEBUG) {
-                    System.out.println("getopt() returned " + c);
-                }
+                logger.log(Level.DEBUG, "getopt() returned " + c);
                 break;
             }
         }
@@ -157,10 +157,10 @@ public class OscillatorFileAOS {
 
         TDataOutputStream dataOutputStream = null;
         try {
-            // dataOutputStream = new TSeekableDataOutputStream(targetFile);
+//            dataOutputStream = new TSeekableDataOutputStream(targetFile);
             dataOutputStream = AudioSystemShadow.getDataOutputStream(outputFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
 
         AudioOutputStream audioOutputStream = null;
@@ -187,18 +187,12 @@ public class OscillatorFileAOS {
         int nBytesRead = 0;
         byte[] abData = new byte[BUFFER_SIZE];
         while (nBytesRead != -1) {
-            if (DEBUG) {
-                System.out.println("OscillatorFileAOS.main(): trying to read (bytes): " + abData.length);
-            }
+            logger.log(Level.DEBUG, "OscillatorFileAOS.main(): trying to read (bytes): " + abData.length);
             nBytesRead = oscillator.read(abData, 0, abData.length);
-            if (DEBUG) {
-                System.out.println("OscillatorFileAOS.main(): read (bytes): " + nBytesRead);
-            }
+            logger.log(Level.DEBUG, "OscillatorFileAOS.main(): read (bytes): " + nBytesRead);
             if (nBytesRead >= 0) {
                 int nBytesWritten = audioOutputStream.write(abData, 0, nBytesRead);
-                if (DEBUG) {
-                    System.out.println("OscillatorFileAOS.main(): written: " + nBytesWritten);
-                }
+                logger.log(Level.DEBUG, "OscillatorFileAOS.main(): written: " + nBytesWritten);
             }
         }
 
@@ -212,15 +206,13 @@ public class OscillatorFileAOS {
     private static int getWaveformType(String strWaveformType) {
         int nWaveformType = Oscillator.WAVEFORM_SINE;
         strWaveformType = strWaveformType.trim().toLowerCase();
-        if (strWaveformType.equals("sine")) {
-            nWaveformType = Oscillator.WAVEFORM_SINE;
-        } else if (strWaveformType.equals("square")) {
-            nWaveformType = Oscillator.WAVEFORM_SQUARE;
-        } else if (strWaveformType.equals("triangle")) {
-            nWaveformType = Oscillator.WAVEFORM_TRIANGLE;
-        } else if (strWaveformType.equals("sawtooth")) {
-            nWaveformType = Oscillator.WAVEFORM_SAWTOOTH;
-        }
+        nWaveformType = switch (strWaveformType) {
+            case "sine" -> Oscillator.WAVEFORM_SINE;
+            case "square" -> Oscillator.WAVEFORM_SQUARE;
+            case "triangle" -> Oscillator.WAVEFORM_TRIANGLE;
+            case "sawtooth" -> Oscillator.WAVEFORM_SAWTOOTH;
+            default -> nWaveformType;
+        };
         return nWaveformType;
     }
 

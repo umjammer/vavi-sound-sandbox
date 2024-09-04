@@ -66,17 +66,17 @@ import javax.media.rtp.event.StreamMappedEvent;
  * AVReceive2 to receive RTP transmission using the new RTP API.
  */
 public class AVReceive2 implements ReceiveStreamListener, SessionListener, ControllerListener {
-    String sessions[] = null;
+    String[] sessions = null;
 
-    RTPManager mgrs[] = null;
+    RTPManager[] mgrs = null;
 
     List<PlayerWindow> playerWindows = null;
 
     boolean dataReceived = false;
 
-    Object dataSync = new Object();
+    final Object dataSync = new Object();
 
-    public AVReceive2(String sessions[]) {
+    public AVReceive2(String[] sessions) {
         this.sessions = sessions;
     }
 
@@ -154,7 +154,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
                     dataSync.wait(1000);
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         if (!dataReceived) {
@@ -167,7 +167,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
     }
 
     public boolean isDone() {
-        return playerWindows.size() == 0;
+        return playerWindows.isEmpty();
     }
 
     /**
@@ -175,10 +175,10 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
      */
     protected void close() {
 
-        for (int i = 0; i < playerWindows.size(); i++) {
+        for (PlayerWindow playerWindow : playerWindows) {
             try {
-                playerWindows.get(i).close();
-            } catch (Exception e) {
+                playerWindow.close();
+            } catch (Exception ignored) {
             }
         }
 
@@ -195,8 +195,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
     }
 
     PlayerWindow find(Player p) {
-        for (int i = 0; i < playerWindows.size(); i++) {
-            PlayerWindow pw = playerWindows.get(i);
+        for (PlayerWindow pw : playerWindows) {
             if (pw.player == p)
                 return pw;
         }
@@ -204,8 +203,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
     }
 
     PlayerWindow find(ReceiveStream strm) {
-        for (int i = 0; i < playerWindows.size(); i++) {
-            PlayerWindow pw = playerWindows.get(i);
+        for (PlayerWindow pw : playerWindows) {
             if (pw.stream == strm)
                 return pw;
         }
@@ -215,6 +213,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
     /**
      * SessionListener.
      */
+    @Override
     public synchronized void update(SessionEvent evt) {
         if (evt instanceof NewParticipantEvent) {
             Participant p = ((NewParticipantEvent) evt).getParticipant();
@@ -225,87 +224,89 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
     /**
      * ReceiveStreamListener
      */
+    @Override
     public synchronized void update(ReceiveStreamEvent evt) {
 
         // RTPManager mgr = (RTPManager) evt.getSource();
         Participant participant = evt.getParticipant(); // could be null.
         ReceiveStream stream = evt.getReceiveStream(); // could be null.
 
-        if (evt instanceof RemotePayloadChangeEvent) {
+        switch (evt) {
+            case RemotePayloadChangeEvent remotePayloadChangeEvent -> {
 
-            System.err.println("  - Received an RTP PayloadChangeEvent.");
-            System.err.println("Sorry, cannot handle payload change.");
-            System.exit(0);
+                System.err.println("  - Received an RTP PayloadChangeEvent.");
+                System.err.println("Sorry, cannot handle payload change.");
+                System.exit(0);
+            }
+            case NewReceiveStreamEvent newReceiveStreamEvent -> {
 
-        }
+                try {
+                    stream = evt.getReceiveStream();
+                    DataSource ds = stream.getDataSource();
 
-        else if (evt instanceof NewReceiveStreamEvent) {
+                    // Find out the formats.
+                    RTPControl ctl = (RTPControl) ds.getControl("javax.media.rtp.RTPControl");
+                    if (ctl != null) {
+                        System.err.println("  - Recevied new RTP stream: " + ctl.getFormat());
+                    } else
+                        System.err.println("  - Recevied new RTP stream");
 
-            try {
-                stream = ((NewReceiveStreamEvent) evt).getReceiveStream();
-                DataSource ds = stream.getDataSource();
+                    if (participant == null)
+                        System.err.println("      The sender of this stream had yet to be identified.");
+                    else {
+                        System.err.println("      The stream comes from: " + participant.getCNAME());
+                    }
 
-                // Find out the formats.
-                RTPControl ctl = (RTPControl) ds.getControl("javax.media.rtp.RTPControl");
-                if (ctl != null) {
-                    System.err.println("  - Recevied new RTP stream: " + ctl.getFormat());
-                } else
-                    System.err.println("  - Recevied new RTP stream");
+                    // create a player by passing datasource to the Media Manager
+                    Player p = javax.media.Manager.createPlayer(ds);
+                    if (p == null)
+                        return;
 
-                if (participant == null)
-                    System.err.println("      The sender of this stream had yet to be identified.");
-                else {
-                    System.err.println("      The stream comes from: " + participant.getCNAME());
+                    p.addControllerListener(this);
+                    p.realize();
+                    PlayerWindow pw = new PlayerWindow(p, stream);
+                    playerWindows.add(pw);
+
+                    // Notify intialize() that a new stream had arrived.
+                    synchronized (dataSync) {
+                        dataReceived = true;
+                        dataSync.notifyAll();
+                    }
+
+                } catch (Exception e) {
+                    System.err.println("NewReceiveStreamEvent exception " + e.getMessage());
                 }
+            }
+            case StreamMappedEvent streamMappedEvent -> {
 
-                // create a player by passing datasource to the Media Manager
-                Player p = javax.media.Manager.createPlayer(ds);
-                if (p == null)
-                    return;
-
-                p.addControllerListener(this);
-                p.realize();
-                PlayerWindow pw = new PlayerWindow(p, stream);
-                playerWindows.add(pw);
-
-                // Notify intialize() that a new stream had arrived.
-                synchronized (dataSync) {
-                    dataReceived = true;
-                    dataSync.notifyAll();
+                if (stream != null && stream.getDataSource() != null) {
+                    DataSource ds = stream.getDataSource();
+                    // Find out the formats.
+                    RTPControl ctl = (RTPControl) ds.getControl("javax.media.rtp.RTPControl");
+                    System.err.println("  - The previously unidentified stream ");
+                    if (ctl != null)
+                        System.err.println("      " + ctl.getFormat());
+                    System.err.println("      had now been identified as sent by: " + participant.getCNAME());
                 }
-
-            } catch (Exception e) {
-                System.err.println("NewReceiveStreamEvent exception " + e.getMessage());
-                return;
             }
+            case ByeEvent byeEvent -> {
 
-        } else if (evt instanceof StreamMappedEvent) {
-
-            if (stream != null && stream.getDataSource() != null) {
-                DataSource ds = stream.getDataSource();
-                // Find out the formats.
-                RTPControl ctl = (RTPControl) ds.getControl("javax.media.rtp.RTPControl");
-                System.err.println("  - The previously unidentified stream ");
-                if (ctl != null)
-                    System.err.println("      " + ctl.getFormat());
-                System.err.println("      had now been identified as sent by: " + participant.getCNAME());
+                System.err.println("  - Got \"bye\" from: " + participant.getCNAME());
+                PlayerWindow pw = find(stream);
+                if (pw != null) {
+                    pw.close();
+                    playerWindows.remove(pw);
+                }
             }
-
-        } else if (evt instanceof ByeEvent) {
-
-            System.err.println("  - Got \"bye\" from: " + participant.getCNAME());
-            PlayerWindow pw = find(stream);
-            if (pw != null) {
-                pw.close();
-                playerWindows.remove(pw);
+            default -> {
             }
         }
-
     }
 
     /**
      * ControllerListener for the Players.
      */
+    @Override
     public synchronized void controllerUpdate(ControllerEvent ce) {
 
         Player p = (Player) ce.getSourceController();
@@ -341,7 +342,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
     /**
      * A utility class to parse the session addresses.
      */
-    class SessionLabel {
+    static class SessionLabel {
 
         public String addr = null;
 
@@ -354,14 +355,14 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
             int off;
             String portStr = null, ttlStr = null;
 
-            if (session != null && session.length() > 0) {
+            if (session != null && !session.isEmpty()) {
                 while (session.length() > 1 && session.charAt(0) == '/')
                     session = session.substring(1);
 
                 // Now see if there's a addr specified.
                 off = session.indexOf('/');
                 if (off == -1) {
-                    if (!session.equals(""))
+                    if (!session.isEmpty())
                         addr = session;
                 } else {
                     addr = session.substring(0, off);
@@ -369,7 +370,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
                     // Now see if there's a port specified
                     off = session.indexOf('/');
                     if (off == -1) {
-                        if (!session.equals(""))
+                        if (!session.isEmpty())
                             portStr = session;
                     } else {
                         portStr = session.substring(0, off);
@@ -377,7 +378,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
                         // Now see if there's a ttl specified
                         off = session.indexOf('/');
                         if (off == -1) {
-                            if (!session.equals(""))
+                            if (!session.isEmpty())
                                 ttlStr = session;
                         } else {
                             ttlStr = session.substring(0, off);
@@ -391,9 +392,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
 
             if (portStr != null) {
                 try {
-                    Integer integer = Integer.valueOf(portStr);
-                    if (integer != null)
-                        port = integer.intValue();
+                    port = Integer.parseInt(portStr);
                 } catch (Throwable t) {
                     throw new IllegalArgumentException();
                 }
@@ -402,9 +401,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
 
             if (ttlStr != null) {
                 try {
-                    Integer integer = Integer.valueOf(ttlStr);
-                    if (integer != null)
-                        ttl = integer.intValue();
+                    ttl = Integer.parseInt(ttlStr);
                 } catch (Throwable t) {
                     throw new IllegalArgumentException();
                 }
@@ -415,11 +412,11 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
     /**
      * GUI classes for the Player.
      */
-    class PlayerWindow extends Frame {
+    static class PlayerWindow extends Frame {
 
-        Player player;
+        final Player player;
 
-        ReceiveStream stream;
+        final ReceiveStream stream;
 
         PlayerWindow(Player p, ReceiveStream strm) {
             player = p;
@@ -436,6 +433,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
             dispose();
         }
 
+        @Override
         public void addNotify() {
             super.addNotify();
             pack();
@@ -445,9 +443,10 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
     /**
      * GUI classes for the Player.
      */
-    class PlayerPanel extends Panel {
+    static class PlayerPanel extends Panel {
 
-        Component vc, cc;
+        final Component vc;
+        final Component cc;
 
         PlayerPanel(Player p) {
             setLayout(new BorderLayout());
@@ -457,6 +456,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
                 add("South", cc);
         }
 
+        @Override
         public Dimension getPreferredSize() {
             int w = 0, h = 0;
             if (vc != null) {
@@ -476,7 +476,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
         }
     }
 
-    public static void main(String argv[]) {
+    public static void main(String[] argv) {
         if (argv.length == 0)
             prUsage();
 
@@ -490,7 +490,7 @@ public class AVReceive2 implements ReceiveStreamListener, SessionListener, Contr
         try {
             while (!avReceive.isDone())
                 Thread.sleep(1000);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
 
         System.err.println("Exiting AVReceive2");

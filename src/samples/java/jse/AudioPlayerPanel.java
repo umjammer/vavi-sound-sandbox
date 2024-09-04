@@ -1,9 +1,3 @@
-package jse;
-/*
- *        AudioPlayerPanel.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -23,44 +17,49 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+package jse;
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.URL;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+
+import static java.lang.System.getLogger;
+import static javax.swing.JOptionPane.showMessageDialog;
 
 
+/**
+ * AudioPlayerPanel.java
+ *
+ * This file is part of the Java Sound Examples.
+ */
 public class AudioPlayerPanel extends JPanel {
-    /**        Flag for debugging messages.
-     *        If true, some messages are dumped to the console
-     *        during operation.
-     */
-    private static boolean DEBUG = false;
+
+    private static final Logger logger = getLogger(AudioPlayerPanel.class.getName());
+
     private JButton m_loadButton;
     private JLabel m_fileLabel;
-    private JButton m_startButton;
-    private JButton m_stopButton;
-    private JButton m_pauseButton;
-    private JButton m_resumeButton;
+    private final JButton m_startButton;
+    private final JButton m_stopButton;
+    private final JButton m_pauseButton;
+    private final JButton m_resumeButton;
     private JCheckBox m_muteCheckBox;
-    private JSlider m_gainSlider;
-    private JSlider m_panSlider;
+    private final JSlider m_gainSlider;
+    private final JSlider m_panSlider;
 
-    /**        The SimpleAudioStream object used to play the audio files.
-     */
+    /** The SimpleAudioStream object used to play the audio files. */
     private SimpleAudioStream m_audioStream;
     private Object m_dataSource;
 
@@ -78,36 +77,20 @@ public class AudioPlayerPanel extends JPanel {
         subControlPanel1.setLayout(new FlowLayout());
         controlPanel.add(subControlPanel1);
         m_startButton = new JButton("Start");
-        m_startButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ae) {
-                    startPlayback();
-                }
-            });
+        m_startButton.addActionListener(ae -> startPlayback());
         subControlPanel1.add(m_startButton);
         m_stopButton = new JButton("Stop");
-        m_stopButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ae) {
-                    stopPlayback();
-                }
-            });
+        m_stopButton.addActionListener(ae -> stopPlayback());
         subControlPanel1.add(m_stopButton);
 
         JPanel subControlPanel2 = new JPanel();
         subControlPanel2.setLayout(new FlowLayout());
         controlPanel.add(subControlPanel2);
         m_pauseButton = new JButton("Pause");
-        m_pauseButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ae) {
-                    pausePlayback();
-                }
-            });
+        m_pauseButton.addActionListener(ae -> pausePlayback());
         subControlPanel2.add(m_pauseButton);
         m_resumeButton = new JButton("Resume");
-        m_resumeButton.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent ae) {
-                    resumePlayback();
-                }
-            });
+        m_resumeButton.addActionListener(ae -> resumePlayback());
         subControlPanel2.add(m_resumeButton);
         m_startButton.setEnabled(false);
         m_stopButton.setEnabled(false);
@@ -115,19 +98,11 @@ public class AudioPlayerPanel extends JPanel {
         m_resumeButton.setEnabled(false);
         subControlPanel1.add(new JLabel("Volume"));
         m_gainSlider = new JSlider(JSlider.HORIZONTAL, -90, 24, 0);
-        m_gainSlider.addChangeListener(new ChangeListener() {
-                public void stateChanged(ChangeEvent ce) {
-                    changeGain();
-                }
-            });
+        m_gainSlider.addChangeListener(ce -> changeGain());
         subControlPanel1.add(m_gainSlider);
         subControlPanel2.add(new JLabel("Balance"));
         m_panSlider = new JSlider(JSlider.HORIZONTAL, -100, 100, 0);
-        m_panSlider.addChangeListener(new ChangeListener() {
-                public void stateChanged(ChangeEvent ce) {
-                    changePan();
-                }
-            });
+        m_panSlider.addChangeListener(ce -> changePan());
         subControlPanel2.add(m_panSlider);
     }
 
@@ -150,21 +125,14 @@ public class AudioPlayerPanel extends JPanel {
             } else {
                 m_audioStream = new SimpleAudioStream((File) dataSource);
             }
-        } catch (UnsupportedAudioFileException e) {
-            JOptionPane.showMessageDialog(null,
-                                          "The format of the audio data is not supported.");
-            return false;
-        } catch (IllegalArgumentException e) {
-            JOptionPane.showMessageDialog(null,
-                                          "The format of the audio data is not supported.");
+        } catch (UnsupportedAudioFileException | IllegalArgumentException e) {
+            showMessageDialog(null, "The format of the audio data is not supported.");
             return false;
         } catch (LineUnavailableException e) {
-            JOptionPane.showMessageDialog(null,
-                                          "There is currently no line to play.");
+            showMessageDialog(null, "There is currently no line to play.");
             return false;
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null,
-                                          "Error while reading audio data.");
+            showMessageDialog(null, "Error while reading audio data.");
             return false;
         }
         m_dataSource = dataSource;
@@ -211,20 +179,14 @@ public class AudioPlayerPanel extends JPanel {
     private void changeGain() {
         int nValue = m_gainSlider.getValue();
         float fGain = nValue;
-        if (DEBUG) {
-            System.out.println("AudioPlayerPanel.changeGain(): setting gain to " +
-                               fGain);
-        }
+        logger.log(Level.DEBUG, "AudioPlayerPanel.changeGain(): setting gain to " + fGain);
         m_audioStream.setGain(fGain);
     }
 
     private void changePan() {
         int nValue = m_panSlider.getValue();
         float fPan = nValue * 0.01F;
-        if (DEBUG) {
-            System.out.println("AudioPlayerPanel.changeGain(): setting pan to " +
-                               fPan);
-        }
+        logger.log(Level.DEBUG, "AudioPlayerPanel.changeGain(): setting pan to " + fPan);
         m_audioStream.setPan(fPan);
     }
 }

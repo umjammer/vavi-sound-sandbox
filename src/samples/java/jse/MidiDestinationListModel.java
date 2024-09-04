@@ -1,9 +1,3 @@
-package jse;
-/*
- *        MidiDestinationListModel.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 2000 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -23,6 +17,11 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+package jse;
+
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiUnavailableException;
@@ -31,20 +30,32 @@ import javax.sound.midi.Receiver;
 import javax.swing.AbstractListModel;
 import javax.swing.ListSelectionModel;
 
+import static java.lang.System.getLogger;
 
-public class MidiDestinationListModel extends AbstractListModel {
-    private MidiDevice m_source;
-    private MidiDevice.Info[] m_aDestinationInfos;
+
+/**
+ * MidiDestinationListModel.java
+ *
+ * This file is part of the Java Sound Examples.
+ */
+public class MidiDestinationListModel extends AbstractListModel<Object> {
+
+    private static final Logger logger = getLogger(MidiDestinationListModel.class.getName());
+
+    private final MidiDevice m_source;
+    private final MidiDevice.Info[] m_aDestinationInfos;
 
     public MidiDestinationListModel(MidiDevice source) {
         m_source = source;
         m_aDestinationInfos = MidiSystem.getMidiDeviceInfo();
     }
 
+    @Override
     public int getSize() {
         return m_aDestinationInfos.length;
     }
 
+    @Override
     public Object getElementAt(int nIndex) {
         return m_aDestinationInfos[nIndex].getName();
     }
@@ -70,7 +81,7 @@ public class MidiDestinationListModel extends AbstractListModel {
             Transmitter transmitter = m_source.getTransmitter();
             transmitter.setReceiver(receiver);
         } catch (MidiUnavailableException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
     }
 }

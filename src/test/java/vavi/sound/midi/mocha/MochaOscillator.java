@@ -33,7 +33,7 @@ public class MochaOscillator extends ModelAbstractOscillator {
 
     /** */
     public class MochaInstrument extends SimpleInstrument {
-        Instrumental data;
+        final Instrumental data;
         protected MochaInstrument(int bank, int program, boolean isPercussion, String name, Instrumental data) {
             setName(MochaOscillator.this.getName());
             add(getPerformer());
@@ -53,7 +53,7 @@ public class MochaOscillator extends ModelAbstractOscillator {
     }
 
     /** */
-    Instrument[] instruments;
+    final Instrument[] instruments;
 
     {
         instruments = new Instrument[4];

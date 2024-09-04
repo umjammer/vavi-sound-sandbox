@@ -34,7 +34,7 @@ class SierraFile extends MidiTypeFile {
                 dis.readUnsignedByte() != 0xf0;
     }
 
-    protected Opl3Instrument[] smyinsbank = new Opl3Instrument[128];
+    protected final Opl3Instrument[] smyinsbank = new Opl3Instrument[128];
     // sierra instruments
     protected int stins;
 
@@ -57,8 +57,12 @@ class SierraFile extends MidiTypeFile {
         player.tracks[0].spos = player.pos;
     }
 
+    protected Context context;
+
     @Override
     public void init(Context context) {
+        this.context = context;
+
         if (smyinsbank[0] != null) {
             context.instruments(smyinsbank);
         }
@@ -72,5 +76,19 @@ class SierraFile extends MidiTypeFile {
         }
 
         context.adlib().style = Adlib.SIERRA_STYLE | Adlib.MIDI_STYLE;
+    }
+
+    @Override
+    public int nativeVelocity(int channel, int velocity) {
+//        if ((adlib.style & Adlib.MIDI_STYLE) != 0) {
+        int nv = (context.voiceStatus()[channel].volume * velocity) / 128;
+
+        if (nv > 127) {
+            nv = 127;
+        }
+
+        nv = Adlib.my_midi_fm_vol_table[nv];
+        return nv;
+//        }
     }
 }

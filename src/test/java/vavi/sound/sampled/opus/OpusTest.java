@@ -77,7 +77,7 @@ public class OpusTest {
     }
 
     static final String inFile = "src/test/resources/opus.raw";
-    static final String outFile = "tmp/opus.pcm";
+    static final String outFile = "tmp/opus-vavi-out.pcm";
 
     @BeforeAll
     static void setup() throws IOException {

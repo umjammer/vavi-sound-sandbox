@@ -1,9 +1,3 @@
-package jse;
-/*
- *        MidiFileInfo.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999, 2000 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -23,12 +17,19 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
+
+package jse;
+
 import java.io.File;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.URL;
 import javax.sound.midi.MidiFileFormat;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
+
+import static java.lang.System.getLogger;
 
 
 /*        +DocBookXML
@@ -97,7 +98,16 @@ import javax.sound.midi.Sequence;
 
 -DocBookXML
 */
+
+/**
+ * MidiFileInfo.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ */
 public class MidiFileInfo {
+
+    private static final Logger logger = getLogger(MidiFileInfo.class.getName());
+
     private static final int LOAD_METHOD_STREAM = 1;
     private static final int LOAD_METHOD_FILE = 2;
     private static final int LOAD_METHOD_URL = 3;
@@ -111,16 +121,12 @@ public class MidiFileInfo {
         boolean bCheckSequence = false;
         int nCurrentArg = 0;
         while (nCurrentArg < args.length) {
-            if (args[nCurrentArg].equals("-h")) {
-                printUsageAndExit();
-            } else if (args[nCurrentArg].equals("-s")) {
-                nLoadMethod = LOAD_METHOD_STREAM;
-            } else if (args[nCurrentArg].equals("-f")) {
-                nLoadMethod = LOAD_METHOD_FILE;
-            } else if (args[nCurrentArg].equals("-u")) {
-                nLoadMethod = LOAD_METHOD_URL;
-            } else if (args[nCurrentArg].equals("-i")) {
-                bCheckSequence = true;
+            switch (args[nCurrentArg]) {
+                case "-h" -> printUsageAndExit();
+                case "-s" -> nLoadMethod = LOAD_METHOD_STREAM;
+                case "-f" -> nLoadMethod = LOAD_METHOD_FILE;
+                case "-u" -> nLoadMethod = LOAD_METHOD_URL;
+                case "-i" -> bCheckSequence = true;
             }
 
             nCurrentArg++;
@@ -132,36 +138,36 @@ public class MidiFileInfo {
         Sequence sequence = null;
         try {
             switch (nLoadMethod) {
-            case LOAD_METHOD_STREAM:
+                case LOAD_METHOD_STREAM:
 
-                InputStream inputStream = System.in;
-                fileFormat = MidiSystem.getMidiFileFormat(inputStream);
-                strFilename = "<standard input>";
-                if (bCheckSequence) {
-                    sequence = MidiSystem.getSequence(inputStream);
-                }
-                break;
-            case LOAD_METHOD_FILE:
+                    InputStream inputStream = System.in;
+                    fileFormat = MidiSystem.getMidiFileFormat(inputStream);
+                    strFilename = "<standard input>";
+                    if (bCheckSequence) {
+                        sequence = MidiSystem.getSequence(inputStream);
+                    }
+                    break;
+                case LOAD_METHOD_FILE:
 
-                File file = new File(strSource);
-                fileFormat = MidiSystem.getMidiFileFormat(file);
-                strFilename = file.getCanonicalPath();
-                if (bCheckSequence) {
-                    sequence = MidiSystem.getSequence(file);
-                }
-                break;
-            case LOAD_METHOD_URL:
+                    File file = new File(strSource);
+                    fileFormat = MidiSystem.getMidiFileFormat(file);
+                    strFilename = file.getCanonicalPath();
+                    if (bCheckSequence) {
+                        sequence = MidiSystem.getSequence(file);
+                    }
+                    break;
+                case LOAD_METHOD_URL:
 
-                URL url = new URL(strSource);
-                fileFormat = MidiSystem.getMidiFileFormat(url);
-                strFilename = url.toString();
-                if (bCheckSequence) {
-                    sequence = MidiSystem.getSequence(url);
-                }
-                break;
+                    URL url = new URL(strSource);
+                    fileFormat = MidiSystem.getMidiFileFormat(url);
+                    strFilename = url.toString();
+                    if (bCheckSequence) {
+                        sequence = MidiSystem.getSequence(url);
+                    }
+                    break;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 
@@ -198,11 +204,11 @@ public class MidiFileInfo {
                 strResolutionType = " ticks per frame";
             }
             System.out.println("Resolution: " + fileFormat.getResolution() +
-                               strResolutionType);
+                    strResolutionType);
 
             String strFileLength = null;
             if (fileFormat.getByteLength() != MidiFileFormat.UNKNOWN_LENGTH) {
-                strFileLength = "" + fileFormat.getByteLength() + " bytes";
+                strFileLength = fileFormat.getByteLength() + " bytes";
             } else {
                 strFileLength = "unknown";
             }
@@ -210,8 +216,8 @@ public class MidiFileInfo {
 
             String strDuration = null;
             if (fileFormat.getMicrosecondLength() != MidiFileFormat.UNKNOWN_LENGTH) {
-                strDuration = "" + fileFormat.getMicrosecondLength() +
-                              " microseconds)";
+                strDuration = fileFormat.getMicrosecondLength() +
+                        " microseconds)";
             } else {
                 strDuration = "unknown";
             }
@@ -219,8 +225,8 @@ public class MidiFileInfo {
 
             if (bCheckSequence) {
                 System.out.println("[Sequence says:] Length: " +
-                                   sequence.getTickLength() + " ticks (= " +
-                                   sequence.getMicrosecondLength() + " us)");
+                        sequence.getTickLength() + " ticks (= " +
+                        sequence.getMicrosecondLength() + " us)");
             }
             System.out.println("---------------------------------------------------------------------------");
         }

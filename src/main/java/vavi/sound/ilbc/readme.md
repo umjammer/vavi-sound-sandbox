@@ -4,8 +4,9 @@ Provides iLBC codec related classes.
 
 ## References
 
- * [iLBCfreeware](http://www.ilbcfreeware.org/)
+ * [iLBCfreeware](http://www.ietf.org/rfc/rfc3951.txt)
  * http://www.sip-communicator.org/ this is outdone me... orz
+ * https://github.com/zhu/bigbluebutton/tree/master/bbb-voice/src/main/java/org/red5/app/sip/codecs/ilbc (java)
 
 ### License
 
@@ -13,4 +14,4 @@ Provides iLBC codec related classes.
 
 ## TODO
 
- * complete
+ * ~~complete~~

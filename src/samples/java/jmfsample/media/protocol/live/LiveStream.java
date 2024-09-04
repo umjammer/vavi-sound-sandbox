@@ -46,9 +46,9 @@ import javax.media.protocol.PushBufferStream;
 
 public class LiveStream implements PushBufferStream, Runnable {
 
-    protected ContentDescriptor cd = new ContentDescriptor(ContentDescriptor.RAW);
+    protected final ContentDescriptor cd = new ContentDescriptor(ContentDescriptor.RAW);
 
-    protected int maxDataLength;
+    protected final int maxDataLength;
 
     protected byte[] data;
 
@@ -66,7 +66,7 @@ public class LiveStream implements PushBufferStream, Runnable {
 
     protected BufferTransferHandler transferHandler;
 
-    protected Control[] controls = new Control[0];
+    protected final Control[] controls = new Control[0];
 
     protected boolean videoData = true;
 
@@ -102,30 +102,34 @@ public class LiveStream implements PushBufferStream, Runnable {
         thread = new Thread(this);
     }
 
-    /***************************************************************************
-     * SourceStream
-     **************************************************************************/
+    //
+    // SourceStream
+    //
 
+    @Override
     public ContentDescriptor getContentDescriptor() {
         return cd;
     }
 
+    @Override
     public long getContentLength() {
         return LENGTH_UNKNOWN;
     }
 
+    @Override
     public boolean endOfStream() {
         return false;
     }
 
-    /***************************************************************************
-     * PushBufferStream
-     **************************************************************************/
+    //
+    // PushBufferStream
+    //
 
     int seqNo = 0;
 
     double freq = 2.0;
 
+    @Override
     public Format getFormat() {
         if (videoData)
             return rgbFormat;
@@ -133,6 +137,7 @@ public class LiveStream implements PushBufferStream, Runnable {
             return audioFormat;
     }
 
+    @Override
     public void read(Buffer buffer) throws IOException {
         synchronized (this) {
             Object outdata = buffer.getData();
@@ -167,6 +172,7 @@ public class LiveStream implements PushBufferStream, Runnable {
         }
     }
 
+    @Override
     public void setTransferHandler(BufferTransferHandler transferHandler) {
         synchronized (this) {
             this.transferHandler = transferHandler;
@@ -185,10 +191,11 @@ public class LiveStream implements PushBufferStream, Runnable {
         }
     }
 
-    /***************************************************************************
-     * Runnable
-     **************************************************************************/
+    //
+    // Runnable
+    //
 
+    @Override
     public void run() {
         while (started) {
             synchronized (this) {
@@ -197,7 +204,7 @@ public class LiveStream implements PushBufferStream, Runnable {
                         wait(1000);
                     } catch (InterruptedException ie) {
                     }
-                } // while
+                }
             }
 
             if (started && transferHandler != null) {
@@ -207,22 +214,26 @@ public class LiveStream implements PushBufferStream, Runnable {
                 } catch (InterruptedException ise) {
                 }
             }
-        } // while (started)
-    } // run
+        }
+    }
 
+    //
     // Controls
+    //
 
+    @Override
     public Object[] getControls() {
         return controls;
     }
 
+    @Override
     public Object getControl(String controlType) {
         try {
             Class<?> cls = Class.forName(controlType);
-            Object cs[] = getControls();
-            for (int i = 0; i < cs.length; i++) {
-                if (cls.isInstance(cs[i]))
-                    return cs[i];
+            Object[] cs = getControls();
+            for (Object c : cs) {
+                if (cls.isInstance(c))
+                    return c;
             }
             return null;
 

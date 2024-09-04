@@ -74,34 +74,21 @@ public class Event implements Block {
         block.id = label;
         for (String param : params) {
             String[] pair = param.split("=");
-            if ("Type".equals(pair[0])) {
-                block.type = pair[1];
-            } else if ("IconHandle".equals(pair[0])) {
-                block.iconHandle = pair[1];
-            } else if ("Length".equals(pair[0])) {
-                block.length = Integer.parseInt(pair[1]);
-            } else if ("Note#".equals(pair[0])) {
-                block.note = Integer.parseInt(pair[1]);
-            } else if ("Dynamics".equals(pair[0])) {
-                block.dynamics = Integer.parseInt(pair[1]);
-            } else if ("PMBendDepth".equals(pair[0])) {
-                block.pmBendDepth = Integer.parseInt(pair[1]);
-            } else if ("PMBendLength".equals(pair[0])) {
-                block.pmBendLength = Integer.parseInt(pair[1]);
-            } else if ("PMbPortamentoUse".equals(pair[0])) {
-                block.pmbPortamentoUse = Integer.parseInt(pair[1]);
-            } else if ("DEMdecGainRate".equals(pair[0])) {
-                block.demDecGainRate = Integer.parseInt(pair[1]);
-            } else if ("DEMaccent".equals(pair[0])) {
-                block.demAccent = Integer.parseInt(pair[1]);
-            } else if ("LyricHandle".equals(pair[0])) {
-                block.lyricHandle = pair[1];
-            } else if ("VibratoHandle".equals(pair[0])) {
-                block.vibratoHandle = pair[1];
-            } else if ("VibratoDelay".equals(pair[0])) {
-                block.vibratoDelay = Integer.parseInt(pair[1]);
-            } else {
-Debug.println("unhandled param: " + pair[0]);
+            switch (pair[0]) {
+                case "Type" -> block.type = pair[1];
+                case "IconHandle" -> block.iconHandle = pair[1];
+                case "Length" -> block.length = Integer.parseInt(pair[1]);
+                case "Note#" -> block.note = Integer.parseInt(pair[1]);
+                case "Dynamics" -> block.dynamics = Integer.parseInt(pair[1]);
+                case "PMBendDepth" -> block.pmBendDepth = Integer.parseInt(pair[1]);
+                case "PMBendLength" -> block.pmBendLength = Integer.parseInt(pair[1]);
+                case "PMbPortamentoUse" -> block.pmbPortamentoUse = Integer.parseInt(pair[1]);
+                case "DEMdecGainRate" -> block.demDecGainRate = Integer.parseInt(pair[1]);
+                case "DEMaccent" -> block.demAccent = Integer.parseInt(pair[1]);
+                case "LyricHandle" -> block.lyricHandle = pair[1];
+                case "VibratoHandle" -> block.vibratoHandle = pair[1];
+                case "VibratoDelay" -> block.vibratoDelay = Integer.parseInt(pair[1]);
+                case null, default -> Debug.println("unhandled param: " + pair[0]);
             }
         }
         return block;

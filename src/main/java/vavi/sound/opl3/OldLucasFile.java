@@ -87,8 +87,12 @@ logger.fine(String.format("\n%d: ", p));
         player.tracks[0].spos = 0x98; // jump to midi music
     }
 
+    protected Context context;
+
     @Override
     public void init(Context context) {
+        this.context = context;
+
         for (int p = 0; p < this.tins; ++p) {
             context.instruments()[p] = this.instruments[p];
         }
@@ -102,5 +106,25 @@ logger.fine(String.format("\n%d: ", p));
         }
 
         context.adlib().style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
+    }
+
+    @Override
+    public int nativeVelocity(int channel, int velocity) {
+//        if ((adlib.style & Adlib.MIDI_STYLE) != 0) {
+        int nv = (context.voiceStatus()[channel].volume * velocity) / 128;
+//        if ((adlib.style & Adlib.LUCAS_STYLE) != 0) {
+        nv *= 2;
+//        }
+
+        if (nv > 127) {
+            nv = 127;
+        }
+
+        nv = Adlib.my_midi_fm_vol_table[nv];
+//        if ((adlib.style & Adlib.LUCAS_STYLE) != 0) {
+        nv = (int) ((float) Math.sqrt((nv)) * 11.0F);
+//        }
+        return nv;
+//        }
     }
 }

@@ -8,6 +8,7 @@ package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.logging.Logger;
 
 import vavi.sound.midi.opl3.Opl3Soundbank;
@@ -23,6 +24,7 @@ import vavi.sound.opl3.MidPlayer.MidiTypeFile;
  * @version 0.00 2020/10/25 umjammer initial version <br>
  */
 class CmfFile extends MidiTypeFile {
+
     private static final Logger logger = Logger.getLogger(CmfFile.class.getName());
 
     @Override
@@ -52,7 +54,12 @@ class CmfFile extends MidiTypeFile {
         player.deltas = player.takeLE(2);  //ticks/qtr note
         //the stuff in the cmf is click ticks per second...
         player.msqtr = 1000000 / player.takeLE(2) * player.deltas;
-        player.takeLE(2 * 3);
+        int i = player.takeLE(2);
+//        String title = new String(player.data, i, ByteUtil.strlen(data, i));
+        i = player.takeLE(2);
+//        String author = new String(data, i, ByteUtil.strlen(data, i));
+        i = player.takeLE(2);
+//        String remarks = new String(data, i, ByteUtil.strlen(data, i));
 
         player.takeBE(16); // channel in use table...
 
@@ -63,38 +70,38 @@ class CmfFile extends MidiTypeFile {
             if (player.tins > 128) { // to ward of bad numbers...
                 player.tins = 128;
             }
-            player.takeLE(2); //basic tempo
+            player.takeLE(2); // basic tempo
         }
-logger.info(String.format("numinstr: 0x%04x", player.tins));
+        logger.info(String.format("numinstr: 0x%04x", player.tins));
         this.tins = player.tins;
-        logger.info(String.format("ioff: %d, moff: %d, deltas: %d, msqtr: %d, numi: %d", n, m, player.deltas, player.msqtr, player.tins));
-
-//        title = new String(data, v, ByteUtil.strlen(data, v));
-//        author = new String(data, v, ByteUtil.strlen(data, v));
-//        remarks = new String(data, v, ByteUtil.strlen(data, v));
+        logger.info(String.format("ioff: 0x%04x, moff: 0x%04x, deltas: %d, msqtr: %d, numi: %d, v: %04x", n, m, player.deltas, player.msqtr, player.tins, v));
 
         player.takeBE(n - 40);
-logger.info(String.format("pos1: 0x%04x", player.pos));
+        logger.info(String.format("pos1: 0x%04x", player.pos));
 
         this.instruments = new Opl3Instrument[this.tins];
         for (int p = 0; p < player.tins; ++p) {
-logger.fine(String.format("\n%d: ", p));
 
             int[] x = new int[16];
             for (int j = 0; j < 16; ++j) {
                 x[j] = player.takeBE(1);
             }
-            this.instruments[p] =  Opl3Soundbank.newInstrument(0, p, "oldlucas." + p, x);
+            this.instruments[p] = Opl3Soundbank.newInstrument(0, p, "oldlucas." + p, x);
+            logger.fine(String.format("%d: %s", p, Arrays.toString((int[]) this.instruments[p].getData())));
         }
-logger.info(String.format("pos2: 0x%04x", player.pos));
+        logger.info(String.format("pos2: 0x%04x", player.pos));
 
         player.tracks[0].on = true;
         player.tracks[0].tend = player.flen; // music until the end of the file
         player.tracks[0].spos = m; // jump to midi music
     }
 
+    protected Context context;
+
     @Override
     public void init(Context context) {
+        this.context = context;
+
         for (int p = 0; p < this.tins; ++p) {
             context.instruments()[p] = this.instruments[p];
         }
@@ -104,5 +111,44 @@ logger.info(String.format("pos2: 0x%04x", player.pos));
         }
 
         context.adlib().style = Adlib.CMF_STYLE;
+    }
+
+    @Override
+    public int nativeVelocity(int channel, int velocity) {
+//        if ((adlib.style & Adlib.CMF_STYLE) != 0) {
+        // CMF doesn't support note velocity (even though some files have them!)
+        return 127;
+//        }
+    }
+
+    @Override
+    public void controlChange(int channel, int controller, int value) {
+        Adlib adlib = context.adlib();
+        switch (controller) {
+            case 0x63 -> {
+//                if ((adlib.style & Adlib.CMF_STYLE) != 0) {
+                // Custom extension to allow CMF files to switch the
+                // AM+VIB depth on and off (officially this is on,
+                // and there's no way to switch it off.) Controller
+                // values:
+                // 0 == AM+VIB off
+                // 1 == VIB on
+                // 2 == AM on
+                // 3 == AM+VIB on
+                adlib.write(0xbd, (adlib.read(0xbd) & ~0xc0) | (value << 6));
+//                }
+            }
+            case 0x67 -> { // 103: undefined
+                logger.fine(String.format("control change[%d]: (%02x): %d", channel, controller, value));
+//                if ((adlib.style & Adlib.CMF_STYLE) != 0) {
+                adlib.mode = value;
+                if (adlib.mode == Adlib.RYTHM) {
+                    adlib.write(0xbd, adlib.read(0xbd) | (1 << 5));
+                } else {
+                    adlib.write(0xbd, adlib.read(0xbd) & ~(1 << 5));
+                }
+//                }
+            }
+        }
     }
 }

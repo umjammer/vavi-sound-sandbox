@@ -1,11 +1,3 @@
-
-package jse;
-
-/*
- *        MidiRecorder.java
- *
- *        This file is part of the Java Sound Examples.
- */
 /*
  *  Copyright (c) 1999 - 2001 by Matthias Pfisterer <Matthias.Pfisterer@web.de>
  *
@@ -25,27 +17,30 @@ package jse;
  *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-import gnu.getopt.Getopt;
+
+package jse;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import javax.sound.midi.ControllerEventListener;
 import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MetaEventListener;
-import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequencer;
-import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Transmitter;
+
+import gnu.getopt.Getopt;
+
+import static java.lang.System.getLogger;
 
 
 /*
@@ -90,12 +85,15 @@ import javax.sound.midi.Transmitter;
  *
  * -DocBookXML
  */
+
+/**
+ * MidiRecorder.java
+ * <p>
+ * This file is part of the Java Sound Examples.
+ */
 public class MidiRecorder {
-    /**
-     * Flag for debugging messages. If true, some messages are dumped to the
-     * console during operation.
-     */
-    private static boolean DEBUG = false;
+
+    private static final Logger logger = getLogger(MidiRecorder.class.getName());
 
     private static Sequencer sm_sequencer = null;
 
@@ -107,16 +105,12 @@ public class MidiRecorder {
     private static List<MidiDevice> sm_openedMidiDeviceList;
 
     public static void main(String[] args) {
-        /*
-         * Set when the sequence should be played on the default internal
-         * synthesizer.
-         */
+        // Set when the sequence should be played on the default internal
+        // synthesizer.
         boolean bUseSynthesizer = false;
 
-        /*
-         * Set when the sequence should be played on the default external MIDI
-         * port.
-         */
+        // Set when the sequence should be played on the default external MIDI
+        // port.
         boolean bUseMidiPort = false;
 
         /*
@@ -151,40 +145,33 @@ public class MidiRecorder {
         int c;
         while ((c = g.getopt()) != -1) {
             switch (c) {
-            case 'h':
-                printUsageAndExit();
-            case 'l':
-                listDevicesAndExit(true, false);
-            case 's':
-                bUseSynthesizer = true;
-                break;
-            case 'm':
-                bUseMidiPort = true;
-                break;
-            case 'd':
-                bUseDevice = true;
-                strDeviceName = g.getOptarg();
-                if (DEBUG) {
-                    System.out.println("MidiRecorder.main(): device name: " + strDeviceName);
-                }
-                break;
-            case 'c':
-                bUseConsoleDump = true;
-                break;
-            case 'S':
-                strSequencerName = g.getOptarg();
-                if (DEBUG) {
-                    System.out.println("MidiRecorder.main(): sequencer name: " + strSequencerName);
-                }
-                break;
-            case 'D':
-                DEBUG = true;
-                break;
-            case '?':
-                printUsageAndExit();
-            default:
-                System.out.println("getopt() returned " + c);
-                break;
+                case 'h':
+                    printUsageAndExit();
+                case 'l':
+                    listDevicesAndExit(true, false);
+                case 's':
+                    bUseSynthesizer = true;
+                    break;
+                case 'm':
+                    bUseMidiPort = true;
+                    break;
+                case 'd':
+                    bUseDevice = true;
+                    strDeviceName = g.getOptarg();
+                    logger.log(Level.DEBUG, "MidiRecorder.main(): device name: " + strDeviceName);
+                    break;
+                case 'c':
+                    bUseConsoleDump = true;
+                    break;
+                case 'S':
+                    strSequencerName = g.getOptarg();
+                    logger.log(Level.DEBUG, "MidiRecorder.main(): sequencer name: " + strSequencerName);
+                    break;
+                case '?':
+                    printUsageAndExit();
+                default:
+                    System.out.println("getopt() returned " + c);
+                    break;
             }
         }
 
@@ -238,7 +225,7 @@ public class MidiRecorder {
              * In case of an exception, we dump the exception including the
              * stack trace to the console output. Then, we exit the program.
              */
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 
@@ -259,7 +246,7 @@ public class MidiRecorder {
                 sm_sequencer = MidiSystem.getSequencer();
             }
         } catch (MidiUnavailableException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
         if (sm_sequencer == null) {
@@ -275,24 +262,16 @@ public class MidiRecorder {
          *
          * Thanks to Espen Riskedal for finding this trick.
          */
-        sm_sequencer.addMetaEventListener(new MetaEventListener() {
-            public void meta(MetaMessage event) {
-                if (event.getType() == 47) {
-                    if (DEBUG) {
-                        out("MidiRecorder.<...>.meta(): end of track message received, closing sequencer and attached MidiDevices...");
-                    }
-                    sm_sequencer.close();
+        sm_sequencer.addMetaEventListener(event -> {
+            if (event.getType() == 47) {
+                logger.log(Level.DEBUG, "MidiRecorder.<...>.meta(): end of track message received, closing sequencer and attached MidiDevices...");
+                sm_sequencer.close();
 
-                    Iterator<MidiDevice> iterator = sm_openedMidiDeviceList.iterator();
-                    while (iterator.hasNext()) {
-                        MidiDevice device = iterator.next();
-                        device.close();
-                    }
-                    if (DEBUG) {
-                        out("MidiRecorder.<...>.meta(): ...closed, now exiting");
-                    }
-                    System.exit(0);
+                for (MidiDevice device : sm_openedMidiDeviceList) {
+                    device.close();
                 }
+                logger.log(Level.DEBUG, "MidiRecorder.<...>.meta(): ...closed, now exiting");
+                System.exit(0);
             }
         });
 
@@ -300,21 +279,17 @@ public class MidiRecorder {
          * If we are in debug mode, we set additional listeners to produce
          * interesting (?) debugging output.
          */
-        if (DEBUG) {
-            sm_sequencer.addMetaEventListener(new MetaEventListener() {
-                public void meta(MetaMessage message) {
-                    System.out.println("%%% MetaMessage: " + message);
-                    System.out.println("%%% MetaMessage type: " + message.getType());
-                    System.out.println("%%% MetaMessage length: " + message.getLength());
-                }
+        if (logger.isLoggable(Level.DEBUG)) {
+            sm_sequencer.addMetaEventListener(message -> {
+                logger.log(Level.DEBUG, "%%% MetaMessage: " + message);
+                logger.log(Level.DEBUG, "%%% MetaMessage type: " + message.getType());
+                logger.log(Level.DEBUG, "%%% MetaMessage length: " + message.getLength());
             });
 
-            sm_sequencer.addControllerEventListener(new ControllerEventListener() {
-                public void controlChange(ShortMessage message) {
-                    System.out.println("%%% ShortMessage: " + message);
-                    System.out.println("%%% ShortMessage controller: " + message.getData1());
-                    System.out.println("%%% ShortMessage value: " + message.getData2());
-                }
+            sm_sequencer.addControllerEventListener(message -> {
+                logger.log(Level.DEBUG, "%%% ShortMessage: " + message);
+                logger.log(Level.DEBUG, "%%% ShortMessage controller: " + message.getData1());
+                logger.log(Level.DEBUG, "%%% ShortMessage value: " + message.getData2());
             }, null);
         }
 
@@ -326,7 +301,7 @@ public class MidiRecorder {
         try {
             sm_sequencer.open();
         } catch (MidiUnavailableException e) {
-            e.printStackTrace();
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 
@@ -336,11 +311,8 @@ public class MidiRecorder {
          */
         try {
             sm_sequencer.setSequence(sequenceStream);
-        } catch (InvalidMidiDataException e) {
-            e.printStackTrace();
-            System.exit(1);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (InvalidMidiDataException | IOException e) {
+            logger.log(Level.ERROR, e.getMessage(), e);
             System.exit(1);
         }
 
@@ -362,7 +334,7 @@ public class MidiRecorder {
                 Transmitter seqTransmitter = sm_sequencer.getTransmitter();
                 seqTransmitter.setReceiver(synthReceiver);
             } catch (MidiUnavailableException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
 
@@ -377,7 +349,7 @@ public class MidiRecorder {
                 Transmitter midiTransmitter = sm_sequencer.getTransmitter();
                 midiTransmitter.setReceiver(midiReceiver);
             } catch (MidiUnavailableException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
 
@@ -390,7 +362,7 @@ public class MidiRecorder {
 //          MidiDevice.Info[] aInfos = MidiSystem.getMidiDeviceInfo();
             MidiDevice.Info info = getMidiDeviceInfo(strDeviceName, false);
             if (info == null) {
-                System.out.println("Cannot find device " + strDeviceName);
+                logger.log(Level.DEBUG, "Cannot find device " + strDeviceName);
             }
             try {
                 MidiDevice midiDevice = MidiSystem.getMidiDevice(info);
@@ -401,7 +373,7 @@ public class MidiRecorder {
                 Transmitter midiTransmitter = sm_sequencer.getTransmitter();
                 midiTransmitter.setReceiver(midiReceiver);
             } catch (MidiUnavailableException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
 
@@ -412,24 +384,20 @@ public class MidiRecorder {
              * linked to a sequencer's Transmitter.
              */
             try {
-                Receiver dumpReceiver = new DumpReceiver(System.out);
+                Receiver dumpReceiver = new DumpReceiver();
                 Transmitter dumpTransmitter = sm_sequencer.getTransmitter();
                 dumpTransmitter.setReceiver(dumpReceiver);
             } catch (MidiUnavailableException e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
 
         /*
          * Now, we can start over.
          */
-        if (DEBUG) {
-            out("MidiRecorder.main(): starting sequencer...");
-        }
+        logger.log(Level.DEBUG, "MidiRecorder.main(): starting sequencer...");
         sm_sequencer.start();
-        if (DEBUG) {
-            out("MidiRecorder.main(): ...started");
-        }
+        logger.log(Level.DEBUG, "MidiRecorder.main(): ...started");
     }
 
     private static void printUsageAndExit() {
@@ -452,11 +420,11 @@ public class MidiRecorder {
 
     private static void listDevicesAndExit(boolean forInput, boolean forOutput) {
         if (forInput && !forOutput) {
-            out("Available MIDI IN Devices:");
+            logger.log(Level.DEBUG, "Available MIDI IN Devices:");
         } else if (!forInput && forOutput) {
-            out("Available MIDI OUT Devices:");
+            logger.log(Level.DEBUG, "Available MIDI OUT Devices:");
         } else {
-            out("Available MIDI Devices:");
+            logger.log(Level.DEBUG, "Available MIDI Devices:");
         }
 
         MidiDevice.Info[] aInfos = MidiSystem.getMidiDeviceInfo();
@@ -466,14 +434,14 @@ public class MidiRecorder {
                 boolean bAllowsInput = (device.getMaxTransmitters() != 0);
                 boolean bAllowsOutput = (device.getMaxReceivers() != 0);
                 if ((bAllowsInput && forInput) || (bAllowsOutput && forOutput)) {
-                    out("" + i + "  " + (bAllowsInput ? "IN " : "   ") + (bAllowsOutput ? "OUT " : "    ") + aInfos[i].getName() + ", " + aInfos[i].getVendor() + ", " + aInfos[i].getVersion() + ", " + aInfos[i].getDescription());
+                    logger.log(Level.DEBUG, i + "  " + (bAllowsInput ? "IN " : "   ") + (bAllowsOutput ? "OUT " : "    ") + aInfos[i].getName() + ", " + aInfos[i].getVendor() + ", " + aInfos[i].getVersion() + ", " + aInfos[i].getDescription());
                 }
             } catch (MidiUnavailableException e) {
                 // device is obviously not available...
             }
         }
         if (aInfos.length == 0) {
-            out("[No devices available]");
+            logger.log(Level.DEBUG, "[No devices available]");
         }
         System.exit(0);
     }
@@ -486,23 +454,19 @@ public class MidiRecorder {
      */
     private static MidiDevice.Info getMidiDeviceInfo(String strDeviceName, boolean forOutput) {
         MidiDevice.Info[] aInfos = MidiSystem.getMidiDeviceInfo();
-        for (int i = 0; i < aInfos.length; i++) {
-            if (aInfos[i].getName().equals(strDeviceName)) {
+        for (MidiDevice.Info aInfo : aInfos) {
+            if (aInfo.getName().equals(strDeviceName)) {
                 try {
-                    MidiDevice device = MidiSystem.getMidiDevice(aInfos[i]);
+                    MidiDevice device = MidiSystem.getMidiDevice(aInfo);
                     boolean bAllowsInput = (device.getMaxTransmitters() != 0);
                     boolean bAllowsOutput = (device.getMaxReceivers() != 0);
                     if ((bAllowsOutput && forOutput) || (bAllowsInput && !forOutput)) {
-                        return aInfos[i];
+                        return aInfo;
                     }
                 } catch (MidiUnavailableException mue) {
                 }
             }
         }
         return null;
-    }
-
-    private static void out(String strMessage) {
-        System.out.println(strMessage);
     }
 }

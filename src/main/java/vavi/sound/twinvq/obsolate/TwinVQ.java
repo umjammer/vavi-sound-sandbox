@@ -1,11 +1,18 @@
 /*
- * Copyright (c) 2024 by Naohide Sano, All rights reserved.
- *
- * Programmed by Naohide Sano
+ * (c)Copyright 1996-2000 NTT Cyber Space Laboratories
+ *                Released on 2000.05.22 by N. Iwakami
+ *                Modified on 2000.05.25 by N. Iwakami
+ *                Released on 2000.09.06 by N. Iwakami
  */
 
 package vavi.sound.twinvq.obsolate;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringJoiner;
+
+import com.sun.jna.Library;
+import com.sun.jna.Structure;
 
 
 /**
@@ -14,7 +21,16 @@ package vavi.sound.twinvq.obsolate;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 070202 initial version <br>
  */
-final class TwinVQ {
+interface TwinVQ extends Library {
+
+    TwinVQ twinVq = new MyTwinVQ(); // Native.load("TwinVQ", TwinVQ.class);
+
+    /** */
+    static String asciiz(byte[] b) {
+        return new String(b).replace("\u0000", "");
+    }
+
+//#region twinvq.h
 
     /** Initialization error code */
     enum InitErrorCode {
@@ -35,13 +51,13 @@ final class TwinVQ {
     }
 
     /** version ID */
-    static final int TVQ_UNKNOWN_VERSION = -1;
+    int TVQ_UNKNOWN_VERSION = -1;
 
-    static final int V2 = 0;
+    int V2 = 0;
 
-    static final int V2PP = 1;
+    int V2PP = 1;
 
-    static final int N_VERSIONS = 2;
+    int N_VERSIONS = 2;
 
     /** window types */
     enum WindowType {
@@ -65,310 +81,376 @@ final class TwinVQ {
     }
 
     /** number of block types */
-    static final int N_BTYPE = 3;
+    int N_BTYPE = 3;
 
     /**
      * number of interleave types, enum BLOCK_TYPE is commonly used for
      * detecting interleave types.
      */
-    static final int N_INTR_TYPE = 4;
+    int N_INTR_TYPE = 4;
 
     /** maximum number of channels */
-    static final int N_CH_MAX = 2;
+    int N_CH_MAX = 2;
 
     /** type definition of code information interface */
-    static class Index {
+    class Index extends Structure {
         /** block type */
-        int[] w_type = new int[1];
+        public final int[] w_type = new int[1];
 
-        int[] btype = new int[1];
+        public final int[] btype = new int[1];
 
         /** FBC info */
-        int[][] segment_sw = new int[N_CH_MAX][];
+        public final int[][] segment_sw = new int[N_CH_MAX][];
 
-        int[][] band_sw = new int[N_CH_MAX][];
+        public final int[][] band_sw = new int[N_CH_MAX][];
 
-        int[][] fg_intensity = new int[N_CH_MAX][];
+        public final int[][] fg_intensity = new int[N_CH_MAX][];
 
         /** VQ info */
-        int[] wvq;
+        public int[] wvq;
 
         /** BSE info */
-        int[] fw;
+        public int[] fw;
 
-        int[] fw_alf;
+        public int[] fw_alf;
 
         /** gain info */
-        int[] pow;
+        public int[] pow;
 
         /** LSP info */
-        int[][] lsp = new int[N_CH_MAX][];
+        public final int[][] lsp = new int[N_CH_MAX][];
 
         /** PPC info */
-        int[] pit = new int[N_CH_MAX];
+        public final int[] pit = new int[N_CH_MAX];
 
-        int[] pls;
+        public int[] pls;
 
-        int[] pgain = new int[N_CH_MAX];
+        public final int[] pgain = new int[N_CH_MAX];
 
         /** EBC info */
-        int[][] bc = new int[N_CH_MAX][];
+        public final int[][] bc = new int[N_CH_MAX][];
 
-        Void manager;
+        public byte[] manager;
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return List.of("w_type", "btype", "segment_sw", "band_sw", "fg_intensity", "wvq", "fw", "fw_alf",
+                    "pow", "lsp", "pit", "pls", "pgain", "bc", "manager");
+        }
+
+        @Override public String toString() {
+            return new StringJoiner(", ", Index.class.getSimpleName() + "[", "]")
+                    .add("w_type=" + Arrays.toString(w_type))
+                    .add("btype=" + Arrays.toString(btype))
+                    .add("segment_sw=" + Arrays.toString(segment_sw))
+                    .add("band_sw=" + Arrays.toString(band_sw))
+                    .add("fg_intensity=" + Arrays.toString(fg_intensity))
+                    .add("wvq=" + Arrays.toString(wvq))
+                    .add("fw=" + Arrays.toString(fw))
+                    .add("fw_alf=" + Arrays.toString(fw_alf))
+                    .add("pow=" + Arrays.toString(pow))
+                    .add("lsp=" + Arrays.toString(lsp))
+                    .add("pit=" + Arrays.toString(pit))
+                    .add("pls=" + Arrays.toString(pls))
+                    .add("pgain=" + Arrays.toString(pgain))
+                    .add("bc=" + Arrays.toString(bc))
+                    .add("manager=" + manager)
+                    .toString();
+        }
     }
 
     /* type definition of tvqConfInfoSubBlock */
-    static class ConfInfoSubBlock {
+    class ConfInfoSubBlock extends Structure {
         /** subframe size */
-        int sf_sz;
+        public int sf_sz;
 
         /** number of subframes */
-        int nsf;
+        public int nsf;
 
         /** number of division of weighted interleave vector quantization */
-        int[] ndiv = new int[1];
+        public final int[] ndiv = new int[1];
 
         /** number of Bark-scale subbands */
-        int ncrb;
+        public int ncrb;
 
         /** number of division of BSE VQ */
-        int fw_ndiv;
+        public int fw_ndiv;
 
         /** number of bits for BSE VQ */
-        int fw_nbit;
+        public int fw_nbit;
 
         /** number of sub-blocks for gain coding */
-        int nsubg;
+        public int nsubg;
 
         /** PPC switch */
-        int ppc_enable;
+        public int ppc_enable;
 
         /** EBC switch */
-        int ebc_enable;
+        public int ebc_enable;
 
         /** EBC base band */
-        int ebc_crb_base;
+        public int ebc_crb_base;
 
         /** EBC bits */
-        int ebc_bits;
+        public int ebc_bits;
 
         /** FBC switch */
-        int fbc_enable;
+        public int fbc_enable;
 
         /** FBC number of segments */
-        int fbc_n_segment;
+        public int fbc_n_segment;
 
         /** FBC number of subbands */
-        int fbc_nband;
+        public int fbc_nband;
 
         /** FBC subband table */
-        int[] fbc_crb_tbl;
+        public int[] fbc_crb_tbl = new int[1]; // TODO
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return List.of("sf_sz", "nsf", "ndiv", "ncrb", "fw_ndiv", "fw_nbit", "nsubg", "ppc_enable",
+                    "ebc_enable", "ebc_crb_base", "ebc_bits", "fbc_enable", "fbc_n_segment", "fbc_nband", "fbc_crb_tbl");
+        }
     }
 
     /** type definition of tvqConfInfo */
-    static class ConfInfo {
+    class ConfInfo extends Structure {
         /** frame configuration */
-        int N_CH;
+        public int N_CH;
 
         /** window type coding */
-        int BITS_WTYPE;
+        public int BITS_WTYPE;
 
         /** LSP coding */
-        int LSP_BIT0;
+        public int LSP_BIT0;
 
-        int LSP_BIT1;
+        public int LSP_BIT1;
 
-        int LSP_BIT2;
+        public int LSP_BIT2;
 
-        int LSP_SPLIT;
+        public int LSP_SPLIT;
 
         /** Bark-scale envelope coding */
-        int FW_ARSW_BITS;
+        public int FW_ARSW_BITS;
 
         /** gain coding */
-        int GAIN_BITS;
+        public int GAIN_BITS;
 
-        int SUB_GAIN_BITS;
+        public int SUB_GAIN_BITS;
 
         /** pitch excitation */
-        int N_DIV_P;
+        public int N_DIV_P;
 
-        int BASF_BIT;
+        public int BASF_BIT;
 
-        int PGAIN_BIT;
+        public int PGAIN_BIT;
 
         /** block type dependent parameters */
-        ConfInfoSubBlock[] cfg = new ConfInfoSubBlock[N_BTYPE];
+        public final ConfInfoSubBlock[/* N_BTYPE */] cfg = { new ConfInfoSubBlock(), new ConfInfoSubBlock(), new ConfInfoSubBlock() };
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return List.of("N_CH", "BITS_WTYPE", "LSP_BIT0", "LSP_BIT1", "LSP_BIT2", "LSP_SPLIT",
+                    "FW_ARSW_BITS", "GAIN_BITS", "SUB_GAIN_BITS", "N_DIV_P", "BASF_BIT", "PGAIN_BIT", "cfg");
+        }
     }
 
     /*
      * Definitions about TwinVQ bitstream header
      */
-    static final int BUFSIZ = 1024;
+    int BUFSIZ = 1024;
 
-    static final int KEYWORD_BYTES = 4;
+    int KEYWORD_BYTES = 4;
 
-    static final int VERSION_BYTES = 8;
+    int VERSION_BYTES = 8;
 
-    static final int ELEM_BYTES = 8 /* sizeof(unsigned long) */;
+    int ELEM_BYTES = 4; // sizeof(unsigned long) TODO
 
-    /*
-     */
-    static class HeaderInfo {
-        byte[] id = new byte[KEYWORD_BYTES + VERSION_BYTES + 1];
+    /** */
+    class HeaderInfo extends Structure {
+        public byte[] id = new byte[KEYWORD_BYTES + VERSION_BYTES + 1];
 
-        int size;
+        public int size;
 
         /* Common Chunk */
         /** channel mode (mono:0/stereo:1) */
-        int channelMode;
+        public int channelMode;
 
         /** bit rate (kbit/s) */
-        int bitRate;
+        public int bitRate;
 
         /** sampling rate (44.1 kHz -> 44) */
-        int samplingRate;
+        public int samplingRate;
 
         /** security level (always 0) */
-        int securityLevel;
+        public int securityLevel;
 
         /** Text Chunk */
-        byte[] name = new byte[BUFSIZ];
+        public final byte[] name = new byte[BUFSIZ];
 
-        byte[] comt = new byte[BUFSIZ];
+        public final byte[] comt = new byte[BUFSIZ];
 
-        byte[] auth = new byte[BUFSIZ];
+        public final byte[] auth = new byte[BUFSIZ];
 
-        byte[] cpyr = new byte[BUFSIZ];
+        public final byte[] cpyr = new byte[BUFSIZ];
 
-        byte[] file = new byte[BUFSIZ];
+        public final byte[] file = new byte[BUFSIZ];
 
         /** add by OKAMOTO 99.12.21 */
-        byte[] extr = new byte[BUFSIZ];
+        public final byte[] extr = new byte[BUFSIZ];
 
         /** Data size chunk */
-        int dsiz;
+        public int dsiz;
 
         /** extended tags - added by Pawel Garbacz */
-        byte[] albm = new byte[BUFSIZ];
+        public final byte[] albm = new byte[BUFSIZ];
 
-        byte[] year = new byte[BUFSIZ];
+        public final byte[] year = new byte[BUFSIZ];
 
-        byte[] trck = new byte[BUFSIZ];
+        public final byte[] trck = new byte[BUFSIZ];
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return List.of("id", "size", "channelMode", "bitRate", "samplingRate", "securityLevel", "name",
+                    "comt", "auth", "cpyr", "file", "extr", "dsiz", "albm", "year", "trck");
+        }
+
+        @Override public String toString() {
+            return new StringJoiner(", ", HeaderInfo.class.getSimpleName() + "[", "]")
+                    .add("id=" + asciiz(id))
+                    .add("size=" + size)
+                    .add("channelMode=" + channelMode)
+                    .add("bitRate=" + bitRate)
+                    .add("samplingRate=" + samplingRate)
+                    .add("securityLevel=" + securityLevel)
+                    .add("name=" + asciiz(name))
+                    .add("comt=" + asciiz(comt))
+                    .add("auth=" + asciiz(auth))
+                    .add("cpyr=" + asciiz(cpyr))
+                    .add("file=" + asciiz(file))
+                    .add("extr=" + asciiz(extr))
+                    .add("dsiz=" + dsiz)
+                    .add("albm=" + asciiz(albm))
+                    .add("year=" + asciiz(year))
+                    .add("trck=" + asciiz(trck))
+                    .toString();
+        }
     }
+
+//#endregion
+
+//#region tvqenc.h
 
     // encoding
 
-    static class EncSpecificInfo {
+    class EncSpecificInfo {
         int N_CAN_GLOBAL;
     }
 
-    native int TvqEncInitialize(HeaderInfo setupInfo, EncSpecificInfo encInfo, Index index, int dispErrorMessageBox);
+//#endregion
 
-    native void TvqEncTerminate(Index index);
+//#region tvqdec.h
 
-    native void TvqEncGetVectorInfo(int[][] bits0, int[][] bits1);
+    int TvqEncInitialize(HeaderInfo setupInfo, EncSpecificInfo encInfo, Index index, int dispErrorMessageBox);
 
-    native void TvqEncResetFrameCounter();
+    void TvqEncTerminate(Index index);
+
+    void TvqEncGetVectorInfo(int[][] bits0, int[][] bits1);
+
+    void TvqEncResetFrameCounter();
 
     // TwinVQ encoder function
-    native void TvqEncodeFrame(float[] sig_in, Index index);
+    void TvqEncodeFrame(float[] sig_in, Index index);
 
-    native void TvqEncUpdateVectorInfo(int varbits, int ndiv, int[] bits0, int[] bits1);
+    void TvqEncUpdateVectorInfo(int varbits, int ndiv, int[] bits0, int[] bits1);
 
-    native void TvqEncSetFrameCounter(int position);
+    void TvqEncSetFrameCounter(int position);
 
     // TwinVQ query functions
-    native int TvqEncGetFrameSize();
+    int TvqEncGetFrameSize();
 
-    native int TvqEncGetNumChannels();
+    int TvqEncGetNumChannels();
 
-    native int TvqEncGetNumFixedBitsPerFrame();
+    int TvqEncGetNumFixedBitsPerFrame();
 
-    native void TvqEncGetSetupInfo(HeaderInfo setupInfo);
+    void TvqEncGetSetupInfo(HeaderInfo setupInfo);
 
-    native float TvqEncGetSamplingRate();
+    float TvqEncGetSamplingRate();
 
-    native int TvqEncGetBitRate();
+    int TvqEncGetBitRate();
 
-    native void TvqEncGetConfInfo(ConfInfo cf);
+    void TvqEncGetConfInfo(ConfInfo cf);
 
-    native int TvqEncGetNumFrames();
+    int TvqEncGetNumFrames();
 
-    native int TvqGetVersionID(int versionNum, String versionString);
+    int TvqGetVersionID(int versionNum, String versionString);
 
-    native int TvqEncCheckVersion(String strTvqID);
+    int TvqEncCheckVersion(String strTvqID);
 
-    native int TvqEncGetModuleVersion(String versionString);
+    int TvqEncGetModuleVersion(String versionString);
 
     // decoding
 
-    native int TvqInitialize(HeaderInfo setupInfo, Index index, int dispErrorMessageBox);
+    int TvqInitialize(HeaderInfo setupInfo, Index index, int dispErrorMessageBox);
 
-    native void TvqTerminate(Index index);
+    void TvqTerminate(Index index);
 
-    native void TvqGetVectorInfo(int[][] bits0, int[][] bits1);
+    void TvqGetVectorInfo(int[][] bits0, int[][] bits1);
 
-    native void TvqResetFrameCounter();
+    void TvqResetFrameCounter();
 
     // TwinVQ decoder function
-    native void TvqDecodeFrame(Index indexp, float[] out);
+    void TvqDecodeFrame(Index indexp, float[] out);
 
-    native int TvqWtypeToBtype(int w_type, int[] btype);
+    int TvqWtypeToBtype(int w_type, int[] btype);
 
-    native void TvqUpdateVectorInfo(int varbits, int[] ndiv, int[] bits0, int[] bits1);
+    void TvqUpdateVectorInfo(int varbits, int[] ndiv, int[] bits0, int[] bits1);
 
-    native void TvqSetFrameCounter(int position);
+    void TvqSetFrameCounter(int position);
 
     /** TwinVQ query functions */
-    native int TvqCheckVersion(String versionID);
+    int TvqCheckVersion(String versionID);
 
     /** setup information */
-    native void TvqGetSetupInfo(HeaderInfo setupInfo);
+    void TvqGetSetupInfo(HeaderInfo setupInfo);
 
     /** configuration information */
-    native void TvqGetConfInfo(ConfInfo cf);
+    void TvqGetConfInfo(ConfInfo cf);
 
     /** frame size */
-    native int TvqGetFrameSize();
+    int TvqGetFrameSize();
 
     /** number of channels */
-    native int TvqGetNumChannels();
+    int TvqGetNumChannels();
 
     /** total bitrate */
-    native int TvqGetBitRate();
+    int TvqGetBitRate();
 
     /** sampling rate */
-    native float TvqGetSamplingRate();
+    float TvqGetSamplingRate();
 
     /** number of fixed bits per frame */
-    native int TvqGetNumFixedBitsPerFrame();
+    int TvqGetNumFixedBitsPerFrame();
 
     /** number of decoded frame */
-    native int TvqGetNumFrames();
+    int TvqGetNumFrames();
 
-    native int TvqGetModuleVersion(String versionString);
+    int TvqGetModuleVersion(byte[] versionString);
 
-    // V2PLUS SUPPORT
-    /**
-     * TwinVQ FB coding tool control count number of used bits
-     */
-    native void TvqFbCountUsedBits(int nbit);
+//#region V2PLUS_SUPPORT
+
+    // TwinVQ FB coding tool control
+
+    /** count number of used bits */
+    void TvqFbCountUsedBits(int nbit);
 
     /** query average bitrate for the tool */
-    native float TvqGetFbCurrentBitrate();
+    float TvqGetFbCurrentBitrate();
 
     /** query total number of used bits */
-    native int TvqGetFbTotalBits();
+    int TvqGetFbTotalBits();
 
-    //
+//#endregion
 
-    private static final TwinVQ instance = new TwinVQ();
-
-    private TwinVQ() {
-    }
-
-    public static TwinVQ getInstance() {
-        return instance;
-    }
+//#endregion
 }
