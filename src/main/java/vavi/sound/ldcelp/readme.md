@@ -24,5 +24,4 @@ Provides G.728 LD-CELP sound related classes.
 
 ## TODO
 
-* complete
-
+* ~~complete~~
