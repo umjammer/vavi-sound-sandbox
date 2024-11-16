@@ -12,13 +12,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
-
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
+
+import static javax.sound.sampled.AudioSystem.NOT_SPECIFIED;
 
 
 /**
@@ -45,7 +45,7 @@ public class RococoaAudioFileReader extends AudioFileReader {
 
     @Override
     public AudioFileFormat getAudioFileFormat(InputStream stream) throws UnsupportedAudioFileException, IOException {
-        return getAudioFileFormat(stream, AudioSystem.NOT_SPECIFIED);
+        return getAudioFileFormat(stream, NOT_SPECIFIED);
     }
 
     /**
@@ -62,8 +62,8 @@ public class RococoaAudioFileReader extends AudioFileReader {
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
         // TODO determine rococoa is able to decode ot not
         // TODO sampling rate, bits per sample, channels
-        AudioFormat format = new AudioFormat(RcococaEncoding.ROCOCOA, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true);
-        return new AudioFileFormat(RococoaFileFormatType.ROCOCOA, format, AudioSystem.NOT_SPECIFIED);
+        AudioFormat format = new AudioFormat(RcococaEncoding.ROCOCOA, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, NOT_SPECIFIED, true);
+        return new AudioFileFormat(RococoaFileFormatType.ROCOCOA, format, NOT_SPECIFIED);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class RococoaAudioFileReader extends AudioFileReader {
 
     @Override
     public AudioInputStream getAudioInputStream(InputStream stream) throws UnsupportedAudioFileException, IOException {
-        return getAudioInputStream(stream, AudioSystem.NOT_SPECIFIED);
+        return getAudioInputStream(stream, NOT_SPECIFIED);
     }
 
     /**

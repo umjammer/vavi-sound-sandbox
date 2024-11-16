@@ -4,7 +4,10 @@
 
 package jp.or.rim.kt.kemusiro.sound;
 
-import vavi.util.Debug;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -14,6 +17,8 @@ import vavi.util.Debug;
  * @version $Revision: 1.4 $
  */
 public class MMLCompiler {
+
+    private static final Logger logger = getLogger(MMLCompiler.class.getName());
 
     private MusicScore score;
     private int tickPerBeat = 240;
@@ -156,7 +161,7 @@ public class MMLCompiler {
 
     public void compile(MusicScore newScore, int channel, String mml) throws MMLException {
         StringBuilder buf = new StringBuilder(mml);
-Debug.println("mml: " + mml);
+logger.log(Level.DEBUG, "mml: " + mml);
         char c;
 
         score = newScore;

@@ -6,12 +6,13 @@
 
 package vavi.sound.midi.rococoa;
 
-import java.util.logging.Level;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.spi.MidiDeviceProvider;
 
-import vavi.util.Debug;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -21,6 +22,8 @@ import vavi.util.Debug;
  * @version 0.00 201003 nsano initial version <br>
  */
 public class RococoaMidiDeviceProvider extends MidiDeviceProvider {
+
+    private static final Logger logger = getLogger(RococoaMidiDeviceProvider.class.getName());
 
     /** Apple Computer */
     public final static int MANUFACTURER_ID = 0x11;
@@ -39,11 +42,11 @@ public class RococoaMidiDeviceProvider extends MidiDeviceProvider {
         throws IllegalArgumentException {
 
         if (info == RococoaSynthesizer.info) {
-Debug.println(Level.FINE, "★1 info: " + info);
+logger.log(Level.DEBUG, "★1 info: " + info);
             RococoaSynthesizer synthesizer = new RococoaSynthesizer();
             return synthesizer;
         } else {
-Debug.println(Level.FINE, "★1 here: " + info);
+logger.log(Level.DEBUG, "★1 here: " + info);
             throw new IllegalArgumentException();
         }
     }

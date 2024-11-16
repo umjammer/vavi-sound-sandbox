@@ -6,10 +6,10 @@
 
 package vavi.sound.vsq.block;
 
+import java.lang.System.Logger.Level;
 import java.util.List;
 
 import vavi.sound.vsq.Block;
-import vavi.util.Debug;
 
 
 /**
@@ -31,7 +31,7 @@ public class Master implements Block {
             if ("PreMeasure".equals(pair[0])) {
                 block.preMeasure = Integer.parseInt(pair[1]);
             } else {
-Debug.println("unhandled param: " + pair[0]);
+logger.log(Level.DEBUG, "unhandled param: " + pair[0]);
             }
         }
         return block;

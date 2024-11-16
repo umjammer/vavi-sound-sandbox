@@ -10,23 +10,25 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 
 import vavi.sound.opl3.Opl3Player.FileType;
-import vavi.util.Debug;
 
+import static java.lang.System.Logger.Level.DEBUG;
+import static java.lang.System.Logger.Level.TRACE;
+import static java.lang.System.getLogger;
+import static javax.sound.sampled.AudioSystem.NOT_SPECIFIED;
 import static vavi.sound.opl3.Opl3Player.opl3;
 
 
@@ -39,6 +41,8 @@ import static vavi.sound.opl3.Opl3Player.opl3;
  * @version 0.00 201022 nsano initial version <br>
  */
 public class Opl3AudioFileReader extends AudioFileReader {
+
+    private static final Logger logger = getLogger(Opl3AudioFileReader.class.getName());
 
     private URI uri;
 
@@ -63,7 +67,7 @@ public class Opl3AudioFileReader extends AudioFileReader {
 
     @Override
     public AudioFileFormat getAudioFileFormat(InputStream stream) throws UnsupportedAudioFileException, IOException {
-        return getAudioFileFormat(stream, AudioSystem.NOT_SPECIFIED);
+        return getAudioFileFormat(stream, NOT_SPECIFIED);
     }
 
     /**
@@ -78,21 +82,21 @@ public class Opl3AudioFileReader extends AudioFileReader {
      * @throws IOException                   if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
-Debug.println(Level.FINE, "enter: available: " + bitStream.available());
+logger.log(DEBUG, "enter: available: " + bitStream.available());
         AudioFormat.Encoding encoding;
         try {
             encoding = FileType.getEncoding(bitStream);
         } catch (Exception e) {
-Debug.println(Level.FINER, "error exit: available: " + bitStream.available());
-Debug.printStackTrace(Level.FINEST, e);
+logger.log(DEBUG, "error exit: available: " + bitStream.available());
+logger.log(TRACE, e.getMessage(), e);
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException().initCause(e);
         }
         AudioFileFormat.Type type = FileType.getType(encoding);
         Map<String, Object> props = new HashMap<>();
         props.put("uri", uri); // for advanced sierra file
         // specification for around frame might cause AudioInputStream modification at below (*1)
-        AudioFormat format = new AudioFormat(encoding, opl3.getSampleRate(), AudioSystem.NOT_SPECIFIED, opl3.getChannels(), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, opl3.isBigEndian(), props);
-        return new AudioFileFormat(type, format, AudioSystem.NOT_SPECIFIED);
+        AudioFormat format = new AudioFormat(encoding, opl3.getSampleRate(), NOT_SPECIFIED, opl3.getChannels(), NOT_SPECIFIED, NOT_SPECIFIED, opl3.isBigEndian(), props);
+        return new AudioFileFormat(type, format, NOT_SPECIFIED);
     }
 
     @Override
@@ -119,7 +123,7 @@ Debug.printStackTrace(Level.FINEST, e);
 
     @Override
     public AudioInputStream getAudioInputStream(InputStream stream) throws UnsupportedAudioFileException, IOException {
-        return getAudioInputStream(stream, AudioSystem.NOT_SPECIFIED);
+        return getAudioInputStream(stream, NOT_SPECIFIED);
     }
 
     /**

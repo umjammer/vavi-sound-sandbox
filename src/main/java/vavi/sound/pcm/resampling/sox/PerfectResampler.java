@@ -18,12 +18,14 @@
 
 package vavi.sound.pcm.resampling.sox;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Arrays;
-import java.util.logging.Level;
 
-import vavi.util.Debug;
 import vavi.util.I0Bessel;
 import vavi.util.SplitRadixFft;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -36,6 +38,8 @@ import vavi.util.SplitRadixFft;
  * @see "https://github.com/rbouqueau/SoX/blob/8025dd7861959189fc0abaade8d5be47244034da/src/rate.c"
  */
 public class PerfectResampler {
+
+    private static final Logger logger = getLogger(PerfectResampler.class.getName());
 
     /** */
     private static void coef(double[] coef_p, int interp_order, int fir_len, int phase_num, int coef_interp_num, int fir_coef_num, double value) {
@@ -67,7 +71,7 @@ public class PerfectResampler {
                 double c = 0;
                 double d = 0; // = 0 to kill compiler warning
                 int pos = i * num_phases + j - 1;
-Debug.printf(Level.FINE, "coefs:%d, index:%d\n", coefs.length, pos - 1);
+logger.log(Level.DEBUG, "coefs:%d, index:%d\n".formatted(coefs.length, pos - 1));
                 fm1 = (pos > 0 ? coefs[pos - 1] : 0) * multiplier;
                 switch (interp_order) {
                 case 1:
@@ -220,7 +224,7 @@ Debug.printf(Level.FINE, "coefs:%d, index:%d\n", coefs.length, pos - 1);
             int outputP = output_fifo.reserve(f.dft_length);
             output = output_fifo.data;
             output_fifo.trim_by((f.dft_length + overlap) >> 1);
-//Debug.printf("%d, %d, %d, %d, %d\n", input.length, inputP, output.length, outputP, f.dft_length);
+//logger.log(Level.TRACE, "%d, %d, %d, %d, %d".formatted(input.length, inputP, output.length, outputP, f.dft_length));
             System.arraycopy(input, inputP, output, outputP, Math.min(f.dft_length, input.length - inputP)); // TODO added min
 
 double[] o = new double[f.dft_length];
@@ -229,7 +233,7 @@ if (s.bit_rev_table == null) {
 s.bit_rev_table = new int[dft_br_len(f.dft_length)];
 s.sin_cos_table = new double[dft_sc_len(f.dft_length)];
 }
-//Debug.printf("%d, %s\n", f.dft_length, s.bit_rev_table.length);
+//logger.log(Level.TRACE, "%d, %s".formatted(f.dft_length, s.bit_rev_table.length));
 
             SplitRadixFft.rdft(f.dft_length, 1, o, s.bit_rev_table, s.sin_cos_table);
             o[0] *= f.coefs[0];
@@ -278,7 +282,7 @@ if (s.bit_rev_table == null) {
 s.bit_rev_table = new int[dft_br_len(f.dft_length)];
 s.sin_cos_table = new double[dft_sc_len(f.dft_length)];
 }
-Debug.printf("%d, %s\n", f.dft_length, s.bit_rev_table);
+logger.log(Level.DEBUG, "%d, %s".formatted(f.dft_length, s.bit_rev_table));
 
             SplitRadixFft.rdft(f.dft_length, 1, o, s.bit_rev_table, s.sin_cos_table);
             o[0] *= f.coefs[0];
@@ -514,7 +518,7 @@ System.arraycopy(o, 0, output, outputP, f.dft_length);
         assert (num_taps[0] & 1) != 0;
         f.num_taps = num_taps[0];
         f.dft_length = dft_length;
-Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], dft_length, Fp, atten, multiplier);
+logger.log(Level.DEBUG, "fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d".formatted(num_taps[0], dft_length, Fp, atten, multiplier));
         if (rateShared.bit_rev_table == null) {
             rateShared.bit_rev_table = new int[dft_br_len(dft_length)];
             rateShared.sin_cos_table = new double[dft_sc_len(dft_length)];
@@ -668,11 +672,11 @@ Debug.printf("fir_len=%d dft_length=%d Fp=%f atten=%f mult=%d\n", num_taps[0], d
             int i;
             int num_in = stage_occupancy(p);
             int max_num_out = (int) (1 + num_in * p.out_in_ratio);
-Debug.printf("%d, %d, %.2f\n", num_in, max_num_out, p.out_in_ratio);
+logger.log(Level.DEBUG, "%d, %d, %.2f".formatted(num_in, max_num_out, p.out_in_ratio));
             int outputP = output_fifo.reserve(max_num_out);
             double[] output = output_fifo.data;
 
-//Debug.printf("%d, %d\n", output.length, outputP);
+//logger.log(Level.TRACE, "%d, %d".formatted(output.length, outputP));
             for (i = 0; p.at.integer < num_in * p.divisor; ++i, p.at.integer += p.step.integer) {
                 int quot = p.at.integer / p.divisor;
                 int rem = p.at.integer % p.divisor;
@@ -1161,14 +1165,14 @@ for (int x = rate.level + 1 + 1 + 1; x < rate.level + 4; x++) {
         }
         rate.stages[rate.level + 1].step.all((long) (factor * Stage.MULT32 + .5));
         rate.stages[rate.level + 1].out_in_ratio = Stage.MULT32 * divisor / rate.stages[rate.level + 1].step.all();
-Debug.printf("out_in_ratio: %.2f, divisor: %d, step.all: %d", rate.stages[rate.level + 1].out_in_ratio, divisor, rate.stages[rate.level + 1].step.all());
+logger.log(Level.DEBUG, "out_in_ratio: %.2f, divisor: %d, step.all: %d".formatted(rate.stages[rate.level + 1].out_in_ratio, divisor, rate.stages[rate.level + 1].step.all()));
 
         if (divisor != 1) {
             assert rate.stages[rate.level + 1].step.fraction == 0;
         } else if (quality != Quality.Quick) {
             assert rate.stages[rate.level + 1].step.integer == 0;
         }
-Debug.printf("i/o=%f; %.9f:%d @ level %d\n", rate.factor, factor, divisor, rate.level);
+logger.log(Level.DEBUG, "i/o=%f; %.9f:%d @ level %d".formatted(rate.factor, factor, divisor, rate.level));
 
         mult = 1 + (rate.upsample ? 1 : 0); // Compensate for zero-stuffing in double_sample
         rate.input_stage_num = -(rate.upsample ? 1 : 0);
@@ -1202,7 +1206,7 @@ Debug.printf("i/o=%f; %.9f:%d @ level %d\n", rate.factor, factor, divisor, rate.
                 double[] coefs = design_lpf(f.pass, f.stop, 1., false, f.att, num_taps, phases);
                 assert num_taps[0] == f.num_coefs * phases - 1;
                 rate.stages[rate.level + 1].shared.poly_fir_coefs = prepare_coefs(coefs, f.num_coefs, phases, interp_order, mult);
-Debug.printf("fir_len=%d phases=%d coef_interp=%d mult=%d size=%d\n", f.num_coefs, phases, interp_order, mult, 0/*sigfigs3((num_taps[0] + 1) * (interp_order + 1) * 8)*/); // * 8 double
+logger.log(Level.DEBUG, "fir_len=%d phases=%d coef_interp=%d mult=%d size=%d".formatted(f.num_coefs, phases, interp_order, mult, 0/*sigfigs3((num_taps[0] + 1) * (interp_order + 1) * 8)*/)); // * 8 double
             }
             rate.stages[rate.level + 1].fn = f1.fn;
             rate.stages[rate.level + 1].pre_post = f.num_coefs - 1;
@@ -1268,7 +1272,7 @@ Debug.printf("fir_len=%d phases=%d coef_interp=%d mult=%d size=%d\n", f.num_coef
             int p = s.fifo.reserve(s.preload);
             Arrays.fill(s.fifo.data, p, p + s.preload, 0);
             if (i < rate.output_stage_num) {
-Debug.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, s.pre, s.preload);
+logger.log(Level.DEBUG, "stage=%-3dpre_post=%-3dpre=%-3dpreload=%d".formatted(i, s.pre_post, s.pre, s.preload));
             }
         }
     }
@@ -1284,7 +1288,7 @@ Debug.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, s.pre
     /** */
     private static int rate_input(Rate p, double[] samples, int n) {
         p.samples_in += n;
-//Debug.println("write: " + n);
+//logger.log(Level.TRACE, "write: " + n);
         return p.stages[p.input_stage_num + 1].fifo.write(n, samples);
     }
 
@@ -1380,7 +1384,7 @@ Debug.printf("stage=%-3dpre_post=%-3dpre=%-3dpreload=%d\n", i, s.pre_post, s.pre
         int[] odone = { osamp[0] };
 
         int sP = rate_output(priv.rate, null, odone);
-Debug.println("odone: " + odone[0]);
+logger.log(Level.DEBUG, "odone: " + odone[0]);
         double[] s = priv.rate.stages[priv.rate.output_stage_num + 1].fifo.data;
         int obufP = 0;
         for (i = 0; i < odone[0]; ++i) {

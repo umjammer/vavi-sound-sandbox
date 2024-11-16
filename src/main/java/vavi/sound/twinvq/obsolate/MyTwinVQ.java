@@ -6,7 +6,6 @@
 
 package vavi.sound.twinvq.obsolate;
 
-
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 

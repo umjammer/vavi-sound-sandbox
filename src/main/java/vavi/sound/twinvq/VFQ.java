@@ -32,10 +32,8 @@ import java.util.Map;
 import vavi.sound.twinvq.LibAV.AVFormatContext;
 import vavi.sound.twinvq.LibAV.AVInputFormat;
 import vavi.sound.twinvq.LibAV.AVPacket;
-import vavi.sound.twinvq.LibAV.AVProbeData;
 import vavi.sound.twinvq.LibAV.AVStream;
 import vavi.util.ByteUtil;
-import vavi.util.Debug;
 import vavi.util.StringUtil;
 
 import static java.lang.System.getLogger;
@@ -157,7 +155,7 @@ class VFQ {
 
                 header_size -= 8;
 
-Debug.println("chunk: " + chunk_tag + ", " + len);
+logger.log(Level.DEBUG, "chunk: " + chunk_tag + ", " + len);
                 switch (chunk_tag) {
                     case TAG_COMM -> {
                         s.pb.readFully(comm_chunk, 0, 12);
@@ -243,7 +241,7 @@ Debug.println("chunk: " + chunk_tag + ", " + len);
             st.codecpar.extradata = new byte[12 + AV_INPUT_BUFFER_PADDING_SIZE];
             st.codecpar.extradata_size = 12;
             System.arraycopy(comm_chunk, 0, st.codecpar.extradata, 0, 12);
-Debug.println("extradata_size: " + st.codecpar.extradata_size + "\n" + StringUtil.getDump(st.codecpar.extradata));
+logger.log(Level.DEBUG, "extradata_size: " + st.codecpar.extradata_size + "\n" + StringUtil.getDump(st.codecpar.extradata));
 
 //            ff_metadata_conv_ctx(s, null, vqf_metadata_conv);
 
@@ -259,7 +257,7 @@ logger.log(Level.ERROR, e.getMessage(), e);
             VqfContext c = s.priv_data;
             int ret;
             int size = (c.frame_bit_len - c.remaining_bits + 7) >> 3;
-Debug.println("size: " + size + ", blen: " + c.frame_bit_len + ", brem: " + c.remaining_bits + ", lfbits: " + (c.last_frame_bits & 0xff));
+logger.log(Level.DEBUG, "size: " + size + ", blen: " + c.frame_bit_len + ", brem: " + c.remaining_bits + ", lfbits: " + (c.last_frame_bits & 0xff));
 
             AVPacket pkt = new AVPacket(size + 2);
 

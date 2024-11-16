@@ -69,11 +69,11 @@ public class OpusTest {
         file.close();
 
         long end = System.currentTimeMillis();
-        System.err.println(in + " -> " + out);
-        System.err.println("Time was " + (end - start) + "ms");
+System.err.println(in + " -> " + out);
+System.err.println("Time was " + (end - start) + "ms");
         is.close();
         os.close();
-        System.err.println("Done!");
+System.err.println("Done!");
     }
 
     static final String inFile = "src/test/resources/opus.raw";
@@ -104,11 +104,11 @@ public class OpusTest {
             int bytesRead = fileIn.read(inBuf, 0, inBuf.length);
             short[] pcm = bytesToShorts(inBuf, 0, bytesRead);
             int bytesEncoded = encoder.encode(pcm, 0, packetSamples, dataPacket, 0, 1275);
-//            System.out.println(bytesEncoded + " bytes encoded");
+//System.out.println(bytesEncoded + " bytes encoded");
 
             @SuppressWarnings("unused")
             int samplesDecoded = decoder.decode(dataPacket, 0, bytesEncoded, pcm, 0, packetSamples, false);
-//            System.out.println(samplesDecoded + " samples decoded");
+//System.out.println(samplesDecoded + " samples decoded");
             byte[] bytesOut = shortsToBytes(pcm);
             fileOut.write(bytesOut, 0, bytesOut.length);
         }

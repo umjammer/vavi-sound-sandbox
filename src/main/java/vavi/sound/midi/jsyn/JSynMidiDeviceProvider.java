@@ -6,12 +6,13 @@
 
 package vavi.sound.midi.jsyn;
 
-import java.util.logging.Level;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.spi.MidiDeviceProvider;
 
-import vavi.util.Debug;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -21,6 +22,8 @@ import vavi.util.Debug;
  * @version 0.00 201005 nsano initial version <br>
  */
 public class JSynMidiDeviceProvider extends MidiDeviceProvider {
+
+    private static final Logger logger = getLogger(JSynMidiDeviceProvider.class.getName());
 
     /** */
     public final static int MANUFACTURER_ID = 0x5e;
@@ -39,11 +42,11 @@ public class JSynMidiDeviceProvider extends MidiDeviceProvider {
         throws IllegalArgumentException {
 
         if (info == JSynSynthesizer.info) {
-Debug.println(Level.FINE, "★1 info: " + info);
+logger.log(Level.DEBUG, "★1 info: " + info);
             JSynSynthesizer synthesizer = new JSynSynthesizer();
             return synthesizer;
         } else {
-Debug.println(Level.FINE, "★1 here: " + info);
+logger.log(Level.DEBUG, "★1 here: " + info);
             throw new IllegalArgumentException();
         }
     }

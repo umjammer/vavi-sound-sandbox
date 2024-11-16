@@ -6,15 +6,17 @@
 
 package vavi.sound.vsq;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
 
-import vavi.util.Debug;
 import vavi.util.StringUtil;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -24,6 +26,8 @@ import vavi.util.StringUtil;
  * @version 0.00 080628 nsano initial version <br>
  */
 public interface Block {
+
+    Logger logger = getLogger(Block.class.getName());
 
     /** */
     class Factory {
@@ -36,7 +40,7 @@ public interface Block {
                 try {
                     return (Block) methods.get(label).invoke(null, label, params);
                 } catch (Exception e) {
-Debug.printStackTrace(e);
+logger.log(Level.INFO, e.getMessage(), e);
                     throw new IllegalStateException(label, e);
                 }
             } else {
@@ -45,7 +49,7 @@ Debug.printStackTrace(e);
                     try {
                         return (Block) methods.get(wildcardLabel1).invoke(null, label, params);
                     } catch (Exception e) {
-Debug.printStackTrace(e);
+logger.log(Level.INFO, e.getMessage(), e);
                         throw new IllegalStateException(wildcardLabel1, e);
                     }
                 } else {
@@ -53,11 +57,11 @@ Debug.printStackTrace(e);
                         try {
                             return (Block) methods.get("*BPList").invoke(null, label, params);
                         } catch (Exception e) {
-Debug.printStackTrace(e);
+logger.log(Level.INFO, e.getMessage(), e);
                             throw new IllegalStateException("*BPList", e);
                         }
                     } else {
-Debug.println(Level.SEVERE, "error block: " + label);
+logger.log(Level.ERROR, "error block: " + label);
                         throw new IllegalStateException("error block: " + label);
                     }
                 }
@@ -78,16 +82,16 @@ Debug.println(Level.SEVERE, "error block: " + label);
                 //
                 for (Object o : props.keySet()) {
                     String key = (String) o;
-                    Debug.println("block class: " + props.getProperty(key));
+logger.log(Level.DEBUG, "block class: " + props.getProperty(key));
                     @SuppressWarnings("unchecked")
                     Class<Block> clazz = (Class<Block>) Class.forName(props.getProperty(key));
-                    Debug.println("block class: " + StringUtil.getClassName(clazz));
+logger.log(Level.DEBUG, "block class: " + StringUtil.getClassName(clazz));
                     Method method = clazz.getMethod("newInstance", String.class, List.class);
 
                     methods.put(key, method);
                 }
             } catch (Exception e) {
-Debug.printStackTrace(e);
+logger.log(Level.INFO, e.getMessage(), e);
                 throw new IllegalStateException(e);
             }
         }

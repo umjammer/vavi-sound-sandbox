@@ -21,11 +21,13 @@ package vavi.sound.opl3;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import vavi.io.LittleEndianDataInputStream;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -37,7 +39,8 @@ import vavi.io.LittleEndianDataInputStream;
  * @author Wraithverge <liam82067@yahoo.com>
  */
 class Dro2Player extends Opl3Player {
-    private static final Logger logger = Logger.getLogger(Dro2Player.class.getName());
+
+    private static final Logger logger = getLogger(Dro2Player.class.getName());
 
     private LittleEndianDataInputStream data;
     private int pos;
@@ -81,7 +84,7 @@ class Dro2Player extends Opl3Player {
             try {
                 dis.reset();
             } catch (IOException e) {
-                logger.fine(e.toString());
+                logger.log(Level.DEBUG, e.toString());
             }
         }
     }
@@ -120,13 +123,13 @@ class Dro2Player extends Opl3Player {
             toReg[i] = dis.readUnsignedByte();
         }
 
-logger.fine("id: " + DroPlayer.ID);
-logger.fine("version: " + 2);
-logger.fine("length: " + length);
-logger.fine("mstotal: " + msTotal);
-logger.fine("opl3Type: " + opl3Type);
-logger.fine("delay256: " + delay256);
-logger.fine("delayShift8: " + delayShift8);
+logger.log(Level.DEBUG, "id: " + DroPlayer.ID);
+logger.log(Level.DEBUG, "version: " + 2);
+logger.log(Level.DEBUG, "length: " + length);
+logger.log(Level.DEBUG, "mstotal: " + msTotal);
+logger.log(Level.DEBUG, "opl3Type: " + opl3Type);
+logger.log(Level.DEBUG, "delay256: " + delay256);
+logger.log(Level.DEBUG, "delayShift8: " + delayShift8);
 
         data = dis;
 

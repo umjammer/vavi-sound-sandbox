@@ -11,11 +11,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.ByteOrder;
 
 import vavi.io.LittleEndianDataInputStream;
-import vavi.util.Debug;
 
+import static java.lang.System.getLogger;
 import static vavi.sound.twinvq.obsolate.TwinVQ.twinVq;
 
 
@@ -26,6 +28,8 @@ import static vavi.sound.twinvq.obsolate.TwinVQ.twinVq;
  * @version 0.00 070202 initial version <br>
  */
 public class TwinVQOutputStream extends FilterOutputStream {
+
+    private static final Logger logger = getLogger(TwinVQOutputStream.class.getName());
 
     /** */
     private final ByteOrder byteOrder;
@@ -49,7 +53,7 @@ public class TwinVQOutputStream extends FilterOutputStream {
         super(new ByteArrayOutputStream());
 
         this.byteOrder = byteOrder;
-Debug.println("byteOrder: " + this.byteOrder);
+logger.log(Level.DEBUG, "byteOrder: " + this.byteOrder);
 
         realOut = out;
     }
@@ -63,7 +67,7 @@ Debug.println("byteOrder: " + this.byteOrder);
         try {
             LittleEndianDataInputStream ledis = new LittleEndianDataInputStream(new ByteArrayInputStream(((ByteArrayOutputStream) out).toByteArray()));
             int length = ledis.available();
-Debug.println("length: " + length);
+logger.log(Level.DEBUG, "length: " + length);
             byte[] adpcm = new byte[length / 4];
             int[] pcm = new int[length / 2];
             for (int i = 0; i < pcm.length; i++) {
@@ -77,13 +81,13 @@ Debug.println("length: " + length);
             realOut.write(adpcm);
 
         } catch (IOException e) {
-Debug.printStackTrace(e);
+logger.log(Level.INFO, e.getMessage(), e);
         } finally {
             try {
                 realOut.flush();
                 realOut.close();
             } catch (IOException e) {
-Debug.println(e);
+logger.log(Level.INFO, e.toString());
             }
         }
 

@@ -6,10 +6,10 @@
 
 package vavi.sound.vsq.block;
 
+import java.lang.System.Logger.Level;
 import java.util.List;
 
 import vavi.sound.vsq.Block;
-import vavi.util.Debug;
 
 
 /**
@@ -88,14 +88,14 @@ public class Handle implements Block {
                 case "DepthBPY" -> block.depthBPY = pair[1];
                 case "RateBPX" -> block.rateBPX = pair[1];
                 case "RateBPY" -> block.rateBPY = pair[1];
-                case null, default -> Debug.println("unhandled param: " + pair[0]);
+                case null, default -> logger.log(Level.DEBUG, "unhandled param: " + pair[0]);
             }
         }
         return block;
     }
 
     public String getLyric() {
-//Debug.println("l0: " + l0.split(",")[0].replace("\"", ""));
+//logger.log(Level.TRACE, "l0: " + l0.split(",")[0].replace("\"", ""));
         return l0.split(",")[0].replace("\"", "");
     }
 }

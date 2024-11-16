@@ -22,12 +22,12 @@ package vavi.sound.opl3;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sound.midi.ControllerEventListener;
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaEventListener;
@@ -45,11 +45,12 @@ import javax.sound.midi.Transmitter;
 
 import vavi.sound.midi.MidiConstants;
 import vavi.sound.midi.MidiConstants.MetaEvent;
-import vavi.sound.midi.MidiUtil;
 import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Synthesizer;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 import vavi.util.StringUtil;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -113,7 +114,7 @@ import vavi.util.StringUtil;
  */
 public class MidPlayer extends Opl3Player implements Sequencer {
 
-    private static final Logger logger = Logger.getLogger(MidPlayer.class.getName());
+    private static final Logger logger = getLogger(MidPlayer.class.getName());
 
     /** midi like file types */
     public enum FileType {
@@ -154,7 +155,7 @@ public class MidPlayer extends Opl3Player implements Sequencer {
                 try {
                     dis.reset();
                 } catch (IOException e) {
-                    logger.log(Level.FINE, e.getMessage());
+                    logger.log(Level.DEBUG, e.toString());
                 }
             }
         }
@@ -219,7 +220,7 @@ public class MidPlayer extends Opl3Player implements Sequencer {
 
     @Override
     public boolean matchFormat(InputStream bitStream) {
-logger.finer("\n" + StringUtil.getDump(bitStream, 0, 64));
+logger.log(Level.TRACE, "\n" + StringUtil.getDump(bitStream, 0, 64));
         try {
             type = FileType.getFileType(bitStream);
             return true;
@@ -298,7 +299,7 @@ logger.finer("\n" + StringUtil.getDump(bitStream, 0, 64));
         DataInputStream dis = new DataInputStream(is);
 
         subsongs = 1;
-logger.fine("type: " + type);
+logger.log(Level.DEBUG, "type: " + type);
 
         dis.reset();
         flen = dis.available();
@@ -344,7 +345,7 @@ logger.fine("type: " + type);
 
                     tracks[t].pv = v;
                     int c = v & 0x0f;
-logger.finer(String.format("[%2X]", v));
+logger.log(Level.TRACE, "[%2X]".formatted(v));
 
                     int data1;
                     int data2;
@@ -408,10 +409,10 @@ logger.finer(String.format("[%2X]", v));
                                 for (int i = 2; i < b.length; i++) {
                                     b[i] = (byte) (takeBE(1) & 0xff);
                                 }
-                                logger.finer(String.format("sysex: %02x, %d\n%s", v, l, StringUtil.getDump(b, Math.min(l + 2, 64))));
+logger.log(Level.TRACE, "sysex: %02x, %d\n%s".formatted(v, l, StringUtil.getDump(b, Math.min(l + 2, 64))));
                                 midiMessage = new SysexMessage();
                                 ((SysexMessage) midiMessage).setMessage(b, b.length);
-                                logger.finest("sysex: len: " + midiMessage.getLength());
+logger.log(Level.TRACE, "sysex: len: " + midiMessage.getLength());
                                 if (f) {
                                     takeBE(1);
                                 }
@@ -422,7 +423,7 @@ logger.finer(String.format("[%2X]", v));
                             case 0xfd:
                             case 0xfe:
                             default:
-                                logger.fine(String.format("sysex: unhandled: %02x", v));
+                                logger.log(Level.DEBUG, "sysex: unhandled: %02x".formatted(v));
                                 break;
                             case 0xf2:
                                 data1 = takeBE(1);
@@ -443,27 +444,27 @@ logger.finer(String.format("[%2X]", v));
                                 // this ends the track for sierra.
                                 if (type == FileType.SIERRA || type == FileType.ADVSIERRA) {
                                     tracks[t].tend = pos;
-                                    logger.info(String.format("endmark: %d -- %x\n", pos, pos));
+logger.log(Level.INFO, "endmark: %d -- %x".formatted(pos, pos));
                                 }
                                 break;
                             case 0xff: // meta
                                 v = takeBE(1);
                                 l = takeBE(1);
-logger.fine(String.format("meta: %02x, %s\n%s", v, MidiConstants.MetaEvent.valueOf(v), StringUtil.getDump(data, 0, l)));
+logger.log(Level.DEBUG, "meta: %02x, %s\n%s".formatted(v, MidiConstants.MetaEvent.valueOf(v), StringUtil.getDump(data, 0, l)));
                                 switch (v) {
                                 case 0x2f:
-                                    logger.info(String.format("meta: %02x", v));
+                                    logger.log(Level.INFO, String.format("meta: %02x", v));
                                     if (data.available() > 0) {
-                                        logger.fine("out of spec data for meta:0x2f: " + data.available());
+                                        logger.log(Level.DEBUG, "out of spec data for meta:0x2f: " + data.available());
                                     }
                                     takeBE(l); // TODO out of spec.
                                     break;
                                 case 0x51:
                                     msqtr = takeBE(l); // set tempo
-                                    logger.fine(String.format("(qtr=%d)", msqtr));
+                                    logger.log(Level.DEBUG, "(qtr=%d)".formatted(msqtr));
                                     break;
                                 default:
-                                    logger.finer(String.format("meta unhandled: %02x, %02x", v, l));
+                                    logger.log(Level.TRACE, String.format("meta unhandled: %02x, %02x", v, l));
                                     for (int i = 0; i < l; ++i) {
                                         takeBE(1);
                                     }
@@ -474,18 +475,18 @@ logger.fine(String.format("meta: %02x, %s\n%s", v, MidiConstants.MetaEvent.value
                             break;
                         default:
                             // if we get down here, an error occurred
-                            logger.warning(String.format("unknown midi command!: %02x at %d", v, pos));
+                            logger.log(Level.WARNING, "unknown midi command!: %02x at %d".formatted(v, pos));
                             break;
                         }
                     } catch (InvalidMidiDataException e) {
-                        logger.log(Level.SEVERE, e.getMessage(), e);
+                        logger.log(Level.ERROR, e.getMessage(), e);
                     }
 
                     if (midiMessage != null) {
                         transmitter.getReceiver().send(midiMessage, -1);
                     }
 
-logger.finer(String.format("pos: %d, end: %d", pos, tracks[t].tend));
+logger.log(Level.TRACE, "pos: %d, end: %d".formatted(pos, tracks[t].tend));
                     if (pos < tracks[t].tend) {
                         int w;
                         if (type != FileType.SIERRA && type != FileType.ADVSIERRA) {
@@ -531,7 +532,7 @@ logger.finer(String.format("pos: %d, end: %d", pos, tracks[t].tend));
             }
         }
 
-//        logger.info(String.format("iwait: %d, deltas: %d, msqtr: %d", iwait, deltas, msqtr));
+//        logger.log(Level.INFO, String.format("iwait: %d, deltas: %d, msqtr: %d", iwait, deltas, msqtr));
         if (iwait != 0 && eos) {
             for (int t = 0; t < MAX_CHANNELS; ++t) {
                 if (tracks[t].on) {
@@ -547,9 +548,9 @@ logger.finer(String.format("pos: %d, end: %d", pos, tracks[t].tend));
         for (int t = 0; t < MAX_CHANNELS; ++t) {
             if (tracks[t].on) {
                 if (tracks[t].pos < tracks[t].tend) {
-                    logger.finer(String.format("iwait: %d", tracks[t].iwait));
+                    logger.log(Level.TRACE, String.format("iwait: %d", tracks[t].iwait));
                 } else {
-                    logger.finer("stop");
+                    logger.log(Level.TRACE, "stop");
                 }
             }
         }
@@ -575,7 +576,7 @@ logger.finer(String.format("pos: %d, end: %d", pos, tracks[t].tend));
         x[7] = 0xff - (((data[pos + 20] & 0xff) << 4) + (data[pos + 21] & 0xff));
         x[9] = ((data[pos + 22] & 0xff) << 4) + (data[pos + 23] & 0xff);
         x[10] = ((data[pos + 24] & 0xff) << 4) + (data[pos + 24] & 0xff);
-logger.fine(String.format("%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x", x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10]));
+logger.log(Level.DEBUG, "%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x".formatted(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10]));
         return x;
     }
 

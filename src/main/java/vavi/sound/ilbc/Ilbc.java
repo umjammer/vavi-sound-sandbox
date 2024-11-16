@@ -16,9 +16,6 @@ import java.util.Arrays;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import vavi.util.Debug;
-import vavi.util.StringUtil;
-
 
 /**
  * iLBC Speech Coder ANSI-C Source Code
@@ -809,7 +806,7 @@ public class Ilbc {
         // do the actual encoding
 
         iLBC_encode(encoded_data, block, encoder);
-//Debug.println("\n" + StringUtil.getDump(encoded_data, 64));
+//logger.log(Level.TRACE, "\n" + StringUtil.getDump(encoded_data, 64));
 
         return encoder.no_of_bytes;
     }
@@ -868,7 +865,7 @@ public class Ilbc {
         // Runtime statistics
 
         long runtime;
-        double outtime;
+        double outTime;
 
         InputStream iFile, cFile;
         OutputStream oFile, eFile;
@@ -950,7 +947,7 @@ public class Ilbc {
 
         // Runtime statistics
 
-        long starttime = System.currentTimeMillis();
+        long startTime = System.currentTimeMillis();
 
         // loop over input blocks
 
@@ -1003,13 +1000,13 @@ public class Ilbc {
 
         // Runtime statistics
 
-        runtime = System.currentTimeMillis() - starttime;
-        outtime = ((double) blockCount * (double) mode / 1000.0);
-        System.out.printf("\n\nLength of speech file: %.1f s\n", outtime);
+        runtime = System.currentTimeMillis() - startTime;
+        outTime = ((double) blockCount * (double) mode / 1000.0);
+        System.out.printf("\n\nLength of speech file: %.1f s\n", outTime);
         System.out.printf("Packet loss          : %.1f%%\n", 100.0 * packetLossCount / blockCount);
 
         System.out.print("Time to run iLBC     :");
-        System.out.printf(" %.1f s (%.1f %% of realtime)\n\n", (double) runtime, (100 * runtime / outtime));
+        System.out.printf(" %.1f s (%.1f %% of realtime)\n\n", (double) runtime, (100 * runtime / outTime));
 
         // close files
 

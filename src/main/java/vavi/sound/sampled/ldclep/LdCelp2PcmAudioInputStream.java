@@ -10,17 +10,19 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
-import java.util.logging.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
 import vavi.io.OutputEngine;
 import vavi.io.OutputEngineInputStream;
 import vavi.sound.ldcelp.Decoder;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -30,6 +32,8 @@ import vavi.util.Debug;
  * @version 0.00 240629 nsano initial version <br>
  */
 class LdCelp2PcmAudioInputStream extends AudioInputStream {
+
+    private static final Logger logger = getLogger(LdCelp2PcmAudioInputStream.class.getName());
 
     /**
      * Constructor.
@@ -58,7 +62,7 @@ class LdCelp2PcmAudioInputStream extends AudioInputStream {
         public LdCelpOutputEngine(InputStream is) throws IOException {
             this.is = is;
             decoder = new Decoder(true); // TODO parameter postfilter
-Debug.println(Level.FINE, "LD-CELP");
+logger.log(Level.DEBUG, "LD-CELP");
         }
 
         @Override

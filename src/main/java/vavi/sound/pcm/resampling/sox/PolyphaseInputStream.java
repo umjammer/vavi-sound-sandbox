@@ -11,11 +11,14 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 
 import vavi.io.OutputEngine;
 import vavi.io.OutputEngineInputStream;
 import vavi.util.ByteUtil;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -25,6 +28,8 @@ import vavi.util.Debug;
  * @version 0.00 111022 nsano initial version <br>
  */
 class PolyphaseInputStream extends FilterInputStream {
+
+    private static final Logger logger = getLogger(PolyphaseInputStream.class.getName());
 
     /** */
     public PolyphaseInputStream(InputStream is, float in, float out) throws IOException {
@@ -75,7 +80,7 @@ class PolyphaseInputStream extends FilterInputStream {
                         samples[i] = ByteUtil.readLeShort(sample, i * 2); // LE
                     }
                     int[] resamples = resampler.resample(samples);  // TODO single channel ???
-Debug.println(r / 2 + ", " + resamples.length);
+logger.log(Level.DEBUG, r / 2 + ", " + resamples.length);
                     byte[] result = new byte[resamples.length * 2];
                     for (int i = 0; i < resamples.length; i++) {
                         ByteUtil.writeLeShort((short) resamples[i], result, i * 2); // LE

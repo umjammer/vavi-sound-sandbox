@@ -6,9 +6,10 @@
 
 package vavi.sound.opl3;
 
-import java.util.logging.Level;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 
-import vavi.util.Debug;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -20,6 +21,9 @@ import vavi.util.Debug;
  * @version 0.00 2020/10/23 umjammer initial version <br>
  */
 public class Adlib {
+
+    private static final Logger logger = getLogger(Adlib.class.getName());
+
     public static final int LUCAS_STYLE = 1;
     public static final int CMF_STYLE = 2;
     public static final int MIDI_STYLE = 4;
@@ -229,7 +233,7 @@ public class Adlib {
     }
 
     public void write(int address, int data) {
-Debug.printf(Level.FINEST, "write: %04x, %02x", address, data);
+logger.log(Level.TRACE, "write: %04x, %02x".formatted(address, data));
         writer.write(0, address, data);
         this.data[address] = data;
     }

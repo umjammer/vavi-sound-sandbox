@@ -10,14 +10,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.logging.Level;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 
 import vavi.io.OutputEngine;
 import vavi.io.OutputEngineInputStream;
 import vavi.sound.ilbc.Decoder;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -27,6 +29,8 @@ import vavi.util.Debug;
  * @version 0.00 240704 nsano initial version <br>
  */
 class Ilbc2PcmAudioInputStream extends AudioInputStream {
+
+    private static final Logger logger = getLogger(Ilbc2PcmAudioInputStream.class.getName());
 
     /**
      * Constructor.
@@ -55,7 +59,7 @@ class Ilbc2PcmAudioInputStream extends AudioInputStream {
         public IlbcOutputEngine(InputStream is) throws IOException {
             this.is = is;
             decoder = new Decoder(30, 1); // TODO parameter x2
-Debug.println(Level.FINE, "iLBC");
+logger.log(Level.DEBUG, "iLBC");
             decoded = new byte[decoder.getDecodedLength()];
             buf = new byte[decoder.getEncodedLength()];
         }

@@ -10,8 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Calendar;
-
 import javax.media.Controller;
 import javax.media.ControllerErrorEvent;
 import javax.media.ControllerListener;
@@ -28,7 +29,7 @@ import javax.media.protocol.ContentDescriptor;
 import javax.media.protocol.FileTypeDescriptor;
 import javax.swing.Timer;
 
-import vavi.util.Debug;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -38,6 +39,8 @@ import vavi.util.Debug;
  * @version 0.00 060127 nsano initial version <br>
  */
 public class PacketCaster {
+
+    private static final Logger logger = getLogger(PacketCaster.class.getName());
 
     /**
      * Main program
@@ -68,10 +71,10 @@ public class PacketCaster {
                 try {
                     // Transcode with the specified parameters.
                     long start = playingTime * 1000 * 1000;
-Debug.println("start: " + start);
+logger.log(Level.DEBUG, "start: " + start);
                     playingTime += interval;
                     long end = playingTime * 1000 * 1000;
-Debug.println("end: " + end);
+logger.log(Level.DEBUG, "end: " + end);
                     String outputURL = urlMaker.getUrl();
                     MediaLocator oml = new MediaLocator(outputURL);
                     doIt(iml, oml, new long[] { start }, new long[] { end });

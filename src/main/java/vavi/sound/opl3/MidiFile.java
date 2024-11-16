@@ -8,11 +8,14 @@ package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Arrays;
-import java.util.logging.Logger;
 
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 import vavi.sound.opl3.MidPlayer.MidiTypeFile;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -26,7 +29,7 @@ import vavi.sound.opl3.MidPlayer.MidiTypeFile;
  */
 class MidiFile extends MidiTypeFile {
 
-    private static final Logger logger = Logger.getLogger(MidiFile.class.getName());
+    private static final Logger logger = getLogger(MidiFile.class.getName());
 
     @Override
     int markSize() {
@@ -36,15 +39,15 @@ class MidiFile extends MidiTypeFile {
     @Override
     boolean matchFormatImpl(DataInputStream dis) throws IOException {
         if (!Boolean.parseBoolean(System.getProperty("vavi.sound.opl3.MidiFile", "false"))) {
-logger.fine("vavi.sound.opl3.MidiFile: false");
+logger.log(Level.DEBUG, "vavi.sound.opl3.MidiFile: false");
             return false;
         }
-logger.fine("use vavi.sound.opl3.MidiFile");
+logger.log(Level.DEBUG, "use vavi.sound.opl3.MidiFile");
         byte[] chunkType = new byte[4];
         dis.readFully(chunkType);
         dis.skipBytes(4);
         int format = dis.readUnsignedShort();
-logger.fine("format: " + format);
+logger.log(Level.DEBUG, "format: " + format);
         return Arrays.equals("MThd".getBytes(), chunkType) && format == 0;
     }
 
@@ -56,13 +59,13 @@ logger.fine("format: " + format);
         }
         player.takeBE(3 + 4 + 2 + 2); // skip header
         player.deltas = player.takeBE(2);
-logger.fine(String.format("deltas: %d", player.deltas));
+logger.log(Level.DEBUG, "deltas: %d".formatted(player.deltas));
         player.takeBE(4);
 
         player.tracks[0].on = true;
         player.tracks[0].tend = player.takeBE(4);
         player.tracks[0].spos = player.pos;
-logger.fine(String.format("tracklen: %d", player.tracks[0].tend));
+logger.log(Level.DEBUG, "tracklen: %d".formatted(player.tracks[0].tend));
     }
 
     protected Context context;

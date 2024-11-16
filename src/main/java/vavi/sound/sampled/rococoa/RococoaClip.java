@@ -8,13 +8,14 @@ package vavi.sound.sampled.rococoa;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -28,9 +29,10 @@ import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 
 import org.rococoa.ID;
-import vavi.util.Debug;
 import vavix.rococoa.avfoundation.AVAudioFormat;
 import vavix.rococoa.avfoundation.AVAudioPlayer;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -40,6 +42,8 @@ import vavix.rococoa.avfoundation.AVAudioPlayer;
  * @version 0.00 2022/02/21 umjammer initial version <br>
  */
 public class RococoaClip implements Clip {
+
+    private static final Logger logger = getLogger(RococoaClip.class.getName());
 
     public static final javax.sound.sampled.DataLine.Info info =
             new javax.sound.sampled.DataLine.Info(RococoaClip.class,
@@ -107,7 +111,7 @@ public class RococoaClip implements Clip {
             // if no exception, commit to our new gain
             linearGain = newLinearGain;
             calcVolume();
-Debug.println("volume: " + leftGain);
+logger.log(Level.DEBUG, "volume: " + leftGain);
             player.setVolume(leftGain);
         }
 
@@ -218,7 +222,7 @@ Debug.println("volume: " + leftGain);
     public void start() {
         boolean r = player.play();
         fireUpdate(new LineEvent(this, LineEvent.Type.START, 0));
-Debug.println("play: " + r);
+logger.log(Level.DEBUG, "play: " + r);
     }
 
     @Override
@@ -239,9 +243,8 @@ Debug.println("play: " + r);
     @Override
     public AudioFormat getFormat() {
         AVAudioFormat format = player.format();
-Debug.println(format + ", " + format.commonFormat());
+logger.log(Level.DEBUG, format + ", " + format.commonFormat());
         return switch (format.commonFormat()) {
-            default -> stream.getFormat();
             case AVAudioFormat.PCMFormatFloat32 -> new AudioFormat(AudioFormat.Encoding.PCM_FLOAT,
                     (int) format.sampleRate(),
                     32,
@@ -270,6 +273,7 @@ Debug.println(format + ", " + format.commonFormat());
                     AudioSystem.NOT_SPECIFIED,
                     AudioSystem.NOT_SPECIFIED,
                     ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN);
+            default -> stream.getFormat();
         };
     }
 
@@ -294,7 +298,7 @@ Debug.println(format + ", " + format.commonFormat());
 
     @Override
     public void open() throws LineUnavailableException {
-Debug.println(Level.WARNING, "use #open(AudioInputStream)");
+logger.log(Level.WARNING, "use #open(AudioInputStream)");
     }
 
     @Override
@@ -403,7 +407,7 @@ Debug.println(Level.WARNING, "use #open(AudioInputStream)");
             }
         });
         fireUpdate(new LineEvent(this, LineEvent.Type.OPEN, 0));
-Debug.println("player: " + player);
+logger.log(Level.DEBUG, "player: " + player);
     }
 
     @Override

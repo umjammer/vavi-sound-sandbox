@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 by Naohide Sano, All rights reserved.
+ * Copyright (c) 2011 by Naohide Sano, All rights reserved.
  *
  * Programmed by Naohide Sano
  */
@@ -11,22 +11,24 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.HashMap;
-import java.util.logging.Level;
-
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 
 import org.gagravarr.ogg.OggFile;
 import org.gagravarr.opus.OpusFile;
-
 import vavi.util.Debug;
+
+import static java.lang.System.Logger.Level.DEBUG;
+import static java.lang.System.Logger.Level.TRACE;
+import static java.lang.System.getLogger;
+import static javax.sound.sampled.AudioSystem.NOT_SPECIFIED;
 
 
 /**
@@ -38,6 +40,8 @@ import vavi.util.Debug;
  * @version 0.00 111022 nsano initial version <br>
  */
 public class OpusAudioFileReader extends AudioFileReader {
+
+    private static final Logger logger = getLogger(OpusAudioFileReader.class.getName());
 
     @Override
     public AudioFileFormat getAudioFileFormat(File file) throws UnsupportedAudioFileException, IOException {
@@ -55,7 +59,7 @@ public class OpusAudioFileReader extends AudioFileReader {
 
     @Override
     public AudioFileFormat getAudioFileFormat(InputStream stream) throws UnsupportedAudioFileException, IOException {
-        return getAudioFileFormat(stream, AudioSystem.NOT_SPECIFIED); // TODO ???
+        return getAudioFileFormat(stream, NOT_SPECIFIED); // TODO ???
     }
 
     /**
@@ -70,7 +74,7 @@ public class OpusAudioFileReader extends AudioFileReader {
      * @throws IOException                   if an I/O exception occurs.
      */
     protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
-Debug.println(Level.FINE, "enter available: " + bitStream.available());
+logger.log(DEBUG, "enter available: " + bitStream.available());
         OpusFile opus;
         try {
             bitStream.mark(32);
@@ -86,8 +90,8 @@ Debug.println(Level.FINE, "enter available: " + bitStream.available());
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {
-Debug.println(Level.FINER, e);
-Debug.printStackTrace(Level.FINEST, e);
+logger.log(DEBUG, e.toString());
+logger.log(TRACE, e.getMessage(), e);
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException(e.getMessage()).initCause(e);
         } finally {
             try {
@@ -95,12 +99,12 @@ Debug.printStackTrace(Level.FINEST, e);
             } catch (IOException e) {
                 Debug.printStackTrace(e);
             }
-Debug.println(Level.FINE, "finally available: " + bitStream.available());
+logger.log(DEBUG, "finally available: " + bitStream.available());
         }
-        AudioFormat format = new AudioFormat(OpusEncoding.OPUS, opus.getInfo().getSampleRate(), AudioSystem.NOT_SPECIFIED, opus.getInfo().getNumChannels(), AudioSystem.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, true, new HashMap<>() {{
+        AudioFormat format = new AudioFormat(OpusEncoding.OPUS, opus.getInfo().getSampleRate(), NOT_SPECIFIED, opus.getInfo().getNumChannels(), NOT_SPECIFIED, NOT_SPECIFIED, true, new HashMap<>() {{
             put("opus", opus);
         }});
-        return new AudioFileFormat(OpusFileFormatType.OPUS, format, AudioSystem.NOT_SPECIFIED);
+        return new AudioFileFormat(OpusFileFormatType.OPUS, format, NOT_SPECIFIED);
     }
 
     @Override
@@ -127,7 +131,7 @@ Debug.println(Level.FINE, "finally available: " + bitStream.available());
 
     @Override
     public AudioInputStream getAudioInputStream(InputStream stream) throws UnsupportedAudioFileException, IOException {
-        return getAudioInputStream(stream, AudioSystem.NOT_SPECIFIED);
+        return getAudioInputStream(stream, NOT_SPECIFIED);
     }
 
     /**

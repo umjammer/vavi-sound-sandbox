@@ -6,6 +6,8 @@
 
 package vavix.rococoa.avfoundation;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +15,7 @@ import org.rococoa.ObjCClass;
 import org.rococoa.cocoa.foundation.NSArray;
 import org.rococoa.cocoa.foundation.NSObject;
 
-import vavi.util.Debug;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -24,6 +26,8 @@ import vavi.util.Debug;
  */
 public abstract class AVAudioUnitComponentManager extends NSObject {
 
+    private static final Logger logger = getLogger(AVAudioUnitComponentManager.class.getName());
+
     @SuppressWarnings("hiding")
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("AVAudioUnitComponentManager", _Class.class);
 
@@ -33,7 +37,7 @@ public abstract class AVAudioUnitComponentManager extends NSObject {
 
     public static AVAudioUnitComponentManager sharedInstance() {
         AVAudioUnitComponentManager manager = CLASS.sharedAudioUnitComponentManager();
-Debug.println(manager);
+logger.log(Level.DEBUG, manager);
         return manager;
     }
 
@@ -42,7 +46,7 @@ Debug.println(manager);
     public List<AVAudioUnitComponent> components(AudioComponentDescription desc) {
         List<AVAudioUnitComponent> result = new ArrayList<>();
         NSArray components = componentsMatchingDescription(desc.byValue());
-Debug.println(components.count());
+logger.log(Level.DEBUG, components.count());
         for (int i = 0; i < components.count(); i++) {
             result.add(org.rococoa.Rococoa.cast(components.objectAtIndex(i), AVAudioUnitComponent.class));
         }

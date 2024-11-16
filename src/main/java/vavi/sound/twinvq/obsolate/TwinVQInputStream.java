@@ -13,10 +13,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.ByteOrder;
 
-import vavi.util.Debug;
-
+import static java.lang.System.getLogger;
 import static vavi.sound.twinvq.obsolate.TwinVQ.twinVq;
 
 
@@ -27,6 +28,8 @@ import static vavi.sound.twinvq.obsolate.TwinVQ.twinVq;
  * @version 0.00 070202 initial version <br>
  */
 public class TwinVQInputStream extends FilterInputStream {
+
+    private static final Logger logger = getLogger(TwinVQInputStream.class.getName());
 
     /** byte order of the stream obtained with this class */
     private final ByteOrder byteOrder;
@@ -56,11 +59,11 @@ public class TwinVQInputStream extends FilterInputStream {
         super(new PipedInputStream());
 
         this.byteOrder = byteOrder;
-Debug.println("byteOrder: " + this.byteOrder);
+logger.log(Level.DEBUG, "byteOrder: " + this.byteOrder);
 
-//Debug.println("samplesPerBlock: " + samplesPerBlock);
-//Debug.println("channels: " + channels);
-//Debug.println("blockSize: " + blockSize);
+//logger.log(Level.TRACE, "samplesPerBlock: " + samplesPerBlock);
+//logger.log(Level.TRACE, "channels: " + channels);
+//logger.log(Level.TRACE, "blockSize: " + blockSize);
 
         //
 
@@ -90,7 +93,7 @@ Debug.println("byteOrder: " + this.byteOrder);
                     }
 
                     int samplesThisBlock = samplesPerBlock;
-//Debug.println("samplesThisBlock: " + samplesThisBlock + ", " + l);
+//logger.log(Level.TRACE, "samplesThisBlock: " + samplesThisBlock + ", " + l);
 
                     TwinVQ.Index index = new TwinVQ.Index();
                     twinVq.TvqDecodeFrame(index , null);
@@ -104,16 +107,16 @@ Debug.println("byteOrder: " + this.byteOrder);
                         }
                     }
                     done += samplesThisBlock;
-//Debug.println("done: " + done);
+//logger.log(Level.TRACE, "done: " + done);
                 }
             } catch (IOException e) {
-Debug.printStackTrace(e);
+logger.log(Level.INFO, e.getMessage(), e);
             } finally {
                 try {
                     os.flush();
                     os.close();
                 } catch (IOException e) {
-Debug.println(e);
+logger.log(Level.INFO, e.toString());
                 }
             }
         });
@@ -164,7 +167,7 @@ Debug.println(e);
                 }
             }
         } catch (IOException e) {
-e.printStackTrace(System.err);
+            logger.log(Level.INFO, e.getMessage(), e);
         }
         return i;
     }

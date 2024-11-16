@@ -7,6 +7,8 @@
 package vavi.sound.midi.jsyn;
 
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MidiChannel;
@@ -23,7 +25,7 @@ import com.sun.media.sound.ModelAbstractOscillator;
 import com.sun.media.sound.ModelPatch;
 import com.sun.media.sound.SimpleInstrument;
 
-import vavi.util.Debug;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -34,6 +36,8 @@ import vavi.util.Debug;
  */
 @SuppressWarnings("restriction")
 public class JSynOscillator extends ModelAbstractOscillator {
+
+    private static final Logger logger = getLogger(JSynOscillator.class.getName());
 
     /** */
     public class JSynInstrument extends SimpleInstrument {
@@ -104,7 +108,7 @@ public class JSynOscillator extends ModelAbstractOscillator {
     @Override
     public void setSampleRate(float sampleRate) {
         if (JSynOscillator.sampleRate != sampleRate) {
-Debug.println("sampleRate: " + sampleRate);
+logger.log(Level.DEBUG, "sampleRate: " + sampleRate);
             JSynOscillator.sampleRate = sampleRate;
         }
         super.setSampleRate(sampleRate);
@@ -120,7 +124,7 @@ Debug.println("sampleRate: " + sampleRate);
 
     @Override
     public Instrument getInstrument(Patch patch) {
-//Debug.println("patch: " + patch.getBank() + "," + patch.getProgram());
+//logger.log(Level.TRACE, "patch: " + patch.getBank() + "," + patch.getProgram());
         for (Instrument ins : instruments) {
             Patch p = ins.getPatch();
             if (p.getBank() != patch.getBank())
@@ -133,10 +137,10 @@ Debug.println("sampleRate: " + sampleRate);
                     continue;
                 }
             }
-//Debug.println("instrument: " + ins);
+//logger.log(Level.TRACE, "instrument: " + ins);
             return ins;
         }
-Debug.println("instrument not found for: " + patch.getBank() + "," + patch.getProgram());
+logger.log(Level.DEBUG, "instrument not found for: " + patch.getBank() + "," + patch.getProgram());
         return instruments[0];
     }
 
@@ -188,7 +192,7 @@ Debug.println("instrument not found for: " + patch.getBank() + "," + patch.getPr
 
         lineOut.generate(offset, offset + len);
         double[] values = lineOut.getSynthesisEngine().getInputBuffer(0);
-Debug.println("@@@: " + values.length + ", " + len);
+logger.log(Level.DEBUG, "@@@: " + values.length + ", " + len);
         for (; i < offset + len; i += BUFFER_SIZE) {
             buffer[offset + i] = (float) values[i];
         }

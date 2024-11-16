@@ -51,7 +51,7 @@ public class SampleRateConversionProviderTest {
     /**
      * <ul>
      *  <li>→ mono requires tritonus_remaining_###.jar
-     *  <li>In eclipse, is the plugin working according to the jar ranking???
+     *  <li>on eclipse, is the plugin working according to the jar ranking???
      * </ul>
      */
     @Test

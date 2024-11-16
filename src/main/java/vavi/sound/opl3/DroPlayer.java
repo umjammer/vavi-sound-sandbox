@@ -21,11 +21,13 @@ package vavi.sound.opl3;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import vavi.io.LittleEndianDataInputStream;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -46,7 +48,7 @@ import vavi.io.LittleEndianDataInputStream;
  */
 class DroPlayer extends Opl3Player {
 
-    private static final Logger logger = Logger.getLogger(DroPlayer.class.getName());
+    private static final Logger logger = getLogger(DroPlayer.class.getName());
 
     protected static final String ID = "DBRAWOPL";
 
@@ -90,7 +92,7 @@ class DroPlayer extends Opl3Player {
             try {
                 dis.reset();
             } catch (IOException e) {
-                logger.fine(e.toString());
+                logger.log(Level.DEBUG, e.toString());
             }
         }
     }
@@ -118,14 +120,14 @@ class DroPlayer extends Opl3Player {
         if (zero[0] != 0 || zero[1] != 0 || zero[2] != 0) {
             // need these three bytes!
             dis.reset();
-logger.fine("not zero: " + Arrays.toString(zero));
+logger.log(Level.DEBUG, "not zero: " + Arrays.toString(zero));
         }
 
-logger.fine("id: " +  ID);
-logger.fine("version: " + 1);
-logger.fine("mstotal: " + mstotal);
-logger.fine("length: " + length);
-logger.fine("oplType: " + opl3_mode);
+logger.log(Level.DEBUG, "id: " +  ID);
+logger.log(Level.DEBUG, "version: " + 1);
+logger.log(Level.DEBUG, "mstotal: " + mstotal);
+logger.log(Level.DEBUG, "length: " + length);
+logger.log(Level.DEBUG, "oplType: " + opl3_mode);
 
         data = dis;
 
@@ -175,7 +177,7 @@ logger.fine("oplType: " + opl3_mode);
 
                     if (pos >= length) return false;
                     int v = data.readUnsignedByte();
-logger.fine(String.format("%d, %d, %d, %02x", opl3_mode, currChip, iIndex, v));
+logger.log(Level.DEBUG, "%d, %d, %d, %02x".formatted(opl3_mode, currChip, iIndex, v));
                     ++pos;
                     if (opl3_mode == 0) {
                         write(0, iIndex, v);

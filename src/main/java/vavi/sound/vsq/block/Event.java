@@ -6,8 +6,8 @@
 
 package vavi.sound.vsq.block;
 
+import java.lang.System.Logger.Level;
 import java.util.List;
-
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
@@ -17,7 +17,6 @@ import vavi.sound.midi.MidiConstants.MetaEvent;
 import vavi.sound.midi.MidiUtil;
 import vavi.sound.vsq.Block;
 import vavi.sound.vsq.VSQ;
-import vavi.util.Debug;
 
 
 /**
@@ -88,7 +87,7 @@ public class Event implements Block {
                 case "LyricHandle" -> block.lyricHandle = pair[1];
                 case "VibratoHandle" -> block.vibratoHandle = pair[1];
                 case "VibratoDelay" -> block.vibratoDelay = Integer.parseInt(pair[1]);
-                case null, default -> Debug.println("unhandled param: " + pair[0]);
+                case null, default -> logger.log(Level.DEBUG, "unhandled param: " + pair[0]);
             }
         }
         return block;

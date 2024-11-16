@@ -18,7 +18,6 @@ import jdk.incubator.vector.VectorSpecies;
 import vavi.io.SeekableDataInputStream;
 import vavi.sound.twinvq.TwinVQDec.TwinVQContext;
 import vavi.sound.twinvq.VFQ.VqfContext;
-import vavi.util.Debug;
 
 import static java.lang.System.getLogger;
 
@@ -255,7 +254,7 @@ public class LibAV {
     }
 
     static class AVTXContext {
-        interface TXFunction extends TetraConsumer<AVTXContext, float[], Integer, float[], Integer> {}
+        interface TXFunction extends LibAV.TetraConsumer<AVTXContext, float[], Integer, float[], Integer> {}
     }
 
     static class AVFrame {
@@ -289,7 +288,7 @@ public class LibAV {
     static void ff_init_ff_sine_windows(int index) {
         float[] windows = new float[1 << index];
         ff_sine_window_init(windows, 1 << index);
-Debug.println("index: " + index + ", windows: " + windows.length);
+logger.log(Level.DEBUG, "index: " + index + ", windows: " + windows.length);
         ff_sine_windows.put(index, windows);
     }
 
@@ -299,7 +298,7 @@ Debug.println("index: " + index + ", windows: " + windows.length);
             window[i] = (float) Math.sin((i + 0.5) * (Math.PI / (2.0 * n)));
     }
 
-    static int ff_get_buffer(AVCodecContext avctx, AVFrame frame, int flags) {
+    static int ff_get_buffer(LibAV.AVCodecContext avctx, AVFrame frame, int flags) {
         int ret = 0;
 
         if (frame.nb_samples * (long) avctx.ch_layout.nb_channels > avctx.max_samples) {
@@ -327,7 +326,7 @@ Debug.println("index: " + index + ", windows: " + windows.length);
 
     static int av_tx_init(AVTXContext[] ctx, AVTXContext.TXFunction[] tx, int index, int /*AVTXType*/ type,
                           int inv, int len, float[] scale, long flags) {
-Debug.println("type: " + type);
+logger.log(Level.DEBUG, "type: " + type);
         scale[0] = 1f;
         MDCT mdct = new MDCT(Float.SIZE, false, scale[0]);
         tx[index] = (x, in, inp, out, op) -> mdct.imdctHalf(in, inp, out, op);

@@ -8,13 +8,16 @@ package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.logging.Logger;
 
 import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -25,7 +28,7 @@ import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
  */
 class AdvancedSierraFile extends SierraFile {
 
-    private static final Logger logger = Logger.getLogger(MidiFile.class.getName());
+    private static final Logger logger = getLogger(AdvancedSierraFile.class.getName());
 
     private URI uri;
 
@@ -70,7 +73,7 @@ class AdvancedSierraFile extends SierraFile {
         for (int j = 0; j < 2; ++j) {
             for (int k = 0; k < 48; ++k) {
                 int p = j * 48 + k;
-                logger.fine(String.format("%2d: ", p));
+                logger.log(Level.DEBUG, "%2d: ".formatted(p));
 
                 int[] buf = new int[28];
 
@@ -94,7 +97,7 @@ class AdvancedSierraFile extends SierraFile {
             player.tracks[t].on = false;
         }
 
-logger.info("next adv sierra section:");
+logger.log(Level.INFO, "next adv sierra section:");
         player.pos = sierraPos;
 
         int t = 0;
@@ -106,7 +109,7 @@ logger.info("next adv sierra section:");
             player.tracks[t].tend = player.flen;
             player.tracks[t].iwait = 0;
             player.tracks[t].pv = 0;
-logger.info(String.format("track %d starts at %x", t, player.tracks[t].spos));
+logger.log(Level.INFO, String.format("track %d starts at %x", t, player.tracks[t].spos));
             t++;
             player.takeBE(2);
         }

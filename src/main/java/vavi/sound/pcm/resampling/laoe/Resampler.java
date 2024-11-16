@@ -18,7 +18,10 @@
 
 package vavi.sound.pcm.resampling.laoe;
 
-import vavi.util.Debug;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -36,6 +39,8 @@ import vavi.util.Debug;
  */
 public class Resampler {
 
+    private static final Logger logger = getLogger(Resampler.class.getName());
+
     /**
      * <li> sampleRateFactor = 1.0
      * <li> order = 2
@@ -44,8 +49,8 @@ public class Resampler {
     }
 
     /**
-     * @param inRate
-     * @param outRate
+     * @param inRate input sample rate
+     * @param outRate out put sample rate
      * @param order order of interpolate 0 ~ 3
      */
     public Resampler(float inRate, float outRate, int order) {
@@ -186,7 +191,7 @@ public class Resampler {
 
             return (int) (data[ip % data.length] * (1 - fp) + data[(ip + 1) % data.length] * fp);
         } catch (ArrayIndexOutOfBoundsException e) {
-Debug.println(e);
+logger.log(Level.INFO, e.getMessage(), e);
             return 0;
         }
     }
@@ -203,7 +208,7 @@ Debug.println(e);
             // Newton's 2nd order interpolation
             int ip = (int) index;
             double fp = index - ip;
-//System.err.printf("%f, %d\n", fp, ip);
+//logger.log(Level.TRACE, "%f, %d".formatted(fp, ip));
             double d0 = data[ip % data.length];
             double d1 = data[(ip + 1) % data.length];
             double d2 = data[(ip + 2) % data.length];
@@ -215,7 +220,7 @@ Debug.println(e);
             return (int) (a0 + a1 * fp + a2 * fp * (fp - 1));
 
         } catch (ArrayIndexOutOfBoundsException e) {
-Debug.println(e);
+logger.log(Level.INFO, e.getMessage(), e);
             return 0;
         }
     }
@@ -243,7 +248,7 @@ Debug.println(e);
             return (int) ((((a * fp) + b) * fp + c) * fp + data[ip % data.length]);
 
         } catch (ArrayIndexOutOfBoundsException e) {
-Debug.println(e);
+logger.log(Level.INFO, e.getMessage(), e);
             return 0;
         }
     }

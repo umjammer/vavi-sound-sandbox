@@ -1,5 +1,7 @@
 /*
- * http://opl3.cozendey.com/
+ * Copyright (c) 2020 by Naohide Sano, All rights reserved.
+ *
+ * Programmed by Naohide Sano
  */
 
 package vavi.sound.sampled.opl3;
@@ -16,7 +18,6 @@ import vavi.io.OutputEngine;
 import vavi.io.OutputEngineInputStream;
 import vavi.sound.opl3.Opl3Player;
 import vavi.sound.opl3.Opl3Player.FileType;
-import vavi.util.Debug;
 
 import static java.lang.System.getLogger;
 
@@ -26,6 +27,7 @@ import static java.lang.System.getLogger;
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/23 umjammer initial version <br>
+ * @see "http://opl3.cozendey.com/"
  */
 public class Opl3ToPcmAudioInputStream extends AudioInputStream {
 

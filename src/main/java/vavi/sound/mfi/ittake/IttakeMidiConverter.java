@@ -5,6 +5,8 @@
 package vavi.sound.mfi.ittake;
 
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.List;
 
 import javax.sound.midi.InvalidMidiDataException;
@@ -32,6 +34,8 @@ import vavi.sound.mfi.vavi.track.TempoMessage;
 import vavi.sound.mfi.vavi.track.VolumeMessage;
 import vavi.util.Debug;
 
+import static java.lang.System.getLogger;
+
 
 /**
  * IttakeMidiConverter.
@@ -43,6 +47,8 @@ import vavi.util.Debug;
  *          1.01 030914 nsano extends VaviMidiConverter <br>
  */
 public class IttakeMidiConverter implements MidiConverter {
+
+    private static final Logger logger = getLogger(IttakeMidiConverter.class.getName());
 
     /** the device information */
     private static final MfiDevice.Info info =
@@ -91,7 +97,7 @@ public class IttakeMidiConverter implements MidiConverter {
         try {
             return convert(midiSequence, fileType);
         } catch (IOException | InvalidMfiDataException e) {
-Debug.printStackTrace(e);
+logger.log(Level.DEBUG, e.getMessage(), e);
             throw (InvalidMidiDataException) new InvalidMidiDataException().initCause(e);
         }
     }
@@ -115,10 +121,10 @@ Debug.printStackTrace(e);
         throws InvalidMfiDataException, IOException {
 
         javax.sound.midi.Track[] midiTracks = sequence.getTracks();
-Debug.println("divisionType: " + sequence.getDivisionType());
-Debug.println("microsecondLength: " + sequence.getMicrosecondLength());
-Debug.println("resolution: " + sequence.getResolution());
-Debug.println("tickLength: " + sequence.getTickLength());
+logger.log(Level.DEBUG, "divisionType: " + sequence.getDivisionType());
+logger.log(Level.DEBUG, "microsecondLength: " + sequence.getMicrosecondLength());
+logger.log(Level.DEBUG, "resolution: " + sequence.getResolution());
+logger.log(Level.DEBUG, "tickLength: " + sequence.getTickLength());
 
         //
         vavi.sound.mfi.Sequence mfiSequence = new vavi.sound.mfi.Sequence();
@@ -132,7 +138,7 @@ Debug.println("tickLength: " + sequence.getTickLength());
 
         context.setMfiResolution(6L << sequence.getResolution());
         int headerIndex = mfiTrack.size(); // TODO
-Debug.println("headerIndex: " + headerIndex);
+logger.log(Level.DEBUG, "headerIndex: " + headerIndex);
         CuePointMessage biginning = new CuePointMessage(0, 0);
         mfiTrack.add(new MfiEvent(biginning, 0L));
         int volume = 0;
@@ -156,7 +162,7 @@ Debug.println("headerIndex: " + headerIndex);
         int t = 0;
         int j = 0;
         do {
-Debug.println("j: " + j);
+logger.log(Level.DEBUG, "j: " + j);
             MidiEvent midiEvent = midiTracks[t].get(j);
             MidiMessage midiMessage = midiEvent.getMessage();
             presentTime = midiEvent.getTick();
@@ -176,7 +182,7 @@ Debug.println("j: " + j);
                         }
                     }
                 }
-Debug.println("here: " + j + ", " + timeOver);
+logger.log(Level.DEBUG, "here: " + j + ", " + timeOver);
             } while (timeOver);
 
             if (midiMessage instanceof ShortMessage shortMessage) {
