@@ -28,7 +28,7 @@ public class Opl3Encoding extends AudioFormat.Encoding {
      *
      * @param name Name of the OPL3 encoding.
      */
-    public Opl3Encoding(String name) {
+    private Opl3Encoding(String name) {
         super(name);
     }
 }

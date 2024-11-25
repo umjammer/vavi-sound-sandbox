@@ -26,7 +26,7 @@ public class OpusEncoding extends AudioFormat.Encoding {
      *
      * @param name Name of the Opus encoding.
      */
-    public OpusEncoding(String name) {
+    private OpusEncoding(String name) {
         super(name);
     }
 }

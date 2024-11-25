@@ -26,7 +26,7 @@ public class LdCelpEncoding extends AudioFormat.Encoding {
      *
      * @param name Name of the LD-CELP encoding.
      */
-    public LdCelpEncoding(String name) {
+    private LdCelpEncoding(String name) {
         super(name);
     }
 }
