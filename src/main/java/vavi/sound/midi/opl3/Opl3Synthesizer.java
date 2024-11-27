@@ -560,6 +560,7 @@ logger.log(Level.DEBUG, "control change unhandled[%d]: (%02x): %d".formatted(cha
         @Override
         public void programChange(int program) {
             inum = program & 0x7f;
+logger.log(Level.DEBUG, "instruments[" + inum + "]: " + instruments[inum]);
             setIns(instruments[inum]);
 logger.log(Level.DEBUG, "program change[%d]: %d".formatted(channel, inum));
             //

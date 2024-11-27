@@ -91,6 +91,7 @@ logger.log(Level.DEBUG, "encoding: " + encoding);
         opl.write(array, address, data);
     }
 
+    /** must implement mark/reset inside this method */
     public abstract boolean matchFormat(InputStream is);
 
     public abstract void load(InputStream is) throws IOException;
@@ -124,6 +125,7 @@ logger.log(Level.DEBUG, "encoding: " + encoding);
     public void setProperties(Map<String, Object> props) {
         this.props.clear();
         this.props.putAll(props);
+logger.log(Level.TRACE, "props: " + this.props);
     }
 
     public Map<String, Object> getProperties() {

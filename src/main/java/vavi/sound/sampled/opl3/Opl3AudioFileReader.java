@@ -23,6 +23,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 
+import vavi.sound.SoundUtil;
 import vavi.sound.opl3.Opl3Player.FileType;
 
 import static java.lang.System.Logger.Level.DEBUG;
@@ -44,30 +45,30 @@ public class Opl3AudioFileReader extends AudioFileReader {
 
     private static final Logger logger = getLogger(Opl3AudioFileReader.class.getName());
 
-    private URI uri;
-
     @Override
     public AudioFileFormat getAudioFileFormat(File file) throws UnsupportedAudioFileException, IOException {
-        try (InputStream inputStream = Files.newInputStream(file.toPath())) {
-            uri = file.toURI();
-            return getAudioFileFormat(inputStream, (int) file.length());
+        try (InputStream inputStream = new BufferedInputStream(Files.newInputStream(file.toPath()))) {
+            URI uri = file.toURI();
+            return getAudioFileFormat(inputStream, (int) file.length(), uri);
         }
     }
 
     @Override
     public AudioFileFormat getAudioFileFormat(URL url) throws UnsupportedAudioFileException, IOException {
-        try (InputStream inputStream = url.openStream()) {
+        try (InputStream inputStream = new BufferedInputStream(url.openStream())) {
+            URI uri = null;
             try {
                 uri = url.toURI();
             } catch (URISyntaxException ignore) {
             }
-            return getAudioFileFormat(inputStream);
+            return getAudioFileFormat(inputStream, NOT_SPECIFIED, uri);
         }
     }
 
     @Override
     public AudioFileFormat getAudioFileFormat(InputStream stream) throws UnsupportedAudioFileException, IOException {
-        return getAudioFileFormat(stream, NOT_SPECIFIED);
+        URI uri = SoundUtil.getSource(stream);
+        return getAudioFileFormat(stream, NOT_SPECIFIED, uri);
     }
 
     /**
@@ -77,11 +78,12 @@ public class Opl3AudioFileReader extends AudioFileReader {
      * @param mediaLength unused
      * @return an AudioInputStream object based on the audio file data contained
      * in the input stream.
+     * @param uri for advanced sierra file
      * @throws UnsupportedAudioFileException if the File does not point to a
      *                                       valid audio file data recognized by the system.
      * @throws IOException                   if an I/O exception occurs.
      */
-    protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
+    protected static AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength, URI uri) throws UnsupportedAudioFileException, IOException {
 logger.log(DEBUG, "enter: available: " + bitStream.available());
         AudioFormat.Encoding encoding;
         try {
@@ -93,6 +95,7 @@ logger.log(TRACE, e.getMessage(), e);
         }
         AudioFileFormat.Type type = FileType.getType(encoding);
         Map<String, Object> props = new HashMap<>();
+logger.log(TRACE, "uri: " + uri);
         props.put("uri", uri); // for advanced sierra file
         // specification for around frame might cause AudioInputStream modification at below (*1)
         AudioFormat format = new AudioFormat(encoding, opl3.getSampleRate(), NOT_SPECIFIED, opl3.getChannels(), NOT_SPECIFIED, NOT_SPECIFIED, opl3.isBigEndian(), props);
@@ -103,7 +106,8 @@ logger.log(TRACE, e.getMessage(), e);
     public AudioInputStream getAudioInputStream(File file) throws UnsupportedAudioFileException, IOException {
         InputStream inputStream = new BufferedInputStream(Files.newInputStream(file.toPath()));
         try {
-            return getAudioInputStream(inputStream, (int) file.length());
+            URI uri = file.toURI();
+            return getAudioInputStream(inputStream, (int) file.length(), uri);
         } catch (UnsupportedAudioFileException | IOException e) {
             inputStream.close();
             throw e;
@@ -114,7 +118,12 @@ logger.log(TRACE, e.getMessage(), e);
     public AudioInputStream getAudioInputStream(URL url) throws UnsupportedAudioFileException, IOException {
         InputStream inputStream = new BufferedInputStream(url.openStream());
         try {
-            return getAudioInputStream(inputStream);
+            URI uri = null;
+            try {
+                uri = url.toURI();
+            } catch (URISyntaxException ignore) {
+            }
+            return getAudioInputStream(inputStream, NOT_SPECIFIED, uri);
         } catch (UnsupportedAudioFileException | IOException e) {
             inputStream.close();
             throw e;
@@ -123,7 +132,8 @@ logger.log(TRACE, e.getMessage(), e);
 
     @Override
     public AudioInputStream getAudioInputStream(InputStream stream) throws UnsupportedAudioFileException, IOException {
-        return getAudioInputStream(stream, NOT_SPECIFIED);
+        URI uri = SoundUtil.getSource(stream);
+        return getAudioInputStream(stream, NOT_SPECIFIED, uri);
     }
 
     /**
@@ -135,12 +145,13 @@ logger.log(TRACE, e.getMessage(), e);
      * @param mediaLength unused
      * @return an AudioInputStream object based on the audio file data contained
      * in the input stream.
+     * @param uri for advanced sierra file
      * @throws UnsupportedAudioFileException if the File does not point to a
      *                                       valid audio file data recognized by the system.
      * @throws IOException                   if an I/O exception occurs.
      */
-    protected AudioInputStream getAudioInputStream(InputStream inputStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
-        AudioFileFormat audioFileFormat = getAudioFileFormat(inputStream, mediaLength);
+    protected static AudioInputStream getAudioInputStream(InputStream inputStream, int mediaLength, URI uri) throws UnsupportedAudioFileException, IOException {
+        AudioFileFormat audioFileFormat = getAudioFileFormat(inputStream, mediaLength, uri);
         // (*1) audioFileFormat should not be detailed about frame size
         return new AudioInputStream(inputStream, audioFileFormat.getFormat(), audioFileFormat.getFrameLength());
     }

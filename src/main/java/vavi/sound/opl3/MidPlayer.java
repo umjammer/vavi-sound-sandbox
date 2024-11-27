@@ -142,6 +142,7 @@ public class MidPlayer extends Opl3Player implements Sequencer {
         }
     }
 
+    /** mark/reset are inside this method */
     public static abstract class MidiTypeFile {
         boolean matchFormat(InputStream bitStream) {
             DataInputStream dis = new DataInputStream(bitStream);
@@ -160,6 +161,7 @@ public class MidPlayer extends Opl3Player implements Sequencer {
             }
         }
         abstract int markSize();
+        /** no need to mark/reset inside this method */
         abstract boolean matchFormatImpl(DataInputStream dis) throws IOException;
         abstract void rewind(int subSong, MidPlayer player) throws IOException;
         public abstract void init(Context context);
@@ -449,13 +451,14 @@ logger.log(Level.INFO, "endmark: %d -- %x".formatted(pos, pos));
                                 break;
                             case 0xff: // meta
                                 v = takeBE(1);
-                                l = takeBE(1);
-logger.log(Level.DEBUG, "meta: %02x, %s\n%s".formatted(v, MidiConstants.MetaEvent.valueOf(v), StringUtil.getDump(data, 0, l)));
+                                l = takeLen();
+logger.log(Level.DEBUG, "meta: %02x, %s, %d\n%s".formatted(v, MidiConstants.MetaEvent.valueOf(v), l, StringUtil.getDump(data, 0, l)));
                                 switch (v) {
                                 case 0x2f:
                                     logger.log(Level.INFO, String.format("meta: %02x", v));
                                     if (data.available() > 0) {
                                         logger.log(Level.DEBUG, "out of spec data for meta:0x2f: " + data.available());
+                                        l += data.available();
                                     }
                                     takeBE(l); // TODO out of spec.
                                     break;
