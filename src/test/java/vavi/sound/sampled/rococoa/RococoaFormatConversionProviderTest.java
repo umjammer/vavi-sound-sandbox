@@ -21,12 +21,15 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import vavi.util.Debug;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -43,16 +46,28 @@ import static vavi.sound.sampled.rococoa.RcococaEncoding.ROCOCOA;
  */
 @Disabled("not implemented yet")
 @EnabledOnOs(OS.MAC)
+@PropsEntity(url = "file:local.properties")
 public class RococoaFormatConversionProviderTest {
+
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
 
     static final String inFile = "/test.caf";
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume", "0.2"));
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
+
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
+    }
 
     @Test
     @DisplayName("directly")
     public void test0() throws Exception {
-
         //
         Path path = Paths.get(RococoaFormatConversionProviderTest.class.getResource(inFile).toURI());
         AudioInputStream sourceAis = new RococoaAudioFileReader().getAudioInputStream(new BufferedInputStream(Files.newInputStream(path)));

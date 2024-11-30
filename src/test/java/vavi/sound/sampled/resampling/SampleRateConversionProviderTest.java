@@ -20,10 +20,13 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import vavi.sound.sampled.MonauralInputFilter;
 import vavi.util.Debug;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -36,16 +39,29 @@ import static vavi.sound.SoundUtil.volume;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060726 nsano initial version <br>
  */
+@PropsEntity(url = "file:local.properties")
 public class SampleRateConversionProviderTest {
+
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
 
     String inFile = "src/test/resources/test.wav";
     String outFile = "tmp/out.wav";
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume", "0.2"));
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
 
     @BeforeAll
     static void setup() throws IOException {
         Files.createDirectories(Paths.get("tmp"));
+    }
+
+    @BeforeEach
+    void setupEach() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
     }
 
     /**

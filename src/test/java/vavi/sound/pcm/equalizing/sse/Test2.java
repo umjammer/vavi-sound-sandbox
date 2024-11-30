@@ -13,10 +13,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -31,7 +32,10 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
 
+import org.junit.jupiter.api.BeforeEach;
 import vavi.sound.pcm.equalizing.sse.Equalizer.Parameter;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 
 import static vavi.sound.SoundUtil.volume;
 
@@ -42,21 +46,31 @@ import static vavi.sound.SoundUtil.volume;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060419 nsano initial version <br>
  */
+@PropsEntity(url = "file:local.properties")
 public class Test2 {
+
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
 
     String inFile;
     String outFile = "tmp/out.vavi.wav";
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume", "0.2"));
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
 
     /** */
     public static void main(String[] args) throws Exception {
 System.setOut(new PrintStream("NUL")); // shut fuckin' j-ogg's mouth
-        new Test2();
+        Test2 app = new Test2();
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(app);
+        }
+        app.exec();
     }
 
     /** */
-    Test2() throws Exception {
+    void exec() throws Exception {
         Properties props = new Properties();
         props.load(EqualizerTest.class.getResourceAsStream("/vavi/sound/pcm/equalizing/sse/local.properties"));
         inFile = props.getProperty("equalizer.in.wav");

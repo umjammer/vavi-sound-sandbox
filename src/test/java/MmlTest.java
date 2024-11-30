@@ -13,11 +13,14 @@ import javax.sound.sampled.LineEvent;
 import jp.or.rim.kt.kemusiro.sound.FMGeneralInstrument;
 import jp.or.rim.kt.kemusiro.sound.MMLPlayer;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
+
+import static vavix.util.DelayedWorker.later;
 
 
 /**
@@ -34,7 +37,11 @@ public class MmlTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
-    static final float volume = Float.parseFloat(System.getProperty("vavi.test.volume", "0.2"));
+    static boolean onIde = System.getProperty("vavi.test", "").equals("ide");
+    static long time = onIde ? 1000 * 1000 : 10 * 1000;
+
+    @Property(name = "vavi.test.volume")
+    float volume = 0.2f;
 
     @Property(name = "mml")
     String mml = "src/test/resources/mml/BADINERIE.mml";
@@ -45,9 +52,22 @@ public class MmlTest {
             PropsEntity.Util.bind(this);
         }
     }
+
     @Test
+    @DisplayName("play")
     void test1() throws Exception {
-        main(new String[] {mml});
+        CountDownLatch cdl = new CountDownLatch(1);
+        MMLPlayer p = new MMLPlayer(e -> {
+            if (e.getType() == LineEvent.Type.STOP) cdl.countDown();
+        });
+        p.setVolume(volume);
+        p.setMML(new String[] {String.join("", Files.readAllLines(Paths.get(mml)))});
+        p.start();
+        if (onIde) later(time, cdl::countDown);
+        cdl.await();
+Debug.println("here");
+        p.stop();
+Thread.getAllStackTraces().keySet().forEach(System.err::println);
     }
 
     private static void usage() {
@@ -74,21 +94,12 @@ public class MmlTest {
         } else {
             FMGeneralInstrument.readParameterByResource();
         }
-        CountDownLatch cdl = new CountDownLatch(1);
-        MMLPlayer p = new MMLPlayer(e -> {
-            if (e.getType() == LineEvent.Type.STOP) cdl.countDown();
-        });
-        String[] mmls = new String[args.length];
-        int i = 0;
+
+        MmlTest app = new MmlTest();
+        app.setup();
         for (String arg : args) {
-            mmls[i++] = String.join("", Files.readAllLines(Paths.get(arg)));
+            app.mml = arg;
+            app.test1();
         }
-        p.setVolume(volume);
-        p.setMML(mmls);
-        p.start();
-        cdl.await();
-Debug.println("here");
-        p.stop();
-Thread.getAllStackTraces().keySet().forEach(System.err::println);
     }
 }

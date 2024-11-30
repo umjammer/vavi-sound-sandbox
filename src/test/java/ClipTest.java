@@ -49,7 +49,8 @@ public class ClipTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume", "0.2"));
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
 
     @Property(name = "clip.test")
     String clipTest = "src/test/resources/test.flac";
@@ -61,21 +62,23 @@ public class ClipTest {
         }
     }
 
-    @Test
-    void test1() throws Exception {
-        main(new String[] {clipTest});
-    }
-
     /**
      * @param args 0: clip in
      */
     public static void main(String[] args) throws Exception {
         String inFile = args[0];
+        ClipTest app = new ClipTest();
+        app.setup();
+        app.test1();
+    }
 
-        for (AudioFileFormat.Type type : AudioSystem.getAudioFileTypes()) {
-            System.err.println(type);
-        }
-        Path file = Paths.get(inFile);
+    @Test
+    void test1() throws Exception {
+for (AudioFileFormat.Type type : AudioSystem.getAudioFileTypes()) {
+ System.err.println(type);
+}
+
+        Path file = Paths.get(clipTest);
 Debug.println(file);
 
 //        URL clipURL = new URL(inFile);

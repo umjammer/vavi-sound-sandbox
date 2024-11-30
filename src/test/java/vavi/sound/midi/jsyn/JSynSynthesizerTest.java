@@ -50,7 +50,8 @@ class JSynSynthesizerTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
-    static float volume = (float) Double.parseDouble(System.getProperty("vavi.test.volume.midi", "0.2"));
+    @Property(name = "vavi.test.volume.midi")
+    float volume = 0.2f;
 
     @Property(name = "jsyn.test")
     String jsynTest = "src/test/resources/test.mid";

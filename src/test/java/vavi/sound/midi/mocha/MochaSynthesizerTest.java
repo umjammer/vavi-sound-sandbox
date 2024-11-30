@@ -48,7 +48,8 @@ public class MochaSynthesizerTest {
     @Property(name = "mocha.test")
     String mochaTest = "src/test/resources/test.mid";
 
-    static float volume = (float) Double.parseDouble(System.getProperty("vavi.test.volume.midi", "0.2"));
+    @Property(name = "vavi.test.volume.midi")
+    float volume = 0.2f;
 
     @BeforeEach
     void setup() throws Exception {

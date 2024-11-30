@@ -21,6 +21,7 @@ import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.Mixer;
 import javax.swing.JFrame;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -35,6 +36,8 @@ import org.rococoa.cocoa.qtkit.QTTrack;
 
 import vavi.util.Debug;
 
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 import vavix.rococoa.avfoundation.AVAudioPlayer;
 
 import static vavi.sound.SoundUtil.volume;
@@ -47,13 +50,34 @@ import static vavi.sound.SoundUtil.volume;
  * @version 0.00 2022/02/21 umjammer initial version <br>
  */
 @EnabledOnOs(OS.MAC)
+@PropsEntity(url = "file:local.properties")
 class RococoaClipTest {
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume", "0.2"));
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
+
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
+
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
+    }
 
     static final String inFile = "/test.caf";
 
+    /** */
     public static void main(String[] args) throws Exception {
+        RococoaClipTest app = new RococoaClipTest();
+        app.setup();
+        app.test0();
+    }
+
+    @Test
+    void test0() throws Exception {
         URI uri = RococoaClipTest.class.getResource(inFile).toURI();
         AVAudioPlayer player = AVAudioPlayer.init(uri);
         if (player == null) {

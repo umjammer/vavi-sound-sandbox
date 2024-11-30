@@ -55,7 +55,8 @@ class IlbcTest {
         }
     }
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume", "0.2"));
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
 
     // ----
 
