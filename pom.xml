@@ -104,7 +104,6 @@
           <source>21</source> <!-- TODO release causes compilation failure why? -->
           <target>21</target>
           <compilerArgs>
-            <arg>--add-modules=jdk.incubator.vector</arg>
             <arg>--add-exports</arg>
             <arg>java.desktop/com.sun.media.sound=ALL-UNNAMED</arg>
           </compilerArgs>
