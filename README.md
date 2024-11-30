@@ -5,7 +5,7 @@
 
 # vavi-sound-sandbox
 
-🌏 play the world ♪ 
+🪏 play in the sandbox ♪ 
 
 ### Status
 
@@ -138,6 +138,7 @@ clip.loop(Clip.LOOP_CONTINUOUSLY);
    * need to fix: dro(old), midi, etc? 
    * opl3 volume
    * opl3 midi reader
+   * https://github.com/Wohlstand/ADLMIDI-Player-Java
  * https://github.com/fedex81/emuSandbox
  * https://github.com/toyoshim/tss
  * ~~Apple DLS Sound device~~ (done)
@@ -157,6 +158,7 @@ clip.loop(Clip.LOOP_CONTINUOUSLY);
     * [thanks](http://asamomiji.jp/contents/mml-player)
     * crackling at end https://stackoverflow.com/a/9630897
     * https://github.com/trrk/FlMML-for-Android
+    * spi
 
 ### ebml
 
