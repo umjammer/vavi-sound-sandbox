@@ -22,7 +22,11 @@ import static java.lang.System.getLogger;
  * MidiFile.
  * <p>
  * support only format 0 SMF.
- * <li> if you want to use this device, set system property "vavi.sound.opl3.MidiFile" true
+ * <p>
+ * system properties
+ * <ul>
+ *  <li>"vavi.sound.opl3.MidiFile" ... if you want to use this device, set {@code true}</li>
+ * </ul>
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/25 umjammer initial version <br>

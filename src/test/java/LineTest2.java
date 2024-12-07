@@ -44,7 +44,6 @@ import vavi.util.properties.annotation.PropsEntity;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2012/06/11 umjammer initial version <br>
  */
-
 @EnabledIf("localPropertiesExists")
 @PropsEntity(url = "file:local.properties")
 class LineTest2 {

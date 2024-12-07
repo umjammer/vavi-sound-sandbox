@@ -102,13 +102,13 @@ Debug.println(targetAudioFormat);
         AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(targetAudioFormat, originalAudioInputStream);
         AudioFormat audioFormat = audioInputStream.getFormat();
         DataLine.Info info = new DataLine.Info(Clip.class, audioFormat, AudioSystem.NOT_SPECIFIED);
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch cdl = new CountDownLatch(1);
         Clip clip = (Clip) AudioSystem.getLine(info);
 Debug.println(clip.getClass().getName());
         clip.addLineListener(event -> {
 Debug.println("LINE: " + event.getType());
             if (event.getType().equals(LineEvent.Type.STOP)) {
-                countDownLatch.countDown();
+                cdl.countDown();
             }
         });
         clip.open(audioInputStream);
@@ -123,7 +123,7 @@ if (!onIde) {
  clip.stop();
  Debug.println("not on ide");
 } else {
-        countDownLatch.await();
+        cdl.await();
 }
         clip.close();
     }
@@ -155,13 +155,13 @@ Debug.println(targetAudioFormat);
         AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(targetAudioFormat, originalAudioInputStream);
         AudioFormat audioFormat = audioInputStream.getFormat();
         DataLine.Info info = new DataLine.Info(Clip.class, audioFormat, AudioSystem.NOT_SPECIFIED);
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch cdl = new CountDownLatch(1);
         Clip clip = (Clip) AudioSystem.getLine(info);
 Debug.println(clip.getClass().getName());
         clip.addLineListener(event -> {
 Debug.println("LINE: " + event.getType());
             if (event.getType().equals(LineEvent.Type.STOP)) {
-                countDownLatch.countDown();
+                cdl.countDown();
             }
         });
         clip.open(audioInputStream);
@@ -176,7 +176,7 @@ if (!onIde) {
  clip.stop();
  Debug.println("not on ide");
 } else {
-            countDownLatch.await();
+            cdl.await();
 }
         clip.close();
     }

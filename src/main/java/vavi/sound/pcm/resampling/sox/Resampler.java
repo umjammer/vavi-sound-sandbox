@@ -434,12 +434,12 @@ logger.log(Level.DEBUG, "DRAIN: " + work.xOff);
         // Output sampling period
         // Step through input signal
         double dt = 1.0f / work.factor;
-// logger.log(Level.DEBUG, "factor %f, dt %f, ", factor, dt));
-// logger.log(Level.DEBUG, "Time %f, ",this.Time));
+//logger.log(Level.DEBUG, "factor %f, dt %f, ".formatted(factor, dt));
+//logger.log(Level.DEBUG, "Time %f, ".formatted(this.Time));
         // (Xh * dhb) >> La is max index into imp[]
-// logger.log(Level.DEBUG, "ct=" + ct));
-// logger.log(Level.DEBUG, "ct=" + (double) this.nWing * NA / this.dhb + " " + this.Xh));
-// logger.log(Level.DEBUG, "ct=%ld, T=%.6f, dhb=%6f, dt=%.6f", this.Xh, time - Math.floor(time),(double) this.dhb / NA, dt));
+//logger.log(Level.DEBUG, "ct=" + ct));
+//logger.log(Level.DEBUG, "ct=" + (double) this.nWing * NA / this.dhb + " " + this.Xh));
+//logger.log(Level.DEBUG, "ct=%ld, T=%.6f, dhb=%6f, dt=%.6f".formatted(this.Xh, time - Math.floor(time),(double) this.dhb / NA, dt));
         int y_pointer = 0;
         int n = (int) Math.ceil(nx / dt);
         while (n-- != 0) {

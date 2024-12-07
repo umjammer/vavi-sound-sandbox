@@ -82,7 +82,7 @@ public class FMGeneralInstrument extends Instrument {
     }
 
     public static void readParameterByResource() throws IOException {
-        InputStream is = FMGeneralInstrument.class.getResourceAsStream("/fmparameters.txt");
+        InputStream is = FMGeneralInstrument.class.getResourceAsStream("fmparameters.txt");
         if (is == null) {
             throw new IOException("no fmparameters.txt in classpath");
         }

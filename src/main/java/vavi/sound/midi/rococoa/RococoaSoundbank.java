@@ -6,8 +6,6 @@
 
 package vavi.sound.midi.rococoa;
 
-import java.io.InputStream;
-import java.util.Properties;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.Patch;
 import javax.sound.midi.Soundbank;
@@ -24,24 +22,6 @@ import javax.sound.midi.SoundbankResource;
  */
 public class RococoaSoundbank implements Soundbank {
 
-    static {
-        try {
-            try (InputStream is = RococoaSoundbank.class.getResourceAsStream("/META-INF/maven/vavi/vavi-sound-sandbox/pom.properties")) {
-                if (is != null) {
-                    Properties props = new Properties();
-                    props.load(is);
-                    version = props.getProperty("version", "undefined in pom.properties");
-                } else {
-                    version = System.getProperty("vavi.test.version", "undefined");
-                }
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static final String version;
-
     /** */
     public RococoaSoundbank() {
     }
@@ -56,12 +36,12 @@ public class RococoaSoundbank implements Soundbank {
 
     @Override
     public String getVersion() {
-        return version;
+        return RococoaSynthesizer.info.getVersion();
     }
 
     @Override
     public String getVendor() {
-        return "vavi";
+        return RococoaSynthesizer.info.getVendor();
     }
 
     @Override

@@ -159,6 +159,9 @@ public class MMLCompiler {
         }
     }
 
+    /**
+     * Compiles mml and store events into the score.
+     */
     public void compile(MusicScore newScore, int channel, String mml) throws MMLException {
         StringBuilder buf = new StringBuilder(mml);
 logger.log(Level.DEBUG, "mml: " + mml);
@@ -194,7 +197,7 @@ logger.log(Level.DEBUG, "mml: " + mml);
                 // Volume
                 currentVolume = getNumber(buf);
                 if (currentVolume > 7) {
-                    throw new MMLException("voume must be in range of 0 to 7");
+                    throw new MMLException("volume must be in range of 0 to 7");
                 }
                 break;
             case 'l':

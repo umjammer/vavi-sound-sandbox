@@ -43,12 +43,12 @@ public class Opl3Soundbank implements Soundbank {
 
     @Override
     public String getVersion() {
-        return "0.0.1";
+        return Opl3Synthesizer.info.getVersion();
     }
 
     @Override
     public String getVendor() {
-        return "vavi";
+        return Opl3Synthesizer.info.getVendor();
     }
 
     @Override

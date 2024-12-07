@@ -24,8 +24,6 @@ public class WaveInputStream extends InputStream {
     private final Instrument[] insts;
     private final NoteOn[] notes;
     private int currentTick = 0;
-    private static final double currentTime = 0.0;
-    private final double[] time;
     private int currentTempo = 60;
     private int pos = 0;
     private final LinkedList<MusicEvent> events;
@@ -43,7 +41,6 @@ public class WaveInputStream extends InputStream {
         events = score.getEventList();
         insts = new Instrument[score.getChannelCount()];
         notes = new NoteOn[score.getChannelCount()];
-        time = new double[score.getChannelCount()];
 
         output = new ByteArrayOutputStream(4 * samplingRate / score.getTickPerBeat());
     }
@@ -77,8 +74,8 @@ public class WaveInputStream extends InputStream {
                     insts[ch].press();
                 }
                 case NoteOff noteOff ->
-                    // notes[ch] = null;
-                        insts[ch].release();
+//                    notes[ch] = null;
+                    insts[ch].release();
                 default -> {
                 }
             }
@@ -94,15 +91,15 @@ public class WaveInputStream extends InputStream {
         int intValue = (int) value;
 
         if (samplingDepth == 32) {
-            output.write((intValue & 0xff000000) >> 24);
+            output.write((intValue & 0xff00_0000) >> 24);
         }
         if (samplingDepth >= 24) {
-            output.write((intValue & 0x00ff0000) >> 16);
+            output.write((intValue & 0x00ff_0000) >> 16);
         }
         if (samplingDepth >= 16) {
-            output.write((intValue & 0x0000ff00) >> 8);
+            output.write((intValue & 0x0000_ff00) >> 8);
         }
-        output.write(intValue & 0x000000ff);
+        output.write(intValue & 0x0000_00ff);
     }
 
     private void processNote() {

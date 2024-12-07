@@ -12,7 +12,6 @@ import java.nio.file.Paths;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
-import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.SourceDataLine;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -87,9 +86,8 @@ Debug.println(format);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
         line.open(format);
         line.addLineListener(ev -> {
-            if (LineEvent.Type.STOP == ev.getType()) {
-                System.exit(0);
-            }
+Debug.println(ev.getType());
+//            if (LineEvent.Type.STOP == ev.getType()) {}
         });
         volume(line, volume);
         line.start();

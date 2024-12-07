@@ -42,12 +42,12 @@ public class JSynSoundbank implements Soundbank {
 
     @Override
     public String getVersion() {
-        return "0.0.1";
+        return JSynSynthesizer.info.getVersion();
     }
 
     @Override
     public String getVendor() {
-        return "vavi";
+        return JSynSynthesizer.info.getVendor();
     }
 
     @Override

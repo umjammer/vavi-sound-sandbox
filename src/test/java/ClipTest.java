@@ -49,6 +49,9 @@ public class ClipTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
+    static boolean onIde = System.getProperty("vavi.test", "").equals("ide");
+    static long time = onIde ? 1000 * 1000 : 10 * 1000;
+
     @Property(name = "vavi.test.volume")
     double volume = 0.2;
 
@@ -97,14 +100,12 @@ Debug.println(targetAudioFormat);
         AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(targetAudioFormat, originalAudioInputStream);
         AudioFormat audioFormat = audioInputStream.getFormat();
         DataLine.Info info = new DataLine.Info(Clip.class, audioFormat, AudioSystem.NOT_SPECIFIED);
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch cdl = new CountDownLatch(1);
         Clip clip = (Clip) AudioSystem.getLine(info);
 Debug.println(clip.getClass().getName());
         clip.addLineListener(event -> {
 Debug.println("LINE: " + event.getType());
-            if (event.getType().equals(LineEvent.Type.STOP)) {
-                countDownLatch.countDown();
-            }
+            if (event.getType().equals(LineEvent.Type.STOP)) cdl.countDown();
         });
         clip.open(audioInputStream);
 try {
@@ -113,12 +114,12 @@ try {
  Debug.println(Level.WARNING, "volume: " + e);
 }
         clip.start();
-if (!System.getProperty("vavi.test", "").equals("ide")) {
- Thread.sleep(10 * 1000);
+if (!onIde) {
+ Thread.sleep(time);
  clip.stop();
  Debug.println("not on ide");
 } else {
-        countDownLatch.await();
+        cdl.await();
 }
         clip.close();
     }

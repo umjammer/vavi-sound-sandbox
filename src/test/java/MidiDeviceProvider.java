@@ -1,9 +1,20 @@
+/*
+ * Copyright (c) 2002 by Naohide Sano, All rights reserved.
+ *
+ * Programmed by Naohide Sano
+ */
 
 import java.util.ServiceLoader;
 
 import javax.sound.midi.MidiDevice.Info;
 
 
+/**
+ * MidiDeviceProvider.
+ *
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
+ * @version 0.00 020703 umjammer initial version <br>
+ */
 public class MidiDeviceProvider {
 
     /**

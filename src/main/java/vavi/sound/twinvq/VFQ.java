@@ -201,7 +201,7 @@ logger.log(Level.DEBUG, "chunk: " + chunk_tag + ", " + len);
                     break;
                 default:
                     if (rate_flag < 8 || rate_flag > 44) {
-                        logger.log(Level.ERROR, "Invalid rate flag %d\n", rate_flag);
+                        logger.log(Level.ERROR, "Invalid rate flag %d".formatted(rate_flag));
                         return AVERROR_INVALIDDATA;
                     }
                     st.codecpar.sample_rate = rate_flag * 1000;
@@ -209,7 +209,7 @@ logger.log(Level.DEBUG, "chunk: " + chunk_tag + ", " + len);
             }
 
             if (read_bitrate / st.codecpar.channels < 8 || read_bitrate / st.codecpar.channels > 48) {
-                logger.log(Level.ERROR, "Invalid bitrate per channel %d\n", read_bitrate / st.codecpar.channels);
+                logger.log(Level.ERROR, "Invalid bitrate per channel %d".formatted(read_bitrate / st.codecpar.channels));
                 return AVERROR_INVALIDDATA;
             }
 
@@ -230,8 +230,8 @@ logger.log(Level.DEBUG, "chunk: " + chunk_tag + ", " + len);
                     size = 2048;
                     break;
                 default:
-                    logger.log(Level.ERROR, "Mode not suported: %d Hz, %d kb/s.\n",
-                            st.codecpar.sample_rate, st.codecpar.bit_rate);
+                    logger.log(Level.ERROR, "Mode not supported: %d Hz, %d kb/s.\n".formatted(
+                            st.codecpar.sample_rate, st.codecpar.bit_rate));
                     return -1;
             }
             c.frame_bit_len = st.codecpar.bit_rate * size / st.codecpar.sample_rate;

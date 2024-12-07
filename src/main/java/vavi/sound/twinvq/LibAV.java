@@ -269,7 +269,7 @@ logger.log(Level.DEBUG, "index: " + index + ", windows: " + windows.length);
         int ret = 0;
 
         if (frame.nb_samples * (long) avctx.ch_layout.nb_channels > avctx.max_samples) {
-            logger.log(Level.ERROR, "samples per frame %d, exceeds max_samples %d", frame.nb_samples, avctx.max_samples);
+            logger.log(Level.ERROR, "samples per frame %d, exceeds max_samples %d".formatted(frame.nb_samples, avctx.max_samples));
             return -1;
         }
 //        ret = ff_decode_frame_props(avctx, frame);

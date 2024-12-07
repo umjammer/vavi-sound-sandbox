@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.HashMap;
@@ -90,14 +91,14 @@ logger.log(DEBUG, "enter available: " + bitStream.available());
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {
-logger.log(DEBUG, e.toString());
+logger.log(DEBUG, e);
 logger.log(TRACE, e.getMessage(), e);
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException(e.getMessage()).initCause(e);
         } finally {
             try {
                 bitStream.reset();
             } catch (IOException e) {
-                Debug.printStackTrace(e);
+logger.log(Level.ERROR, e);
             }
 logger.log(DEBUG, "finally available: " + bitStream.available());
         }

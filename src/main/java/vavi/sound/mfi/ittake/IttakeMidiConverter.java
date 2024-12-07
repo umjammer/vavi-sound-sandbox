@@ -293,7 +293,7 @@ logger.log(Level.DEBUG, "here: " + j + ", " + timeOver);
         try {
             return convert(mfiSequence);
         } catch (IOException | InvalidMidiDataException e) {
-Debug.printStackTrace(e);
+logger.log(Level.TRACE, e.getMessage(), e);
             throw new InvalidMfiDataException(e);
         }
     }

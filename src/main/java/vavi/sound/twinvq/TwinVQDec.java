@@ -621,7 +621,7 @@ logger.log(Level.DEBUG, "isampf: " + isampf);
         }
 
         if (channels <= 0 || channels > TWINVQ_CHANNELS_MAX) {
-            logger.log(Level.ERROR, "Unsupported number of channels: %i", channels);
+            logger.log(Level.ERROR, "Unsupported number of channels: %d".formatted(channels));
             return -1;
         }
 //        av_channel_layout_uninit(avctx.ch_layout);
@@ -631,7 +631,7 @@ logger.log(Level.DEBUG, "isampf: " + isampf);
         ibps = avctx.bit_rate / (1000 * channels);
 logger.log(Level.DEBUG, "ibps: " + ibps);
         if (ibps < 8 || ibps > 48) {
-            logger.log(Level.ERROR, "Bad bitrate per channel value %d", ibps);
+            logger.log(Level.ERROR, "Bad bitrate per channel value %d".formatted(ibps));
             return AVERROR_INVALIDDATA;
         }
 
@@ -665,8 +665,8 @@ logger.log(Level.DEBUG, "mtab: " + (isampf << 8) + ibps);
                 tctx.mtab = mode_44_48;
                 break;
             default:
-                logger.log(Level.ERROR, "This version does not support %d kHz - %d kbit/s/ch mode.",
-                        isampf, isampf);
+                logger.log(Level.ERROR, "This version does not support %d kHz - %d kbit/s/ch mode.".formatted(
+                        isampf, isampf));
                 return -1;
         }
 

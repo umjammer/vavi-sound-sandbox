@@ -529,7 +529,7 @@ System.err.printf("j: %d, win: %d, size: %d%n", j, ff_sine_windows.get((int) Mat
         }
 
         if (buf_size < avctx.block_align) {
-            logger.log(Level.ERROR, "Frame too small (%d bytes). Truncated file?", buf_size);
+            logger.log(Level.ERROR, "Frame too small (%d bytes). Truncated file?".formatted(buf_size));
             return -1;
         }
 
@@ -783,11 +783,11 @@ logger.log(Level.DEBUG, "rounded_up: " + rounded_up + ", rounded_down: " + round
         }
         frames_per_packet = avctx.block_align * 8L / tctx.frame_size;
         if (frames_per_packet <= 0) {
-            logger.log(Level.ERROR, "Block align is %d bits, expected %d", avctx.block_align * 8L, tctx.frame_size);
+            logger.log(Level.ERROR, "Block align is %d bits, expected %d".formatted(avctx.block_align * 8L, tctx.frame_size));
             return AVERROR_INVALIDDATA;
         }
         if (frames_per_packet > TWINVQ_MAX_FRAMES_PER_PACKET) {
-            logger.log(Level.ERROR, "Too many frames per packet (%d)", frames_per_packet);
+            logger.log(Level.ERROR, "Too many frames per packet (%d)".formatted(frames_per_packet));
             return AVERROR_INVALIDDATA;
         }
         tctx.frames_per_packet = (int) frames_per_packet;
