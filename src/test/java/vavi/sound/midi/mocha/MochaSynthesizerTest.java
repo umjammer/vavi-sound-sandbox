@@ -79,14 +79,14 @@ Debug.println("sequencer: " + sequencer);
 
         CountDownLatch cdl = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
-System.err.println("META: " + meta.getType());
+Debug.println("META: " + meta.getType());
             if (meta.getType() == 47) {
                 cdl.countDown();
             }
         };
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
-System.err.println("START");
+Debug.println("START");
         sequencer.start();
 
         volume(receiver, volume); // volume works?
@@ -98,7 +98,7 @@ if (!onIde) {
 } else {
         cdl.await();
 }
-System.err.println("END");
+Debug.println("END");
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
 
@@ -128,15 +128,15 @@ Debug.println("sequencer: " + sequencer);
 
         CountDownLatch cdl = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
-System.err.println("META: " + meta.getType());
+Debug.println("META: " + meta.getType());
             if (meta.getType() == 47) cdl.countDown();
         };
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
-System.err.println("START");
+Debug.println("START");
         sequencer.start();
         cdl.await();
-System.err.println("END");
+Debug.println("END");
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
 

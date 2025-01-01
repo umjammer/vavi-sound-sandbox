@@ -32,6 +32,7 @@ public class SineWaveInstrument extends Instrument {
         return toString();
     }
 
+    @Override
     public String toString() {
         return "Sine Wave";
     }

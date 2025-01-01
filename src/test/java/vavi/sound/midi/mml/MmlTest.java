@@ -1,17 +1,27 @@
 /*
- * Copyright (c) 2022 by Naohide Sano, All rights reserved.
+ * Copyright (c) 2024 by Naohide Sano, All rights reserved.
  *
  * Programmed by Naohide Sano
  */
 
+package vavi.sound.midi.mml;
+
+import java.io.BufferedInputStream;
 import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
+import javax.sound.midi.MetaEventListener;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.Sequence;
+import javax.sound.midi.Sequencer;
+import javax.sound.midi.Synthesizer;
 import javax.sound.sampled.LineEvent;
 
 import jp.or.rim.kt.kemusiro.sound.FMGeneralInstrument;
 import jp.or.rim.kt.kemusiro.sound.MMLPlayer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,11 +30,12 @@ import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
 
+import static vavi.sound.midi.MidiUtil.volume;
 import static vavix.util.DelayedWorker.later;
 
 
 /**
- * MmlTest.
+ * vavi.sound.midi.mml.MmlTest.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2022-12-18 nsano initial version <br>
@@ -37,11 +48,19 @@ public class MmlTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
+    static {
+        System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer"); // why this not comes first?
+//        System.setProperty("javax.sound.midi.Synthesizer", "#Gervill"); // why this not comes first?
+    }
+
     static boolean onIde = System.getProperty("vavi.test", "").equals("ide");
     static long time = onIde ? 1000 * 1000 : 10 * 1000;
 
     @Property(name = "vavi.test.volume")
     float volume = 0.2f;
+
+    @Property(name = "vavi.test.volume.midi")
+    float midiVolume = 0.2f;
 
     @Property(name = "mml")
     String mml = "src/test/resources/mml/BADINERIE.mml";
@@ -51,6 +70,17 @@ public class MmlTest {
         if (localPropertiesExists()) {
             PropsEntity.Util.bind(this);
         }
+Debug.println("volume: " + volume);
+    }
+
+    @BeforeAll
+    static void setupAll() throws Exception {
+        System.setProperty("vavi.sound.opl3.MidiFile", "true");
+    }
+
+    @AfterAll
+    static void teardown() throws Exception {
+        System.setProperty("vavi.sound.opl3.MidiFile", "false");
     }
 
     @Test
@@ -63,15 +93,16 @@ public class MmlTest {
         p.setVolume(volume);
         p.setMML(new String[] {String.join("", Files.readAllLines(Paths.get(mml)))});
         p.start();
-        if (onIde) later(time, cdl::countDown);
+if (!onIde) {
+ Thread.sleep(time);
+ p.stop();
+ Debug.println("STOP");
+} else {
         cdl.await();
-Debug.println("here");
         p.stop();
-Thread.getAllStackTraces().keySet().forEach(System.err::println);
-    }
-
-    private static void usage() {
-        System.out.println("java MMLPlayer MML1 [MML2 [MML3]]");
+}
+Debug.println("here");
+//Thread.getAllStackTraces().keySet().forEach(System.err::println);
     }
 
     /**
@@ -81,7 +112,7 @@ Thread.getAllStackTraces().keySet().forEach(System.err::println);
      */
     public static void main(String[] args) throws Exception {
         if (args.length == 0) {
-            usage();
+            System.err.println("java MMLPlayer MML1 [MML2 [MML3]]");
             return;
         }
         if (args[0].equals("-f")) {
@@ -101,5 +132,66 @@ Thread.getAllStackTraces().keySet().forEach(System.err::println);
             app.mml = arg;
             app.test1();
         }
+    }
+
+    @Test
+    @DisplayName("spi, convert to midi sequence -> midi sequencer")
+    void test2() throws Exception {
+        Sequence sequence = new MmlMidiFileReader().getSequence(new BufferedInputStream(Files.newInputStream(Paths.get(mml))));
+
+        CountDownLatch cdl = new CountDownLatch(1);
+        MetaEventListener mel = meta -> {
+Debug.println("META: " + meta.getType());
+            if (meta.getType() == 47) cdl.countDown();
+        };
+        Sequencer sequencer = MidiSystem.getSequencer(true);
+Debug.println("sequencer: " + sequencer);
+        sequencer.open();
+        volume(sequencer.getReceiver(), midiVolume);
+        sequencer.setSequence(sequence);
+        sequencer.addMetaEventListener(mel);
+
+        sequencer.start();
+if (!onIde) {
+ Thread.sleep(time);
+ sequencer.stop();
+ Debug.println("STOP");
+} else {
+        cdl.await();
+}
+        sequencer.removeMetaEventListener(mel);
+        sequencer.close();
+    }
+
+    @Test
+    @DisplayName("spi")
+    void test3() throws Exception {
+        Sequence sequence = new MmlMidiFileReader().getSequence(new BufferedInputStream(Files.newInputStream(Paths.get(mml))));
+
+        CountDownLatch cdl = new CountDownLatch(1);
+        MetaEventListener mel = meta -> {
+Debug.println("META: " + meta.getType());
+            if (meta.getType() == 47) cdl.countDown();
+        };
+        Sequencer sequencer = MidiSystem.getSequencer(false);
+Debug.println("sequencer: " + sequencer);
+        sequencer.open();
+        Synthesizer synthesizer = new MmlSynthesizer();
+        synthesizer.open();
+        sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
+        volume(synthesizer.getReceiver(), midiVolume);
+        sequencer.setSequence(sequence);
+        sequencer.addMetaEventListener(mel);
+
+        sequencer.start();
+if (!onIde) {
+ Thread.sleep(time);
+ sequencer.stop();
+ Debug.println("STOP");
+} else {
+        cdl.await();
+}
+        sequencer.removeMetaEventListener(mel);
+        sequencer.close();
     }
 }

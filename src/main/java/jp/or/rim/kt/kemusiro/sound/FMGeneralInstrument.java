@@ -35,6 +35,10 @@ public class FMGeneralInstrument extends Instrument {
 
     private static final List<FMParameter> parameters = new ArrayList<>();
 
+    public static int[] getToneNumbers() {
+        return parameters.stream().mapToInt(FMParameter::getToneNumber).toArray();
+    }
+
     public FMGeneralInstrument(int number) {
         FMParameter p = findParameter(number);
         if (p == null) {
