@@ -92,6 +92,86 @@
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>local (not on ci)</id>
+      <activation>
+        <property>
+          <name>!env.GITHUB_WORKFLOW</name>
+        </property>
+      </activation>
+      <properties>
+        <javaVersion>21</javaVersion>
+      </properties>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>jitpack.io</id>
+          <url>https://jitpack.io</url>
+        </pluginRepository>
+      </pluginRepositories>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.umjammer</groupId>
+            <artifactId>careless-maven-plugin</artifactId>
+            <version>0.0.2</version>
+            <executions>
+              <execution>
+                <phase>validate</phase>
+                <goals>
+                  <goal>careless</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <targets>
+                <target>
+                  <path>.github/workflows/codeql-analysis.yml</path>
+                  <ri>jobs.analyze.steps[2].name</ri>
+                  <value>Set up JDK ${javaVersion}</value>
+                </target>
+                <target>
+                  <path>.github/workflows/codeql-analysis.yml</path>
+                  <ri>jobs.analyze.steps[2].with.java-version</ri>
+                  <value>${javaVersion}</value>
+                </target>
+                <target>
+                  <path>.github/workflows/maven.yml</path>
+                  <ri>jobs.build.steps[2].name</ri>
+                  <value>Set up JDK ${javaVersion}</value>
+                </target>
+                <target>
+                  <path>.github/workflows/maven.yml</path>
+                  <ri>jobs.build.steps[2].with.java-version</ri>
+                  <value>${javaVersion}</value>
+                </target>
+                <target>
+                  <path>pom.xml</path>
+                  <ri>//*[local-name()='artifactId' and text()='maven-compiler-plugin']/..//*[local-name()='release' or local-name()='source']/text()</ri>
+                  <value>${javaVersion}</value>
+                </target>
+                <target>
+                  <path>jitpack.yml</path>
+                  <ri>jdk[0]</ri>
+                  <value>openjdk${javaVersion}</value>
+                </target>
+                <target>
+                  <path>README.md</path>
+                  <ri>img\.shields\.io\/badge\/Java-(\d+?)-b07219</ri>
+                  <value>${javaVersion}</value>
+                </target>
+                <target>
+                  <path>pom.xml</path>
+                  <ri>//*[local-name()='project']/*[local-name()='version']/text()</ri>
+                  <value>.*-SNAPSHOT</value>
+                  <negative>true</negative>
+                </target>
+              </targets>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
   </profiles>
 
   <build>
@@ -374,7 +454,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- drogatkin / com.github.umjammer -->
       <artifactId>vavi-sound-flac</artifactId>
-      <version>0.0.6</version>
+      <version>0.0.7</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -450,9 +530,9 @@
     </dependency>
 
     <dependency>
-      <groupId>vavi</groupId> <!-- com.github.umjammer / vavi -->
+      <groupId>com.github.umjammer</groupId> <!-- com.github.umjammer / vavi -->
       <artifactId>vavi-util-screenscraping</artifactId>
-      <version>1.0.15-SNAPSHOT</version>
+      <version>1.0.15</version>
       <scope>test</scope>
     </dependency>
 
