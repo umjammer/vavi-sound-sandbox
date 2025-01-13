@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 by Naohide Sano, All rights reserved.
+ * Copyright (c) 2011 by Naohide Sano, All rights reserved.
  *
  * Programmed by Naohide Sano
  */
@@ -28,7 +28,7 @@ public class OpusFileFormatType extends AudioFileFormat.Type {
      * @param name      the name of the OPUS File Format.
      * @param extension the file extension for this OPUS File Format.
      */
-    public OpusFileFormatType(String name, String extension) {
+    private OpusFileFormatType(String name, String extension) {
         super(name, extension);
     }
 }

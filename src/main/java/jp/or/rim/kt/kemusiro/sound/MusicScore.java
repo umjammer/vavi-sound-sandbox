@@ -4,7 +4,7 @@
 
 package jp.or.rim.kt.kemusiro.sound;
 
-import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.LinkedList;
 
 
@@ -24,15 +24,15 @@ public final class MusicScore {
     /**
      * Create a new score.
      *
-     * @param newTickPerBeat Counts per beat
-     * @param newChannelCount    Number of channels
+     * @param tickPerBeat  Counts per beat
+     * @param channelCount Number of channels
      */
-    public MusicScore(int newTickPerBeat, int newChannelCount) {
-        tickPerBeat = newTickPerBeat;
-        channelCount = newChannelCount;
+    public MusicScore(int tickPerBeat, int channelCount) {
+        this.tickPerBeat = tickPerBeat;
+        this.channelCount = channelCount;
         eventList = new LinkedList<>();
 
-        for (int ch = 0; ch < newChannelCount; ch++) {
+        for (int ch = 0; ch < channelCount; ch++) {
             add(new ChangeInstrument(0, ch, new SquareWaveInstrument()));
             add(new ChangeTempo(0, ch, defaultTempo));
         }
@@ -68,14 +68,15 @@ public final class MusicScore {
         eventList.addFirst(event);
     }
 
-    public void dump(OutputStream output) {
+    public void dump(PrintStream output) {
         for (MusicEvent o : eventList) {
-            System.out.print("tick:" + o.getTick());
-            System.out.print(" ch:" + o.getChannel());
-            System.out.println(o);
+            output.print("tick:" + o.getTick());
+            output.print(" ch:" + o.getChannel());
+            output.println(o);
         }
     }
 
+    @Override
     public String toString() {
         return "MusicScore: Ticks/Beat=" + tickPerBeat + " channelCount:" + channelCount;
     }

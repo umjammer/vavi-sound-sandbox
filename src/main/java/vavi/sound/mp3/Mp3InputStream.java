@@ -10,9 +10,12 @@ import java.io.EOFException;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 
-import vavi.util.Debug;
 import vavi.util.StringUtil;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -25,6 +28,8 @@ import vavi.util.StringUtil;
  * @version 2.00 030817 nsano java port <br>
  */
 public class Mp3InputStream extends FilterInputStream {
+
+    private static final Logger logger = getLogger(Mp3InputStream.class.getName());
 
     /** */
     private final Mp3Decoder.MpegDecodeInfo decodeInfo;
@@ -58,16 +63,16 @@ public class Mp3InputStream extends FilterInputStream {
 
         // find first sync
         int firstSyncAddress = Mp3Decoder.findSync(buf, 0, readBytes);
-Debug.printf("firstSyncAddress: %08x", firstSyncAddress);
+logger.log(Level.DEBUG, "firstSyncAddress: %08x".formatted(firstSyncAddress));
         decodeInfo = decoder.getInfo(buf, firstSyncAddress, readBytes - firstSyncAddress);
-Debug.println(decodeInfo);
+logger.log(Level.DEBUG, decodeInfo);
 
         //
         in.reset();
-Debug.println("mp3 in.available(): " + in.available());
+logger.log(Level.DEBUG, "mp3 in.available(): " + in.available());
         int length = firstSyncAddress;
 //      int length = firstSyncAddress + 4 + (decodeInfo.header.mode != 3 ? 32 : 17);
-Debug.println("skip length: " + length);
+logger.log(Level.DEBUG, "skip length: " + length);
         int skipBytes = 0;
         while (skipBytes < length) {
             int l  = (int) in.skip(length - skipBytes);
@@ -88,16 +93,16 @@ Debug.println("skip length: " + length);
         int totalSamples = (frames * decodeInfo.outputSize * 8) / 16 / decodeInfo.channels;
         int totalSeconds = totalSamples / decodeInfo.frequency;
 
-Debug.println("---- mp3 ----");
-Debug.println("size        : " + size);
-Debug.println("dataSize    : " + dataSize);
+logger.log(Level.DEBUG, "---- mp3 ----");
+logger.log(Level.DEBUG, "size        : " + size);
+logger.log(Level.DEBUG, "dataSize    : " + dataSize);
 
-Debug.println("channels    : " + channels);
-Debug.println("frequency   : " + frequency + " [Hz]");
-Debug.println("bitRate     : " + bitRate + " [bit/s]");
-Debug.println("totalFrames : " + totalFrames);
-Debug.println("totalSamples: " + totalSamples);
-Debug.println("totalSeconds: " + totalSeconds + " [s]");
+logger.log(Level.DEBUG, "channels    : " + channels);
+logger.log(Level.DEBUG, "frequency   : " + frequency + " [Hz]");
+logger.log(Level.DEBUG, "bitRate     : " + bitRate + " [bit/s]");
+logger.log(Level.DEBUG, "totalFrames : " + totalFrames);
+logger.log(Level.DEBUG, "totalSamples: " + totalSamples);
+logger.log(Level.DEBUG, "totalSeconds: " + totalSeconds + " [s]");
     }
 
     /**
@@ -106,7 +111,7 @@ Debug.println("totalSeconds: " + totalSeconds + " [s]");
      */
     @Override
     public int available() throws IOException {
-Debug.println("wave available: " + in.available() + ", " + decodeInfo.inputSize + ", " + decodeInfo.outputSize);
+logger.log(Level.DEBUG, "wave available: " + in.available() + ", " + decodeInfo.inputSize + ", " + decodeInfo.outputSize);
         return in.available() / decodeInfo.inputSize * decodeInfo.outputSize;
     }
 
@@ -126,16 +131,16 @@ Debug.println("wave available: " + in.available() + ", " + decodeInfo.inputSize 
     public int read(byte[] data, int offset, int length) throws IOException {
 
         if (!skipNextSync()) {
-Debug.println("End of Frames");
+logger.log(Level.DEBUG, "End of Frames");
             return -1;
         }
 
         Mp3Decoder.MpegDecodeParam param = new Mp3Decoder.MpegDecodeParam();
 
-//Debug.println("length: " + length);
-Debug.println("decodeInfo: " + decodeInfo);
+//logger.log(Level.TRACE, "length: " + length);
+logger.log(Level.DEBUG, "decodeInfo: " + decodeInfo);
         param.inputSize = decodeInfo.inputSize;
-Debug.println("param.inputSize: " + param.inputSize);
+logger.log(Level.DEBUG, "param.inputSize: " + param.inputSize);
         param.inputBuf = new byte[param.inputSize];
         int readBytes = 0;
         while (readBytes < param.inputSize) {
@@ -147,7 +152,7 @@ Debug.println("param.inputSize: " + param.inputSize);
         }
 
         //
-Debug.println("mp3:\n" + StringUtil.getDump(param.inputBuf, 16));
+logger.log(Level.DEBUG, "mp3:\n" + StringUtil.getDump(param.inputBuf, 16));
         decoder.prepareDecode(param.inputBuf, 0, param.inputSize);
 
         param.outputSize = decodeInfo.outputSize;
@@ -203,10 +208,10 @@ Debug.println("mp3:\n" + StringUtil.getDump(param.inputBuf, 16));
                 while (l < length) {
                     l += (int) in.skip(length - l);
                 }
-Debug.println("skip: " + length);
+logger.log(Level.DEBUG, "skip: " + length);
                 return true;
             } catch (IllegalArgumentException e) {
-Debug.println("no more sync");
+logger.log(Level.DEBUG, "no more sync");
                 in.reset();
                 return false; // no more data
             }

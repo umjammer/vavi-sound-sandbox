@@ -6,6 +6,9 @@
 
 package vavix.rococoa.avfoundation;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+
 import org.rococoa.ObjCClass;
 import org.rococoa.ObjCObjectByReference;
 import org.rococoa.RunOnMainThread;
@@ -15,7 +18,7 @@ import org.rococoa.cocoa.foundation.NSObject;
 import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
 
-import vavi.util.Debug;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -25,6 +28,8 @@ import vavi.util.Debug;
  * @version 0.00 2020/??/?? umjammer initial version <br>
  */
 public abstract class AUAudioUnit extends NSObject {
+
+    private static final Logger logger = getLogger(AUAudioUnit.class.getName());
 
     @SuppressWarnings("hiding")
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("AUAudioUnit", _Class.class);
@@ -43,9 +48,9 @@ public abstract class AUAudioUnit extends NSObject {
     public static AUAudioUnit initWithComponentDescription(AudioComponentDescription desc) {
         ObjCObjectByReference outError = new ObjCObjectByReference();
         AUAudioUnit audioUnit = CLASS.alloc();
-Debug.println(audioUnit);
+logger.log(Level.DEBUG, audioUnit);
         audioUnit = audioUnit.initWithComponentDescription_error(desc.byValue(), outError);
-Debug.println(audioUnit);
+logger.log(Level.DEBUG, audioUnit);
         NSError error = outError.getValueAs(NSError.class);
         if (error != null) {
             throw new IllegalStateException(error.description());

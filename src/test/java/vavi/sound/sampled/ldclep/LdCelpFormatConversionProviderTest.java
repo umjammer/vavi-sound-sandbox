@@ -17,6 +17,7 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineEvent.Type;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import vavi.util.Debug;
@@ -27,6 +28,12 @@ import static javax.sound.sampled.AudioSystem.NOT_SPECIFIED;
 import static vavi.sound.SoundUtil.volume;
 
 
+/**
+ * LdCelpFormatConversionProviderTest.
+ *
+ * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
+ * @version 0.00 240905 nsano initial version <br>
+ */
 @PropsEntity(url = "file:local.properties")
 class LdCelpFormatConversionProviderTest {
 
@@ -37,6 +44,9 @@ class LdCelpFormatConversionProviderTest {
     @Property(name = "g728")
     String g728 = "src/test/resources/ldcelp/sample.g728";
 
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
+
     @BeforeEach
     void setup() throws Exception {
         if (localPropertiesExists()) {
@@ -44,9 +54,8 @@ class LdCelpFormatConversionProviderTest {
         }
     }
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
-
     @Test
+    @DisplayName("via spi clip")
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test1() throws Exception {
         Path in = Path.of(g728);
@@ -61,7 +70,7 @@ Debug.println(in);
                 16000,
                 false);
 
-        AudioFormat linFormat = new AudioFormat(
+        AudioFormat lineFormat = new AudioFormat(
                 AudioFormat.Encoding.PCM_SIGNED,
                 16000,
                 16,
@@ -69,13 +78,13 @@ Debug.println(in);
                 2,
                 16000,
                 false);
-Debug.println(linFormat);
+Debug.println(lineFormat);
 
         var ais = new AudioInputStream(Files.newInputStream(in), inFormat, NOT_SPECIFIED);
         Clip clip = AudioSystem.getClip();
         CountDownLatch cdl = new CountDownLatch(1);
         clip.addLineListener(e -> { Debug.println(e.getType()); if (e.getType().equals(Type.STOP)) cdl.countDown(); });
-        clip.open(AudioSystem.getAudioInputStream(linFormat, ais));
+        clip.open(AudioSystem.getAudioInputStream(lineFormat, ais));
         volume(clip, volume);
         clip.start();
         cdl.await();

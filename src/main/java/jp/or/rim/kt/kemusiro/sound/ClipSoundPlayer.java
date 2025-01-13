@@ -4,6 +4,8 @@
 
 package jp.or.rim.kt.kemusiro.sound;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -11,6 +13,8 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 
 import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -20,6 +24,8 @@ import vavi.util.Debug;
  * @version $Revision: 1.1 $
  */
 public class ClipSoundPlayer extends SoundPlayer {
+
+    private static final Logger logger = getLogger(ClipSoundPlayer.class.getName());
 
     private Clip line = null;
 
@@ -38,7 +44,7 @@ public class ClipSoundPlayer extends SoundPlayer {
             line = (Clip) AudioSystem.getLine(info);
             line.open(format, array, 0, array.length);
         } catch (LineUnavailableException e) {
-            Debug.printStackTrace(e);
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
     }
 

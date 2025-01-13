@@ -29,6 +29,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.file.Files;
 import java.util.Calendar;
 
@@ -37,8 +39,13 @@ import unknown.sound.converter.Preferences;
 import unknown.sound.midi.MIDIInputStream;
 import vavi.util.Debug;
 
+import static java.lang.System.getLogger;
+
 
 public class MTMWindow extends Frame {
+
+    private static final Logger logger = getLogger(MTMWindow.class.getName());
+
     public static class MTMMIDIFileFilter implements FilenameFilter {
         @Override
         public boolean accept(File file, String s) {
@@ -323,8 +330,8 @@ public class MTMWindow extends Frame {
                         } catch (EOFException ignore) {
                         }
                         fos.close();
-                    } catch (IOException _ex) {
-                        Debug.printStackTrace(_ex);
+                    } catch (IOException e) {
+                        logger.log(Level.ERROR, e.getMessage(), e);
                     }
                 }
             }

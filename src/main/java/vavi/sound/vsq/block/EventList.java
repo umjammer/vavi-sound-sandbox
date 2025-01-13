@@ -21,14 +21,7 @@ import vavi.sound.vsq.Block;
 public class EventList implements Block {
 
     /** */
-    public static class Pair {
-        public final long tick;
-        public final String id;
-        public Pair(long tick, String id) {
-            this.tick = tick;
-            this.id = id;
-        }
-    }
+    public record Pair(long tick, String id) {}
 
     /** */
     private final List<Pair> events = new ArrayList<>(); // 0=ID#0000

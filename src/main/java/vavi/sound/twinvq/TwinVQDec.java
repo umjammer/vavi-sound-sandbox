@@ -30,7 +30,6 @@ import vavi.sound.twinvq.LibAV.AVTXContext;
 import vavi.sound.twinvq.LibAV.HeptaConsumer;
 import vavi.sound.twinvq.LibAV.TetraFunction;
 import vavi.util.ByteUtil;
-import vavi.util.Debug;
 
 import static java.lang.System.getLogger;
 import static vavi.sound.twinvq.LibAV.AVERROR_INVALIDDATA;
@@ -429,8 +428,8 @@ public class TwinVQDec {
 
         x /= 400;
 
-        int size = tabs[b / 5].size;
-        byte[] rtab = tabs[b / 5].tab;
+        int size = tabs[b / 5].size();
+        byte[] rtab = tabs[b / 5].tab();
 //System.err.printf("index: %d%n", size * ff_log2_c(2 * (x - 1) / size) + (x - 1) % size);
         return x - rtab[size * ff_log2_c(2 * (x - 1) / size) + (x - 1) % size];
     }
@@ -521,7 +520,7 @@ public class TwinVQDec {
 
             dst[dstP++] = (byte) gb.get_bits(tctx.bits_main_spec[0][ftype.ordinal()][bs_second_part]);
             dst[dstP++] = (byte) gb.get_bits(tctx.bits_main_spec[1][ftype.ordinal()][bs_second_part]);
-//Debug.printf("cb[%3d]: %d, %02x, %d, %02x, %d", i, tctx.bits_main_spec[0][ftype.ordinal()][bs_second_part], dst[dstP - 2], tctx.bits_main_spec[1][ftype.ordinal()][bs_second_part], dst[dstP - 1], bs_second_part);
+//logger.log(Level.TRACE, "cb[%3d]: %d, %02x, %d, %02x, %d".formatted(i, tctx.bits_main_spec[0][ftype.ordinal()][bs_second_part], dst[dstP - 2], tctx.bits_main_spec[1][ftype.ordinal()][bs_second_part], dst[dstP - 1], bs_second_part));
         }
     }
 
@@ -596,16 +595,16 @@ public class TwinVQDec {
             return AVERROR_INVALIDDATA;
         }
         channels = ByteUtil.readBeInt(avctx.extradata) + 1;
-Debug.println("channels: " + channels);
+logger.log(Level.DEBUG, "channels: " + channels);
         avctx.bit_rate = ByteUtil.readBeInt(avctx.extradata, 4) * 1000;
-Debug.println("bit_rate: " + avctx.bit_rate);
+logger.log(Level.DEBUG, "bit_rate: " + avctx.bit_rate);
         isampf = ByteUtil.readBeInt(avctx.extradata, 8);
 
         if (isampf < 8 || isampf > 44) {
             logger.log(Level.ERROR, "Unsupported sample rate");
             return AVERROR_INVALIDDATA;
         }
-Debug.println("isampf: " + isampf);
+logger.log(Level.DEBUG, "isampf: " + isampf);
         switch (isampf) {
             case 44:
                 avctx.sample_rate = 44100;
@@ -622,7 +621,7 @@ Debug.println("isampf: " + isampf);
         }
 
         if (channels <= 0 || channels > TWINVQ_CHANNELS_MAX) {
-            logger.log(Level.ERROR, "Unsupported number of channels: %i", channels);
+            logger.log(Level.ERROR, "Unsupported number of channels: %d".formatted(channels));
             return -1;
         }
 //        av_channel_layout_uninit(avctx.ch_layout);
@@ -630,13 +629,13 @@ Debug.println("isampf: " + isampf);
         avctx.ch_layout.nb_channels = channels;
 
         ibps = avctx.bit_rate / (1000 * channels);
-Debug.println("ibps: " + ibps);
+logger.log(Level.DEBUG, "ibps: " + ibps);
         if (ibps < 8 || ibps > 48) {
-            logger.log(Level.ERROR, "Bad bitrate per channel value %d", ibps);
+            logger.log(Level.ERROR, "Bad bitrate per channel value %d".formatted(ibps));
             return AVERROR_INVALIDDATA;
         }
 
-Debug.println("mtab: " + (isampf << 8) + ibps);
+logger.log(Level.DEBUG, "mtab: " + (isampf << 8) + ibps);
         switch ((isampf << 8) + ibps) {
             case (8 << 8) + 8:
                 tctx.mtab = mode_08_08;
@@ -666,8 +665,8 @@ Debug.println("mtab: " + (isampf << 8) + ibps);
                 tctx.mtab = mode_44_48;
                 break;
             default:
-                logger.log(Level.ERROR, "This version does not support %d kHz - %d kbit/s/ch mode.",
-                        isampf, isampf);
+                logger.log(Level.ERROR, "This version does not support %d kHz - %d kbit/s/ch mode.".formatted(
+                        isampf, isampf));
                 return -1;
         }
 

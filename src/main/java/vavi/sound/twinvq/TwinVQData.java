@@ -21,13 +21,14 @@
 
 package vavi.sound.twinvq;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.logging.Level;
 
-import vavi.util.Debug;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -50,6 +51,8 @@ import vavi.util.Debug;
  * for some slightly non-conventional bark-scale function
  */
 public class TwinVQData {
+
+    private static final Logger logger = getLogger(TwinVQData.class.getName());
 
     static final short[] bark_tab_l08_512 = {
             7, 8, 7, 8, 8, 8, 8, 8, 8, 9,
@@ -525,16 +528,7 @@ public class TwinVQData {
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1,
     };
 
-    static final class tab {
-
-        final int size;
-        final byte[] tab;
-
-        public tab(int size, byte[] tab) {
-            this.size = size;
-            this.tab = tab;
-        }
-    }
+    record tab(int size, byte[] tab) {}
 
     static final tab[] tabs = {
             new tab(0, null),
@@ -551,7 +545,7 @@ public class TwinVQData {
         while (s.hasNextShort()) {
             l.add(s.nextShort());
         }
-Debug.println(Level.FINEST, f + ": " + l.size());
+logger.log(Level.TRACE, f + ": " + l.size());
         return l.stream().collect(() -> ShortBuffer.allocate(l.size()), ShortBuffer::put, (left, right) -> {}).array();
     }
 }

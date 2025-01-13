@@ -6,6 +6,7 @@
 
 package vavi.sound.midi.opl3;
 
+import java.util.Arrays;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.Patch;
 import javax.sound.midi.Soundbank;
@@ -42,12 +43,12 @@ public class Opl3Soundbank implements Soundbank {
 
     @Override
     public String getVersion() {
-        return "0.0.1";
+        return Opl3Synthesizer.info.getVersion();
     }
 
     @Override
     public String getVendor() {
-        return "vavi";
+        return Opl3Synthesizer.info.getVendor();
     }
 
     @Override
@@ -92,6 +93,11 @@ public class Opl3Soundbank implements Soundbank {
         @Override
         public Object getData() {
             return data;
+        }
+
+        @Override
+        public String toString() {
+            return Opl3Soundbank.class.getSimpleName() + "@%x".formatted(Arrays.stream(data).sum());
         }
     }
 }

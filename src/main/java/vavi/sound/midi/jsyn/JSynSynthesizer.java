@@ -7,10 +7,11 @@
 package vavi.sound.midi.jsyn;
 
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiDevice;
@@ -30,8 +31,9 @@ import com.jsyn.midi.MidiSynthesizer;
 import com.jsyn.unitgen.LineOut;
 import com.jsyn.util.MultiChannelSynthesizer;
 import com.jsyn.util.VoiceDescription;
-import vavi.util.Debug;
 import vavi.util.StringUtil;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -43,6 +45,8 @@ import vavi.util.StringUtil;
  * @version 0.00 2020/10/03 umjammer initial version <br>
  */
 public class JSynSynthesizer implements Synthesizer {
+
+    private static final Logger logger = getLogger(JSynSynthesizer.class.getName());
 
     static {
         try {
@@ -94,7 +98,7 @@ public class JSynSynthesizer implements Synthesizer {
     @Override
     public void open() throws MidiUnavailableException {
         if (isOpen()) {
-Debug.println(Level.WARNING, "already open: " + hashCode());
+logger.log(Level.WARNING, "already open: " + hashCode());
             return;
         }
 
@@ -470,11 +474,11 @@ Debug.println(Level.WARNING, "already open: " + hashCode());
                         channels[channel].setPitchBend(data1 | (data2 << 7));
                         break;
                     default:
-Debug.printf(Level.FINE, "%02X\n", command);
+logger.log(Level.DEBUG, "%02X".formatted(command));
                     }
                 } else if (message instanceof SysexMessage sysexMessage) {
                     byte[] data = sysexMessage.getData();
-Debug.printf(Level.FINE, "sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data));
+logger.log(Level.DEBUG, "sysex: %02X\n%s".formatted(sysexMessage.getStatus(), StringUtil.getDump(data)));
                     switch (data[0]) {
                     case 0x7f: // Universal Realtime
                         @SuppressWarnings("unused")
@@ -482,7 +486,7 @@ Debug.printf(Level.FINE, "sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil
                         // Sub-ID, Sub-ID2
                         if (data[2] == 0x04 && data[3] == 0x01) { // Device Control / Master Volume
                             float gain = ((data[4] & 0x7f) | ((data[5] & 0x7f) << 7)) / 16383f;
-Debug.printf(Level.FINE, "sysex volume: gain: %4.0f%n", gain * 100);
+logger.log(Level.DEBUG, "sysex volume: gain: %4.0f%n".formatted(gain * 100));
                             multiSynth.setMasterAmplitude(gain * 100);
                             break;
                         }
@@ -492,7 +496,7 @@ Debug.printf(Level.FINE, "sysex volume: gain: %4.0f%n", gain * 100);
                     }
                 } else {
                     // TODO meta message
-Debug.printf(Level.FINE, message.getClass().getName());
+logger.log(Level.DEBUG, message.getClass().getName());
                 }
             } else {
                 throw new IllegalStateException("receiver is not open");

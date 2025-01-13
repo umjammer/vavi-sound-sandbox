@@ -20,9 +20,12 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import vavi.util.Debug;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -37,11 +40,24 @@ import static vavi.sound.sampled.opus.OpusEncoding.OPUS;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2022/02/20 umjammer initial version <br>
  */
+@PropsEntity(url = "file:local.properties")
 class OpusFormatConversionProviderTest {
+
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
 
     static final String inFile = "/test.opus";
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
+
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
+    }
 
     @Test
     @DisplayName("directly")

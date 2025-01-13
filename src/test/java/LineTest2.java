@@ -23,6 +23,7 @@ import javax.sound.sampled.spi.AudioFileReader;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -43,7 +44,6 @@ import vavi.util.properties.annotation.PropsEntity;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2012/06/11 umjammer initial version <br>
  */
-
 @EnabledIf("localPropertiesExists")
 @PropsEntity(url = "file:local.properties")
 class LineTest2 {
@@ -57,7 +57,8 @@ class LineTest2 {
                            "vavi\\.sound\\.DebugInputStream#\\w+");
     }
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
 
     @Property(name = "line2.test")
     String inFile = "src/test/resources/test.caf";
@@ -70,7 +71,7 @@ class LineTest2 {
     }
 
     /**
-     * @param args
+     * @param args use local.properties
      */
     public static void main(String[] args) throws Exception {
         LineTest2 app = new LineTest2();
@@ -82,11 +83,11 @@ class LineTest2 {
 System.err.println(type);
         }
         AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(new File(app.inFile).toURI().toURL());
-        LineTest2.play(originalAudioInputStream);
+        app.play(originalAudioInputStream);
     }
 
-    /** */
-    static void play(AudioInputStream originalAudioInputStream) throws Exception {
+    /** play the audio using line */
+    void play(AudioInputStream originalAudioInputStream) throws Exception {
         AudioFormat originalAudioFormat = originalAudioInputStream.getFormat();
 Debug.println(originalAudioFormat);
         AudioFormat targetAudioFormat = new AudioFormat( // PCM
@@ -121,6 +122,7 @@ Debug.println(line.getClass().getName());
     }
 
     @ParameterizedTest
+    @DisplayName("test many types")
     @ValueSource(strings = {
         "src/test/resources/speex.ogg",
         "src/test/resources/test.ogg",
@@ -144,6 +146,7 @@ try {
 }
     }
 
+    /** simulate jdk {@link AudioSystem#getAudioInputStream} method */
     @SuppressWarnings({ "unchecked", "rawtypes", "restriction" })
     static AudioInputStream dummy(InputStream stream) throws UnsupportedAudioFileException, IOException {
         List providers = com.sun.media.sound.JDK13Services.getProviders(AudioFileReader.class);
@@ -170,6 +173,7 @@ Debug.println("--------- " + reader.getClass().getName());
 
     @Test
     @Disabled("for just fix #7, not needed any more")
+    @DisplayName("for just fix #7")
     void test2() throws Exception {
         InputStream is = new BufferedInputStream(Files.newInputStream(Paths.get("src/test/resources/test.mp3")));
         AudioInputStream audioInputStream = new MpegAudioFileReader().getAudioInputStream(is);

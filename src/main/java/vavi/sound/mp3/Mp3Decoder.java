@@ -6,11 +6,12 @@
 
 package vavi.sound.mp3;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Arrays;
 import java.util.StringJoiner;
 
-import vavi.util.Debug;
-import vavi.util.StringUtil;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -22,25 +23,21 @@ import vavi.util.StringUtil;
  * @version 2.00 030817 nsano java port <br>
  */
 class Mp3Decoder {
-    /** */
-    private static class GrInfo {
-        final int length;
-        final int bigValues;
-        final int gain;
-        GrInfo(int length, int bigValues, int gain) {
-            this.length = length;
-            this.bigValues = bigValues;
-            this.gain = gain;
-        }
 
-        @Override public String toString() {
-            return new StringJoiner(", ", GrInfo.class.getSimpleName() + "[", "]")
-                    .add("length=" + length)
-                    .add("bigValues=" + bigValues)
-                    .add("gain=" + gain)
-                    .toString();
+    private static final Logger logger = getLogger(Mp3Decoder.class.getName());
+
+    /** */
+    private record GrInfo(int length, int bigValues, int gain) {
+
+        @Override
+        public String toString() {
+                return new StringJoiner(", ", GrInfo.class.getSimpleName() + "[", "]")
+                        .add("length=" + length)
+                        .add("bigValues=" + bigValues)
+                        .add("gain=" + gain)
+                        .toString();
+            }
         }
-    }
 
     /** */
     static class MpegDecodeParam {
@@ -139,13 +136,13 @@ class Mp3Decoder {
         final int mode;
         /** Gets header information. */
         public MpegHeader(byte[] buf, int offset) {
-Debug.println("offset: " + offset);
+logger.log(Level.DEBUG, "offset: " + offset);
             this.version   = (buf[offset + 1] & 0x18) >> 3;
             this.layer     = (buf[offset + 1] & 0x06) >> 1;
             this.bitrate   = m_bitrate[3 - layer][(buf[offset + 2] & 0xf0) >> 4];
             this.frequency = m_frequency[version == 3 ? 0 : 1][(buf[offset + 2] & 0x0c) >> 2];
             this.mode      = (buf[offset + 3] & 0xc0) >> 6;
-//Debug.println(this);
+//logger.log(Level.TRACE, this);
         }
 
         @Override public String toString() {
@@ -268,7 +265,7 @@ Debug.println("offset: " + offset);
         MpegHeader header = param.header;
 
         m_frame_size = (144 * header.bitrate * 1000) / m_freq;
-Debug.println("m_frame_size: " + m_frame_size + ", bitrate: "+ header.bitrate);
+logger.log(Level.DEBUG, "m_frame_size: " + m_frame_size + ", bitrate: "+ header.bitrate);
 
         if (param.inputSize < m_frame_size) {
             throw new IllegalArgumentException("inputSize: " + param.inputSize + " < frameSize: " + m_frame_size);
@@ -278,7 +275,7 @@ Debug.println("m_frame_size: " + m_frame_size + ", bitrate: "+ header.bitrate);
 
         param.inputSize = m_frame_size;
         param.outputSize = m_pcm_size;
-//Debug.println(StringUtil.paramString(param));
+//logger.log(Level.TRACE, StringUtil.paramString(param));
     }
 
     /**
@@ -387,7 +384,7 @@ Debug.println("m_frame_size: " + m_frame_size + ", bitrate: "+ header.bitrate);
         for (int gr = 0; gr < 2; gr++) {
             for (int ch = 0; ch < channels; ch++) {
                 info[gr][ch] = new GrInfo(bitget(12), bitget(9), bitget(8));
-Debug.println(info[gr][ch]);
+logger.log(Level.DEBUG, info[gr][ch]);
                 bitget(4);
                 bitget(1);
                 bitget(5);
@@ -590,9 +587,9 @@ Debug.println(info[gr][ch]);
 
             while (true) {
                 int bits = signBits(point);
-//Debug.println("bits: " + bits);
+//logger.log(Level.TRACE, "bits: " + bits);
                 code = bitget2(bits) + 1;
-//Debug.println("code: " + code);
+//logger.log(Level.TRACE, "code: " + code);
 
                 if (purgeBits(code + point) != 0) {
                     break;
@@ -671,7 +668,7 @@ Debug.println(info[gr][ch]);
 
         if (m_bits < n) {
             while (m_bits <= 24) {
-Debug.printf("%02x", base[m_bs_ptr]);
+logger.log(Level.DEBUG, "%02x".formatted(base[m_bs_ptr]));
                 m_bitbuf = ((m_bitbuf << 8)) | (base[m_bs_ptr++] & 0xff);
                 m_bits += 8;
             }

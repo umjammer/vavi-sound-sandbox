@@ -10,12 +10,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
-
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
@@ -26,7 +27,8 @@ import javax.sound.midi.Track;
 import vavi.sound.vsq.block.Event;
 import vavi.sound.vsq.block.EventList;
 import vavi.sound.vsq.block.Handle;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -37,6 +39,8 @@ import vavi.util.Debug;
  * @see "http://www9.atwiki.jp/boare/pages/16.html"
  */
 public class VSQ {
+
+    private static final Logger logger = getLogger(VSQ.class.getName());
 
     /** */
     private final List<Block>[] tracks;
@@ -53,10 +57,10 @@ public class VSQ {
 
         for (int i = 0; i < data.length; i++) {
             tracks[i] = new ArrayList<>();
-//Debug.println("track:" + i + "\n" + data[i]);
+//logger.log(Level.TRACE, "track:" + i + "\n" + data[i]);
             Reader reader = new StringReader(data[i]);
             readBlocks(i, reader);
-Debug.println("track[" + i + "]: " + tracks[i].size());
+logger.log(Level.DEBUG, "track[" + i + "]: " + tracks[i].size());
 
         }
     }
@@ -87,9 +91,9 @@ Debug.println("track[" + i + "]: " + tracks[i].size());
 
             EventList eventList = (EventList) findBlock(i, EventList.class);
             for (EventList.Pair pair : eventList.getEvents()) {
-                if (!"EOS".equals(pair.id)) {
-                    Event event = (Event) findEvent(i, pair.id);
-                    currentTicks = pair.tick;
+                if (!"EOS".equals(pair.id())) {
+                    Event event = (Event) findEvent(i, pair.id());
+                    currentTicks = pair.tick();
 
                     //
                     MidiEvent[] midiEvents = event.toMidiEvents(this);
@@ -116,7 +120,7 @@ Debug.println("track[" + i + "]: " + tracks[i].size());
                     label = line.substring(1, line.length() - 1);
                 } else {
                     Block block = Block.Factory.getBlock(label, params);
-//Debug.println(ToStringBuilder.reflectionToString(block));
+//logger.log(Level.TRACE, ToStringBuilder.reflectionToString(block));
                     tracks[trackNumber].add(block);
                     label = line.substring(1, line.length() - 1);
                     params.clear();
@@ -166,7 +170,7 @@ Debug.println("track[" + i + "]: " + tracks[i].size());
      */
     private static String[] getData(Sequence sequence) throws IOException {
         Track[] tracks = sequence.getTracks();
-Debug.println("tracks: " + tracks.length);
+logger.log(Level.DEBUG, "tracks: " + tracks.length);
         String[] results = new String[tracks.length - 1];
 
         // for text, "DM:###:###..."
@@ -175,17 +179,17 @@ Debug.println("tracks: " + tracks.length);
         for (int t = 0; t < tracks.length; t++) {
             Track track = tracks[t];
             if (t > 0) { // track 0 is master track
-Debug.println("events[" + t + "]: " + track.size());
+logger.log(Level.DEBUG, "events[" + t + "]: " + track.size());
                 for (int e = 0; e < track.size(); e++) {
                     MidiEvent event = track.get(e);
                     MidiMessage message = event.getMessage();
-//Debug.println("message: " + message);
+//logger.log(Level.TRACE, "message: " + message);
                     if (message instanceof MetaMessage meta) {
-                        //Debug.println(meta.getType());
+//logger.log(Level.TRACE, meta.getType());
                         switch (meta.getType()) {
                         case 1:  // text event 127 bytes
                             byte[] data = meta.getData();
-//Debug.println(new String(data));
+//logger.log(Level.TRACE, new String(data));
                             if (data[0] == 'D' && data[1] == 'M') {
                                 int p = 0;
                                 do {
@@ -195,18 +199,18 @@ Debug.println("events[" + t + "]: " + track.size());
                                     p++;
                                 } while (data[p] != ':');
                                 p++;
-//Debug.println(new String(data).substring(p));
+//logger.log(Level.TRACE, new String(data).substring(p));
                                 baos.write(data, p, data.length - p);
                             } else {
-Debug.println(new String(data, Charset.forName("MS932")));
+logger.log(Level.DEBUG, new String(data, Charset.forName("MS932")));
                             }
                             break;
                         case 3:  // track name,
                             String trackName = new String(meta.getData());
-Debug.println("trackName[" + t + "]: " + trackName);
+logger.log(Level.DEBUG, "trackName[" + t + "]: " + trackName);
                             break;
                         default:
-Debug.println("unhandled meta: " + meta.getType());
+logger.log(Level.DEBUG, "unhandled meta: " + meta.getType());
                             break;
                         }
                     }
@@ -215,7 +219,7 @@ Debug.println("unhandled meta: " + meta.getType());
             }
         }
 
-Debug.println(baos.toString("MS932"));
+logger.log(Level.DEBUG, baos.toString("MS932"));
 
         return results;
     }

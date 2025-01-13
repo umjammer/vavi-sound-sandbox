@@ -7,14 +7,14 @@
 package vavi.sound.midi.opl3;
 
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
@@ -40,8 +40,9 @@ import vavi.sound.opl3.Adlib;
 import vavi.sound.opl3.MidPlayer;
 import vavi.sound.opl3.MidPlayer.FileType;
 import vavi.sound.opl3.Opl3Player;
-import vavi.util.Debug;
 import vavi.util.StringUtil;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -61,6 +62,8 @@ import vavi.util.StringUtil;
  */
 public class Opl3Synthesizer implements Synthesizer {
 
+    private static final Logger logger = getLogger(Opl3Synthesizer.class.getName());
+
     static {
         try {
             try (InputStream is = Opl3Synthesizer.class.getResourceAsStream("/META-INF/maven/vavi/vavi-sound-sandbox/pom.properties")) {
@@ -76,8 +79,6 @@ public class Opl3Synthesizer implements Synthesizer {
             throw new IllegalStateException(e);
         }
     }
-
-    private static final Logger logger = Logger.getLogger(Opl3Synthesizer.class.getName());
 
     private static final String version;
 
@@ -141,7 +142,7 @@ public class Opl3Synthesizer implements Synthesizer {
 
     public void open(FileType type, Adlib.Writer writer) throws MidiUnavailableException {
         if (isOpen()) {
-Debug.println(Level.WARNING, "already open: " + hashCode());
+logger.log(Level.WARNING, "already open: " + hashCode());
             return;
         }
 
@@ -182,7 +183,7 @@ Debug.println(Level.WARNING, "already open: " + hashCode());
             percussions[i] = new Percussion();
         }
 
-Debug.println("type: " + type);
+logger.log(Level.DEBUG, "type: " + type);
         this.type = type;
         type.midiTypeFile.init(new Context());
 
@@ -208,8 +209,8 @@ Debug.println("type: " + type);
         try {
             DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, audioFormat, AudioSystem.NOT_SPECIFIED);
             line = (SourceDataLine) AudioSystem.getLine(lineInfo);
-Debug.println(line.getClass().getName());
-            line.addLineListener(event -> Debug.println("Line: " + event.getType()));
+logger.log(Level.DEBUG, line.getClass().getName());
+            line.addLineListener(event -> logger.log(Level.DEBUG, "Line: " + event.getType()));
 
             line.open(audioFormat);
             line.start();
@@ -223,7 +224,7 @@ Debug.println(line.getClass().getName());
     /** */
     private void play() {
         byte[] buf = new byte[4 * (int) audioFormat.getSampleRate() / 10];
-//Debug.printf("buf: %d", buf.length);
+//logger.log(Level.TRACE, "buf: %d".formatted(buf.length));
 
         while (isOpen) {
             try {
@@ -231,13 +232,13 @@ Debug.println(line.getClass().getName());
                 timestamp = System.currentTimeMillis();
                 msec = msec > 100 ? 100 : msec;
                 int l = adlib.read(buf, 0, 4 * (int) (audioFormat.getSampleRate() * msec / 1000.0));
-//Debug.printf("adlib: %d", l);
+//logger.log(Level.TRACE, "adlib: %d".formatted(l));
                 if (l > 0) {
                     line.write(buf, 0, l);
                 }
                 Thread.sleep(33); // TODO how to define?
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.log(Level.INFO, e.getMessage(), e);
             }
         }
     }
@@ -487,9 +488,9 @@ Debug.println(line.getClass().getName());
                         percussions[voice].volume = 0;
                     }
                 }
-logger.finest(String.format("note on[%d]: (%d %d) %d", channel, inum, noteNumber, velocity));
+logger.log(Level.TRACE, "note on[%d]: (%d %d) %d".formatted(channel, inum, noteNumber, velocity));
             } else {
-logger.finer("note is off");
+logger.log(Level.TRACE, "note is off");
             }
             //
             voiceStatus[channel].note = noteNumber;
@@ -539,10 +540,10 @@ logger.finer("note is off");
             switch (controller) {
                 case 0x07 -> { // channel volume
                     voiceStatus[channel].volume = value;
-logger.fine(String.format("control change[%d]: vol(%02x): %d", channel, controller, value));
+logger.log(Level.DEBUG, "control change[%d]: vol(%02x): %d".formatted(channel, controller, value));
                 }
                 default ->
-logger.fine(String.format("control change unhandled[%d]: (%02x): %d", channel, controller, value));
+logger.log(Level.DEBUG, "control change unhandled[%d]: (%02x): %d".formatted(channel, controller, value));
             }
 
             type.midiTypeFile.controlChange(channel, controller, value);
@@ -559,8 +560,9 @@ logger.fine(String.format("control change unhandled[%d]: (%02x): %d", channel, c
         @Override
         public void programChange(int program) {
             inum = program & 0x7f;
+logger.log(Level.DEBUG, "instruments[" + inum + "]: " + instruments[inum]);
             setIns(instruments[inum]);
-logger.fine(String.format("program change[%d]: %d", channel, inum));
+logger.log(Level.DEBUG, "program change[%d]: %d".formatted(channel, inum));
             //
             voiceStatus[channel].program = program;
         }
@@ -700,19 +702,19 @@ logger.fine(String.format("program change[%d]: %d", channel, inum));
                             channels[channel].setPitchBend(data1 | (data2 << 7));
                             break;
                         default:
-                            Debug.printf("unhandled short: %02X", command);
+                            logger.log(Level.DEBUG, "unhandled short: %02X".formatted(command));
                     }
                 }
                 case SysexMessage sysexMessage -> {
                     byte[] data = sysexMessage.getData();
-Debug.printf("sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data, 32));
+logger.log(Level.DEBUG, "sysex: %02X\n%s".formatted(sysexMessage.getStatus(), StringUtil.getDump(data, 32)));
                     switch (data[1]) {
                         case 0x7 -> { // Universal Realtime
                             int c = data[2]; // 0x7f: Disregards channel
                             // Sub-ID, Sub-ID2
                             if (data[3] == 0x04 && data[4] == 0x01) { // Device Control / Master Volume
                                 float gain = ((data[5] & 0x7f) | ((data[6] & 0x7f) << 7)) / 16383f;
-Debug.printf("sysex volume: gain: %3.0f", gain * 127);
+logger.log(Level.DEBUG, "sysex volume: gain: %3.0f".formatted(gain * 127));
                                 for (c = 0; c < 16; c++) {
                                     voiceStatus[c].volume = (int) (gain * 127); // TODO doesn't work
                                 }
@@ -723,7 +725,7 @@ Debug.printf("sysex volume: gain: %3.0f", gain * 127);
                                 case 0x10: // 7D 10 ch -- set an instrument to ch
                                     // TODO maybe for LUCAS only
 if (type != FileType.LUCAS) {
- Debug.println(Level.WARNING, "sysex test: set LUCAS_STYLE for " + type);
+ logger.log(Level.WARNING, "sysex test: set LUCAS_STYLE for " + type);
 }
                                     adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
 
@@ -733,11 +735,11 @@ if (type != FileType.LUCAS) {
                                     break;
                             }
                         }
-                        default -> Debug.printf("sysex unhandled: %02x", data[1]);
+                        default -> logger.log(Level.DEBUG, "sysex unhandled: %02x".formatted(data[1]));
                     }
                 }
                 case MetaMessage metaMessage -> {
-Debug.printf("meta: %02x", metaMessage.getType());
+logger.log(Level.DEBUG, "meta: %02x".formatted(metaMessage.getType()));
                     switch (metaMessage.getType()) {
                         case 0x2f -> {}
                     }

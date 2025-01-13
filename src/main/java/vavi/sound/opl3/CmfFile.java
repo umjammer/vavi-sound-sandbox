@@ -8,13 +8,16 @@ package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Arrays;
-import java.util.logging.Logger;
 
 import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 import vavi.sound.opl3.MidPlayer.MidiTypeFile;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -25,7 +28,7 @@ import vavi.sound.opl3.MidPlayer.MidiTypeFile;
  */
 class CmfFile extends MidiTypeFile {
 
-    private static final Logger logger = Logger.getLogger(CmfFile.class.getName());
+    private static final Logger logger = getLogger(CmfFile.class.getName());
 
     @Override
     int markSize() {
@@ -72,12 +75,12 @@ class CmfFile extends MidiTypeFile {
             }
             player.takeLE(2); // basic tempo
         }
-        logger.info(String.format("numinstr: 0x%04x", player.tins));
+        logger.log(Level.INFO, String.format("numinstr: 0x%04x", player.tins));
         this.tins = player.tins;
-        logger.info(String.format("ioff: 0x%04x, moff: 0x%04x, deltas: %d, msqtr: %d, numi: %d, v: %04x", n, m, player.deltas, player.msqtr, player.tins, v));
+        logger.log(Level.INFO, String.format("ioff: 0x%04x, moff: 0x%04x, deltas: %d, msqtr: %d, numi: %d, v: %04x", n, m, player.deltas, player.msqtr, player.tins, v));
 
         player.takeBE(n - 40);
-        logger.info(String.format("pos1: 0x%04x", player.pos));
+        logger.log(Level.INFO, String.format("pos1: 0x%04x", player.pos));
 
         this.instruments = new Opl3Instrument[this.tins];
         for (int p = 0; p < player.tins; ++p) {
@@ -87,9 +90,9 @@ class CmfFile extends MidiTypeFile {
                 x[j] = player.takeBE(1);
             }
             this.instruments[p] = Opl3Soundbank.newInstrument(0, p, "oldlucas." + p, x);
-            logger.fine(String.format("%d: %s", p, Arrays.toString((int[]) this.instruments[p].getData())));
+            logger.log(Level.DEBUG, "%d: %s".formatted(p, Arrays.toString((int[]) this.instruments[p].getData())));
         }
-        logger.info(String.format("pos2: 0x%04x", player.pos));
+        logger.log(Level.INFO, "pos2: 0x%04x".formatted(player.pos));
 
         player.tracks[0].on = true;
         player.tracks[0].tend = player.flen; // music until the end of the file
@@ -139,7 +142,7 @@ class CmfFile extends MidiTypeFile {
 //                }
             }
             case 0x67 -> { // 103: undefined
-                logger.fine(String.format("control change[%d]: (%02x): %d", channel, controller, value));
+                logger.log(Level.DEBUG, "control change[%d]: (%02x): %d".formatted(channel, controller, value));
 //                if ((adlib.style & Adlib.CMF_STYLE) != 0) {
                 adlib.mode = value;
                 if (adlib.mode == Adlib.RYTHM) {

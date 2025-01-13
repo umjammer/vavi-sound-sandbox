@@ -25,7 +25,6 @@ import javax.sound.sampled.SourceDataLine;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import vavi.sound.twinvq.LibAV.AVCodecContext;
 import vavi.sound.twinvq.LibAV.AVFormatContext;
@@ -60,7 +59,8 @@ class TwinVQTest {
         }
     }
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
 
     // ----
 

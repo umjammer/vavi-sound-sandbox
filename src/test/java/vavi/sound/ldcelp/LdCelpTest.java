@@ -61,7 +61,8 @@ class LdCelpTest {
         }
     }
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
 
     String outFile = "tmp/ldcelp-vavi-out.pcm";
     String correctFile = "src/test/resources/ldcelp/sample-expected.pcm";

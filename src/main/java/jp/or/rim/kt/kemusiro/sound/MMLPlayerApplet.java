@@ -11,6 +11,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.System.Logger.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.LineEvent;
 import javax.swing.Box;
@@ -26,6 +27,8 @@ import javax.swing.border.EtchedBorder;
 import jp.or.rim.kt.kemusiro.sound.tone.FMParameter;
 import vavi.util.Debug;
 
+import static java.lang.System.getLogger;
+
 
 /**
  * A class that plays MML. It works both as an applet and as an application.
@@ -34,6 +37,8 @@ import vavi.util.Debug;
  * @version $Revision: 1.3 $
  */
 public class MMLPlayerApplet extends JApplet {
+
+    private static final System.Logger logger = getLogger(MMLPlayerApplet.class.getName());
 
     private Container container;
     private JTextField ch1;
@@ -253,7 +258,7 @@ public class MMLPlayerApplet extends JApplet {
                     }
                 }
             } catch (Exception e) {
-                Debug.printStackTrace(e);
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
     }

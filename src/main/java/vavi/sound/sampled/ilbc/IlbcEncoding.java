@@ -26,7 +26,7 @@ public class IlbcEncoding extends AudioFormat.Encoding {
      *
      * @param name Name of the iLBC encoding.
      */
-    public IlbcEncoding(String name) {
+    private IlbcEncoding(String name) {
         super(name);
     }
 }

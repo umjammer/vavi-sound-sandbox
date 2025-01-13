@@ -5,10 +5,12 @@
 
 package vavi.sound.twinvq.obsolate;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.HashMap;
 import java.util.Map;
 
-import vavi.util.Debug;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -78,9 +80,9 @@ class HeaderManager {
             ChunkChunk scndChunk = (ChunkChunk) getPrimaryChunk("SCND");
             PickUpSubChunks(secondaryChunkBank, scndChunk);
         } catch (ChunkChunk.FailGetChunkException e) {
-//            Debug.println("Fail!!");
+//            logger.log(Level.DEBUG, "Fail!!"));
         } catch (FailGetChunkException e) {
-//            Debug.println("Fail getting SCND chnunk");
+//            logger.log(Level.DEBUG, "Fail getting SCND chnunk"));
         }
     }
 
@@ -148,6 +150,9 @@ class HeaderManager {
  * can be obtained from header manager
  */
 class UniStringInfo {
+
+    private static final Logger logger = getLogger(HeaderManager.class.getName());
+
     public enum CharCode {
         unknown_code(-1),
         ISO_8859_1(0),
@@ -279,7 +284,7 @@ class UniStringInfo {
             StringChunk scndChunk = new StringChunk(theManager.getSecondaryChunk(id));
             putSecondaryInfo(scndChunk);
         } catch (HeaderManager.FailGetChunkException e) {
-Debug.println(e);
+logger.log(Level.INFO, e.getMessage(), e);
         } catch (NoCharCodeException e) {
             throw new FailConstructionException();
         }

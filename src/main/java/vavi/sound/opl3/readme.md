@@ -21,3 +21,4 @@
 
  * https://github.com/scemino/NScumm.Audio
  * 🚧🚫 maybe dual opl implementation is needed ... see [javamod](https://github.com/umjammer/javamod)
+ * vavi.sound.midi.opl3 and vavi.sound.opl3 are interdependence (Context, Opl3Instrument) 

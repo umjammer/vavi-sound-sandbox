@@ -7,10 +7,10 @@
 package vavi.sound.vsq.block;
 
 import java.awt.Color;
+import java.lang.System.Logger.Level;
 import java.util.List;
 
 import vavi.sound.vsq.Block;
-import vavi.util.Debug;
 
 
 /**
@@ -49,7 +49,7 @@ public class Common implements Block {
                 }
                 case "DynamicsMode" -> block.dynamicsMode = Integer.parseInt(pair[1]);
                 case "PlayMode" -> block.playMode = Integer.parseInt(pair[1]);
-                case null, default -> Debug.println("unhandled param: " + pair[0]);
+                case null, default -> logger.log(Level.DEBUG, "unhandled param: " + pair[0]);
             }
         }
         return block;

@@ -25,12 +25,16 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import vavi.util.ByteUtil;
 import vavi.util.Debug;
 import vavi.util.StringUtil;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static vavi.sound.SoundUtil.volume;
@@ -42,20 +46,34 @@ import static vavi.sound.SoundUtil.volume;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060203 nsano initial version <br>
  */
+@PropsEntity(url = "file:local.properties")
 public class PolyphaseTest {
+
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
 
     static String inFile = "src/test/resources/test.wav";
     static String outFile = "tmp/out.vavi.wav";
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
 
     @BeforeAll
     static void setup() throws IOException {
         Files.createDirectories(Paths.get("tmp"));
     }
 
+    @BeforeEach
+    void setupEach() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
+    }
+
     @Test
     @Disabled
+    @DisplayName("multiple assigning separated by comma")
     void test0() {
         int i = 1, j = 2;
         assertEquals(1, i);
@@ -262,7 +280,7 @@ Debug.println(audioFormat);
             if (l < 0)
                 break;
             line.write(buf, 0, l);
-Debug.println(Level.FINE, "line.write: " + l);
+Debug.println(Level.FINER, "line.write: " + l);
         }
         line.drain();
         line.stop();
@@ -273,6 +291,7 @@ Debug.println(Level.FINE, "line.write: " + l);
 
     @Test
     @Disabled
+    @DisplayName("via spi")
     public void test4() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
         AudioFormat format = sourceAis.getFormat();
@@ -308,7 +327,7 @@ Debug.println("OUT: " + outFormat);
             if (r < 0)
                 break;
             line.write(buf, 0, r);
-//Debug.println("line: " + r);
+//Debug.println(Level.FINER, "line: " + r);
         }
         line.drain();
         line.stop();

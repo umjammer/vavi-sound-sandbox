@@ -59,7 +59,7 @@ public class OpusAudioPlayer {
     private byte[] decode(byte[] packetData) throws OpusException {
         int decodedSamples = decoder.decode(packetData, 0, packetData.length, decodeBuffer.array(), 0, BUFFER_SIZE, false);
         if (decodedSamples < 0) {
-            System.err.println("Decode error: " + decodedSamples);
+Debug.println("Decode error: " + decodedSamples);
             decodeBuffer.clear();
             return null;
         }

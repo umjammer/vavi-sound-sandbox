@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 by Naohide Sano, All rights reserved.
+ * Copyright (c) 2020 by Naohide Sano, All rights reserved.
  *
  * Programmed by Naohide Sano
  */
@@ -14,7 +14,7 @@ import javax.sound.sampled.AudioFormat;
  * Encodings used by the OPL3 audio decoder.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
- * @version 0.00 111022 nsano initial version <br>
+ * @version 0.00 201022 nsano initial version <br>
  */
 public class Opl3Encoding extends AudioFormat.Encoding {
 
@@ -28,7 +28,7 @@ public class Opl3Encoding extends AudioFormat.Encoding {
      *
      * @param name Name of the OPL3 encoding.
      */
-    public Opl3Encoding(String name) {
+    private Opl3Encoding(String name) {
         super(name);
     }
 }

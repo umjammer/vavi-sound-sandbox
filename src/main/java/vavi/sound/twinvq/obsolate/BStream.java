@@ -7,15 +7,17 @@
 package vavi.sound.twinvq.obsolate;
 
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Arrays;
 
 import vavi.sound.twinvq.obsolate.TwinVQ.BlockType;
-import vavi.sound.twinvq.obsolate.TwinVQ.Index;
-import vavi.sound.twinvq.obsolate.TwinVQ.HeaderInfo;
 import vavi.sound.twinvq.obsolate.TwinVQ.ConfInfo;
 import vavi.sound.twinvq.obsolate.TwinVQ.ConfInfoSubBlock;
-import vavi.util.Debug;
+import vavi.sound.twinvq.obsolate.TwinVQ.HeaderInfo;
+import vavi.sound.twinvq.obsolate.TwinVQ.Index;
 
+import static java.lang.System.getLogger;
 import static vavi.sound.twinvq.obsolate.TwinVQ.asciiz;
 import static vavi.sound.twinvq.obsolate.TwinVQ.twinVq;
 
@@ -27,6 +29,8 @@ import static vavi.sound.twinvq.obsolate.TwinVQ.twinVq;
  * @author N. Iwakami
  */
 class BStream {
+
+    private static final Logger logger = getLogger(BStream.class.getName());
 
     /**
      * bits table for VQ
@@ -54,7 +58,7 @@ class BStream {
         for (ichar = 0; ichar < nbytes; ichar++) {
             ibit = bfp.getBStream(c, 0, BFile.CHAR_BITS);
             if (ibit < BFile.CHAR_BITS) {
-Debug.println("getString: bits underflow");
+logger.log(Level.DEBUG, "getString: bits underflow");
                 break;
             }
             buf[ichar] = (byte) c[0];
@@ -75,7 +79,7 @@ Debug.println("getString: bits underflow");
         byte[] chunkID = new byte[TwinVQ.KEYWORD_BYTES + TwinVQ.VERSION_BYTES + 1];
         getString(chunkID, TwinVQ.KEYWORD_BYTES + TwinVQ.VERSION_BYTES, bfp);
         TVQ_VERSION = twinVq.TvqCheckVersion(asciiz(chunkID));
-Debug.println("chunkID: " + TVQ_VERSION);
+logger.log(Level.DEBUG, "chunkID: " + TVQ_VERSION);
         if (TVQ_VERSION == TwinVQ.TVQ_UNKNOWN_VERSION) {
             throw new IllegalArgumentException(String.format("Header reading error: Unknown version (%s).", TVQ_VERSION));
         }
@@ -83,7 +87,7 @@ Debug.println("chunkID: " + TVQ_VERSION);
         if (bfp.getBStream(chunkSize, 0, TwinVQ.ELEM_BYTES * BFile.CHAR_BITS) <= 0) {
             throw new IllegalArgumentException("Header reading error: Failed to get header size.");
         }
-Debug.println("chunkSize: " + chunkSize[0]);
+logger.log(Level.DEBUG, "chunkSize: " + chunkSize[0]);
 
         byte[] chunkData = new byte[chunkSize[0] + 1];
         if (getString(chunkData, chunkSize[0], bfp) < chunkSize[0]) {
@@ -126,7 +130,7 @@ Debug.println("chunkSize: " + chunkSize[0]);
 
         TVQ_VERSION = twinVq.TvqCheckVersion(asciiz(setupInfo.id));
         if (TVQ_VERSION == TwinVQ.TVQ_UNKNOWN_VERSION) {
-Debug.println("unsupported version: " + TVQ_VERSION);
+logger.log(Level.DEBUG, "unsupported version: " + TVQ_VERSION);
             return 1;
         }
 
@@ -325,7 +329,7 @@ Debug.println("unsupported version: " + TVQ_VERSION);
 
         iframe += 1;
 
-Debug.printf("bitcount: %d, numFixedBitsPerFrame: %d",  bitcount, numFixedBitsPerFrame);
+logger.log(Level.DEBUG, "bitcount: %d, numFixedBitsPerFrame: %d".formatted( bitcount, numFixedBitsPerFrame));
         return bitcount == numFixedBitsPerFrame ? 1 : 0;
     }
 

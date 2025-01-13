@@ -50,7 +50,11 @@ class JSynSynthesizerTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
-    static float volume = (float) Double.parseDouble(System.getProperty("vavi.test.volume.midi",  "0.2"));
+    static boolean onIde = System.getProperty("vavi.test", "").equals("ide");
+    static long time = onIde ? 1000 * 1000 : 10 * 1000;
+
+    @Property(name = "vavi.test.volume.midi")
+    float volume = 0.2f;
 
     @Property(name = "jsyn.test")
     String jsynTest = "src/test/resources/test.mid";
@@ -78,12 +82,10 @@ Debug.println("sequencer: " + sequencer);
 
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch cdl = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
 System.err.println("META: " + meta.getType());
-            if (meta.getType() == 47) {
-                countDownLatch.countDown();
-            }
+            if (meta.getType() == 47) cdl.countDown();
         };
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
@@ -92,12 +94,12 @@ System.err.println("START");
 
         volume(receiver, volume);
 
-if (!System.getProperty("vavi.test", "").equals("ide")) {
- Thread.sleep(10 * 1000);
+if (!onIde) {
+ Thread.sleep(time);
  sequencer.stop();
  Debug.println("not on ide");
 } else {
-        countDownLatch.await();
+        cdl.await();
 }
 System.err.println("END");
         sequencer.removeMetaEventListener(mel);
@@ -125,12 +127,10 @@ Debug.println("sequencer: " + sequencer.getClass().getName());
         Receiver receiver = synthesizer.getReceiver();
         sequencer.getTransmitter().setReceiver(receiver);
 
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch cdl = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
 System.err.println("META: " + meta.getType());
-            if (meta.getType() == 47) {
-                countDownLatch.countDown();
-            }
+            if (meta.getType() == 47) cdl.countDown();
         };
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
@@ -139,12 +139,12 @@ System.err.println("START");
 
         volume(receiver, volume);
 
-if (!System.getProperty("vavi.test", "").equals("ide")) {
- Thread.sleep(10 * 1000);
+if (!onIde) {
+ Thread.sleep(time);
  sequencer.stop();
  Debug.println("not on ide");
 } else {
-        countDownLatch.await();
+        cdl.await();
 }
 System.err.println("END");
         sequencer.removeMetaEventListener(mel);

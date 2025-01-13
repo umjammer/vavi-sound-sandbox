@@ -2,6 +2,8 @@ package unknown.sound.converter;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Vector;
 
 import javax.sound.midi.InvalidMidiDataException;
@@ -19,9 +21,13 @@ import unknown.sound.midi.header.HeaderMessage;
 import unknown.sound.midi.track.TrackChunkInputStream;
 import vavi.util.Debug;
 
+import static java.lang.System.getLogger;
+
 
 /** */
 public class MIDIToMLDInputStream {
+
+    private static final Logger logger = getLogger(MIDIToMLDInputStream.class.getName());
 
     public MIDIToMLDInputStream(MIDIInputStream stream, Preferences pref) {
         mldTracksLength = 0;
@@ -38,7 +44,7 @@ public class MIDIToMLDInputStream {
             } while (true);
         } catch (EOFException ignore) {
         } catch (IOException | InvalidMidiDataException e) {
-            Debug.printStackTrace(e);
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
         createHeaderChunk();
     }

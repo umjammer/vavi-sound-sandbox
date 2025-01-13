@@ -6,11 +6,10 @@
 
 package vavix.rococoa.avfoundation;
 
-import org.rococoa.Foundation;
-import org.rococoa.IDByReference;
-
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import org.rococoa.Foundation;
+import org.rococoa.IDByReference;
 
 
 /**
@@ -82,7 +81,7 @@ public interface AudioToolbox extends com.sun.jna.Library {
         if (r != 0) {
             throw new IllegalStateException(String.valueOf(r));
         }
-//Debug.println(r + ", " + outName);
+//logger.log(Level.TRACE, r + ", " + outName);
         return Foundation.toString(outName.getValue());
     }
 }

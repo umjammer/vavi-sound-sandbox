@@ -4,6 +4,8 @@
 
 package jp.or.rim.kt.kemusiro.sound;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
@@ -13,6 +15,8 @@ import javax.sound.sampled.SourceDataLine;
 
 import vavi.util.Debug;
 
+import static java.lang.System.getLogger;
+
 
 /**
  * Play streaming data.
@@ -21,6 +25,8 @@ import vavi.util.Debug;
  * @version $Revision: 1.2 $
  */
 public class StreamingSoundPlayer extends SoundPlayer {
+
+    private static final Logger logger = getLogger(StreamingSoundPlayer.class.getName());
 
     private SourceDataLine line = null;
 
@@ -41,7 +47,7 @@ public class StreamingSoundPlayer extends SoundPlayer {
             }
             line.open(format);
         } catch (LineUnavailableException e) {
-            Debug.printStackTrace(e);
+            logger.log(Level.ERROR, e.getMessage(), e);
         }
     }
 

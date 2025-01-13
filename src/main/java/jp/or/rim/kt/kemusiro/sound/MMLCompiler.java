@@ -4,7 +4,10 @@
 
 package jp.or.rim.kt.kemusiro.sound;
 
-import vavi.util.Debug;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -14,6 +17,8 @@ import vavi.util.Debug;
  * @version $Revision: 1.4 $
  */
 public class MMLCompiler {
+
+    private static final Logger logger = getLogger(MMLCompiler.class.getName());
 
     private MusicScore score;
     private int tickPerBeat = 240;
@@ -154,9 +159,12 @@ public class MMLCompiler {
         }
     }
 
+    /**
+     * Compiles mml and store events into the score.
+     */
     public void compile(MusicScore newScore, int channel, String mml) throws MMLException {
         StringBuilder buf = new StringBuilder(mml);
-Debug.println("mml: " + mml);
+logger.log(Level.DEBUG, "mml: " + mml);
         char c;
 
         score = newScore;
@@ -189,7 +197,7 @@ Debug.println("mml: " + mml);
                 // Volume
                 currentVolume = getNumber(buf);
                 if (currentVolume > 7) {
-                    throw new MMLException("voume must be in range of 0 to 7");
+                    throw new MMLException("volume must be in range of 0 to 7");
                 }
                 break;
             case 'l':

@@ -73,9 +73,12 @@ public final class OPL3 {
 
     // The methods read() and write() are the only
     // ones needed by the user to interface with the emulator.
-    // read() returns one frame at a time, to be played at 49700 Hz,
-    // with each frame being four 16-bit samples,
-    // corresponding to the OPL3 four output channels CHA...CHD.
+
+    /**
+     * read() returns one frame at a time, to be played at 49700 Hz,
+     * with each frame being four 16-bit samples,
+     * corresponding to the OPL3 four output channels CHA...CHD.
+     */
     public short[] read() {
         short[] output = new short[4];
         double[] outputBuffer = new double[4];
@@ -98,7 +101,7 @@ public final class OPL3 {
         // with a maximum of 18 channels,
         // and multiplies it to get the 16 bit signed output.
         for (int outputChannelNumber = 0; outputChannelNumber < 4; outputChannelNumber++)
-            output[outputChannelNumber] = (short) (outputBuffer[outputChannelNumber] / 18 * 0x7FFF);
+            output[outputChannelNumber] = (short) (outputBuffer[outputChannelNumber] / 18 * 0x7fff);
 
         // Advances the OPL3-wide vibrato index, which is used by
         // PhaseGenerator.getPhase() in each Operator.
@@ -115,7 +118,7 @@ public final class OPL3 {
     }
 
     public void write(int array, int address, int data) {
-        // The OPL3 has two registers arrays, each with adresses ranging
+        // The OPL3 has two registers arrays, each with addresses ranging
         // from 0x00 to 0xF5.
         // This emulator uses one array, with the two original register arrays
         // starting at 0x00 and at 0x100.
@@ -125,7 +128,7 @@ public final class OPL3 {
             return;
 
         registers[registerAddress] = data;
-        switch (address & 0xE0) {
+        switch (address & 0xe0) {
         // The first 3 bits masking gives the type of the register by using its base address:
         // 0x00, 0x20, 0x40, 0x60, 0x80, 0xA0, 0xC0, 0xE0
         // When it is needed, we further separate the register type inside each base address,
@@ -147,37 +150,37 @@ public final class OPL3 {
                 update_1_NTS1_6();
             break;
 
-        case 0xA0:
+        case 0xa0:
             // 0xBD is a control register for the entire OPL3:
-            if (address == 0xBD) {
+            if (address == 0xbd) {
                 if (array == 0)
                     update_DAM1_DVB1_RYT1_BD1_SD1_TOM1_TC1_HH1();
                 break;
             }
             // Registers for each channel are in A0-A8, B0-B8, C0-C8, in both register arrays.
             // 0xB0...0xB8 keeps kon,block,fnum(h) for each channel.
-            if ((address & 0xF0) == 0xB0 && address <= 0xB8) {
+            if ((address & 0xf0) == 0xb0 && address <= 0xb8) {
                 // If the address is in the second register array, adds 9 to the channel number.
                 // The channel number is given by the last four bits, like in A0,...,A8.
-                channels[array][address & 0x0F].update_2_KON1_BLOCK3_FNUMH2();
+                channels[array][address & 0x0f].update_2_KON1_BLOCK3_FNUMH2();
                 break;
             }
             // 0xA0...0xA8 keeps fnum(l) for each channel.
-            if ((address & 0xF0) == 0xA0 && address <= 0xA8)
-                channels[array][address & 0x0F].update_FNUML8();
+            if ((address & 0xf0) == 0xa0 && address <= 0xa8)
+                channels[array][address & 0x0f].update_FNUML8();
             break;
         // 0xC0...0xC8 keeps cha,chb,chc,chd,fb,cnt for each channel:
-        case 0xC0:
-            if (address <= 0xC8)
-                channels[array][address & 0x0F].update_CHD1_CHC1_CHB1_CHA1_FB3_CNT1();
+        case 0xc0:
+            if (address <= 0xc8)
+                channels[array][address & 0x0f].update_CHD1_CHC1_CHB1_CHA1_FB3_CNT1();
             break;
 
         // Registers for each of the 36 Operators:
         default:
-            int operatorOffset = address & 0x1F;
+            int operatorOffset = address & 0x1f;
             if (operators[array][operatorOffset] == null)
                 break;
-            switch (address&0xE0) {
+            switch (address & 0xe0) {
             // 0x20...0x35 keeps am,vib,egt,ksr,mult for each operator:
             case 0x20:
                 operators[array][operatorOffset].update_AM1_VIB1_EGT1_KSR1_MULT4();
@@ -195,7 +198,7 @@ public final class OPL3 {
                 operators[array][operatorOffset].update_SL4_RR4();
                 break;
             // 0xE0...0xF5 keeps ws for each operator:
-            case 0xE0:
+            case 0xe0:
                 operators[array][operatorOffset].update_5_WS3();
             }
         }
@@ -254,7 +257,7 @@ public final class OPL3 {
                 // Channels 4, 5, 6 -> Operator offsets 0x8,0xB; 0x9,0xC; 0xA,0xD
                 channels2op[array][channelNumber + 3] = new Channel2Op(baseAddress + 3,
                         operators[array][channelNumber + 0x8],
-                        operators[array][channelNumber + 0xB]);
+                        operators[array][channelNumber + 0xb]);
                 // Channels 7, 8, 9 -> Operators 0x10,0x13; 0x11,0x14; 0x12,0x15
                 channels2op[array][channelNumber + 6] = new Channel2Op(baseAddress + 6,
                         operators[array][channelNumber + 0x10],
@@ -273,7 +276,7 @@ public final class OPL3 {
                         operators[array][channelNumber],
                         operators[array][channelNumber + 0x3],
                         operators[array][channelNumber + 0x8],
-                        operators[array][channelNumber + 0xB]);
+                        operators[array][channelNumber + 0xb]);
             }
     }
 
@@ -318,7 +321,7 @@ public final class OPL3 {
             setRhythmMode();
         }
 
-        int new_bd  = (dam1_dvb1_ryt1_bd1_sd1_tom1_tc1_hh1 & 0x10) >> 4;
+        int new_bd = (dam1_dvb1_ryt1_bd1_sd1_tom1_tc1_hh1 & 0x10) >> 4;
         if (new_bd != bd) {
             bd = new_bd;
             if (bd == 1) {
@@ -327,7 +330,7 @@ public final class OPL3 {
             }
         }
 
-        int new_sd  = (dam1_dvb1_ryt1_bd1_sd1_tom1_tc1_hh1 & 0x08) >> 3;
+        int new_sd = (dam1_dvb1_ryt1_bd1_sd1_tom1_tc1_hh1 & 0x08) >> 3;
         if (new_sd != sd) {
             sd = new_sd;
             if (sd == 1) {
@@ -343,7 +346,7 @@ public final class OPL3 {
             }
         }
 
-        int new_tc  = (dam1_dvb1_ryt1_bd1_sd1_tom1_tc1_hh1 & 0x02) >> 1;
+        int new_tc = (dam1_dvb1_ryt1_bd1_sd1_tom1_tc1_hh1 & 0x02) >> 1;
         if (new_tc != tc) {
             tc = new_tc;
             if (tc == 1) {
@@ -351,7 +354,7 @@ public final class OPL3 {
             }
         }
 
-        int new_hh  = dam1_dvb1_ryt1_bd1_sd1_tom1_tc1_hh1 & 0x01;
+        int new_hh = dam1_dvb1_ryt1_bd1_sd1_tom1_tc1_hh1 & 0x01;
         if (new_hh != hh) {
             hh = new_hh;
             if (hh == 1) {
@@ -457,12 +460,12 @@ public final class OPL3 {
 
             // Frequency Number (hi-register) and Block. These two registers, together with fnuml,
             // sets the Channel´s base frequency;
-            block = (_2_kon1_block3_fnumh2 & 0x1C) >> 2;
+            block = (_2_kon1_block3_fnumh2 & 0x1c) >> 2;
             fNumH = _2_kon1_block3_fnumh2 & 0x03;
             updateOperators();
 
             // Key On. If changed, calls Channel.keyOn() / keyOff().
-            int newKon   = (_2_kon1_block3_fnumh2 & 0x20) >> 5;
+            int newKon = (_2_kon1_block3_fnumh2 & 0x20) >> 5;
             if (newKon != kon) {
                 if (newKon == 1)
                     keyOn();
@@ -475,7 +478,7 @@ public final class OPL3 {
         void update_FNUML8() {
             int fNumL8 = registers[channelBaseAddress+ChannelData.FNUML8_Offset];
             // Frequency Number, low register.
-            fNumL = fNumL8&0xFF;
+            fNumL = fNumL8 & 0xff;
             updateOperators();
         }
 
@@ -776,7 +779,7 @@ public final class OPL3 {
             ksr = (am1_vib1_egt1_ksr1_mult4 & 0x10) >> 4;
             // Multiple. Multiplies the Channel.baseFrequency to get the Operator.operatorFrequency.
             // This register is used in PhaseGenerator.setFrequency().
-            mult = am1_vib1_egt1_ksr1_mult4 & 0x0F;
+            mult = am1_vib1_egt1_ksr1_mult4 & 0x0f;
 
             phaseGenerator.setFrequency(f_number, block, mult);
             envelopeGenerator.setActualAttackRate(ar, ksr, keyScaleNumber);
@@ -789,11 +792,11 @@ public final class OPL3 {
             int ksl2_tl6 = registers[operatorBaseAddress+OperatorData.KSL2_TL6_Offset];
 
             // Key Scale Level. Sets the attenuation in accordance with the octave.
-            ksl = (ksl2_tl6 & 0xC0) >> 6;
+            ksl = (ksl2_tl6 & 0xc0) >> 6;
             // Total Level. Sets the overall damping for the envelope.
-            tl  =  ksl2_tl6 & 0x3F;
+            tl = ksl2_tl6 & 0x3f;
 
-            envelopeGenerator.setAtennuation(f_number, block, ksl);
+            envelopeGenerator.setAttenuation(f_number, block, ksl);
             envelopeGenerator.setTotalLevel(tl);
         }
 
@@ -802,9 +805,9 @@ public final class OPL3 {
             int ar4_dr4 = registers[operatorBaseAddress+OperatorData.AR4_DR4_Offset];
 
             // Attack Rate.
-            ar = (ar4_dr4 & 0xF0) >> 4;
+            ar = (ar4_dr4 & 0xf0) >> 4;
             // Decay Rate.
-            dr =  ar4_dr4 & 0x0F;
+            dr = ar4_dr4 & 0x0f;
 
             envelopeGenerator.setActualAttackRate(ar, ksr, keyScaleNumber);
             envelopeGenerator.setActualDecayRate(dr, ksr, keyScaleNumber);
@@ -815,9 +818,9 @@ public final class OPL3 {
             int sl4_rr4 = registers[operatorBaseAddress+OperatorData.SL4_RR4_Offset];
 
             // Sustain Level.
-            sl = (sl4_rr4 & 0xF0) >> 4;
+            sl = (sl4_rr4 & 0xf0) >> 4;
             // Release Rate.
-            rr =  sl4_rr4 & 0x0F;
+            rr = sl4_rr4 & 0x0f;
 
             envelopeGenerator.setActualSustainLevel(sl);
             envelopeGenerator.setActualReleaseRate(rr, ksr, keyScaleNumber);
@@ -825,7 +828,7 @@ public final class OPL3 {
 
         void update_5_WS3() {
             int _5_ws3 = registers[operatorBaseAddress+OperatorData._5_WS3_Offset];
-            ws =  _5_ws3 & 0x07;
+            ws = _5_ws3 & 0x07;
         }
 
         double getOperatorOutput(double modulator) {
@@ -928,18 +931,18 @@ public final class OPL3 {
            // The datasheet states that the SL formula is
            // sustainLevel = -24*d7 -12*d6 -6*d5 -3*d4,
            // translated as:
-           sustainLevel = -3*sl;
+            sustainLevel = -3 * sl;
         }
 
         void setTotalLevel(int tl) {
            // The datasheet states that the TL formula is
            // TL = -(24*d5 + 12*d4 + 6*d3 + 3*d2 + 1.5*d1 + 0.75*d0),
            // translated as:
-           totalLevel = tl*-0.75;
+            totalLevel = tl * -0.75;
         }
 
-        void setAtennuation(int f_number, int block, int ksl) {
-            int hi4bits = (f_number>>6)&0x0F;
+        void setAttenuation(int f_number, int block, int ksl) {
+            int hi4bits = (f_number >> 6) & 0x0F;
             switch (ksl) {
             case 0:
                 attenuation = 0;
@@ -964,7 +967,7 @@ public final class OPL3 {
             // per level.
             //
             // This method sets an attack increment and attack minimum value
-            // that creates a exponential dB curve with 'period0to100' seconds in length
+            // that creates an exponential dB curve with 'period0to100' seconds in length
             // and 'period10to90' seconds between 10% and 90% of the curve total level.
             actualAttackRate = calculateActualRate(attackRate, ksr, keyScaleNumber);
             double period0to100inSeconds = EnvelopeGeneratorData.attackTimeValuesTable[actualAttackRate][0] / 1000d;
@@ -986,7 +989,6 @@ public final class OPL3 {
             // the 10%-90% period, and reaches 0 dB at the total period:
             xMinimumInAttack = percentageToX(0.1) - (period0to100inSamples-period10to100inSamples)*xAttackIncrement;
         }
-
 
         void setActualDecayRate(int decayRate, int ksr, int keyScaleNumber) {
             actualDecayRate = calculateActualRate(decayRate, ksr, keyScaleNumber);
@@ -1157,7 +1159,7 @@ public final class OPL3 {
             // So the increment in each sample, to go from 0 to 1, is:
             // increment = (1-0) / samples in the period ->
             // increment = 1 / (OPL3Data.sampleRate/operatorFrequency) ->
-            phaseIncrement = operatorFrequency/OPL3Data.sampleRate;
+            phaseIncrement = operatorFrequency / OPL3Data.sampleRate;
         }
 
         double getPhase(int vib) {
@@ -1184,8 +1186,8 @@ public final class OPL3 {
     /**
      * Rhythm
      *
-     * The getOperatorOutput() method in TopCymbalOperator, HighHatOperator and SnareDrumOperator
-     * were made through purely empyrical reverse engineering of the OPL3 output.
+     * The {@link Operator#getOperatorOutput(double)} method in {@link TopCymbalOperator}, {@link HighHatOperator}
+     * and {@link SnareDrumOperator} were made through purely empirical reverse engineering of the OPL3 output.
      */
     private abstract class RhythmChannel extends Channel2Op {
 
@@ -1376,7 +1378,7 @@ public final class OPL3 {
         // OPL3-wide registers offsets:
         static final int
              _1_NTS1_6_Offset = 0x08,
-             DAM1_DVB1_RYT1_BD1_SD1_TOM1_TC1_HH1_Offset = 0xBD,
+             DAM1_DVB1_RYT1_BD1_SD1_TOM1_TC1_HH1_Offset = 0xbd,
              _7_NEW1_Offset = 0x105,
              _2_CONNECTIONSEL6_Offset = 0x104;
 
@@ -1458,7 +1460,7 @@ public final class OPL3 {
                 calculateIncrement(tremoloDepth[1], 0, 1 / (2 * tremoloFrequency))
             };
 
-            int tremoloTableLength = (int)(sampleRate/tremoloFrequency);
+            int tremoloTableLength = (int) (sampleRate / tremoloFrequency);
 
             // First array used when AM = 0 and second array used when AM = 1.
             tremoloTable = new double[2][tremoloTableLength];
@@ -1493,9 +1495,9 @@ public final class OPL3 {
     private static class ChannelData {
 
         static final int
-                    _2_KON1_BLOCK3_FNUMH2_Offset = 0xB0,
-                    FNUML8_Offset = 0xA0,
-                    CHD1_CHC1_CHB1_CHA1_FB3_CNT1_Offset = 0xC0;
+                    _2_KON1_BLOCK3_FNUMH2_Offset = 0xb0,
+                    FNUML8_Offset = 0xa0,
+                    CHD1_CHC1_CHB1_CHA1_FB3_CNT1_Offset = 0xc0;
 
         // Feedback rate in fractions of 2*Pi, normalized to (0,1):
         // 0, Pi/16, Pi/8, Pi/4, Pi/2, Pi, 2*Pi, 4*Pi turns to be:
@@ -1512,7 +1514,7 @@ public final class OPL3 {
             KSL2_TL6_Offset = 0x40,
             AR4_DR4_Offset = 0x60,
             SL4_RR4_Offset = 0x80,
-            _5_WS3_Offset = 0xE0;
+            _5_WS3_Offset = 0xe0;
 
         enum Type {NO_MODULATION, CARRIER, FEEDBACK}
 
@@ -1549,7 +1551,7 @@ public final class OPL3 {
         }
 
         private static void loadWaveforms() {
-            //OPL3 has eight waveforms:
+            // OPL3 has eight waveforms:
             waveforms = new double[8][waveLength];
 
             int i;

@@ -7,6 +7,8 @@
 package vavi.sound.pcm.equalizing.sse;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 import javax.sound.sampled.AudioFormat;
@@ -19,6 +21,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 import vavix.util.Checksum;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,19 +36,26 @@ import static vavi.sound.SoundUtil.volume;
  * @version 0.00 060417 nsano initial version <br>
  */
 @Disabled("not implemented yet")
+@PropsEntity(url = "file:local.properties")
 class EqualizerTest {
 
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
+
+    @Property(name = "equalizer.in.wav")
     String inFile;
     String outFile = "tmp/out.vavi.wav";
     String correctFile = "src/test/java/resources/vavi/sound/pcm/equalizing/out.wav";
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
 
     @BeforeEach
     void setUp() throws Exception {
-        Properties props = new Properties();
-        props.load(EqualizerTest.class.getResourceAsStream("local.properties"));
-        inFile = props.getProperty("equalizer.in.wav");
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
     }
 
     @Test

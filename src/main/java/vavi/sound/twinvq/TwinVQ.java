@@ -36,7 +36,6 @@ import vavi.sound.twinvq.TwinVQDec.TwinVQContext;
 import vavi.sound.twinvq.TwinVQDec.TwinVQFrameData;
 import vavi.sound.twinvq.TwinVQDec.TwinVQFrameType;
 import vavi.sound.twinvq.TwinVQDec.TwinVQModeTab;
-import vavi.util.Debug;
 
 import static java.lang.System.getLogger;
 import static vavi.sound.twinvq.LibAV.AVERROR_INVALIDDATA;
@@ -240,11 +239,11 @@ public class TwinVQ {
 
             int tab0 = tmp0 * cb_len; // cb0
             int tab1 = tmp1 * cb_len; // cb1
-//Debug.printf("dq[%3d]: %d, %02x, %d, %02x, %d", i, tctx.bits_main_spec[0][ftype.ordinal()][bitstream_second_part], tmp0, tctx.bits_main_spec[1][ftype.ordinal()][bitstream_second_part], tmp1, bitstream_second_part);
-//Debug.println("bits: " + bits + ", tmp0: " + tmp0 + ", tmp1: " + tmp1 + ", cb_len: " + cb_len + ", tab0: " + tab0 + ", tab1: " + tab1 + ", cb0: " + cb0.length + ", cb1: " + cb1.length + ", cb1P: " + cb1P);
+//logger.log(Level.TRACE, "dq[%3d]: %d, %02x, %d, %02x, %d".formatted(i, tctx.bits_main_spec[0][ftype.ordinal()][bitstream_second_part], tmp0, tctx.bits_main_spec[1][ftype.ordinal()][bitstream_second_part], tmp1, bitstream_second_part));
+//logger.log(Level.TRACE, "bits: " + bits + ", tmp0: " + tmp0 + ", tmp1: " + tmp1 + ", cb_len: " + cb_len + ", tab0: " + tab0 + ", tab1: " + tab1 + ", cb0: " + cb0.length + ", cb1: " + cb1.length + ", cb1P: " + cb1P);
 
             for (int j = 0; j < length; j++) {
-//System.err.printf("%d, %d, %d, %d%n", pos + j, tab0 + j, cb1P + tab1 + j, tctx.permut[ftype.ordinal()][pos + j] & 0xffff);
+//logger.log(Level.TRACE, "%d, %d, %d, %d".formatted(pos + j, tab0 + j, cb1P + tab1 + j, tctx.permut[ftype.ordinal()][pos + j] & 0xffff));
                 out[tctx.permut[ftype.ordinal()][pos + j] & 0xffff] = sign0 * cb0[tab0 + j] +
                         sign1 * cb1[cb1P + tab1 + j];
             }
@@ -342,7 +341,7 @@ public class TwinVQ {
             }
     }
 
-    /**  */
+    /** */
     static void dec_lpc_spectrum_inv(TwinVQContext tctx, float[] lsp, TwinVQFrameType ftype, float[] lpc) {
         int size = tctx.mtab.size / tctx.mtab.fmode[ftype.ordinal()].sub;
 
@@ -364,12 +363,12 @@ public class TwinVQ {
 
     static final byte[] wtype_to_wsize = new byte[] {0, 0, 2, 2, 2, 1, 0, 1, 1};
 
-    /**  */
+    /** */
     static void imdct_and_window(TwinVQContext tctx, TwinVQFrameType ftype,
                                  int wtype, float[] in, int inP, float[] prev, int prev_bufP, int ch) {
         AVTXContext tx = tctx.tx[ftype.ordinal()];
         AVTXContext.TXFunction tx_fn = tctx.tx_fn[ftype.ordinal()];
-Debug.println("ftype: " + ftype + "(" + ftype.ordinal() + ")");
+logger.log(Level.DEBUG, "ftype: " + ftype + "(" + ftype.ordinal() + ")");
         TwinVQModeTab mtab = tctx.mtab;
         int bsize = mtab.size / mtab.fmode[ftype.ordinal()].sub;
         int size = mtab.size;
@@ -530,7 +529,7 @@ System.err.printf("j: %d, win: %d, size: %d%n", j, ff_sine_windows.get((int) Mat
         }
 
         if (buf_size < avctx.block_align) {
-            logger.log(Level.ERROR, "Frame too small (%d bytes). Truncated file?", buf_size);
+            logger.log(Level.ERROR, "Frame too small (%d bytes). Truncated file?".formatted(buf_size));
             return -1;
         }
 
@@ -683,7 +682,7 @@ System.err.printf("j: %d, win: %d, size: %d%n", j, ff_sine_windows.get((int) Mat
             size = tctx.avctx.ch_layout.nb_channels * mtab.fmode[ftype.ordinal()].sub;
             block_size = mtab.size / mtab.fmode[ftype.ordinal()].sub;
         }
-Debug.println("size: " + size + ", block_size: " + block_size);
+logger.log(Level.DEBUG, "size: " + size + ", block_size: " + block_size);
 
         short[] bbfs = new short[bbf.capacity() / Short.BYTES];
         permutate_in_line(bbfs, tctx.n_div[ftype.ordinal()], size,
@@ -756,7 +755,7 @@ Debug.println("size: " + size + ", block_size: " + block_size);
             tctx.length[i][0] = (byte) rounded_up;
             tctx.length[i][1] = (byte) rounded_down;
             tctx.length_change[i] = (byte) num_rounded_up;
-Debug.println("rounded_up: " + rounded_up + ", rounded_down: " + rounded_down + ", num_rounded_up: " + num_rounded_up);
+logger.log(Level.DEBUG, "rounded_up: " + rounded_up + ", rounded_down: " + rounded_down + ", num_rounded_up: " + num_rounded_up);
         }
 
         for (int frametype = TWINVQ_FT_SHORT.ordinal(); frametype <= TWINVQ_FT_PPC.ordinal(); frametype++)
@@ -784,11 +783,11 @@ Debug.println("rounded_up: " + rounded_up + ", rounded_down: " + rounded_down + 
         }
         frames_per_packet = avctx.block_align * 8L / tctx.frame_size;
         if (frames_per_packet <= 0) {
-            logger.log(Level.ERROR, "Block align is %d bits, expected %d", avctx.block_align * 8L, tctx.frame_size);
+            logger.log(Level.ERROR, "Block align is %d bits, expected %d".formatted(avctx.block_align * 8L, tctx.frame_size));
             return AVERROR_INVALIDDATA;
         }
         if (frames_per_packet > TWINVQ_MAX_FRAMES_PER_PACKET) {
-            logger.log(Level.ERROR, "Too many frames per packet (%d)", frames_per_packet);
+            logger.log(Level.ERROR, "Too many frames per packet (%d)".formatted(frames_per_packet));
             return AVERROR_INVALIDDATA;
         }
         tctx.frames_per_packet = (int) frames_per_packet;

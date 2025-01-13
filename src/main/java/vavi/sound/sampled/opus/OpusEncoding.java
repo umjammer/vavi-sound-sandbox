@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005 by Naohide Sano, All rights reserved.
+ * Copyright (c) 2011 by Naohide Sano, All rights reserved.
  *
  * Programmed by Naohide Sano
  */
@@ -26,7 +26,7 @@ public class OpusEncoding extends AudioFormat.Encoding {
      *
      * @param name Name of the Opus encoding.
      */
-    public OpusEncoding(String name) {
+    private OpusEncoding(String name) {
         super(name);
     }
 }

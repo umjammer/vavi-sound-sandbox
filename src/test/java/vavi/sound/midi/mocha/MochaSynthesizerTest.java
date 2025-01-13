@@ -45,10 +45,14 @@ public class MochaSynthesizerTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
+    static boolean onIde = System.getProperty("vavi.test", "").equals("ide");
+    static long time = onIde ? 1000 * 1000 : 10 * 1000;
+
     @Property(name = "mocha.test")
     String mochaTest = "src/test/resources/test.mid";
 
-    static float volume = (float) Double.parseDouble(System.getProperty("vavi.test.volume.midi",  "0.2"));
+    @Property(name = "vavi.test.volume.midi")
+    float volume = 0.2f;
 
     @BeforeEach
     void setup() throws Exception {
@@ -73,28 +77,28 @@ Debug.println("sequencer: " + sequencer);
 
         Sequence seq = MidiSystem.getSequence(new BufferedInputStream(Files.newInputStream(file)));
 
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch cdl = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
-System.err.println("META: " + meta.getType());
+Debug.println("META: " + meta.getType());
             if (meta.getType() == 47) {
-                countDownLatch.countDown();
+                cdl.countDown();
             }
         };
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
-System.err.println("START");
+Debug.println("START");
         sequencer.start();
 
         volume(receiver, volume); // volume works?
 
-if (!System.getProperty("vavi.test", "").equals("ide")) {
- Thread.sleep(10 * 1000);
+if (!onIde) {
+ Thread.sleep(time);
  sequencer.stop();
  Debug.println("STOP");
 } else {
-        countDownLatch.await();
+        cdl.await();
 }
-System.err.println("END");
+Debug.println("END");
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
 
@@ -122,19 +126,17 @@ Debug.println("sequencer: " + sequencer);
 
         Sequence seq = MidiSystem.getSequence(Paths.get(filename).toFile());
 
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch cdl = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
-System.err.println("META: " + meta.getType());
-            if (meta.getType() == 47) {
-                countDownLatch.countDown();
-            }
+Debug.println("META: " + meta.getType());
+            if (meta.getType() == 47) cdl.countDown();
         };
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
-System.err.println("START");
+Debug.println("START");
         sequencer.start();
-        countDownLatch.await();
-System.err.println("END");
+        cdl.await();
+Debug.println("END");
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
 

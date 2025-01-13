@@ -7,6 +7,8 @@
 package vavi.sound.midi.rococoa;
 
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -26,12 +28,13 @@ import javax.sound.midi.Transmitter;
 import javax.sound.midi.VoiceStatus;
 
 import vavi.util.ByteUtil;
-import vavi.util.Debug;
 import vavi.util.StringUtil;
 
 import vavix.rococoa.avfoundation.AVAudioEngine;
 import vavix.rococoa.avfoundation.AVAudioUnitMIDIInstrument;
 import vavix.rococoa.avfoundation.AudioComponentDescription;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -46,6 +49,8 @@ import vavix.rococoa.avfoundation.AudioComponentDescription;
  * @version 0.00 2020/10/03 umjammer initial version <br>
  */
 public class RococoaSynthesizer implements Synthesizer {
+
+    private static final Logger logger = getLogger(RococoaSynthesizer.class.getName());
 
     static {
         try {
@@ -94,7 +99,7 @@ public class RococoaSynthesizer implements Synthesizer {
     @Override
     public void open() throws MidiUnavailableException {
         if (isOpen()) {
-Debug.println("already open: " + hashCode());
+logger.log(Level.DEBUG, "already open: " + hashCode());
             return;
         }
 
@@ -105,14 +110,14 @@ Debug.println("already open: " + hashCode());
         }
 
         this.engine = AVAudioEngine.newInstance();
-Debug.println(engine);
+logger.log(Level.DEBUG, engine);
 
         AudioComponentDescription description = new AudioComponentDescription();
         description.componentType = AudioComponentDescription.kAudioUnitType_MusicDevice;
         String audesc = System.getProperty(getClass().getName() + ".audesc", "appl:dls ");
         String[] pair = audesc.split(":");
         // for example "Ftcr:mc5p", "NiSc:nK1v"
-Debug.println("AudioUnit: " + pair[0] + ":" + pair[1]);
+logger.log(Level.DEBUG, "AudioUnit: " + pair[0] + ":" + pair[1]);
         description.componentSubType = ByteUtil.readBeInt(pair[1].getBytes());
         description.componentManufacturer = ByteUtil.readBeInt(pair[0].getBytes());
         description.componentFlags = 0;
@@ -122,13 +127,13 @@ Debug.println("AudioUnit: " + pair[0] + ":" + pair[1]);
         if (midiSynth == null) {
             throw new MidiUnavailableException(audesc);
         }
-Debug.println(midiSynth + ", " + midiSynth.name() + ", " + midiSynth.version() + ", " + midiSynth.manufacturerName());
+logger.log(Level.DEBUG, midiSynth + ", " + midiSynth.name() + ", " + midiSynth.version() + ", " + midiSynth.manufacturerName());
 
         engine.attachNode(midiSynth);
         engine.connect_to_format(midiSynth, engine.mainMixerNode(), null);
         engine.prepare();
         boolean r = engine.start();
-Debug.println("stated: " + r + ", " + hashCode());
+logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
     }
 
     @Override
@@ -459,11 +464,11 @@ Debug.println("stated: " + r + ", " + hashCode());
                         channels[channel].setPolyPressure(data1, data2);
                         break;
                     case ShortMessage.CONTROL_CHANGE:
-//Debug.printf("control change: %02X, %d %d\n", command, data1, data2);
+//logger.log(Level.TRACE, "control change: %02X, %d %d".formatted(command, data1, data2));
                         channels[channel].controlChange(data1, data2);
                         break;
                     case ShortMessage.PROGRAM_CHANGE:
-//Debug.printf("program change: %02X, %d %d\n", command, data1, data2);
+//logger.log(Level.TRACE, "program change: %02X, %d %d".formatted(command, data1, data2));
                         channels[channel].programChange(data1);
                         break;
                     case ShortMessage.CHANNEL_PRESSURE:
@@ -473,15 +478,15 @@ Debug.println("stated: " + r + ", " + hashCode());
                         channels[channel].setPitchBend(data1 | (data2 << 7));
                         break;
                     default:
-Debug.printf("unknown short: %02X\n", command);
+logger.log(Level.DEBUG, "unknown short: %02X".formatted(command));
                     }
                 } else if (message instanceof SysexMessage sysexMessage) {
                     byte[] data = sysexMessage.getData();
-Debug.printf("sysex: %02X\n%s", sysexMessage.getStatus(), StringUtil.getDump(data));
+logger.log(Level.DEBUG, "sysex: %02X\n%s".formatted(sysexMessage.getStatus(), StringUtil.getDump(data)));
                     midiSynth.sendMIDISysExEvent(data);
                 } else {
                     // TODO meta message
-Debug.printf(message.getClass().getName());
+logger.log(Level.DEBUG, message.getClass().getName());
                 }
             } else {
                 throw new IllegalStateException("receiver is not open");

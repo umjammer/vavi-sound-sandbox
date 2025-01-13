@@ -6,11 +6,13 @@
 
 package vavi.sound.sampled.rococoa;
 
+import java.lang.System.Logger;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.spi.FormatConversionProvider;
 
-import vavi.util.Debug;
+import static java.lang.System.Logger.Level.DEBUG;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -20,6 +22,8 @@ import vavi.util.Debug;
  * @version 0.00 050722 nsano initial version <br>
  */
 public class RococoaFormatConversionProvider extends FormatConversionProvider {
+
+    private static final Logger logger = getLogger(RococoaFormatConversionProvider.class.getName());
 
     @Override
     public AudioFormat.Encoding[] getSourceEncodings() {
@@ -68,18 +72,18 @@ public class RococoaFormatConversionProvider extends FormatConversionProvider {
                 } else if (sourceFormat.getEncoding() instanceof RcococaEncoding && targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
                     return new Rococoa2PcmAudioInputStream(sourceStream, targetFormat, -1);
                 } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof RcococaEncoding) {
-Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+logger.log(DEBUG, "unable to convert " + sourceFormat + " to " + targetFormat);
                     throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 } else {
-Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+logger.log(DEBUG, "unable to convert " + sourceFormat + " to " + targetFormat);
                     throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 }
             } else {
-Debug.println("target format not found");
+logger.log(DEBUG, "target format not found");
                 throw new IllegalArgumentException("target format not found");
             }
         } else {
-Debug.println("conversion not supported");
+logger.log(DEBUG, "conversion not supported");
             throw new IllegalArgumentException("conversion not supported");
         }
     }
@@ -96,18 +100,18 @@ Debug.println("conversion not supported");
                         targetFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED)) {
                     return new Rococoa2PcmAudioInputStream(sourceStream, targetFormat, -1);
                 } else if (sourceFormat.getEncoding().equals(AudioFormat.Encoding.PCM_SIGNED) && targetFormat.getEncoding() instanceof RcococaEncoding) {
-Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+logger.log(DEBUG, "unable to convert " + sourceFormat + " to " + targetFormat);
                     throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 } else {
-Debug.println("unable to convert " + sourceFormat + " to " + targetFormat);
+logger.log(DEBUG, "unable to convert " + sourceFormat + " to " + targetFormat);
                     throw new IllegalArgumentException("unable to convert " + sourceFormat + " to " + targetFormat);
                 }
             } else {
-Debug.println("target format not found");
+logger.log(DEBUG, "target format not found");
                 throw new IllegalArgumentException("target format not found");
             }
         } else {
-Debug.println("conversion not supported");
+logger.log(DEBUG, "conversion not supported");
             throw new IllegalArgumentException("conversion not supported");
         }
     }

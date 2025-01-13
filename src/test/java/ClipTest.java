@@ -49,7 +49,11 @@ public class ClipTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    static boolean onIde = System.getProperty("vavi.test", "").equals("ide");
+    static long time = onIde ? 1000 * 1000 : 10 * 1000;
+
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
 
     @Property(name = "clip.test")
     String clipTest = "src/test/resources/test.flac";
@@ -61,21 +65,23 @@ public class ClipTest {
         }
     }
 
-    @Test
-    void test1() throws Exception {
-        main(new String[] {clipTest});
-    }
-
     /**
      * @param args 0: clip in
      */
     public static void main(String[] args) throws Exception {
         String inFile = args[0];
+        ClipTest app = new ClipTest();
+        app.setup();
+        app.test1();
+    }
 
-        for (AudioFileFormat.Type type : AudioSystem.getAudioFileTypes()) {
-            System.err.println(type);
-        }
-        Path file = Paths.get(inFile);
+    @Test
+    void test1() throws Exception {
+for (AudioFileFormat.Type type : AudioSystem.getAudioFileTypes()) {
+ System.err.println(type);
+}
+
+        Path file = Paths.get(clipTest);
 Debug.println(file);
 
 //        URL clipURL = new URL(inFile);
@@ -94,14 +100,12 @@ Debug.println(targetAudioFormat);
         AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(targetAudioFormat, originalAudioInputStream);
         AudioFormat audioFormat = audioInputStream.getFormat();
         DataLine.Info info = new DataLine.Info(Clip.class, audioFormat, AudioSystem.NOT_SPECIFIED);
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch cdl = new CountDownLatch(1);
         Clip clip = (Clip) AudioSystem.getLine(info);
 Debug.println(clip.getClass().getName());
         clip.addLineListener(event -> {
 Debug.println("LINE: " + event.getType());
-            if (event.getType().equals(LineEvent.Type.STOP)) {
-                countDownLatch.countDown();
-            }
+            if (event.getType().equals(LineEvent.Type.STOP)) cdl.countDown();
         });
         clip.open(audioInputStream);
 try {
@@ -110,12 +114,12 @@ try {
  Debug.println(Level.WARNING, "volume: " + e);
 }
         clip.start();
-if (!System.getProperty("vavi.test", "").equals("ide")) {
- Thread.sleep(10 * 1000);
+if (!onIde) {
+ Thread.sleep(time);
  clip.stop();
  Debug.println("not on ide");
 } else {
-        countDownLatch.await();
+        cdl.await();
 }
         clip.close();
     }

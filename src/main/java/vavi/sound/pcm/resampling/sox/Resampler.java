@@ -6,9 +6,10 @@
 
 package vavi.sound.pcm.resampling.sox;
 
-import java.util.logging.Level;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 
-import vavi.util.Debug;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -50,6 +51,8 @@ import vavi.util.Debug;
  *          2006 nsano ported to java. <br>
  */
 public class Resampler {
+
+    private static final Logger logger = getLogger(Resampler.class.getName());
 
     private static final int LC = 7;
     private static final int NC = 1 << LC;
@@ -163,10 +166,10 @@ public class Resampler {
 
         if (beta <= 2.0) {
             this.beta = 0;
-Debug.println("Nuttall window, cutoff " + rollOff);
+logger.log(Level.DEBUG, "Nuttall window, cutoff " + rollOff);
         } else {
             this.beta = beta;
-Debug.println("Kaiser window, cutoff " + rollOff + ", beta " + beta);
+logger.log(Level.DEBUG, "Kaiser window, cutoff " + rollOff + ", beta " + beta);
         }
 
         if (inRate == outRate) {
@@ -174,7 +177,7 @@ Debug.println("Kaiser window, cutoff " + rollOff + ", beta " + beta);
         }
 
         work.factor = outRate / inRate;
-Debug.println("r.factor: " + work.factor);
+logger.log(Level.DEBUG, "r.factor: " + work.factor);
 
         float gcdRate = getGcdRate(inRate, outRate);
         work.inRate = inRate / gcdRate;
@@ -195,11 +198,11 @@ Debug.println("r.factor: " + work.factor);
         // returns error # <=0, or adjusted wing-len > 0
         makeFilter(true);
 
-Debug.println("nMult: " + nMult + ", nWing: " + work.nWing + ", nq: " + work.nq);
+logger.log(Level.DEBUG, "nMult: " + nMult + ", nWing: " + work.nWing + ", nq: " + work.nq);
 
         if (work.quadr < 0) {               // exact coeff's method
             work.xh = (int) (work.nWing / work.outRate);
-Debug.println("resample: rate ratio " + work.inRate + " : " + work.outRate + ", coeff interpolation not needed");
+logger.log(Level.DEBUG, "resample: rate ratio " + work.inRate + " : " + work.outRate + ", coeff interpolation not needed");
         } else {
             work.dhb = NP;                  // Fixed-point Filter sampling-time-increment
             if (work.factor < 1.0) {
@@ -247,7 +250,7 @@ Debug.println("resample: rate ratio " + work.inRate + " : " + work.outRate + ", 
         int nOut;
 
         // constrain amount we actually process
-Debug.println("xp: " + work.xp + ", xRead: " + work.xRead + ", iSamp: " + iBuf.length + ", xOff: " + work.xOff);
+logger.log(Level.DEBUG, "xp: " + work.xp + ", xRead: " + work.xRead + ", iSamp: " + iBuf.length + ", xOff: " + work.xOff);
 
         int xSize = 2 * work.xOff + iBuf.length;
         int ySize = (int) (iBuf.length * work.factor);
@@ -257,13 +260,13 @@ Debug.println("xp: " + work.xp + ", xRead: " + work.xRead + ", iSamp: " + iBuf.l
         //
 
         int nProc = work.x.length - work.xp;
-Debug.println("nProc 1: " + nProc + ", xSize: " + work.x.length + ", ySize: " + work.y.length);
+logger.log(Level.DEBUG, "nProc 1: " + nProc + ", xSize: " + work.x.length + ", ySize: " + work.y.length);
 
         int nx = nProc - work.xRead; // space for right-wing future-data
         if (nx <= 0) {
             throw new IllegalStateException("Can not handle this sample rate change. nx not positive: " + nx);
         }
-Debug.println("nx " + nx + ", nProc: " + nProc);
+logger.log(Level.DEBUG, "nx " + nx + ", nProc: " + nProc);
 
         int i;
         if (iBuf.length == 0) {
@@ -286,7 +289,7 @@ Debug.println("nx " + nx + ", nProc: " + nProc);
         }
         if (work.quadr < 0) { // exact coeff's method
             nOut = srcEX(nProc);
-Debug.println("nProc " + nProc + " --> " + nOut);
+logger.log(Level.DEBUG, "nProc " + nProc + " --> " + nOut);
             // Move converter nProc samples back in time
             work.t -= (int) (nProc * work.outRate);
             // Advance by number of samples processed
@@ -296,11 +299,11 @@ Debug.println("nProc " + nProc + " --> " + nOut);
             if (creep != 0) {
                 work.t -= (int) (creep * work.outRate); // Remove time accumulation
                 work.xp += creep; // and add it to read pointer
-Debug.println("nProc " + nProc + ", creep " + creep);
+logger.log(Level.DEBUG, "nProc " + nProc + ", creep " + creep);
             }
         } else { // approx coeff's method
             nOut = srcUD(nProc);
-Debug.println("nProc " + nProc + " --> " + nOut);
+logger.log(Level.DEBUG, "nProc " + nProc + " --> " + nOut);
             // Move converter nProc samples back in time
             work.time -= nProc;
             // Advance by number of samples processed
@@ -310,13 +313,13 @@ Debug.println("nProc " + nProc + " --> " + nOut);
             if (creep != 0) {
                 work.time -= creep; // Remove time accumulation
                 work.xp += creep; // and add it to read pointer
-Debug.println("nProc " + nProc + ", creep " + creep);
+logger.log(Level.DEBUG, "nProc " + nProc + ", creep " + creep);
             }
         }
 
         // Copy back portion of input signal that must be re-used
         int k = work.xp - work.xOff;
-Debug.println("k: " + k + ", last: " + last);
+logger.log(Level.DEBUG, "k: " + k + ", last: " + last);
         for (i = 0; i < last - k; i++) {
             work.x[i] = work.x[i + k];
         }
@@ -347,11 +350,11 @@ Debug.println("k: " + k + ", last: " + last);
      */
     public int[] drain() {
 
-//Debug.println("Xoff %d, Xt %d  <--- DRAIN",this.Xoff, this.Xt);
+//logger.log(Level.TRACE, "Xoff %d, Xt %d  <--- DRAIN".formatted(this.xOff, this.xt));
 
         // stuff end with Xoff zeros
         int[] oBuf = resample(new int[work.xOff]);
-Debug.println("DRAIN: " + work.xOff);
+logger.log(Level.DEBUG, "DRAIN: " + work.xOff);
         return oBuf;
     }
 
@@ -431,12 +434,12 @@ Debug.println("DRAIN: " + work.xOff);
         // Output sampling period
         // Step through input signal
         double dt = 1.0f / work.factor;
-// Debug.println("factor %f, dt %f, ", factor, dt);
-// Debug.println("Time %f, ",this.Time);
+//logger.log(Level.DEBUG, "factor %f, dt %f, ".formatted(factor, dt));
+//logger.log(Level.DEBUG, "Time %f, ".formatted(this.Time));
         // (Xh * dhb) >> La is max index into imp[]
-// Debug.println("ct=" + ct);
-// Debug.println("ct=" + (double) this.nWing * NA / this.dhb + " " + this.Xh);
-// Debug.println("ct=%ld, T=%.6f, dhb=%6f, dt=%.6f", this.Xh, time - Math.floor(time),(double) this.dhb / NA, dt);
+//logger.log(Level.DEBUG, "ct=" + ct));
+//logger.log(Level.DEBUG, "ct=" + (double) this.nWing * NA / this.dhb + " " + this.Xh));
+//logger.log(Level.DEBUG, "ct=%ld, T=%.6f, dhb=%6f, dt=%.6f".formatted(this.Xh, time - Math.floor(time),(double) this.dhb / NA, dt));
         int y_pointer = 0;
         int n = (int) Math.ceil(nx / dt);
         while (n-- != 0) {
@@ -463,7 +466,7 @@ Debug.println("DRAIN: " + work.xOff);
             time += dt;                         // Move to next sample by time increment
         }
         work.time = time;
-//Debug.println("time " + this.time);
+//logger.log(Level.TRACE, "time " + time);
         return y_pointer;                       // Return the number of output samples
     }
 
@@ -562,7 +565,7 @@ Debug.println("DRAIN: " + work.xOff);
                 dcGain += impR[i];
             }
             dcGain = 2 * dcGain + impR[0];  // DC gain of real coefficients
-Debug.printf(Level.FINER, "dCgain err=%.12f", dcGain - 1.0);
+logger.log(Level.TRACE, "dCgain err=%.12f".formatted(dcGain - 1.0));
 
             dcGain = 1.0f / dcGain;
             for (int i = 0; i < mWing; i++) {

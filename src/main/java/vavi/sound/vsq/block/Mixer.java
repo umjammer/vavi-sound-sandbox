@@ -6,10 +6,10 @@
 
 package vavi.sound.vsq.block;
 
+import java.lang.System.Logger.Level;
 import java.util.List;
 
 import vavi.sound.vsq.Block;
-import vavi.util.Debug;
 
 
 /**
@@ -70,7 +70,7 @@ public class Mixer implements Block {
             } else if (pair[0].startsWith("Solo")) {
                 block.solos[Integer.parseInt(pair[0].substring(4))] = Integer.parseInt(pair[1]);
             } else {
-Debug.println("unhandled param: " + pair[0]);
+logger.log(Level.DEBUG, "unhandled param: " + pair[0]);
             }
         }
         return block;

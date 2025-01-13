@@ -18,7 +18,11 @@
 
 package vavi.sound.pcm.resampling.sox;
 
-import vavi.util.Debug;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+
+import static java.lang.System.getLogger;
+
 
 /**
  * Addressable FIFO buffer.
@@ -27,6 +31,8 @@ import vavi.util.Debug;
  * @version 0.00 081028 nsano initial version <br>
  */
 class Fifo {
+
+    private static final Logger logger = getLogger(Fifo.class.getName());
 
     /** */
     double[] data;
@@ -59,7 +65,7 @@ class Fifo {
                 int p = end;
 
                 end += n;
-Debug.printf("fifo: length: %d, start: %d, end: %d, point: %d, n: %08x", allocation, begin, end, p, n);
+logger.log(Level.DEBUG, "fifo: length: %d, start: %d, end: %d, point: %d, n: %08x".formatted(allocation, begin, end, p, n));
                 return p;
             }
             if (begin > FIFO_MIN) {

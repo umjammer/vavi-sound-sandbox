@@ -6,11 +6,11 @@
 
 package vavi.sound.vsq.block;
 
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.List;
 
 import vavi.sound.vsq.Block;
-import vavi.util.Debug;
 
 
 /**
@@ -48,9 +48,8 @@ public class BPList implements Block {
      */
     String id;
 
-    /**  */
-        public record Pair(long tick, int id) {
-
+    /** */
+    public record Pair(long tick, int id) {
     }
 
     /** */
@@ -60,7 +59,7 @@ public class BPList implements Block {
     public static Block newInstance(String label, List<String> params) {
         BPList block = new BPList();
         block.id = label;
-Debug.println("label: " + label);
+logger.log(Level.DEBUG, "label: " + label);
         for (String param : params) {
             String[] pair = param.split("=");
             block.bps.add(new Pair(Long.parseLong(pair[0]), Integer.parseInt(pair[1])));

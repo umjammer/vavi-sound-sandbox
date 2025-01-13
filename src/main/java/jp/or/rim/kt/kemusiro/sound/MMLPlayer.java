@@ -5,9 +5,11 @@
 package jp.or.rim.kt.kemusiro.sound;
 
 import java.io.IOException;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.LineListener;
 
-import vavi.util.Debug;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -19,6 +21,8 @@ import vavi.util.Debug;
  * @version $Revision: 1.7 $
  */
 public class MMLPlayer implements Runnable {
+
+    private static final Logger logger = getLogger(MMLPlayer.class.getName());
 
     private static final int samplingRate = 22100;
     private static final int bitDepth = 8;
@@ -91,7 +95,7 @@ public class MMLPlayer implements Runnable {
         try {
             play(mmls);
         } catch (Exception e) {
-            Debug.println(e);
+            logger.log(Level.INFO, e.getMessage(), e);
         }
     }
 

@@ -35,10 +35,14 @@ public class FMGeneralInstrument extends Instrument {
 
     private static final List<FMParameter> parameters = new ArrayList<>();
 
+    public static int[] getToneNumbers() {
+        return parameters.stream().mapToInt(FMParameter::getToneNumber).toArray();
+    }
+
     public FMGeneralInstrument(int number) {
         FMParameter p = findParameter(number);
         if (p == null) {
-            throw new RuntimeException("can't find tone number: " + number);
+            throw new IllegalArgumentException("can't find tone number: " + number);
         } else {
             switch (p.getAlgorithm()) {
             case 0:
@@ -66,7 +70,7 @@ public class FMGeneralInstrument extends Instrument {
                 wave = new FMAlgorithm7(p);
                 break;
             default:
-                throw new RuntimeException("invalid algorithm number");
+                throw new IllegalStateException("invalid algorithm number: " + p.getToneNumber());
             }
         }
         envelope = new DummyEnvelope();
@@ -82,13 +86,28 @@ public class FMGeneralInstrument extends Instrument {
     }
 
     public static void readParameterByResource() throws IOException {
-        InputStream is = FMGeneralInstrument.class.getResourceAsStream("/fmparameters.txt");
+        InputStream is = FMGeneralInstrument.class.getResourceAsStream("fmparameters.txt");
         if (is == null) {
             throw new IOException("no fmparameters.txt in classpath");
         }
         readParameter(new InputStreamReader(is));
     }
 
+    /**
+     * <pre>
+     * toneNumber
+     * algorithm
+     * Op ---- x4
+     * mul
+     * att
+     * dec
+     * sus
+     * rel
+     * max
+     * ----
+     * </pre>
+     * 30 lines x2
+     */
     public static void readParameter(Reader reader) throws IOException {
         try (BufferedReader in = new BufferedReader(reader)) {
             String line;

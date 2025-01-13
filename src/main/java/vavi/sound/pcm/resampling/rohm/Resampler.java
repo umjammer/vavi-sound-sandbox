@@ -44,7 +44,7 @@ public class Resampler {
 
         // number of samples after frequency conversion.
         int nNewSampleNum = (int) (pbyPcmData.length * (nFreq / nSampleFreq));
-//Debug.println(nFreq + ", "+  nSampleFreq + ", " + pbyPcmData.length + ", " + nNewSampleNum);
+//logger.log(Level.TRACE, nFreq + ", "+  nSampleFreq + ", " + pbyPcmData.length + ", " + nNewSampleNum);
 
         // memory allocation
         int[] pbyNewPcm = new int[nNewSampleNum];
@@ -87,7 +87,7 @@ public class Resampler {
             // 16bit.
             else {
 
-//Debug.println(nIndex1 + ", "+  nIndex2);
+//logger.log(Level.TRACE, nIndex1 + ", "+  nIndex2);
                 // values of index 1 and 2
                 int n1 = pbyPcmData[nIndex1];
                 int n2 = pbyPcmData[nIndex2];

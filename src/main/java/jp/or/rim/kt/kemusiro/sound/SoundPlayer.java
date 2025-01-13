@@ -4,11 +4,14 @@
 
 package jp.or.rim.kt.kemusiro.sound;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.DataLine;
 
 import vavi.sound.SoundUtil;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -18,6 +21,8 @@ import vavi.util.Debug;
  * @version $Revision: 1.2 $
  */
 public abstract class SoundPlayer {
+
+    private static final Logger logger = getLogger(SoundPlayer.class.getName());
 
     protected AudioFormat format;
 
@@ -76,7 +81,7 @@ public abstract class SoundPlayer {
 
     /** Changes volume */
     public void volume(float gain) {
-Debug.println("volume: " + gain + ", " + getClass()); // works, but not so different
+logger.log(Level.DEBUG, "volume: " + gain + ", " + getClass()); // works, but not so different
         SoundUtil.volume(getLine(), gain);
     }
 }

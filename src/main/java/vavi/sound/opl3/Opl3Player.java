@@ -22,15 +22,18 @@ package vavi.sound.opl3;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 
 import vavi.sound.sampled.opl3.Opl3Encoding;
 import vavi.sound.sampled.opl3.Opl3FileFormatType;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -40,7 +43,7 @@ import vavi.sound.sampled.opl3.Opl3FileFormatType;
  */
 public abstract class Opl3Player {
 
-    private static final Logger logger = Logger.getLogger(Opl3Player.class.getName());
+    private static final Logger logger = getLogger(Opl3Player.class.getName());
 
     /** generic properties */
     protected  Map<String, Object> props = new HashMap<>();
@@ -62,7 +65,7 @@ public abstract class Opl3Player {
             this.player = player;
         }
         public static Opl3Player getPlayer(AudioFormat.Encoding encoding) {
-logger.fine("encoding: " + encoding);
+logger.log(Level.DEBUG, "encoding: " + encoding);
             return Arrays.stream(values()).filter(e -> e.encoding == encoding).findFirst().get().player;
         }
         /** @param ext lower case w/o '.' */
@@ -88,12 +91,13 @@ logger.fine("encoding: " + encoding);
         opl.write(array, address, data);
     }
 
+    /** must implement mark/reset inside this method */
     public abstract boolean matchFormat(InputStream is);
 
     public abstract void load(InputStream is) throws IOException;
 
     public byte[] read(int len) {
-//logger.warning("Enter in read method");
+//logger.log(Level.WARNING, "Enter in read method");
 
         byte[] buf = new byte[len];
 
@@ -106,7 +110,7 @@ logger.fine("encoding: " + encoding);
             buf[i + 2] = (byte) (chB & 0xff);
             buf[i + 3] = (byte) (chB >> 8 & 0xff);
         }
-//logger.info("read: " + len);
+//logger.log(Level.TRACE, "read: " + len);
       return buf;
     }
 
@@ -121,6 +125,7 @@ logger.fine("encoding: " + encoding);
     public void setProperties(Map<String, Object> props) {
         this.props.clear();
         this.props.putAll(props);
+logger.log(Level.TRACE, "props: " + this.props);
     }
 
     public Map<String, Object> getProperties() {

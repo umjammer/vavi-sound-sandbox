@@ -21,7 +21,9 @@ import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.Mixer;
 import javax.swing.JFrame;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -35,6 +37,8 @@ import org.rococoa.cocoa.qtkit.QTTrack;
 
 import vavi.util.Debug;
 
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 import vavix.rococoa.avfoundation.AVAudioPlayer;
 
 import static vavi.sound.SoundUtil.volume;
@@ -47,13 +51,38 @@ import static vavi.sound.SoundUtil.volume;
  * @version 0.00 2022/02/21 umjammer initial version <br>
  */
 @EnabledOnOs(OS.MAC)
+@PropsEntity(url = "file:local.properties")
 class RococoaClipTest {
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
+
+    static boolean onIde = System.getProperty("vavi.test", "").equals("ide");
+    static long time = onIde ? 1000 * 1000 : 10 * 1000;
+
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
+
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
+    }
 
     static final String inFile = "/test.caf";
 
+    /** */
     public static void main(String[] args) throws Exception {
+        RococoaClipTest app = new RococoaClipTest();
+        app.setup();
+        app.test0();
+    }
+
+    @Test
+    @DisabledIfEnvironmentVariable(named = "GITHUB_WORKFLOW", matches = ".*") // TODO why ???
+    void test0() throws Exception {
         URI uri = RococoaClipTest.class.getResource(inFile).toURI();
         AVAudioPlayer player = AVAudioPlayer.init(uri);
         if (player == null) {
@@ -116,12 +145,10 @@ Debug.println("duration: " + duration + ", " + movie.duration().timeValue + ", "
 Debug.println(mixer.getMixerInfo());
         Clip clip = (Clip) mixer.getLine(mixer.getLineInfo());
 Debug.println(clip.getLineInfo());
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch cdl = new CountDownLatch(1);
         clip.addLineListener(event -> {
 Debug.println("LINE: " + event.getType());
-            if (event.getType().equals(LineEvent.Type.STOP)) {
-                countDownLatch.countDown();
-            }
+            if (event.getType().equals(LineEvent.Type.STOP)) cdl.countDown();
         });
         AudioInputStream stream = new AudioInputStream(new BufferedInputStream(Files.newInputStream(path)), RococoaClip.info.getFormats()[0], Files.size(path));
         clip.open(stream);
@@ -133,12 +160,12 @@ try {
 Debug.println(clip.getFormat());
         clip.start();
 
-if (!System.getProperty("vavi.test", "").equals("ide")) {
- Thread.sleep(10 * 1000);
+if (!onIde) {
+ Thread.sleep(time);
  clip.stop();
  Debug.println("not on ide");
 } else {
-        countDownLatch.await();
+        cdl.await();
 }
 
         clip.close();

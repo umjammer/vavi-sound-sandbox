@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001 by Naohide Sano, All rights reserved.
+ * Copyright (c) 2002 by Naohide Sano, All rights reserved.
  *
  * Programmed by Naohide Sano
  */
@@ -32,6 +32,8 @@ import static vavi.sound.midi.MidiUtil.volume;
 
 /**
  * MIDI test. (vavi-sound-sandbox)
+ * <p>
+ * DETERMINE default sequencer and synthesizer at static block at the top of this code.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (vavi)
  * @version 0.00 020703 nsano initial version <br>
@@ -56,7 +58,8 @@ public class MidiTest {
 //        System.setProperty("javax.sound.midi.Receiver", "#Rococoa MIDI Synthesizer");
     }
 
-    static final float volume = Float.parseFloat(System.getProperty("vavi.test.volume",  "0.2"));
+    @Property(name = "vavi.test.volume.midi")
+    float volume = 0.2f;
 
     @Property(name = "midi.test")
     String filename;
@@ -69,27 +72,27 @@ public class MidiTest {
         if (localPropertiesExists()) {
             PropsEntity.Util.bind(this);
         }
+Debug.println("volume: " + volume);
     }
 
     /** plain */
     void tP() throws Exception {
         Sequence sequence = MidiSystem.getSequence(new File(filename));
 
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch cdl = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
 Debug.println("META: " + meta.getType());
-            if (meta.getType() == 47) {
-                countDownLatch.countDown();
-            }
+            if (meta.getType() == 47) cdl.countDown();
         };
         Sequencer sequencer = MidiSystem.getSequencer(true);
 Debug.println("sequencer: " + sequencer);
         sequencer.open();
+        volume(sequencer.getReceiver(), volume);
         sequencer.setSequence(sequence);
         sequencer.addMetaEventListener(mel);
 Debug.println("START: " + filename);
         sequencer.start();
-        countDownLatch.await();
+        cdl.await();
 Debug.println("END: " + filename);
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
@@ -152,7 +155,7 @@ Debug.println("default transmitter: " + transmitter);
 Debug.println("synthesizer: " + synthesizer);
         // sf
         Soundbank soundbank = synthesizer.getDefaultSoundbank();
-        //Instrument[] instruments = synthesizer.getAvailableInstruments();
+//Instrument[] instruments = synthesizer.getAvailableInstruments();
 Debug.println("B: ---- " + soundbank.getDescription() + " ----");
 //Arrays.asList(instruments).forEach(System.err::println);
         synthesizer.unloadAllInstruments(soundbank);
@@ -165,22 +168,21 @@ Debug.println("A: ---- " + soundbank.getDescription() + " ----");
 //Arrays.asList(instruments).forEach(System.err::println);
         }
 
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch cdl = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
 Debug.println("META: " + meta.getType());
-            if (meta.getType() == 47) {
-                countDownLatch.countDown();
-            }
+            if (meta.getType() == 47) cdl.countDown();
         };
         Sequencer sequencer = MidiSystem.getSequencer(false);
 Debug.println("sequencer: " + sequencer.getClass().getName() + ", " + sequencer.hashCode());
         sequencer.open();
         sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
+        volume(synthesizer.getReceiver(), volume);
         sequencer.setSequence(sequence);
         sequencer.addMetaEventListener(mel);
 Debug.println("START: " + filename);
         sequencer.start();
-        countDownLatch.await();
+        cdl.await();
 Debug.println("END: " + filename);
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
@@ -205,18 +207,17 @@ Debug.println("synthesizer: " + synthesizer);
 
         Sequence seq = MidiSystem.getSequence(new File(filename));
 
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch cdl = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
 Debug.println("META: " + meta.getType());
-            if (meta.getType() == 47) {
-                countDownLatch.countDown();
-            }
+            if (meta.getType() == 47) cdl.countDown();
         };
+        volume(sequencer.getReceiver(), volume);
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
 Debug.println("START: " + filename);
         sequencer.start();
-        countDownLatch.await();
+        cdl.await();
 Debug.println("END: " + filename);
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
@@ -242,18 +243,17 @@ Debug.println("sequencer: " + sequencer);
         File file = new File(filename);
         Sequence seq = MidiSystem.getSequence(file);
 
-        CountDownLatch countDownLatch = new CountDownLatch(1);
+        CountDownLatch cdl = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
 //Debug.println("META: " + meta.getType());
-            if (meta.getType() == 47) {
-                countDownLatch.countDown();
-            }
+            if (meta.getType() == 47) cdl.countDown();
         };
+        volume(receiver, volume);
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
 Debug.println("START");
         sequencer.start();
-        countDownLatch.await();
+        cdl.await();
 Debug.println("END");
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
@@ -290,9 +290,9 @@ Debug.println("END");
      */
     public static void main(String[] args) throws Exception {
         MidiTest app = new MidiTest();
-        PropsEntity.Util.bind(app);
-//        app.t0();
-        app.t3();
+        app.setup();
+        app.t0();
+//        app.t3();
 //        app.t4();
     }
 }

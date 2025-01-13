@@ -6,13 +6,15 @@
 
 package vavix.rococoa.avfoundation;
 
+import java.lang.System.Logger;
 import java.util.concurrent.CountDownLatch;
-
-import org.rococoa.ID;
-import org.rococoa.ObjCClass;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
+import org.rococoa.ID;
+import org.rococoa.ObjCClass;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -22,6 +24,8 @@ import com.sun.jna.Pointer;
  * @version 0.00 2020/??/?? umjammer initial version <br>
  */
 public abstract class AVAudioUnit extends AVAudioNode {
+
+    private static final Logger logger = getLogger(AVAudioUnit.class.getName());
 
     private static final _Class CLASS = org.rococoa.Rococoa.createClass("AVAudioUnit", _Class.class);
 
@@ -49,7 +53,7 @@ public abstract class AVAudioUnit extends AVAudioNode {
             @SuppressWarnings("unused")
             public void apply(ID audioUnit, ID error) {
 //                result.object = Rococoa.wrap(audioUnit, AVAudioUnit.class);
-//Debug.println(Rococoa.wrap(error, NSError.class));
+//logger.log(Level.TRACE, Rococoa.wrap(error, NSError.class));
 //                cdl.countDown();
             }
         };

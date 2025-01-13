@@ -8,12 +8,15 @@ package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.util.logging.Logger;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 
 import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 import vavi.sound.opl3.MidPlayer.MidiTypeFile;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -24,7 +27,7 @@ import vavi.sound.opl3.MidPlayer.MidiTypeFile;
  */
 class OldLucasFile extends MidiTypeFile {
 
-    private static final Logger logger = Logger.getLogger(OldLucasFile.class.getName());
+    private static final Logger logger = getLogger(OldLucasFile.class.getName());
 
     @Override
     int markSize() {
@@ -70,7 +73,7 @@ class OldLucasFile extends MidiTypeFile {
 
         this.instruments = new Opl3Instrument[this.tins];
         for (int p = 0; p < v; ++p) {
-logger.fine(String.format("\n%d: ", p));
+logger.log(Level.DEBUG, "\n%d: ".formatted(p));
 
             int[] ins = new int[16];
 

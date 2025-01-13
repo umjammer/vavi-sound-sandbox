@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.logging.Level;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -23,10 +24,14 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import vavi.util.ByteUtil;
 import vavi.util.Debug;
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static vavi.sound.SoundUtil.volume;
@@ -38,12 +43,25 @@ import static vavi.sound.SoundUtil.volume;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060125 nsano initial version <br>
  */
+@PropsEntity(url = "file:local.properties")
 class ResamplerTest {
+
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
 
     static final String inFile = "src/test/resources/test.wav";
     static final String outFile = "tmp/out.wav";
 
-    static double volume = Double.parseDouble(System.getProperty("vavi.test.volume",  "0.2"));
+    @Property(name = "vavi.test.volume")
+    double volume = 0.2;
+
+    @BeforeEach
+    void setupEach() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
+    }
 
     @BeforeAll
     static void setup() throws IOException {
@@ -51,6 +69,7 @@ class ResamplerTest {
     }
 
     @Test
+    @DisplayName("direct")
     void test1() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
         AudioFormat format = sourceAis.getFormat();
@@ -127,6 +146,7 @@ Debug.println("result: " + r);
     }
 
     @Test
+    @DisplayName("via filer input stream")
     void test2() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
         AudioFormat format = sourceAis.getFormat();
@@ -168,7 +188,7 @@ Debug.println(audioFormat);
             if (l < 0)
                 break;
             line.write(buf, 0, l);
-Debug.println("line.write: " + l);
+Debug.println(Level.FINER, "line.write: " + l);
         }
         line.drain();
         line.stop();
