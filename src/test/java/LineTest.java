@@ -15,6 +15,7 @@ import javax.sound.sampled.TargetDataLine;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
 
@@ -57,6 +58,7 @@ public class LineTest {
     }
 
     @Test
+    @DisabledIfEnvironmentVariable(named = "GITHUB_WORKFLOW", matches = ".*")
     void test0() throws Exception {
         // microphone
         AudioFormat targetFormat = new AudioFormat(44100, 16, 2, true, false);
