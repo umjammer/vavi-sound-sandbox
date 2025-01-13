@@ -42,7 +42,7 @@ public class FMGeneralInstrument extends Instrument {
     public FMGeneralInstrument(int number) {
         FMParameter p = findParameter(number);
         if (p == null) {
-            throw new RuntimeException("can't find tone number: " + number);
+            throw new IllegalArgumentException("can't find tone number: " + number);
         } else {
             switch (p.getAlgorithm()) {
             case 0:
@@ -70,7 +70,7 @@ public class FMGeneralInstrument extends Instrument {
                 wave = new FMAlgorithm7(p);
                 break;
             default:
-                throw new RuntimeException("invalid algorithm number");
+                throw new IllegalStateException("invalid algorithm number: " + p.getToneNumber());
             }
         }
         envelope = new DummyEnvelope();
@@ -93,6 +93,21 @@ public class FMGeneralInstrument extends Instrument {
         readParameter(new InputStreamReader(is));
     }
 
+    /**
+     * <pre>
+     * toneNumber
+     * algorithm
+     * Op ---- x4
+     * mul
+     * att
+     * dec
+     * sus
+     * rel
+     * max
+     * ----
+     * </pre>
+     * 30 lines x2
+     */
     public static void readParameter(Reader reader) throws IOException {
         try (BufferedReader in = new BufferedReader(reader)) {
             String line;

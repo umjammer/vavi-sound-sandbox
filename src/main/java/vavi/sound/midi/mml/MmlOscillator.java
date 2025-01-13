@@ -58,7 +58,7 @@ public class MmlOscillator extends ModelAbstractOscillator {
     private static final Map<String, ActiveNote> activeNotes = new HashMap<>();
 
     @SuppressWarnings("unchecked")
-    private jp.or.rim.kt.kemusiro.sound.Instrument getInst(VoiceStatus voice) {
+    private static jp.or.rim.kt.kemusiro.sound.Instrument getInst(VoiceStatus voice) {
         Supplier<jp.or.rim.kt.kemusiro.sound.Instrument> supplier = channelInsts.get(voice.channel);
         if (supplier == null) {
             return ((Supplier<jp.or.rim.kt.kemusiro.sound.Instrument>) soundbank.getInstrument(new Patch(voice.bank, voice.volume)).getData()).get();
@@ -67,7 +67,7 @@ public class MmlOscillator extends ModelAbstractOscillator {
         }
     }
 
-    private String key(VoiceStatus voice) {
+    private static String key(VoiceStatus voice) {
         return voice.channel + "." + voice.note;
     }
 
@@ -101,10 +101,10 @@ public class MmlOscillator extends ModelAbstractOscillator {
     @Override
     public void noteOn(MidiChannel channel, VoiceStatus voice, int noteNumber, int velocity) {
         if (velocity > 0) {
-//logger.log(Level.TRACE, "patch: " + voice.bank + "," + voice.program + ", @" + hashCode());
             ActiveNote note = activeNotes.computeIfAbsent(key(voice), k -> new ActiveNote());
             note.setActive(noteNumber, velocity);
             note.inst = getInst(voice);
+//logger.log(Level.TRACE, "patch: " + voice.bank + "," + voice.program + ", @" + hashCode());
             note.inst.press();
             super.noteOn(channel, voice, noteNumber, velocity);
         } else {

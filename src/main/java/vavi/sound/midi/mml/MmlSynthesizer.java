@@ -238,6 +238,7 @@ try {
                 int channel = shortMessage.getChannel();
                 int data1 = shortMessage.getData1();
                 int data2 = shortMessage.getData2();
+logger.log(Level.TRACE, "short: %02x %d %02x %02x".formatted(command, channel, data1, data2));
                 switch (command) {
                     case ShortMessage.PROGRAM_CHANGE -> mmlOscillator.programChange(channel, data1, data2);
                 }
@@ -258,8 +259,6 @@ logger.log(Level.DEBUG, "sysex: %02X\n%s".formatted(sysexMessage.getStatus(), St
                     }
                     default -> {}
                 }
-
-                receiver.send(sysexMessage, timeStamp);
             } else if (message instanceof MetaMessage metaMessage) {
                 int type = metaMessage.getType();
                 byte[] data = metaMessage.getData();
@@ -270,7 +269,6 @@ logger.log(Level.DEBUG, "meta: %02x".formatted(type));
                     }
                     case 0x2f -> {}
                 }
-                receiver.send(message, timeStamp);
             } else {
                 assert false;
             }

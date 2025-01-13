@@ -10,8 +10,11 @@ import java.io.BufferedInputStream;
 import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Stream;
 import javax.sound.midi.MetaEventListener;
+import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
@@ -26,12 +29,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
 
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static vavi.sound.midi.MidiUtil.volume;
-import static vavix.util.DelayedWorker.later;
 
 
 /**
@@ -70,7 +76,7 @@ public class MmlTest {
         if (localPropertiesExists()) {
             PropsEntity.Util.bind(this);
         }
-Debug.println("volume: " + volume);
+Debug.println("volume: " + volume + ", midi vplume: " + midiVolume);
     }
 
     @BeforeAll
@@ -175,13 +181,13 @@ Debug.println("META: " + meta.getType());
         };
         Sequencer sequencer = MidiSystem.getSequencer(false);
 Debug.println("sequencer: " + sequencer);
+        sequencer.addMetaEventListener(mel);
         sequencer.open();
         Synthesizer synthesizer = new MmlSynthesizer();
         synthesizer.open();
         sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
         volume(synthesizer.getReceiver(), midiVolume);
         sequencer.setSequence(sequence);
-        sequencer.addMetaEventListener(mel);
 
         sequencer.start();
 if (!onIde) {
@@ -193,5 +199,39 @@ if (!onIde) {
 }
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
+    }
+
+    static Stream<Arguments> programs() {
+        return Stream.of(
+                arguments(0, 0),
+                arguments(1, 0),
+                arguments(2, 0),
+                arguments(2, 1)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("programs")
+    void test4(int data1, int data2) throws Exception {
+        Synthesizer synthesizer = new MmlSynthesizer();
+        synthesizer.open();
+Debug.println("synthesizer: " + synthesizer);
+        Arrays.stream(synthesizer.getLoadedInstruments())
+                .forEach(i ->
+                        System.err.printf("patch: %d.%d%n".formatted(i.getPatch().getBank(), i.getPatch().getProgram())));
+
+        volume(synthesizer.getReceiver(), midiVolume);
+
+        MidiChannel channel = synthesizer.getChannels()[0];
+        channel.programChange(data1, data2);
+        for (int i = 0; i < 32; i++) {
+            channel.noteOn(63 + i, 127);
+            Thread.sleep(200);
+            channel.noteOff(63 + i);
+        }
+
+        Thread.sleep(1000);
+
+        synthesizer.close();
     }
 }

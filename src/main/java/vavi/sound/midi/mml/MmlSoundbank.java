@@ -8,6 +8,7 @@ package vavi.sound.midi.mml;
 
 import java.io.IOException;
 import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -47,9 +48,9 @@ public class MmlSoundbank implements Soundbank {
 
             instruments.put("0.0", new MmlInstrument(0, 0, false, SquareWaveInstrument::new));
             instruments.put("1.0", new MmlInstrument(1, 0, false, SineWaveInstrument::new));
-            IntStream.range(0, toneNumbers.length).forEach(i -> {
-                instruments.put("2." + i, new MmlInstrument(2, i, false, () -> new FMGeneralInstrument(toneNumbers[i])));
-            });
+            IntStream.range(0, toneNumbers.length).forEach(i ->
+                    instruments.put("2." + i, new MmlInstrument(2, i, false, () -> new FMGeneralInstrument(toneNumbers[i]))));
+logger.log(Level.TRACE, "instruments: " + instruments.size());
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
