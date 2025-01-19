@@ -159,11 +159,11 @@ logger.log(Level.DEBUG, "uri: " + uri);
         }
 
         for (int c = 0; c < 16; ++c) {
-            context.channels()[c].nshift = -13;
+            context.channels()[c].nShift = -13;
             context.voiceStatus()[c].active = this.ons[c];
-            context.channels()[c].inum = this.inums[c];
+            context.channels()[c].iNum = this.inums[c];
 
-            context.channels()[c].setIns(context.instruments()[context.channels()[c].inum]);
+            context.channels()[c].setIns(context.instruments()[context.channels()[c].iNum]);
         }
 
         context.adlib().style = Adlib.SIERRA_STYLE | Adlib.MIDI_STYLE;

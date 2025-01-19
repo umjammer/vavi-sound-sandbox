@@ -123,7 +123,7 @@ public class Opl3Synthesizer implements Synthesizer {
     }
 
     // ch percussion?
-    private final Percussion[] percussions = new Percussion[18];
+    private final Percussion[] percussion = new Percussion[18];
 
     public class Context {
         public Adlib adlib() { return Opl3Synthesizer.this.adlib; }
@@ -170,17 +170,17 @@ logger.log(Level.WARNING, "already open: " + hashCode());
         }
 
         for (int c = 0; c < 16; c++) {
-            channels[c].inum = 0;
+            channels[c].iNum = 0;
 
-            channels[c].setIns(instruments[channels[c].inum]);
+            channels[c].setIns(instruments[channels[c].iNum]);
 
             voiceStatus[c].volume = 127;
-            channels[c].nshift = -25;
+            channels[c].nShift = -25;
             voiceStatus[c].active = true;
         }
 
         for (int i = 0; i < 18; i++) {
-            percussions[i] = new Percussion();
+            percussion[i] = new Percussion();
         }
 
 logger.log(Level.DEBUG, "type: " + type);
@@ -388,11 +388,11 @@ logger.log(Level.DEBUG, line.getClass().getName());
         private final int[] control = new int[128];
 
         // instrument number TODO public
-        public int inum;
+        public int iNum;
         // instrument for adlib
         int[] ins = new int[11];
         //
-        public int nshift; // TODO public
+        public int nShift; // TODO public
 
         public void setIns(Opl3Instrument instrument) { // TODO public
             int[] data = (int[]) instrument.getData();
@@ -406,16 +406,16 @@ logger.log(Level.DEBUG, line.getClass().getName());
 
         @Override
         public void noteOn(int noteNumber, int velocity) {
-            int numchan;
+            int numChan;
             if (adlib.mode == Adlib.RYTHM) {
-                numchan = 6;
+                numChan = 6;
             } else {
-                numchan = 9;
+                numChan = 9;
             }
 
             if (voiceStatus[channel].active) {
                 for (int i = 0; i < 18; ++i) {
-                    ++percussions[i].volume;
+                    ++percussion[i].volume;
                 }
 
                 int voice = -1;
@@ -423,9 +423,9 @@ logger.log(Level.DEBUG, line.getClass().getName());
                     boolean f = false;
                     int onl = 0;
 
-                    for (int i = 0; i < numchan; ++i) {
-                        if (percussions[i].channel == -1 && percussions[i].volume > onl) {
-                            onl = percussions[i].volume;
+                    for (int i = 0; i < numChan; ++i) {
+                        if (percussion[i].channel == -1 && percussion[i].volume > onl) {
+                            onl = percussion[i].volume;
                             voice = i;
                             f = true;
                         }
@@ -434,9 +434,9 @@ logger.log(Level.DEBUG, line.getClass().getName());
                     if (voice == -1) {
                         onl = 0;
 
-                        for (int i = 0; i < numchan; ++i) {
-                            if (percussions[i].volume > onl) {
-                                onl = percussions[i].volume;
+                        for (int i = 0; i < numChan; ++i) {
+                            if (percussion[i].volume > onl) {
+                                onl = percussion[i].volume;
                                 voice = i;
                             }
                         }
@@ -449,7 +449,7 @@ logger.log(Level.DEBUG, line.getClass().getName());
                     voice = Adlib.percussion_map[channel - 11];
                 }
 
-                if (velocity != 0 && inum >= 0 && inum < 128) {
+                if (velocity != 0 && iNum >= 0 && iNum < 128) {
                     if (adlib.mode == Adlib.MELODIC || channel < 12) {
                         adlib.instrument(voice, ins);
                     } else {
@@ -458,11 +458,11 @@ logger.log(Level.DEBUG, line.getClass().getName());
 
                     int nv = type.midiTypeFile.nativeVelocity(channel, velocity);
 
-                    adlib.playNote(voice, noteNumber + nshift, nv * 2);
+                    adlib.playNote(voice, noteNumber + nShift, nv * 2);
 
-                    percussions[voice].channel = channel;
-                    percussions[voice].note = noteNumber;
-                    percussions[voice].volume = 0;
+                    percussion[voice].channel = channel;
+                    percussion[voice].note = noteNumber;
+                    percussion[voice].volume = 0;
 
                     if (adlib.mode == Adlib.RYTHM && channel >= 11) {
                         adlib.write(0xbd, adlib.read(0xbd) & ~(16 >> (channel - 11)));
@@ -474,21 +474,21 @@ logger.log(Level.DEBUG, line.getClass().getName());
                             // Turn off the percussion instrument
                             adlib.write(0xbd, adlib.read((0xbd) & ~(0x10 >> (channel - 11))));
                             // midi_fm_endnote(percussion_map[c]);
-                            percussions[Adlib.percussion_map[channel - 11]].channel = -1;
+                            percussion[Adlib.percussion_map[channel - 11]].channel = -1;
                         } else {
                             for (int i = 0; i < 9; ++i) {
-                                if (percussions[i].channel == channel && percussions[i].note == noteNumber) {
+                                if (percussion[i].channel == channel && percussion[i].note == noteNumber) {
                                     adlib.endNote(i);
-                                    percussions[i].channel = -1;
+                                    percussion[i].channel = -1;
                                 }
                             }
                         }
                     } else { // i forget what this is for.
-                        percussions[voice].channel = -1;
-                        percussions[voice].volume = 0;
+                        percussion[voice].channel = -1;
+                        percussion[voice].volume = 0;
                     }
                 }
-logger.log(Level.TRACE, "note on[%d]: (%d %d) %d".formatted(channel, inum, noteNumber, velocity));
+logger.log(Level.TRACE, "note on[%d]: (%d %d) %d".formatted(channel, iNum, noteNumber, velocity));
             } else {
 logger.log(Level.TRACE, "note is off");
             }
@@ -500,9 +500,9 @@ logger.log(Level.TRACE, "note is off");
         @Override
         public void noteOff(int noteNumber, int velocity) {
             for (int i = 0; i < 9; ++i) {
-                if (percussions[i].channel == channel && percussions[i].note == noteNumber) {
+                if (percussion[i].channel == channel && percussion[i].note == noteNumber) {
                     adlib.endNote(i);
-                    percussions[i].channel = -1;
+                    percussion[i].channel = -1;
                 }
             }
             //
@@ -559,10 +559,10 @@ logger.log(Level.DEBUG, "control change unhandled[%d]: (%02x): %d".formatted(cha
 
         @Override
         public void programChange(int program) {
-            inum = program & 0x7f;
-logger.log(Level.DEBUG, "instruments[" + inum + "]: " + instruments[inum]);
-            setIns(instruments[inum]);
-logger.log(Level.DEBUG, "program change[%d]: %d".formatted(channel, inum));
+            iNum = program & 0x7f;
+logger.log(Level.DEBUG, "instruments[" + iNum + "]: " + instruments[iNum]);
+            setIns(instruments[iNum]);
+logger.log(Level.DEBUG, "program change[%d]: %d".formatted(channel, iNum));
             //
             voiceStatus[channel].program = program;
         }
@@ -716,7 +716,7 @@ logger.log(Level.DEBUG, "sysex: %02X\n%s".formatted(sysexMessage.getStatus(), St
                                 float gain = ((data[5] & 0x7f) | ((data[6] & 0x7f) << 7)) / 16383f;
 logger.log(Level.DEBUG, "sysex volume: gain: %3.0f".formatted(gain * 127));
                                 for (c = 0; c < 16; c++) {
-                                    voiceStatus[c].volume = (int) (gain * 127); // TODO doesn't work
+                                    voiceStatus[c].volume = (int) (gain * 127); // TODO doesn't work, how about setting to line?
                                 }
                             }
                         }

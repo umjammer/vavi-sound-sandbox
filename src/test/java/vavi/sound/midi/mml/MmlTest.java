@@ -23,8 +23,6 @@ import javax.sound.sampled.LineEvent;
 
 import jp.or.rim.kt.kemusiro.sound.FMGeneralInstrument;
 import jp.or.rim.kt.kemusiro.sound.MMLPlayer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -77,16 +75,6 @@ public class MmlTest {
             PropsEntity.Util.bind(this);
         }
 Debug.println("volume: " + volume + ", midi vplume: " + midiVolume);
-    }
-
-    @BeforeAll
-    static void setupAll() throws Exception {
-        System.setProperty("vavi.sound.opl3.MidiFile", "true");
-    }
-
-    @AfterAll
-    static void teardown() throws Exception {
-        System.setProperty("vavi.sound.opl3.MidiFile", "false");
     }
 
     @Test

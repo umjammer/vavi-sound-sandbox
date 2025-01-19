@@ -177,7 +177,7 @@ logger.log(Level.DEBUG, "oplType: " + opl3_mode);
 
                     if (pos >= length) return false;
                     int v = data.readUnsignedByte();
-logger.log(Level.DEBUG, "%d, %d, %d, %02x".formatted(opl3_mode, currChip, iIndex, v));
+logger.log(Level.TRACE, "%d, %d, %d, %02x".formatted(opl3_mode, currChip, iIndex, v));
                     ++pos;
                     if (opl3_mode == 0) {
                         write(0, iIndex, v);

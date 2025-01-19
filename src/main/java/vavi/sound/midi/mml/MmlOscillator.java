@@ -25,6 +25,12 @@ import static java.lang.System.getLogger;
 
 /**
  * MmlOscillator.
+ * <p>
+ * how to implement an oscillator.
+ * <ul>
+ *  <li>make it stateless except sampling rate (oscillator instances are created multiply at playing)</li>
+ *  <li>a sound engine should be separated from the oscillator, hold active notes and be referenced as a singleton</li>
+ * </ul>
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 241206 nsano initial version <br>

@@ -110,7 +110,7 @@ class CmfFile extends MidiTypeFile {
         }
 
         for (int c = 0; c < 16; ++c) {
-            context.channels()[c].nshift = -13;
+            context.channels()[c].nShift = -13;
         }
 
         context.adlib().style = Adlib.CMF_STYLE;

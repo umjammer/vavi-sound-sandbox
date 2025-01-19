@@ -102,9 +102,9 @@ logger.log(Level.DEBUG, "\n%d: ".formatted(p));
 
         for (int c = 0; c < 16; ++c) {
             if (c < this.tins) {
-                context.channels()[c].inum = c;
+                context.channels()[c].iNum = c;
 
-                context.channels()[c].setIns(context.instruments()[context.channels()[c].inum]);
+                context.channels()[c].setIns(context.instruments()[context.channels()[c].iNum]);
             }
         }
 

@@ -19,6 +19,8 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -47,7 +49,7 @@ import static vavi.sound.midi.MidiUtil.volume;
 class Opl3SynthesizerTest {
 
     static {
-//        System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
+        System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
         System.setProperty("javax.sound.midi.Synthesizer", "#OPL3 MIDI Synthesizer");
     }
 
@@ -69,6 +71,16 @@ class Opl3SynthesizerTest {
         if (localPropertiesExists()) {
             PropsEntity.Util.bind(this);
         }
+    }
+
+    @BeforeAll
+    static void setupAll() throws Exception {
+        System.setProperty("vavi.sound.opl3.MidiFile", "true");
+    }
+
+    @AfterAll
+    static void teardown() throws Exception {
+        System.setProperty("vavi.sound.opl3.MidiFile", "false");
     }
 
     @Test
@@ -112,7 +124,6 @@ System.err.println("END");
         synthesizer.close();
     }
 
-    @Disabled("not implemented yet (see META-INF/services)")
     @Test
     @DisplayName("spi")
     void test0() throws Exception {
