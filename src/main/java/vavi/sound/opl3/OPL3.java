@@ -21,21 +21,24 @@ package vavi.sound.opl3;
 
 /**
  * Software implementation of the Yamaha YMF262 sound generator.
- *
+ * <p>
  * One of the objectives of this emulator is to stimulate further research in the
  * OPL3 chip emulation. There was an explicit effort in making no optimizations,
  * and making the code as legible as possible, so that a new programmer
  * interested in modify and improve upon it could do so more easily.
+ * <p>
  * This emulator's main body of information was taken from reverse engineering of
  * the OPL3 chip, from the YMF262 Datasheet and from the OPL3 section in the
  * YMF278b Application's Manual,
  * together with the vibrato table information, eighth waveform parameter
  * information and feedback averaging information provided in MAME's YMF262 and 
  * YM3812 emulators, by Jarek Burczynski and Tatsuyuki Satoh.
+ *  <p>
  * This emulator has a high degree of accuracy, and most music files sound
  * almost identical, exception made in some games which uses specific parts of
  * the rhythm section. In this respect, some parts of the rhythm mode are still
  * only an approximation of the real chip.
+ *  <p>
  * The other thing to note is that this emulator was done through recordings of
  * the SB16 DAC, so it has not bitwise precision. Additional equipment should be
  * used to verify the samples directly from the chip, and allow this exact
@@ -44,6 +47,15 @@ package vavi.sound.opl3;
  * sometimes a crystal-clear, denser kind of OPL3 sound that, because of that,
  * may be useful for creating new music.
  *
+ * <h3>addendum</h3>
+ * <p>
+ * System properties for Daniel Becker's modification:
+ * HigHats, Cymbals, Snare and Bass Drum were to silent
+ * <li>opl3.top.attenuation ... top cymbal, default = 5 (original 2)</li>
+ * <li>opl3.tomtom.attenuation ... tomtom, default = 5 (original 2)</li>
+ * <li>opl3.bass.attenuation ... bass drum cymbal, default = 2 (original 1)</li>
+ *
+ * @author Robson Cozendey
  * @version 1.0.6
  */
 public final class OPL3 {
@@ -489,7 +501,7 @@ public final class OPL3 {
             chB = (chd1_chc1_chb1_cha1_fb3_cnt1 & 0x20) >> 5;
             chA = (chd1_chc1_chb1_cha1_fb3_cnt1 & 0x10) >> 4;
             fb  = (chd1_chc1_chb1_cha1_fb3_cnt1 & 0x0E) >> 1;
-            cnt  = chd1_chc1_chb1_cha1_fb3_cnt1 & 0x01;
+            cnt =  chd1_chc1_chb1_cha1_fb3_cnt1 & 0x01;
             updateOperators();
         }
 
@@ -1238,6 +1250,8 @@ public final class OPL3 {
 
     private class TopCymbalOperator extends Operator {
         static final int topCymbalOperatorBaseAddress = 0x15;
+        /** quippy: Cymbal and high hats are far to silent. We add some "loudness" with the operator */
+        static final double attenuation = Double.parseDouble(System.getProperty("opl3.top.attenuation", "5")); // was 2
 
         TopCymbalOperator(int baseAddress) {
             super(baseAddress);
@@ -1277,7 +1291,7 @@ public final class OPL3 {
             if ((carrierPhase * cycles) % cycles > 0.1)
                 carrierOutput = 0;
 
-            return carrierOutput*2;
+            return carrierOutput * attenuation;
         }
     }
 
@@ -1341,8 +1355,17 @@ public final class OPL3 {
 
     private class TomTomOperator extends Operator {
         static final int tomTomOperatorBaseAddress = 0x12;
+        /** quippy: Same as with high hats and cymbals and snare */
+        static final double attenuation = Double.parseDouble(System.getProperty("opl3.tomtom.attenuation", "5")); // was 2
+
         TomTomOperator() {
             super(tomTomOperatorBaseAddress);
+        }
+
+        @Override
+        double getOperatorOutput(double modulator) {
+            double operatorOutput = super.getOperatorOutput(modulator);
+            return operatorOutput * attenuation; // whole method is new
         }
     }
 
@@ -1350,6 +1373,7 @@ public final class OPL3 {
         static final int bassDrumChannelBaseAddress = 6;
         static final int op1BaseAddress = 0x10;
         static final int op2BaseAddress = 0x13;
+        static final double attenuation = Double.parseDouble(System.getProperty("opl3.bass.attenuation", "2"));
 
         BassDrumChannel() {
             super(bassDrumChannelBaseAddress, new Operator(op1BaseAddress), new Operator(op2BaseAddress));
@@ -1360,7 +1384,10 @@ public final class OPL3 {
             // Bass Drum ignores first operator, when it is in series.
             if (cnt == 1)
                 op1.ar = 0;
-            return super.getChannelOutput();
+            double[] output = super.getChannelOutput();
+            // quippy: Base Drum is also too silent. This is however a dirty hack!
+            for (int i = 0; i < output.length; i++) output[i] *= attenuation;
+            return output;
         }
 
         // Key ON and OFF are unused in rhythm channels.
