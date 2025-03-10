@@ -74,7 +74,7 @@ public class RococoaSynthesizer implements Synthesizer {
     protected static final MidiDevice.Info info =
         new MidiDevice.Info("Rococoa MIDI Synthesizer",
                             "vavi",
-                            "Software synthesizer by MacOS",
+                            "Software synthesizer powered by CoreMIDI",
                             "Version " + version) {};
 
     // TODO != channel???

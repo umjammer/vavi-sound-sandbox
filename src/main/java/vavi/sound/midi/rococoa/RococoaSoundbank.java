@@ -51,7 +51,7 @@ public class RococoaSoundbank implements Soundbank {
 
     @Override
     public SoundbankResource[] getResources() {
-        return new SoundbankResource[0];
+        return getInstruments();
     }
 
     @Override
@@ -73,8 +73,8 @@ public class RococoaSoundbank implements Soundbank {
     /** */
     public static class RococoaInstrument extends Instrument {
         final Object data;
-        protected RococoaInstrument(RococoaSoundbank sounBbank, int bank, int program, String name, Object data) {
-            super(sounBbank, new Patch(bank, program), name, Object.class);
+        protected RococoaInstrument(RococoaSoundbank soundbank, int bank, int program, String name, Object data) {
+            super(soundbank, new Patch(bank, program), name, Object.class);
             this.data = data;
         }
 
