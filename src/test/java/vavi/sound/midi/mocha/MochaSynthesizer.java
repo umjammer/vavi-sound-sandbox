@@ -8,14 +8,13 @@ package vavi.sound.midi.mocha;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
@@ -37,7 +36,8 @@ import javax.sound.sampled.SourceDataLine;
 
 import mocha.sound.Instrumental;
 import mocha.sound.TimeLine;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -49,6 +49,8 @@ import vavi.util.Debug;
  * @version 0.00 2020/10/30 umjammer initial version <br>
  */
 public class MochaSynthesizer implements Synthesizer {
+
+    private static final System.Logger logger = getLogger(MochaSynthesizer.class.getName());
 
     static {
         try {
@@ -65,8 +67,6 @@ public class MochaSynthesizer implements Synthesizer {
             throw new IllegalStateException(e);
         }
     }
-
-    static Logger logger = Logger.getLogger(MochaSynthesizer.class.getName());
 
     private static final String version;
 
@@ -119,7 +119,7 @@ public class MochaSynthesizer implements Synthesizer {
     @Override
     public void open() throws MidiUnavailableException {
         if (isOpen()) {
-Debug.println("already open: " + hashCode());
+logger.log(Level.WARNING, "already open: " + hashCode());
             return;
         }
 
@@ -151,8 +151,8 @@ Debug.println("already open: " + hashCode());
             //
             DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, mocha.getFormat(), AudioSystem.NOT_SPECIFIED);
             line = (SourceDataLine) AudioSystem.getLine(lineInfo);
-Debug.println(line.getClass().getName());
-            line.addLineListener(event -> Debug.println(event.getType()));
+logger.log(Level.TRACE, line.getClass().getName());
+            line.addLineListener(event -> logger.log(Level.DEBUG, event.getType()));
 
             line.open();
             line.start();
@@ -166,7 +166,7 @@ Debug.println(line.getClass().getName());
     /** */
     private void play() {
         byte[] buf = new byte[4 * (int) mocha.getFormat().getSampleRate() / 10];
-//Debug.printf("buf: %d", buf.length);
+//logger.log(Level.TRACE, "buf: %d", buf.length);
 
         while (isOpen) {
             try {
@@ -180,13 +180,13 @@ Debug.println(line.getClass().getName());
                 timestamp = System.currentTimeMillis();
                 msec = msec > 100 ? 100 : msec;
                 int l = mocha.read(buf, 0, 4 * (int) (mocha.getFormat().getSampleRate() * msec / 1000.0));
-//Debug.printf("adlib: %d", l);
+//logger.log(Level.TRACE, "adlib: %d", l);
                 if (l > 0) {
                     line.write(buf, 0, l);
                 }
                 Thread.sleep(100); // TODO how to define?
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
     }
@@ -530,16 +530,16 @@ Debug.println(line.getClass().getName());
                             channels[channel].setPitchBend(data1 | (data2 << 7));
                             break;
                         default:
-                            Debug.printf("unhandled short: %02X\n", command);
+                            logger.log(Level.DEBUG, "unhandled short: %02X\n", command);
                     }
                 }
                 case SysexMessage sysexMessage -> {
                     byte[] data = sysexMessage.getData();
-//Debug.print("sysex:\n" + StringUtil.getDump(data));
-                    Debug.printf(Level.FINE, "sysex: %02x %02x %02x", data[1], data[2], data[3]);
+//logger.log(Level.TRACE, "sysex:\n" + StringUtil.getDump(data));
+                    logger.log(Level.TRACE, "sysex: %02x %02x %02x", data[1], data[2], data[3]);
                 }
                 case MetaMessage metaMessage -> {
-                    Debug.printf("meta: %02x", metaMessage.getType());
+logger.log(Level.DEBUG, "meta: %02x".formatted(metaMessage.getType()));
                     switch (metaMessage.getType()) {
                         case 0x2f:
                             break;
