@@ -275,7 +275,7 @@ Debug.println("stated: " + r);
         AudioComponentDescription description = new AudioComponentDescription();
         description.componentType = AudioComponentDescription.kAudioUnitType_MusicDevice;
 //        description.componentSubType = AudioComponentDescription.kAudioUnitSubType_DLSSynth;
-        description.componentManufacturer = ByteUtil.readBeInt("Ftcr".getBytes(), 0);
+//        description.componentManufacturer = ByteUtil.readBeInt("Ftcr".getBytes(), 0);
         int r = AudioToolbox.instance.AudioComponentCount(description);
 Debug.println("AudioComponentCount: " + r);
 
@@ -289,7 +289,6 @@ Debug.println("AudioComponent: " + name);
 
     /** list AVAudioUnitComponent */
     @Test
-    @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
     void test6() throws Exception {
         AudioComponentDescription description = new AudioComponentDescription();
         description.componentType = AudioComponentDescription.kAudioUnitType_MusicDevice;

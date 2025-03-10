@@ -47,7 +47,7 @@ public class MidiTest {
     }
 
     static {
-//        System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
+        System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
 //        System.setProperty("javax.sound.midi.Synthesizer", "#Gervill");
 //        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "NiSc:nK1v");
 //        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "Ftcr:mc5p");
@@ -98,7 +98,10 @@ Debug.println("END: " + filename);
         sequencer.close();
     }
 
-    /** info */
+    /**
+     * info
+     * @see "https://bonar.hatenablog.com/entry/20090322/1237711377"
+     */
     void t0() throws Exception {
         // MIDI
         Synthesizer synthesizer;
@@ -227,6 +230,7 @@ Debug.println("END: " + filename);
     }
 
     void t3() throws Exception {
+Debug.println(filename);
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
         synthesizer.open();
 Debug.println("synthesizer: " + synthesizer);
@@ -291,7 +295,10 @@ Debug.println("END");
     public static void main(String[] args) throws Exception {
         MidiTest app = new MidiTest();
         app.setup();
-        app.t0();
+        app.tP();
+//        app.t0();
+//        app.t1();
+//        app.t2();
 //        app.t3();
 //        app.t4();
     }
