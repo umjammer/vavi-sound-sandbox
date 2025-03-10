@@ -26,6 +26,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import vavi.util.Debug;
@@ -49,7 +51,10 @@ class Opl3AudioFileReaderTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
-    @Property(name = "vavi.test.volume")
+    @Property
+    String opl3;
+
+    @Property(name = "vavi.test.volume.midi")
     double volume = 0.2;
 
     static boolean onIde = System.getProperty("vavi.test", "").equals("ide");
@@ -67,7 +72,7 @@ class Opl3AudioFileReaderTest {
             PropsEntity.Util.bind(this);
         }
 
-Debug.println("volume: " + volume);
+Debug.println("volume: " + volume + ", use opl midi?: " + System.getProperty("vavi.sound.opl3.MidiFile"));
     }
 
     @AfterAll
@@ -235,6 +240,19 @@ Debug.println(targetAudioFormat);
     void test4(String filename) throws Exception {
 Debug.println("------------------------------------------ " + filename + " ------------------------------------------------");
         Path path = Paths.get(Opl3AudioFileReaderTest.class.getResource(filename).toURI());
+        play(path);
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
+    void test41() throws Exception {
+Debug.println("------------------------------------------ " + opl3 + " ------------------------------------------------");
+        Path path = Paths.get(opl3);
+        play(path);
+    }
+
+    /** */
+    private void play(Path path) throws Exception {
         InputStream is = new BufferedInputStream(Files.newInputStream(path));
         AudioInputStream originalAudioInputStream = AudioSystem.getAudioInputStream(is);
         AudioFormat originalAudioFormat = originalAudioInputStream.getFormat();

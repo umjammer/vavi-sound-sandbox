@@ -847,7 +847,7 @@ public final class OPL3 {
             if(envelopeGenerator.stage == Stage.OFF) return 0;
 
             double envelopeInDB = envelopeGenerator.getEnvelope(egt, am);
-            envelope = Math.pow(10, envelopeInDB/10.0);
+            envelope = Math.pow(10, envelopeInDB / 10.0);
 
             // If it is in OPL2 mode, use first four waveforms only:
             ws &= ((_new << 2) + 3);

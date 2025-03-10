@@ -224,20 +224,24 @@ public class Adlib {
         this.writer = writer;
     }
 
+    /** */
     public boolean isOplInternal() {
         return opl3 != null;
     }
 
+    /** */
     public int read(int address) {
         return data[address];
     }
 
+    /** */
     public void write(int address, int data) {
 logger.log(Level.TRACE, "write: %04x, %02x".formatted(address, data));
         writer.write(0, address, data);
         this.data[address] = data;
     }
 
+    /** */
     public void instrument(int voice, int[] inst) {
         if ((style & SIERRA_STYLE) != 0) {
             // just gotta make sure this happens..
@@ -277,6 +281,7 @@ logger.log(Level.TRACE, "write: %04x, %02x".formatted(address, data));
         write(0xc0 + voice, 0xf0 | inst[10]);
     }
 
+    /** */
     public void percussion(int ch, int[] inst) {
         int opadd = map_chan[ch - 12];
         write(0x20 + opadd, inst[0]);
@@ -287,25 +292,27 @@ logger.log(Level.TRACE, "write: %04x, %02x".formatted(address, data));
         write(0xc0 + opadd, 0xf0 | inst[10]);
     }
 
+    /** */
     public void volume(int voice, int volume) {
         if ((style & SIERRA_STYLE) == 0) { // sierra likes it loud!
             int vol = volume >> 2;
             if ((style & LUCAS_STYLE) != 0) {
                 if ((data[0xc0 + voice] & 1) == 1) {
-                    write(0x40 + opadd[voice], 63 - vol | data[0x40 + opadd[voice]] & 0xc0);
+                    write(0x40 + opadd[voice], (63 - vol) | (data[0x40 + opadd[voice]] & 0xc0));
                 }
 
-                write(0x43 + opadd[voice], 63 - vol | data[0x43 + opadd[voice]] & 0xc0);
+                write(0x43 + opadd[voice], (63 - vol) | (data[0x43 + opadd[voice]] & 0xc0));
             } else {
                 if ((data[0xc0 + voice] & 1) == 1) {
-                    write(0x40 + opadd[voice], 63 - vol | data[0x40 + opadd[voice]] & 0xc0);
+                    write(0x40 + opadd[voice], (63 - vol) | (data[0x40 + opadd[voice]] & 0xc0));
                 }
 
-                write(0x43 + opadd[voice], 63 - vol | data[0x43 + opadd[voice]] & 0xc0);
+                write(0x43 + opadd[voice], (63 - vol) | (data[0x43 + opadd[voice]] & 0xc0));
             }
         }
     }
 
+    /** */
     public void playNote(int voice, int note, int volume) {
         if (note < 0) {
             note = 12 - note % 12;
@@ -319,33 +326,170 @@ logger.log(Level.TRACE, "write: %04x, %02x".formatted(address, data));
         write(0xb0 + voice, c);
     }
 
+    /** */
     public void endNote(int voice) {
         write(0xb0 + voice, data[0xb0 + voice] & (255 - 32));
     }
 
+    /** */
     public void reset() {
         for (int i = 0; i < 256; ++i) {
             write(i, 0);
         }
 
+        //
         for (int i = 0xc0; i <= 0xc8; ++i) {
             write(i, 0xf0);
         }
 
         write(0x01, 0x20);
         write(0xbd, 0xc0);
+
+        //
+        for (int i = 0; i < 18; i++) {
+            voiceStatuses[i] = new VoiceStatus();
+        }
     }
 
+    /** */
     public int read(byte[] buf, int ofs, int len) {
         for (int i = ofs; i < len; i += 4) {
             short[] data = opl3.read();
-            short chA = data[0];
-            short chB = data[1];
+            short chA = (short) (data[0] + data[1]);
+            short chB = (short) (data[1] + data[3]);
             buf[i] = (byte) (chA & 0xff);
-            buf[i + 1] = (byte) (chA >> 8 & 0xff);
+            buf[i + 1] = (byte) ((chA >> 8) & 0xff);
             buf[i + 2] = (byte) (chB & 0xff);
-            buf[i + 3] = (byte) (chB >> 8 & 0xff);
+            buf[i + 3] = (byte) ((chB >> 8) & 0xff);
         }
         return len;
+    }
+
+    /** */
+    private static class VoiceStatus {
+        int channel = -1;
+        int note;
+        int duration = 0;
+    }
+
+    /** */
+    private final VoiceStatus[] voiceStatuses = new VoiceStatus[18];
+
+    /** */
+    public void noteOn(int noteNumber, int velocity, int channel, int volume, int program, int[] ins, int nShift, boolean mute) {
+        int numChan;
+        if (this.mode == RYTHM) {
+            numChan = 6;
+        } else {
+            numChan = 9;
+        }
+
+        if (!mute) {
+            for (int i = 0; i < 18; ++i) {
+                ++voiceStatuses[i].duration;
+            }
+
+            int voice = -1;
+            if (channel < 11 || this.mode == MELODIC) {
+                boolean performing = false;
+                int onl = 0;
+
+                for (int i = 0; i < numChan; ++i) {
+                    if (voiceStatuses[i].channel == -1 && voiceStatuses[i].duration > onl) {
+                        onl = voiceStatuses[i].duration;
+                        voice = i;
+                        performing = true;
+                    }
+                }
+
+                if (voice == -1) {
+                    onl = 0;
+
+                    for (int i = 0; i < numChan; ++i) {
+                        if (voiceStatuses[i].duration > onl) {
+                            onl = voiceStatuses[i].duration;
+                            voice = i;
+                        }
+                    }
+                }
+
+                if (!performing) {
+                    this.endNote(voice);
+                }
+            } else {
+                voice = percussion_map[channel - 11];
+            }
+
+            if (velocity != 0 && program >= 0 && program < 128) {
+                if (this.mode == MELODIC || channel < 12) {
+                    this.instrument(voice, ins);
+                } else {
+                    this.percussion(channel, ins);
+                }
+
+                int nv;
+                if ((this.style & MIDI_STYLE) != 0) {
+                    nv = (volume * velocity) / 128;
+                    if ((this.style & LUCAS_STYLE) != 0) {
+                        nv *= 2;
+                    }
+                    if (nv > 127) {
+                        nv = 127;
+                    }
+                    nv = my_midi_fm_vol_table[nv];
+                    if ((this.style & LUCAS_STYLE) != 0) {
+                        nv = (int) (Math.sqrt(nv) * 11.0F);
+                    }
+                } else if ((this.style & CMF_STYLE) != 0) {
+                    // CMF doesn't support note velocity (even though some files have them!)
+                    nv = 127;
+                } else {
+                    nv = velocity;
+                }
+
+                this.playNote(voice, noteNumber + nShift, nv * 2);
+
+                voiceStatuses[voice].channel = channel;
+                voiceStatuses[voice].note = noteNumber;
+                voiceStatuses[voice].duration = 0;
+
+                if (this.mode == RYTHM && channel >= 11) {
+                    this.write(0xbd, this.read(0xbd) & ~(16 >> (channel - 11)));
+                    this.write(0xbd, this.read(0xbd) | (16 >> (channel - 11)));
+                }
+            } else {
+                if (velocity == 0) { // same code as end note
+                    if (this.mode == RYTHM && channel >= 11) {
+                        // Turn off the percussion instrument
+                        this.write(0xbd, this.read(0xbd) & ~(0x10 >> (channel - 11)));
+                        // midi_fm_endnote(percussion_map[c]);
+                        voiceStatuses[percussion_map[channel - 11]].channel = -1;
+                    } else {
+                        for (int i = 0; i < 9; ++i) {
+                            if (voiceStatuses[i].channel == channel && voiceStatuses[i].note == noteNumber) {
+                                this.endNote(i);
+                                voiceStatuses[i].channel = -1;
+                            }
+                        }
+                    }
+                } else { // i forget what this is for.
+                    voiceStatuses[voice].channel = -1;
+                    voiceStatuses[voice].duration = 0;
+                }
+            }
+logger.log(Level.TRACE, "note on[%d]: (%d %d) %d".formatted(channel, program, noteNumber, velocity));
+        } else {
+logger.log(Level.TRACE, "note is off");
+        }
+    }
+
+    /** */
+    public void noteOff(int noteNumber, int channel) {
+        for (int i = 0; i < 9; ++i) {
+            if (voiceStatuses[i].channel == channel && voiceStatuses[i].note == noteNumber) {
+                this.endNote(i);
+                voiceStatuses[i].channel = -1;
+            }
+        }
     }
 }

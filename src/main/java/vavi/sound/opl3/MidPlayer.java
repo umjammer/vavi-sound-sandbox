@@ -165,7 +165,6 @@ public class MidPlayer extends Opl3Player implements Sequencer {
         abstract boolean matchFormatImpl(DataInputStream dis) throws IOException;
         abstract void rewind(int subSong, MidPlayer player) throws IOException;
         public abstract void init(Context context);
-        public int nativeVelocity(int channel, int velocity) { return velocity; }
         public void controlChange(int channel, int controller, int value) {}
     }
 
@@ -216,7 +215,7 @@ public class MidPlayer extends Opl3Player implements Sequencer {
     // number of instruments
     protected int tins;
 
-    private final Opl3Synthesizer synthesizer = new Opl3Synthesizer();
+    private Opl3Synthesizer synthesizer;
 
     private final Transmitter transmitter = new Opl3Transmitter();
 
@@ -535,7 +534,7 @@ logger.log(Level.TRACE, "pos: %d, end: %d".formatted(pos, tracks[t].tend));
             }
         }
 
-//        logger.log(Level.INFO, String.format("iwait: %d, deltas: %d, msqtr: %d", iwait, deltas, msqtr));
+//logger.log(Level.INFO, String.format("iwait: %d, deltas: %d, msqtr: %d", iwait, deltas, msqtr));
         if (iwait != 0 && eos) {
             for (int t = 0; t < MAX_CHANNELS; ++t) {
                 if (tracks[t].on) {
@@ -612,7 +611,9 @@ logger.log(Level.DEBUG, "%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"
         }
 
         doing = true;
+
         try {
+            synthesizer = new Opl3Synthesizer();
             synthesizer.open(type, this::write);
             transmitter.setReceiver(synthesizer.getReceiver());
         } catch (MidiUnavailableException e) {
@@ -668,7 +669,8 @@ logger.log(Level.DEBUG, "%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"
     @Override
     public void close() {
         // TODO Auto-generated method stub
-
+        synthesizer.close();
+        transmitter.close();
     }
 
     @Override

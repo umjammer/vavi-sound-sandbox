@@ -10,7 +10,6 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-
 import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
@@ -102,32 +101,12 @@ logger.log(Level.DEBUG, "\n%d: ".formatted(p));
 
         for (int c = 0; c < 16; ++c) {
             if (c < this.tins) {
-                context.channels()[c].iNum = c;
+                context.channels()[c].program = c;
 
-                context.channels()[c].setIns(context.instruments()[context.channels()[c].iNum]);
+                context.channels()[c].setIns(context.instruments()[context.channels()[c].program]);
             }
         }
 
         context.adlib().style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
-    }
-
-    @Override
-    public int nativeVelocity(int channel, int velocity) {
-//        if ((adlib.style & Adlib.MIDI_STYLE) != 0) {
-        int nv = (context.voiceStatus()[channel].volume * velocity) / 128;
-//        if ((adlib.style & Adlib.LUCAS_STYLE) != 0) {
-        nv *= 2;
-//        }
-
-        if (nv > 127) {
-            nv = 127;
-        }
-
-        nv = Adlib.my_midi_fm_vol_table[nv];
-//        if ((adlib.style & Adlib.LUCAS_STYLE) != 0) {
-        nv = (int) ((float) Math.sqrt((nv)) * 11.0F);
-//        }
-        return nv;
-//        }
     }
 }

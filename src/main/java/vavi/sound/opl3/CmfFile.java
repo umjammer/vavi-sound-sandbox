@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.Arrays;
-
 import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
@@ -114,14 +113,6 @@ class CmfFile extends MidiTypeFile {
         }
 
         context.adlib().style = Adlib.CMF_STYLE;
-    }
-
-    @Override
-    public int nativeVelocity(int channel, int velocity) {
-//        if ((adlib.style & Adlib.CMF_STYLE) != 0) {
-        // CMF doesn't support note velocity (even though some files have them!)
-        return 127;
-//        }
     }
 
     @Override

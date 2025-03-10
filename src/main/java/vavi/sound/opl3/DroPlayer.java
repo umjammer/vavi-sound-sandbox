@@ -26,6 +26,7 @@ import java.lang.System.Logger.Level;
 import java.util.Arrays;
 
 import vavi.io.LittleEndianDataInputStream;
+import vavi.util.Debug;
 
 import static java.lang.System.getLogger;
 
@@ -198,13 +199,8 @@ logger.log(Level.TRACE, "%d, %d, %d, %02x".formatted(opl3_mode, currChip, iIndex
         pos = 0;
 
         for (int i = 0; i < 256; ++i) {
-            write(currChip, i, 0);
-        }
-
-        currChip = 1;
-
-        for (int i = 0; i < 256; ++i) {
-            write(currChip, i, 0);
+            write(0, i, 0);
+            write(1, i, 0);
         }
 
         currChip = 0;

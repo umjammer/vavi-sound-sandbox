@@ -16,6 +16,8 @@ import javax.sound.midi.SoundbankResource;
 /**
  * Opl3Soundbank.
  *
+ * dealing opl3 16 bytes instruments.
+ *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/23 umjammer initial version <br>
  */
@@ -58,7 +60,7 @@ public class Opl3Soundbank implements Soundbank {
 
     @Override
     public SoundbankResource[] getResources() {
-        return new SoundbankResource[0];
+        return getInstruments();
     }
 
     @Override
@@ -85,8 +87,8 @@ public class Opl3Soundbank implements Soundbank {
     /** */
     public static class Opl3Instrument extends Instrument {
         final int[] data;
-        protected Opl3Instrument(Opl3Soundbank sounBbank, int bank, int program, String name, int[] data) {
-            super(sounBbank, new Patch(bank, program), name, int[].class);
+        protected Opl3Instrument(Opl3Soundbank soundbank, int bank, int program, String name, int[] data) {
+            super(soundbank, new Patch(bank, program), name, int[].class);
             this.data = data;
         }
 
@@ -97,7 +99,7 @@ public class Opl3Soundbank implements Soundbank {
 
         @Override
         public String toString() {
-            return Opl3Soundbank.class.getSimpleName() + "@%x".formatted(Arrays.stream(data).sum());
+            return Opl3Soundbank.class.getSimpleName() + "@%x".formatted(Arrays.stream(data).sum()) + "[" + String.join(", ", Arrays.stream(data).mapToObj(Integer::toHexString).toList()) + "]";
         }
     }
 }
