@@ -19,6 +19,7 @@ import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
@@ -42,8 +43,8 @@ class JSynSynthesizerTest {
     static {
         System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
 
-//        System.setProperty("javax.sound.midi.Synthesizer", "#JSyn MIDI Synthesizer");
-        System.setProperty("javax.sound.midi.Synthesizer", "#Gervill");
+        System.setProperty("javax.sound.midi.Synthesizer", "#JSyn MIDI Synthesizer");
+//        System.setProperty("javax.sound.midi.Synthesizer", "#Gervill");
     }
 
     static boolean localPropertiesExists() {
@@ -64,9 +65,11 @@ class JSynSynthesizerTest {
         if (localPropertiesExists()) {
             PropsEntity.Util.bind(this);
         }
+Debug.println("volume: " + volume);
     }
 
     @Test
+    @DisplayName("direct")
     void test() throws Exception {
         Synthesizer synthesizer = new JSynSynthesizer();
         synthesizer.open();
@@ -87,12 +90,11 @@ Debug.println("sequencer: " + sequencer);
 System.err.println("META: " + meta.getType());
             if (meta.getType() == 47) cdl.countDown();
         };
+        volume(receiver, volume);
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
 System.err.println("START");
         sequencer.start();
-
-        volume(receiver, volume);
 
 if (!onIde) {
  Thread.sleep(time);
@@ -110,7 +112,9 @@ System.err.println("END");
     }
 
     @Test
+    @DisplayName("spi")
     void test3() throws Exception {
+Debug.println(jsynTest);
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
 Debug.println("synthesizer: " + synthesizer.getClass().getName());
         synthesizer.open();
@@ -132,12 +136,11 @@ Debug.println("sequencer: " + sequencer.getClass().getName());
 System.err.println("META: " + meta.getType());
             if (meta.getType() == 47) cdl.countDown();
         };
+        volume(receiver, volume);
         sequencer.setSequence(seq);
         sequencer.addMetaEventListener(mel);
 System.err.println("START");
         sequencer.start();
-
-        volume(receiver, volume);
 
 if (!onIde) {
  Thread.sleep(time);

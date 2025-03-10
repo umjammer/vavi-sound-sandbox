@@ -57,7 +57,7 @@ public class JSynSoundbank implements Soundbank {
 
     @Override
     public SoundbankResource[] getResources() {
-        return new SoundbankResource[0];
+        return getInstruments();
     }
 
     @Override
@@ -79,8 +79,8 @@ public class JSynSoundbank implements Soundbank {
     /** */
     public static class JSynInstrument extends Instrument {
         final UnitVoice data;
-        protected JSynInstrument(JSynSoundbank sounBbank, int bank, int program, String name, UnitVoice data) {
-            super(sounBbank, new Patch(bank, program), name, VoiceDescriptionAdapter.class);
+        protected JSynInstrument(JSynSoundbank soundbank, int bank, int program, String name, UnitVoice data) {
+            super(soundbank, new Patch(bank, program), name, VoiceDescriptionAdapter.class);
             this.data = data;
         }
 
