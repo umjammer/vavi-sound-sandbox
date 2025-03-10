@@ -252,7 +252,7 @@ logger.log(Level.DEBUG, "sysex: %02X\n%s".formatted(sysexMessage.getStatus(), St
                         switch (data[1]) {
                             case 0x7f -> { // device ID: all-call
                                 if (data[2] == 0x04 && data[3] == 0x01) { // master volume
-                                    logger.log(Level.DEBUG, "sysex: master volume: %02x %02x".formatted(data[4], data[5])); // TODO
+                                    logger.log(Level.DEBUG, "sysex: master volume: %02x %02x".formatted(data[4], data[5])); // proceeded by gervill
                                 }
                             }
                         }

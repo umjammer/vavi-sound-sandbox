@@ -94,7 +94,7 @@ public class MmlOscillator extends ModelAbstractOscillator {
     public Instrument[] getInstruments() {
         Instrument[] instruments = soundbank.getInstruments();
         for (Instrument i : instruments) {
-            ((SimpleInstrument) i).add(getPerformer());
+            ((SimpleInstrument) i).add(getPerformer()); // important!
         }
         return instruments;
     }

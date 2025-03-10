@@ -58,6 +58,7 @@ logger.log(Level.TRACE, "instruments: " + instruments.size());
 
     /** */
     public static class MmlInstrument extends SimpleInstrument {
+        // because of mml instruments are not stateless, we need to return supplier.
         Supplier<jp.or.rim.kt.kemusiro.sound.Instrument> data;
         protected MmlInstrument(int bank, int program, boolean isPercussion, Supplier<jp.or.rim.kt.kemusiro.sound.Instrument> data) {
             setPatch(new ModelPatch(bank, program, isPercussion));
@@ -102,7 +103,7 @@ logger.log(Level.TRACE, "instruments: " + instruments.size());
 
     @Override
     public SoundbankResource[] getResources() {
-        return new SoundbankResource[0];
+        return getInstruments();
     }
 
     @Override

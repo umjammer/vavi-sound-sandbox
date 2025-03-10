@@ -74,7 +74,7 @@ public class MmlTest {
         if (localPropertiesExists()) {
             PropsEntity.Util.bind(this);
         }
-Debug.println("volume: " + volume + ", midi vplume: " + midiVolume);
+Debug.println("volume: " + volume + ", midi volume: " + midiVolume);
     }
 
     @Test
