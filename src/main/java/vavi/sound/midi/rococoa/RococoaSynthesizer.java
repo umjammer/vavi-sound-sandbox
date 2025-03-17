@@ -87,7 +87,7 @@ public class RococoaSynthesizer implements Synthesizer {
     private final MidiChannel[] channels = new MidiChannel[MAX_CHANNEL];
 
     // TODO voice != channel ( = getMaxPolyphony())
-    private final VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
+    private final List<VoiceStatus> voiceStatuses = new ArrayList<>();
 
     private long timestump;
 
@@ -99,14 +99,12 @@ public class RococoaSynthesizer implements Synthesizer {
     @Override
     public void open() throws MidiUnavailableException {
         if (isOpen()) {
-logger.log(Level.DEBUG, "already open: " + hashCode());
+logger.log(Level.WARNING, "already open: " + hashCode());
             return;
         }
 
         for (int i = 0; i < MAX_CHANNEL; i++) {
             channels[i] = new RococoaMidiChannel(i);
-            voiceStatus[i] = new VoiceStatus();
-            voiceStatus[i].channel = i;
         }
 
         this.engine = AVAudioEngine.newInstance();
@@ -202,7 +200,7 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
 
     @Override
     public VoiceStatus[] getVoiceStatus() {
-        return voiceStatus;
+        return voiceStatuses.toArray(VoiceStatus[]::new);
     }
 
     @Override
@@ -276,9 +274,12 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
         private final int channel;
 
         private final int[] polyPressure = new int[128];
+        private int bank;
+        private int program;
         private int pressure;
         private int pitchBend;
         private final int[] control = new int[128];
+        private boolean mute;
 
         /** */
         public RococoaMidiChannel(int channel) {
@@ -288,15 +289,30 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
         @Override
         public void noteOn(int noteNumber, int velocity) {
             midiSynth.startNote(noteNumber, velocity, channel);
-            voiceStatus[channel].note = noteNumber;
-            voiceStatus[channel].volume = velocity;
+
+            VoiceStatus voiceStatus = new VoiceStatus();
+            voiceStatus.channel = channel;
+            voiceStatus.note = noteNumber;
+            voiceStatus.volume = velocity;
+            voiceStatus.bank = bank;
+            voiceStatus.program = program;
+            voiceStatus.active = true;
+            voiceStatuses.add(voiceStatus);
         }
 
         @Override
         public void noteOff(int noteNumber, int velocity) {
             midiSynth.stopNote(noteNumber, channel); // TODO velocity
-            voiceStatus[channel].note = 0;
-            voiceStatus[channel].volume = velocity;
+
+            VoiceStatus voiceStatus = find(channel, noteNumber);
+            if (voiceStatus != null) {
+                voiceStatus.active = false;
+                voiceStatuses.remove(voiceStatus);
+            }
+        }
+
+        private VoiceStatus find(int channel, int noteNumber) {
+            return voiceStatuses.stream().filter(vs -> vs.channel == channel && vs.note == noteNumber).findFirst().orElse(null);
         }
 
         @Override
@@ -340,7 +356,7 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
         @Override
         public void programChange(int program) {
             midiSynth.sendProgramChange(program, channel);
-            voiceStatus[channel].program = program;
+            this.program = program;
         }
 
         @Override
@@ -354,7 +370,7 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
 
         @Override
         public int getProgram() {
-            return voiceStatus[channel].program;
+            return this.program;
         }
 
         @Override
@@ -411,14 +427,12 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
 
         @Override
         public void setMute(boolean mute) {
-            // TODO Auto-generated method stub
-            voiceStatus[channel].active = !mute;
+            this.mute = !mute;
         }
 
         @Override
         public boolean getMute() {
-            // TODO Auto-generated method stub
-            return voiceStatus[channel].active;
+            return this.mute;
         }
 
         @Override

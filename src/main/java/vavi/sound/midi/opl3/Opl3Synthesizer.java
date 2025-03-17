@@ -412,7 +412,10 @@ logger.log(Level.DEBUG, line.getClass().getName());
             adlib.noteOff(noteNumber, channel);
             //
             VoiceStatus voiceStatus = find(channel, noteNumber);
-            if (voiceStatus != null) voiceStatuses.remove(voiceStatus);
+            if (voiceStatus != null) {
+                voiceStatus.active = false;
+                voiceStatuses.remove(voiceStatus);
+            }
 
             this.pressure = velocity;
         }

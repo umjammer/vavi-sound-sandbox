@@ -82,7 +82,7 @@ public class MochaSynthesizer implements Synthesizer {
 
     private final MochaMidiChannel[] channels = new MochaMidiChannel[MAX_CHANNEL];
 
-    private final VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
+    private final List<VoiceStatus> voiceStatuses = new ArrayList<>();
 
     private long timestamp;
 
@@ -125,8 +125,6 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
         for (int i = 0; i < MAX_CHANNEL; i++) {
             channels[i] = new MochaMidiChannel(i);
-            voiceStatus[i] = new VoiceStatus();
-            voiceStatus[i].channel = i;
             channels[i].instrument = (Instrumental) soundBank.getInstruments()[i == 9 ? 1 : 0].getData();
         }
 
@@ -256,7 +254,7 @@ logger.log(Level.TRACE, line.getClass().getName());
 
     @Override
     public VoiceStatus[] getVoiceStatus() {
-        return voiceStatus;
+        return voiceStatuses.toArray(VoiceStatus[]::new);
     }
 
     @Override
@@ -329,9 +327,11 @@ logger.log(Level.TRACE, line.getClass().getName());
         private final int channel;
 
         private final int[] polyPressure = new int[128];
+        private int program;
         private int pressure;
         private int pitchBend;
         private final int[] control = new int[128];
+        private boolean mute;
 
         Instrumental instrument;
 
@@ -344,15 +344,31 @@ logger.log(Level.TRACE, line.getClass().getName());
         public void noteOn(int noteNumber, int velocity) {
             timeline.addReadable(0, instrument.play(noteNumber, 0.5, velocity));
             //
-            voiceStatus[channel].note = noteNumber;
+            VoiceStatus voiceStatus = new VoiceStatus();
+            voiceStatus.note = noteNumber;
+            voiceStatus.volume = velocity;
+            voiceStatus.program = program;
+            voiceStatus.channel = channel;
+            voiceStatus.active = true;
+            voiceStatuses.add(voiceStatus);
+
             this.pressure = velocity;
         }
 
         @Override
         public void noteOff(int noteNumber, int velocity) {
             //
-            voiceStatus[channel].note = 0;
             this.pressure = velocity;
+
+            VoiceStatus voiceStatus = find(channel, noteNumber);
+            if (voiceStatus != null) {
+                voiceStatus.active = false;
+                voiceStatuses.remove(voiceStatus);
+            }
+        }
+
+        private VoiceStatus find(int channel, int noteNumber) {
+            return voiceStatuses.stream().filter(vs -> vs.channel == channel && vs.note == noteNumber).findFirst().orElse(null);
         }
 
         @Override
@@ -394,7 +410,7 @@ logger.log(Level.TRACE, line.getClass().getName());
         @Override
         public void programChange(int program) {
             //
-            voiceStatus[channel].program = program;
+            this.program = program;
         }
 
         @Override
@@ -408,7 +424,7 @@ logger.log(Level.TRACE, line.getClass().getName());
 
         @Override
         public int getProgram() {
-            return voiceStatus[channel].program;
+            return this.program;
         }
 
         @Override
@@ -464,12 +480,12 @@ logger.log(Level.TRACE, line.getClass().getName());
 
         @Override
         public void setMute(boolean mute) {
-            voiceStatus[channel].active = !mute;
+            this.mute = !mute;
         }
 
         @Override
         public boolean getMute() {
-            return voiceStatus[channel].active;
+            return this.mute;
         }
 
         @Override

@@ -270,7 +270,6 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
         private final int channel;
 
-        private int note;
         private int volume;
         private int program;
         private boolean mute;
@@ -297,7 +296,6 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
             midiSynthesizer.noteOn(channel, noteNumber, velocity);
 
-            this.note = noteNumber;
             this.volume = velocity;
         }
 
@@ -306,9 +304,11 @@ logger.log(Level.WARNING, "already open: " + hashCode());
             midiSynthesizer.noteOff(channel, noteNumber, velocity);
 
             VoiceStatus voiceStatus = find(channel, noteNumber);
-            if (voiceStatus != null) voiceStatuses.remove(voiceStatus);
+            if (voiceStatus != null) {
+                voiceStatus.active = false;
+                voiceStatuses.remove(voiceStatus);
+            }
 
-            this.note = 0;
             this.volume = velocity;
         }
 
