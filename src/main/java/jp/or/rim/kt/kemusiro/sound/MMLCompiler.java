@@ -220,7 +220,7 @@ logger.log(Level.DEBUG, "mml: " + mml);
                 break;
             case '>':
                 // Octave Up
-                System.out.println(">");
+                logger.log(Level.DEBUG, ">");
                 if (currentOctave[channel] == 0) {
                     throw new MMLException("octave must be >= 0");
                 }
@@ -238,7 +238,7 @@ logger.log(Level.DEBUG, "mml: " + mml);
                 processChangeInstrument(buf, channel);
                 break;
             default:
-                System.err.println("invalid MML command: " + c);
+                logger.log(Level.WARNING, "invalid MML command: " + c);
                 break;
             }
         }

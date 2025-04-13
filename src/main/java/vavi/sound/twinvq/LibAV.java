@@ -15,6 +15,7 @@ import java.util.function.Function;
 
 import vavi.sound.twinvq.TwinVQDec.TwinVQContext;
 import vavi.sound.twinvq.VFQ.VqfContext;
+import vavi.util.Debug;
 
 import static java.lang.System.getLogger;
 
@@ -184,20 +185,31 @@ public class LibAV {
          *             constraints: multiple of 4
          */
         public void vector_fmul_window(float[] dst, int dstP, float[] src0, int src0P, float[] src1, int src1P, float[] win, int len) {
-            int halfLen = len / 2;
-            int winP = 0;  // Starting index for the window array
+Debug.printf("dst: %d, dstP: %d, src0: %d, src0P: %d, src1: %d, src1P: %d, win: %d, len: %d", dst.length, dstP, src0.length, src0P, src1.length, src1P, win.length, len);
+            int winSize = win.length;
+            int len1 = len - 4;
+            int idx0 = len;
+            int idxDst = len;
+            int idx1 = len1;
 
-            // Perform the vector multiply with window and accumulate
-            for (int i = 0; i < halfLen; i++) {
-                // Multiply src0[i] with win[i] and accumulate in the destination
-                float win0 = win[winP + i];
-                dst[dstP + i] = src0[src0P + i] * win0 + src1[src1P + i] * win[winP + len - 1 - i];
-            }
+            for (int i = -len; i < 0; i += 4) {
+                int winIdx = (i + len) % winSize; // Ensure win index is within bounds
 
-            for (int i = halfLen; i < len; i++) {
-                // Continue multiplying and accumulating for the second half
-                float win1 = win[winP + i];
-                dst[dstP + i] = src0[src0P + i] * win1 - src1[src1P + i] * win[winP + len - 1 - i];
+                float w0 = win[winIdx];
+                float w1 = win[(winIdx + winSize / 2) % winSize]; // Offset for second half
+                float s0 = src0[idx0 + i];
+                float s1 = src1[idx1 + i];
+
+                float p0 = w0 * s0;
+                float p1 = w1 * s1;
+                float p2 = w1 * s0;
+                float p3 = w0 * s1;
+
+                float result1 = p0 - p3;
+                float result2 = p2 + p1;
+
+                dst[idxDst + i] = result1;
+                dst[idxDst + i + len1] = result2;
             }
         }
 

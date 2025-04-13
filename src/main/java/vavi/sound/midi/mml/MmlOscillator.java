@@ -132,7 +132,7 @@ public class MmlOscillator extends ModelAbstractOscillator {
     public void meta(int meta, byte[] data) {
 logger.log(Level.TRACE, "meta: %02x".formatted(meta));
         if (meta == 0x51) {
-            currentTempo = (data[0] & 0xff) * 0x10000 + (data[1] & 0xff) * 0x100 + (data[2] & 0xff);
+            currentTempo = (data[0] & 0xff) * 0x1_0000 + (data[1] & 0xff) * 0x100 + (data[2] & 0xff);
         }
     }
 
