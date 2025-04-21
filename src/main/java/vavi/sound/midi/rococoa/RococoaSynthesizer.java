@@ -12,8 +12,8 @@ import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
 import javax.sound.midi.Instrument;
+import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.MidiMessage;
@@ -29,8 +29,8 @@ import javax.sound.midi.VoiceStatus;
 
 import vavi.util.ByteUtil;
 import vavi.util.StringUtil;
-
 import vavix.rococoa.avfoundation.AVAudioEngine;
+import vavix.rococoa.avfoundation.AVAudioMixerNode;
 import vavix.rococoa.avfoundation.AVAudioUnitMIDIInstrument;
 import vavix.rococoa.avfoundation.AudioComponentDescription;
 
@@ -82,6 +82,8 @@ public class RococoaSynthesizer implements Synthesizer {
 
     private AVAudioEngine engine;
 
+    private AVAudioMixerNode mixer;
+
     private AVAudioUnitMIDIInstrument midiSynth;
 
     private final MidiChannel[] channels = new MidiChannel[MAX_CHANNEL];
@@ -121,14 +123,17 @@ logger.log(Level.DEBUG, "AudioUnit: " + pair[0] + ":" + pair[1]);
         description.componentFlags = 0;
         description.componentFlagsMask = 0;
 
+        mixer = AVAudioMixerNode.newInstance();
         midiSynth = AVAudioUnitMIDIInstrument.init(description);
         if (midiSynth == null) {
             throw new MidiUnavailableException(audesc);
         }
 logger.log(Level.DEBUG, midiSynth + ", " + midiSynth.name() + ", " + midiSynth.version() + ", " + midiSynth.manufacturerName());
 
+        engine.attachNode(mixer);
         engine.attachNode(midiSynth);
-        engine.connect_to_format(midiSynth, engine.mainMixerNode(), null);
+        engine.connect_to_format(midiSynth, mixer, null);
+        engine.connect_to_format(mixer, engine.mainMixerNode(), null);
         engine.prepare();
         boolean r = engine.start();
 logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
@@ -498,9 +503,33 @@ logger.log(Level.DEBUG, "unknown short: %02X".formatted(command));
                     byte[] data = sysexMessage.getData();
 logger.log(Level.DEBUG, "sysex: %02X\n%s".formatted(sysexMessage.getStatus(), StringUtil.getDump(data)));
                     midiSynth.sendMIDISysExEvent(data);
+                    switch (data[0]) {
+                        case 0x7f: // Universal Realtime
+                            @SuppressWarnings("unused")
+                            int c = data[1]; // 0x7f: Disregards channel
+                            // Sub-ID, Sub-ID2
+                            if (data[2] == 0x04 && data[3] == 0x01) { // Device Control / Master Volume
+                                // TODO doesn't work
+                                float gain = ((data[4] & 0x7f) | ((data[5] & 0x7f) << 7)) / 16383f;
+                                float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0) * 4;
+logger.log(Level.DEBUG, "sysex volume: gain: %03.2f, dB: %-3.0f%n", gain, dB);
+                                mixer.setOutputVolume(gain);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+
+                    midiSynth.sendMIDISysExEvent(sysexMessage.getMessage());
+                } else if (message instanceof MetaMessage) {
+                    MetaMessage metaMessage = (MetaMessage) message;
+logger.log(Level.DEBUG, "meta: %02x", metaMessage.getType());
+                    switch (metaMessage.getType()) {
+                        case 0x2f:
+                            break;
+                    }
                 } else {
-                    // TODO meta message
-logger.log(Level.DEBUG, message.getClass().getName());
+                    assert false;
                 }
             } else {
                 throw new IllegalStateException("receiver is not open");
