@@ -19,6 +19,7 @@ import javax.sound.midi.Instrument;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiDeviceReceiver;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Patch;
@@ -190,8 +191,10 @@ logger.log(Level.TRACE, line.getClass().getName());
     }
 
     @Override
+    @SuppressWarnings("ForLoopReplaceableByForEach")
     public void close() {
         isOpen = false;
+        for (int i = 0; i < receivers.size(); i++) receivers.get(i).close();
         line.drain();
         line.close();
         executor.shutdown();
@@ -209,7 +212,7 @@ logger.log(Level.TRACE, line.getClass().getName());
 
     @Override
     public int getMaxReceivers() {
-        return 1;
+        return -1;
     }
 
     @Override
@@ -229,7 +232,7 @@ logger.log(Level.TRACE, line.getClass().getName());
 
     @Override
     public Transmitter getTransmitter() throws MidiUnavailableException {
-        return null;
+        throw new MidiUnavailableException("No transmitter available");
     }
 
     @Override
@@ -259,67 +262,57 @@ logger.log(Level.TRACE, line.getClass().getName());
 
     @Override
     public boolean isSoundbankSupported(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-        return false;
+        return soundbank instanceof MochaSoundbank;
     }
 
     @Override
     public boolean loadInstrument(Instrument instrument) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadInstrument(Instrument instrument) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean remapInstrument(Instrument from, Instrument to) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public Soundbank getDefaultSoundbank() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public Instrument[] getAvailableInstruments() {
-        // TODO Auto-generated method stub
-        return new Instrument[0];
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public Instrument[] getLoadedInstruments() {
-        return new Instrument[0];
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean loadAllInstruments(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadAllInstruments(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean loadInstruments(Soundbank soundbank, Patch[] patchList) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadInstruments(Soundbank soundbank, Patch[] patchList) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     public class MochaMidiChannel implements MidiChannel {
@@ -503,7 +496,7 @@ logger.log(Level.TRACE, line.getClass().getName());
 
     private final List<Receiver> receivers = new ArrayList<>();
 
-    private class MochaReceiver implements Receiver {
+    private class MochaReceiver implements MidiDeviceReceiver {
         private boolean isOpen;
 
         public MochaReceiver() {
@@ -513,9 +506,7 @@ logger.log(Level.TRACE, line.getClass().getName());
 
         @Override
         public void send(MidiMessage message, long timeStamp) {
-            if (!isOpen) {
-                throw new IllegalStateException("receiver is not open");
-            }
+            if (!isOpen) throw new IllegalStateException("receiver is not open");
 
             switch (message) {
                 case ShortMessage shortMessage -> {
@@ -571,6 +562,11 @@ logger.log(Level.DEBUG, "meta: %02x".formatted(metaMessage.getType()));
         public void close() {
             receivers.remove(this);
             isOpen = false;
+        }
+
+        @Override
+        public MidiDevice getMidiDevice() {
+            return MochaSynthesizer.this;
         }
     }
 }

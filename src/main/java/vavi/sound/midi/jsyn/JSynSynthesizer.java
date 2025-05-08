@@ -10,11 +10,13 @@ import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiDeviceReceiver;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Patch;
@@ -131,7 +133,9 @@ logger.log(Level.WARNING, "already open: " + hashCode());
     }
 
     @Override
+    @SuppressWarnings("ForLoopReplaceableByForEach")
     public void close() {
+        for (int i = 0; i < receivers.size(); i++) receivers.get(i).close();
         lineOut.stop();
         synth.stop();
     }
@@ -148,13 +152,11 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
     @Override
     public int getMaxReceivers() {
-        // TODO Auto-generated method stub
-        return 1;
+        return -1;
     }
 
     @Override
     public int getMaxTransmitters() {
-        // TODO Auto-generated method stub
         return 0;
     }
 
@@ -170,14 +172,12 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
     @Override
     public Transmitter getTransmitter() throws MidiUnavailableException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new MidiUnavailableException("No transmitter available");
     }
 
     @Override
     public List<Transmitter> getTransmitters() {
-        // TODO Auto-generated method stub
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -202,68 +202,57 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
     @Override
     public boolean isSoundbankSupported(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-        return false;
+        return soundbank instanceof JSynSoundbank;
     }
 
     @Override
     public boolean loadInstrument(Instrument instrument) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadInstrument(Instrument instrument) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean remapInstrument(Instrument from, Instrument to) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public Soundbank getDefaultSoundbank() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public Instrument[] getAvailableInstruments() {
-        // TODO Auto-generated method stub
-        return new Instrument[0];
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public Instrument[] getLoadedInstruments() {
-        // TODO Auto-generated method stub
-        return new Instrument[0];
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean loadAllInstruments(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadAllInstruments(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean loadInstruments(Soundbank soundbank, Patch[] patchList) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadInstruments(Soundbank soundbank, Patch[] patchList) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     private class JSynMidiChannel implements MidiChannel {
@@ -451,7 +440,7 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
     private final List<Receiver> receivers = new ArrayList<>();
 
-    private class JSynReceiver implements Receiver {
+    private class JSynReceiver implements MidiDeviceReceiver {
         private boolean isOpen;
 
         public JSynReceiver() {
@@ -461,6 +450,8 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
         @Override
         public void send(MidiMessage message, long timeStamp) {
+            if (!isOpen) throw new IllegalStateException("Receiver is not open");
+
             timestamp = timeStamp;
             if (isOpen) {
                 if (message instanceof ShortMessage shortMessage) {
@@ -524,6 +515,11 @@ logger.log(Level.DEBUG, message.getClass().getName());
         public void close() {
             receivers.remove(this);
             isOpen = false;
+        }
+
+        @Override
+        public MidiDevice getMidiDevice() {
+            return JSynSynthesizer.this;
         }
     }
 }
