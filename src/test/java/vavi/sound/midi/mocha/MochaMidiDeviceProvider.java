@@ -6,12 +6,12 @@
 
 package vavi.sound.midi.mocha;
 
-import java.util.logging.Level;
-
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.spi.MidiDeviceProvider;
 
-import vavi.util.Debug;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -21,6 +21,8 @@ import vavi.util.Debug;
  * @version 0.00 201020 nsano initial version <br>
  */
 public class MochaMidiDeviceProvider extends MidiDeviceProvider {
+
+    private static final Logger logger = getLogger(MochaMidiDeviceProvider.class.getName());
 
     /** */
     public final static int MANUFACTURER_ID = 0x5e;
@@ -38,10 +40,10 @@ public class MochaMidiDeviceProvider extends MidiDeviceProvider {
     public MidiDevice getDevice(MidiDevice.Info info) {
 
         if (info == MochaSynthesizer.info) {
-Debug.println(Level.FINE, "★1 info: " + info);
+logger.log(Level.DEBUG, "★1 info: " + info);
             return new MochaSynthesizer();
         } else {
-Debug.println(Level.FINE, "★1 here: " + info);
+logger.log(Level.DEBUG, "★1 here: " + info);
             throw new IllegalArgumentException();
         }
     }
