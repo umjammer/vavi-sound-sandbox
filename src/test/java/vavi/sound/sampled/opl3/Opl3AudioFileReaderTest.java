@@ -77,6 +77,7 @@ Debug.println("volume: " + volume + ", use opl midi?: " + System.getProperty("va
 
     @AfterAll
     static void teardown() {
+        // disable opl3 midi player
         System.setProperty("vavi.sound.opl3.MidiFile", "false");
     }
 

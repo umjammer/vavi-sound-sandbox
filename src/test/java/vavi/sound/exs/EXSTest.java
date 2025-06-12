@@ -8,6 +8,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import vavi.util.Debug;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -22,6 +29,8 @@ import org.junit.jupiter.params.provider.ValueSource;
  */
 class EXSTest {
 
+    static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
     @ParameterizedTest
     @ValueSource(strings = {
             "/exs/MC-202 bass.exs",
@@ -35,6 +44,8 @@ class EXSTest {
         EXS exs = EXS.newFromByteArray(Path.of(EXSTest.class.getResource(filename).toURI()));
     }
 
+    // real samples are in "/Library/Application Support/GarageBand/Instrument Library/Sampler/Sampler Files"
+
     /** .exs files */
     static Stream<Arguments> sources() throws IOException {
         return Files.walk(Path.of("/Library/Application Support/GarageBand/Instrument Library/Sampler/Sampler Instruments"))
@@ -43,8 +54,18 @@ class EXSTest {
     }
 
     @ParameterizedTest
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     @MethodSource("sources")
     void test1(Path path) throws Exception {
         EXS exs = EXS.newFromByteArray(path);
+String json = gson.toJson(exs);
+        Debug.println(json);
+    }
+
+    @Test
+    void test2() throws Exception {
+        EXS exs = EXS.newFromByteArray(Path.of(EXSTest.class.getResource("/exs/MC-202 bass.exs").toURI()));
+        String json = gson.toJson(exs);
+Debug.println(json);
     }
 }

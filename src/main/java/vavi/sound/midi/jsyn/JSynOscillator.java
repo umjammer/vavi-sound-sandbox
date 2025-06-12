@@ -31,7 +31,7 @@ import static java.lang.System.getLogger;
 /**
  * JSynOscillator.
  *
- * TODO is this works???
+ * TODO is this working???
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/11/06 umjammer initial version <br>

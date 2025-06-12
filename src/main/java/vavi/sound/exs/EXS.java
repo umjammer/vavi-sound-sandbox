@@ -28,6 +28,7 @@ import static java.lang.System.getLogger;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2025-04-10 nsano initial version <br>
  * @see "https://claude.ai/chat/2ba404d8-e554-4d27-be8e-5dae5a2601bb"
+ * @see "https://github.com/git-moss/ConvertWithMoss"
  */
 public class EXS {
 
