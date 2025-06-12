@@ -7,30 +7,32 @@
 package vavix.rococoa.avfoundation;
 
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
-
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
-import org.rococoa.RunOnMainThread;
-
 import com.sun.jna.CallbackThreadInitializer;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
+import org.rococoa.RunOnMainThread;
 import vavi.util.ByteUtil;
 import vavi.util.Debug;
-
+import vavi.util.properties.annotation.Property;
+import vavi.util.properties.annotation.PropsEntity;
 import vavix.rococoa.avfoundation.AVAudioConverter.AVAudioConverterInputStatus;
 import vavix.rococoa.avfoundation.AVAudioConverter.AVAudioConverterOutputStatus;
 import vavix.rococoa.avfoundation.AVAudioFormat.AVAudioCommonFormat;
 import vavix.rococoa.avfoundation.AudioStreamBasicDescription.AudioFormatFlag;
 import vavix.rococoa.avfoundation.AudioStreamBasicDescription.AudioFormatID;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 
 /**
@@ -40,10 +42,25 @@ import vavix.rococoa.avfoundation.AudioStreamBasicDescription.AudioFormatID;
  * @version 0.00 2020/09/30 umjammer initial version <br>
  */
 @EnabledOnOs(OS.MAC)
+@PropsEntity(url = "file:local.properties")
 class AVFoundationTest {
+
+    static boolean localPropertiesExists() {
+        return Files.exists(Paths.get("local.properties"));
+    }
 
     static {
         AVFoundation.instance.toString(); // to make sure library is loaded
+    }
+
+    @Property(name = "sf2")
+    String sf2name = System.getProperty("user.home") + "/Library/Audio/Sounds/Banks/Orchestra/default.sf2";
+
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
     }
 
     /** {@link AVAudioFormat#init(AudioStreamBasicDescription)} */
@@ -161,7 +178,6 @@ Debug.println(engine);
         AVAudioUnitMIDIInstrument midiSynth = AVAudioUnitMIDIInstrument.init(description);
 Debug.println(midiSynth);
 
-//        String sf2name = "SGM-V2.01.sf2";
 //        Path sf2 = Paths.get(System.getProperty("user.home"), "/Library/Audio/Sounds/Banks/Orchestra", sf2name);
 //        NSURL bankURL = NSURL.CLASS.fileURLWithPath(sf2.toString());
 //        int status = AudioToolbox.instance.AudioUnitSetProperty(
@@ -171,8 +187,6 @@ Debug.println(midiSynth);
 //                                  0,
 //                                  bankURL.getPointer(),
 //                                  bankURL.CLASS.sf2.length());
-
-
 
         engine.attachNode(midiSynth);
         engine.connect_to_format(midiSynth, engine.mainMixerNode(), null);
@@ -232,7 +246,7 @@ Debug.println("stated: " + r);
      * AVAudioUnitSampler w/ sound font
      */
     @Test
-    @DisabledIfEnvironmentVariable(named = "GITHUB_WORKFLOW", matches = ".*")
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test4() throws Exception {
         AVAudioEngine engine = AVAudioEngine.newInstance();
 Debug.println(engine);
@@ -240,8 +254,7 @@ Debug.println(engine);
         AVAudioUnitSampler midiSynth = AVAudioUnitSampler.newInstance();
 Debug.println(midiSynth);
 
-        String sf2name = "SGM-V2.01.sf2";
-        Path sf2 = Paths.get(System.getProperty("user.home"), "/Library/Audio/Sounds/Banks/Orchestra", sf2name);
+        Path sf2 = Paths.get(sf2name);
         midiSynth.loadSoundBankInstrument(sf2.toUri(),
                                 0,
                                 AVAudioUnitSampler.kAUSampler_DefaultMelodicBankMSB,
@@ -303,8 +316,8 @@ Debug.println("AVAudioUnitComponent: " + c.audioComponentDescription() + ", " + 
     }
 
     /**
-     * AUdioUnit instantiation
-     * TODO not work
+     * AudioUnit instantiation
+     * TODO not work bec block
      *
      * @see "https://stackoverflow.com/questions/32386391/jna-objective-c-rococoa-calendar-callback"
      */

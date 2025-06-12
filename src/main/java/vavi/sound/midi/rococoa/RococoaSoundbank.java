@@ -6,6 +6,7 @@
 
 package vavi.sound.midi.rococoa;
 
+import java.nio.file.Path;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.Patch;
 import javax.sound.midi.Soundbank;
@@ -22,8 +23,15 @@ import javax.sound.midi.SoundbankResource;
  */
 public class RococoaSoundbank implements Soundbank {
 
+    private Path path;
+
     /** */
-    public RococoaSoundbank() {
+    public RococoaSoundbank(Path path) {
+        this.path = path;
+    }
+
+    public Path getPath() {
+        return path;
     }
 
     /** */
@@ -72,14 +80,14 @@ public class RococoaSoundbank implements Soundbank {
 
     /** */
     public static class RococoaInstrument extends Instrument {
-        final Object data;
-        protected RococoaInstrument(RococoaSoundbank soundbank, int bank, int program, String name, Object data) {
+        final String data; // filename
+        protected RococoaInstrument(RococoaSoundbank soundbank, int bank, int program, String name, String data) {
             super(soundbank, new Patch(bank, program), name, Object.class);
             this.data = data;
         }
 
         @Override
-        public Object getData() {
+        public String getData() {
             return data;
         }
     }
