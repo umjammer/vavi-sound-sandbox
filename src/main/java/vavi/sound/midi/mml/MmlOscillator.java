@@ -155,7 +155,7 @@ logger.log(Level.TRACE, "programChange: %d, %02x, %02x, @%d".formatted(channel, 
         for (int i = 0; i < len; i++) {
             float value = 0.0f;
             if (note != null) {
-                value += (float) (note.velocity * note.inst.getValue(note.number));
+                value += (float) ((note.velocity / 127f) * note.inst.getValue(note.number));
             }
             buffer[offset + i] = value;
         }
