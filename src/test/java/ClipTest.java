@@ -40,8 +40,6 @@ import static vavi.sound.SoundUtil.volume;
 public class ClipTest {
 
     static {
-        System.setProperty("vavi.util.logging.VaviFormatter.extraClassMethod", "org.tritonus.share.TDebug#out");
-
         System.setProperty("vavi.sound.opl3.MidiFile", "true"); // true: means using opl3 midi device when SMF format 0
     }
 

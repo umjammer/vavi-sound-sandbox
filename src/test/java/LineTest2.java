@@ -52,11 +52,6 @@ class LineTest2 {
         return Files.exists(Paths.get("local.properties"));
     }
 
-    static {
-        System.setProperty("vavi.util.logging.VaviFormatter.extraClassMethod",
-                           "vavi\\.sound\\.DebugInputStream#\\w+");
-    }
-
     @Property(name = "vavi.test.volume")
     double volume = 0.2;
 
