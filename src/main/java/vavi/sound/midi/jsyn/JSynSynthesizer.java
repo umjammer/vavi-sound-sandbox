@@ -222,7 +222,7 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
     @Override
     public Soundbank getDefaultSoundbank() {
-        throw new UnsupportedOperationException("not implemented yet");
+        return soundBank;
     }
 
     @Override

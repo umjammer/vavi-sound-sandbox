@@ -14,7 +14,6 @@ import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.logging.Level;
-
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -22,14 +21,14 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import vavi.util.ByteUtil;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static vavi.sound.SoundUtil.volume;
@@ -165,9 +164,10 @@ Debug.println("IN: " + intFormat);
             2,
             resamplingRate,
             byteOrder.equals(ByteOrder.BIG_ENDIAN));
-Debug.println(audioFormat);
+Debug.println("CONVERT: " + audioFormat);
 
         InputStream in = new RohmInputStream(inAis, inAis.getFormat().getSampleRate(), audioFormat.getSampleRate());
+Debug.println("OUT: " + audioFormat);
 
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);

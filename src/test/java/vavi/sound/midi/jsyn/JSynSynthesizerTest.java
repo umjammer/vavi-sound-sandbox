@@ -118,8 +118,8 @@ Debug.println(jsynTest);
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
 Debug.println("synthesizer: " + synthesizer.getClass().getName());
         synthesizer.open();
-        synthesizer.unloadAllInstruments(synthesizer.getDefaultSoundbank());
-        synthesizer.loadAllInstruments(new JSynOscillator());
+//        synthesizer.unloadAllInstruments(synthesizer.getDefaultSoundbank()); // TODO not implemented yet
+//        synthesizer.loadAllInstruments(new JSynOscillator()); // TODO not implemented yet
 
         Path file = Paths.get(jsynTest);
 
