@@ -159,27 +159,11 @@ logger.log(Level.DEBUG, "uri: " + uri);
         }
 
         for (int c = 0; c < 16; ++c) {
-            context.channels()[c].nshift = -13;
-            context.voiceStatus()[c].active = this.ons[c];
-            context.channels()[c].inum = this.inums[c];
-
-            context.channels()[c].setIns(context.instruments()[context.channels()[c].inum]);
+            context.channels()[c].nShift = -13;
+            context.channels()[c].setMute(!this.ons[c]);
+            context.channels()[c].programChange(this.inums[c]);
         }
 
         context.adlib().style = Adlib.SIERRA_STYLE | Adlib.MIDI_STYLE;
-    }
-
-    @Override
-    public int nativeVelocity(int channel, int velocity) {
-//        if ((adlib.style & Adlib.MIDI_STYLE) != 0) {
-        int nv = (context.voiceStatus()[channel].volume * velocity) / 128;
-
-        if (nv > 127) {
-            nv = 127;
-        }
-
-        nv = Adlib.my_midi_fm_vol_table[nv];
-        return nv;
-//        }
     }
 }

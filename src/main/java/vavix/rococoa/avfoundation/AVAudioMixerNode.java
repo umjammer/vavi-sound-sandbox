@@ -26,6 +26,10 @@ public abstract class AVAudioMixerNode extends AVAudioNode {
 
     public abstract AVAudioMixerNode init();
 
+    public static AVAudioMixerNode newInstance() {
+        return CLASS.alloc().init();
+    }
+
     public abstract float outputVolume();
 
     /** The values must be in the range of 0.0 to 1.0. */

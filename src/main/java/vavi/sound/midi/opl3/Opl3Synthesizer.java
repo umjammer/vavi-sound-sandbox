@@ -6,19 +6,11 @@
 
 package vavi.sound.midi.opl3;
 
-import java.io.InputStream;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiDeviceReceiver;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Patch;
@@ -35,6 +27,15 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
+import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
 import vavi.sound.opl3.Adlib;
 import vavi.sound.opl3.MidPlayer;
@@ -43,6 +44,7 @@ import vavi.sound.opl3.Opl3Player;
 import vavi.util.StringUtil;
 
 import static java.lang.System.getLogger;
+import static vavi.sound.SoundUtil.volume;
 
 
 /**
@@ -84,9 +86,9 @@ public class Opl3Synthesizer implements Synthesizer {
 
     /** the device information */
     protected static final MidiDevice.Info info =
-        new MidiDevice.Info("OPL3 MIDI Synthesizer",
+        new MidiDevice.Info("Adlib MIDI Synthesizer",
                             "vavi",
-                            "Software synthesizer for OPL3",
+                            "Software synthesizer for Adlib",
                             "Version " + version) {};
 
     // TODO != channel???
@@ -95,7 +97,7 @@ public class Opl3Synthesizer implements Synthesizer {
     private final Opl3MidiChannel[] channels = new Opl3MidiChannel[MAX_CHANNEL];
 
     // TODO voice != channel ( = getMaxPolyphony())
-    private final VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
+    private final List<VoiceStatus> voiceStatuses = new ArrayList<>();
 
     private long timestamp;
 
@@ -116,21 +118,11 @@ public class Opl3Synthesizer implements Synthesizer {
     /** default {@link Adlib#midi_fm_instruments} */
     private Opl3Instrument[] instruments = new Opl3Instrument[128];
 
-    private static class Percussion {
-        int channel = -1;
-        int note;
-        int volume = 0;
-    }
-
-    // ch percussion?
-    private final Percussion[] percussions = new Percussion[18];
-
     public class Context {
         public Adlib adlib() { return Opl3Synthesizer.this.adlib; }
         public Opl3Instrument[] instruments() { return Opl3Synthesizer.this.instruments; }
         public void instruments(Opl3Instrument[] instruments) { Opl3Synthesizer.this.instruments = instruments; }
         public Opl3MidiChannel[] channels() { return Opl3Synthesizer.this.channels; }
-        public VoiceStatus[] voiceStatus() { return Opl3Synthesizer.this.voiceStatus; }
     }
 
     // ----
@@ -148,10 +140,8 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
         soundBank = (Opl3Soundbank) getDefaultSoundbank();
 
-        for (int i = 0; i < MAX_CHANNEL; i++) {
+        for (int i = 0; i < channels.length; i++) {
             channels[i] = new Opl3MidiChannel(i);
-            voiceStatus[i] = new VoiceStatus();
-            voiceStatus[i].channel = i;
         }
 
         // constructor
@@ -165,46 +155,42 @@ logger.log(Level.WARNING, "already open: " + hashCode());
         adlib.style = Adlib.MIDI_STYLE | Adlib.CMF_STYLE;
         adlib.mode = Adlib.MELODIC;
 
+        adlib.reset();
+
         for (int i = 0; i < 128; i++) {
             instruments[i] = (Opl3Instrument) soundBank.getInstruments()[i];
         }
 
         for (int c = 0; c < 16; c++) {
-            channels[c].inum = 0;
+            channels[c].program = 0;
 
-            channels[c].setIns(instruments[channels[c].inum]);
+            channels[c].setIns(instruments[channels[c].program]);
 
-            voiceStatus[c].volume = 127;
-            channels[c].nshift = -25;
-            voiceStatus[c].active = true;
-        }
-
-        for (int i = 0; i < 18; i++) {
-            percussions[i] = new Percussion();
+            channels[c].nShift = -25;
         }
 
 logger.log(Level.DEBUG, "type: " + type);
         this.type = type;
         type.midiTypeFile.init(new Context());
 
-        adlib.reset();
-
         //
         isOpen = true;
 
         if (adlib.isOplInternal()) {
+            // when midi spi
             init();
             executor.submit(this::play);
         }
     }
 
+    /** when midi spi */
     private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
         Thread thread = new Thread(r);
         thread.setPriority(Thread.MAX_PRIORITY);
         return thread;
     });
 
-    /** */
+    /** when midi spi */
     private void init() throws MidiUnavailableException {
         try {
             DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, audioFormat, AudioSystem.NOT_SPECIFIED);
@@ -221,7 +207,7 @@ logger.log(Level.DEBUG, line.getClass().getName());
         timestamp = 0;
     }
 
-    /** */
+    /** when midi spi */
     private void play() {
         byte[] buf = new byte[4 * (int) audioFormat.getSampleRate() / 10];
 //logger.log(Level.TRACE, "buf: %d".formatted(buf.length));
@@ -249,8 +235,10 @@ logger.log(Level.DEBUG, line.getClass().getName());
     }
 
     @Override
+    @SuppressWarnings("ForLoopReplaceableByForEach")
     public void close() {
         isOpen = false;
+        for (int i = 0; i < receivers.size(); i++) receivers.get(i).close();
         line.drain();
         line.close();
         executor.shutdown();
@@ -268,7 +256,7 @@ logger.log(Level.DEBUG, line.getClass().getName());
 
     @Override
     public int getMaxReceivers() {
-        return 1;
+        return -1;
     }
 
     @Override
@@ -288,7 +276,7 @@ logger.log(Level.DEBUG, line.getClass().getName());
 
     @Override
     public Transmitter getTransmitter() throws MidiUnavailableException {
-        return null;
+        throw new MidiUnavailableException("No transmitter available");
     }
 
     @Override
@@ -303,7 +291,7 @@ logger.log(Level.DEBUG, line.getClass().getName());
 
     @Override
     public long getLatency() {
-        return 330;
+        return 33;
     }
 
     @Override
@@ -313,7 +301,7 @@ logger.log(Level.DEBUG, line.getClass().getName());
 
     @Override
     public VoiceStatus[] getVoiceStatus() {
-        return voiceStatus;
+        return voiceStatuses.toArray(VoiceStatus[]::new);
     }
 
     @Override
@@ -323,20 +311,17 @@ logger.log(Level.DEBUG, line.getClass().getName());
 
     @Override
     public boolean loadInstrument(Instrument instrument) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadInstrument(Instrument instrument) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean remapInstrument(Instrument from, Instrument to) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
@@ -356,43 +341,41 @@ logger.log(Level.DEBUG, line.getClass().getName());
 
     @Override
     public boolean loadAllInstruments(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadAllInstruments(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean loadInstruments(Soundbank soundbank, Patch[] patchList) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadInstruments(Soundbank soundbank, Patch[] patchList) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     public class Opl3MidiChannel implements MidiChannel {
 
         private final int channel;
 
+        private boolean mute = false;
+        public int volume;
         private final int[] polyPressure = new int[128];
         private int pressure;
         private int pitchBend;
         private final int[] control = new int[128];
 
         // instrument number TODO public
-        public int inum;
+        public int program;
         // instrument for adlib
         int[] ins = new int[11];
         //
-        public int nshift; // TODO public
+        public int nShift; // TODO public
 
         public void setIns(Opl3Instrument instrument) { // TODO public
             int[] data = (int[]) instrument.getData();
@@ -406,108 +389,35 @@ logger.log(Level.DEBUG, line.getClass().getName());
 
         @Override
         public void noteOn(int noteNumber, int velocity) {
-            int numchan;
-            if (adlib.mode == Adlib.RYTHM) {
-                numchan = 6;
-            } else {
-                numchan = 9;
-            }
-
-            if (voiceStatus[channel].active) {
-                for (int i = 0; i < 18; ++i) {
-                    ++percussions[i].volume;
-                }
-
-                int voice = -1;
-                if (channel < 11 || adlib.mode == Adlib.MELODIC) {
-                    boolean f = false;
-                    int onl = 0;
-
-                    for (int i = 0; i < numchan; ++i) {
-                        if (percussions[i].channel == -1 && percussions[i].volume > onl) {
-                            onl = percussions[i].volume;
-                            voice = i;
-                            f = true;
-                        }
-                    }
-
-                    if (voice == -1) {
-                        onl = 0;
-
-                        for (int i = 0; i < numchan; ++i) {
-                            if (percussions[i].volume > onl) {
-                                onl = percussions[i].volume;
-                                voice = i;
-                            }
-                        }
-                    }
-
-                    if (!f) {
-                        adlib.endNote(voice);
-                    }
-                } else {
-                    voice = Adlib.percussion_map[channel - 11];
-                }
-
-                if (velocity != 0 && inum >= 0 && inum < 128) {
-                    if (adlib.mode == Adlib.MELODIC || channel < 12) {
-                        adlib.instrument(voice, ins);
-                    } else {
-                        adlib.percussion(channel, ins);
-                    }
-
-                    int nv = type.midiTypeFile.nativeVelocity(channel, velocity);
-
-                    adlib.playNote(voice, noteNumber + nshift, nv * 2);
-
-                    percussions[voice].channel = channel;
-                    percussions[voice].note = noteNumber;
-                    percussions[voice].volume = 0;
-
-                    if (adlib.mode == Adlib.RYTHM && channel >= 11) {
-                        adlib.write(0xbd, adlib.read(0xbd) & ~(16 >> (channel - 11)));
-                        adlib.write(0xbd, adlib.read(0xbd) | 16 >> (channel - 11));
-                    }
-                } else {
-                    if (velocity == 0) { // same code as end note
-                        if (adlib.mode == Adlib.RYTHM && channel >= 11) {
-                            // Turn off the percussion instrument
-                            adlib.write(0xbd, adlib.read((0xbd) & ~(0x10 >> (channel - 11))));
-                            // midi_fm_endnote(percussion_map[c]);
-                            percussions[Adlib.percussion_map[channel - 11]].channel = -1;
-                        } else {
-                            for (int i = 0; i < 9; ++i) {
-                                if (percussions[i].channel == channel && percussions[i].note == noteNumber) {
-                                    adlib.endNote(i);
-                                    percussions[i].channel = -1;
-                                }
-                            }
-                        }
-                    } else { // i forget what this is for.
-                        percussions[voice].channel = -1;
-                        percussions[voice].volume = 0;
-                    }
-                }
-logger.log(Level.TRACE, "note on[%d]: (%d %d) %d".formatted(channel, inum, noteNumber, velocity));
-            } else {
-logger.log(Level.TRACE, "note is off");
-            }
+            adlib.noteOn(noteNumber, velocity, channel, volume, program, ins, nShift, channels[channel].mute);
             //
-            voiceStatus[channel].note = noteNumber;
+            VoiceStatus voiceStatus = new VoiceStatus();
+            voiceStatus.note = noteNumber;
+            voiceStatus.active = true;
+            voiceStatus.channel = channel;
+            voiceStatus.program = program;
+            voiceStatus.bank = 0;
+            voiceStatus.volume = velocity;
+            voiceStatuses.add(voiceStatus);
+
             this.pressure = velocity;
         }
 
         @Override
         public void noteOff(int noteNumber, int velocity) {
-            for (int i = 0; i < 9; ++i) {
-                if (percussions[i].channel == channel && percussions[i].note == noteNumber) {
-                    adlib.endNote(i);
-                    percussions[i].channel = -1;
-                }
-            }
+            adlib.noteOff(noteNumber, channel);
             //
-            voiceStatus[channel].note = 0;
+            VoiceStatus voiceStatus = find(channel, noteNumber);
+            if (voiceStatus != null) {
+                voiceStatus.active = false;
+                voiceStatuses.remove(voiceStatus);
+            }
+
             this.pressure = velocity;
+        }
+
+        private VoiceStatus find(int channel, int noteNumber) {
+            return voiceStatuses.stream().filter(vs -> vs.channel == channel && vs.note == noteNumber).findFirst().orElse(null);
         }
 
         @Override
@@ -539,11 +449,11 @@ logger.log(Level.TRACE, "note is off");
         public void controlChange(int controller, int value) {
             switch (controller) {
                 case 0x07 -> { // channel volume
-                    voiceStatus[channel].volume = value;
+                    this.volume = value;
 logger.log(Level.DEBUG, "control change[%d]: vol(%02x): %d".formatted(channel, controller, value));
                 }
                 default ->
-logger.log(Level.DEBUG, "control change unhandled[%d]: (%02x): %d".formatted(channel, controller, value));
+logger.log(Level.TRACE, "control change unhandled[%d]: (%02x): %d".formatted(channel, controller, value));
             }
 
             type.midiTypeFile.controlChange(channel, controller, value);
@@ -559,12 +469,10 @@ logger.log(Level.DEBUG, "control change unhandled[%d]: (%02x): %d".formatted(cha
 
         @Override
         public void programChange(int program) {
-            inum = program & 0x7f;
-logger.log(Level.DEBUG, "instruments[" + inum + "]: " + instruments[inum]);
-            setIns(instruments[inum]);
-logger.log(Level.DEBUG, "program change[%d]: %d".formatted(channel, inum));
-            //
-            voiceStatus[channel].program = program;
+            this.program = program & 0x7f;
+logger.log(Level.DEBUG, "instruments[" + this.program + "]: " + instruments[this.program]);
+            setIns(instruments[this.program]);
+logger.log(Level.DEBUG, "program change[%d]: %d".formatted(channel, this.program));
         }
 
         @Override
@@ -578,7 +486,7 @@ logger.log(Level.DEBUG, "program change[%d]: %d".formatted(channel, inum));
 
         @Override
         public int getProgram() {
-            return voiceStatus[channel].program;
+            return program;
         }
 
         @Override
@@ -635,12 +543,12 @@ logger.log(Level.DEBUG, "program change[%d]: %d".formatted(channel, inum));
 
         @Override
         public void setMute(boolean mute) {
-            voiceStatus[channel].active = !mute;
+            this.mute = mute;
         }
 
         @Override
         public boolean getMute() {
-            return voiceStatus[channel].active;
+            return this.mute;
         }
 
         @Override
@@ -658,7 +566,7 @@ logger.log(Level.DEBUG, "program change[%d]: %d".formatted(channel, inum));
 
     private final List<Receiver> receivers = new ArrayList<>();
 
-    private class Opl3Receiver implements Receiver {
+    private class Opl3Receiver implements MidiDeviceReceiver {
         @SuppressWarnings("hiding")
         private boolean isOpen;
 
@@ -669,9 +577,7 @@ logger.log(Level.DEBUG, "program change[%d]: %d".formatted(channel, inum));
 
         @Override
         public void send(MidiMessage message, long timeStamp) {
-            if (!isOpen) {
-                throw new IllegalStateException("receiver is not open");
-            }
+            if (!isOpen) throw new IllegalStateException("receiver is not open");
 
             switch (message) {
                 case ShortMessage shortMessage -> {
@@ -707,17 +613,15 @@ logger.log(Level.DEBUG, "program change[%d]: %d".formatted(channel, inum));
                 }
                 case SysexMessage sysexMessage -> {
                     byte[] data = sysexMessage.getData();
-logger.log(Level.DEBUG, "sysex: %02X\n%s".formatted(sysexMessage.getStatus(), StringUtil.getDump(data, 32)));
-                    switch (data[1]) {
-                        case 0x7 -> { // Universal Realtime
-                            int c = data[2]; // 0x7f: Disregards channel
+logger.log(Level.TRACE, "sysex: %02X\n%s".formatted(sysexMessage.getStatus(), StringUtil.getDump(data, 32)));
+                    switch (data[0]) {
+                        case 0x7f -> { // Universal Realtime
+                            int c = data[1]; // 0x7f: Disregards channel
                             // Sub-ID, Sub-ID2
-                            if (data[3] == 0x04 && data[4] == 0x01) { // Device Control / Master Volume
-                                float gain = ((data[5] & 0x7f) | ((data[6] & 0x7f) << 7)) / 16383f;
-logger.log(Level.DEBUG, "sysex volume: gain: %3.0f".formatted(gain * 127));
-                                for (c = 0; c < 16; c++) {
-                                    voiceStatus[c].volume = (int) (gain * 127); // TODO doesn't work
-                                }
+                            if (data[2] == 0x04 && data[3] == 0x01) { // Device Control / Master Volume
+                                float gain = ((data[4] & 0x7f) | ((data[5] & 0x7f) << 7)) / 16383f;
+logger.log(Level.DEBUG, "sysex volume: gain: %4.2f".formatted(gain));
+                                volume(line, gain);
                             }
                         }
                         case 0x7d -> { // test
@@ -725,12 +629,13 @@ logger.log(Level.DEBUG, "sysex volume: gain: %3.0f".formatted(gain * 127));
                                 case 0x10: // 7D 10 ch -- set an instrument to ch
                                     // TODO maybe for LUCAS only
 if (type != FileType.LUCAS) {
- logger.log(Level.WARNING, "sysex test: set LUCAS_STYLE for " + type);
+ logger.log(Level.WARNING, "sysex: set LUCAS_STYLE for " + type);
 }
                                     adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
 
                                     int c = data[3];
-                                    channels[c].ins = MidPlayer.fromSysex(data);
+                                    System.arraycopy(MidPlayer.fromSysex(data), 0, channels[c].ins, 0, 11);
+logger.log(Level.DEBUG, "sysex lucas ins ch: %d".formatted(c));
 
                                     break;
                             }
@@ -754,6 +659,11 @@ logger.log(Level.DEBUG, "meta: %02x".formatted(metaMessage.getType()));
         public void close() {
             receivers.remove(this);
             isOpen = false;
+        }
+
+        @Override
+        public MidiDevice getMidiDevice() {
+            return Opl3Synthesizer.this;
         }
     }
 }

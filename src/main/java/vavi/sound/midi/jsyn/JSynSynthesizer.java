@@ -10,11 +10,13 @@ import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiDeviceReceiver;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Patch;
@@ -70,7 +72,7 @@ public class JSynSynthesizer implements Synthesizer {
     protected static final MidiDevice.Info info =
         new MidiDevice.Info("JSyn MIDI Synthesizer",
                             "vavi",
-                            "Software synthesizer for JSyn",
+                            "Software synthesizer powered by JSyn",
                             "Version " + version) {};
 
     // TODO != channel???
@@ -85,8 +87,7 @@ public class JSynSynthesizer implements Synthesizer {
 
     private final MidiChannel[] channels = new MidiChannel[MAX_CHANNEL];
 
-    // TODO voice != channel ( = getMaxPolyphony())
-    private final VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
+    private final List<VoiceStatus> voiceStatuses = new ArrayList<>();
 
     private long timestamp;
 
@@ -102,10 +103,8 @@ logger.log(Level.WARNING, "already open: " + hashCode());
             return;
         }
 
-        for (int i = 0; i < MAX_CHANNEL; i++) {
+        for (int i = 0; i < channels.length; i++) {
             channels[i] = new JSynMidiChannel(i);
-            voiceStatus[i] = new VoiceStatus();
-            voiceStatus[i].channel = i;
         }
 
         synth = JSyn.createSynthesizer();
@@ -134,7 +133,9 @@ logger.log(Level.WARNING, "already open: " + hashCode());
     }
 
     @Override
+    @SuppressWarnings("ForLoopReplaceableByForEach")
     public void close() {
+        for (int i = 0; i < receivers.size(); i++) receivers.get(i).close();
         lineOut.stop();
         synth.stop();
     }
@@ -151,13 +152,11 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
     @Override
     public int getMaxReceivers() {
-        // TODO Auto-generated method stub
-        return 1;
+        return -1;
     }
 
     @Override
     public int getMaxTransmitters() {
-        // TODO Auto-generated method stub
         return 0;
     }
 
@@ -173,14 +172,12 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
     @Override
     public Transmitter getTransmitter() throws MidiUnavailableException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new MidiUnavailableException("No transmitter available");
     }
 
     @Override
     public List<Transmitter> getTransmitters() {
-        // TODO Auto-generated method stub
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -200,78 +197,71 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
     @Override
     public VoiceStatus[] getVoiceStatus() {
-        return voiceStatus;
+        return voiceStatuses.toArray(VoiceStatus[]::new);
     }
 
     @Override
     public boolean isSoundbankSupported(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-        return false;
+        return soundbank instanceof JSynSoundbank;
     }
 
     @Override
     public boolean loadInstrument(Instrument instrument) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadInstrument(Instrument instrument) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean remapInstrument(Instrument from, Instrument to) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public Soundbank getDefaultSoundbank() {
-        // TODO Auto-generated method stub
-        return null;
+        return soundBank;
     }
 
     @Override
     public Instrument[] getAvailableInstruments() {
-        // TODO Auto-generated method stub
-        return new Instrument[0];
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public Instrument[] getLoadedInstruments() {
-        // TODO Auto-generated method stub
-        return new Instrument[0];
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean loadAllInstruments(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadAllInstruments(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean loadInstruments(Soundbank soundbank, Patch[] patchList) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadInstruments(Soundbank soundbank, Patch[] patchList) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     private class JSynMidiChannel implements MidiChannel {
 
         private final int channel;
+
+        private int volume;
+        private int program;
+        private boolean mute;
 
         private final int[] polyPressure = new int[128];
         private int pressure;
@@ -285,16 +275,34 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
         @Override
         public void noteOn(int noteNumber, int velocity) {
+            VoiceStatus voiceStatus = new VoiceStatus();
+            voiceStatus.channel = channel;
+            voiceStatus.program = program;
+            voiceStatus.note = noteNumber;
+            voiceStatus.volume = velocity;
+            voiceStatus.active = true;
+            voiceStatuses.add(voiceStatus);
+
             midiSynthesizer.noteOn(channel, noteNumber, velocity);
-            voiceStatus[channel].note = noteNumber;
-            voiceStatus[channel].volume = velocity;
+
+            this.volume = velocity;
         }
 
         @Override
         public void noteOff(int noteNumber, int velocity) {
             midiSynthesizer.noteOff(channel, noteNumber, velocity);
-            voiceStatus[channel].note = 0;
-            voiceStatus[channel].volume = velocity;
+
+            VoiceStatus voiceStatus = find(channel, noteNumber);
+            if (voiceStatus != null) {
+                voiceStatus.active = false;
+                voiceStatuses.remove(voiceStatus);
+            }
+
+            this.volume = velocity;
+        }
+
+        private VoiceStatus find(int channel, int noteNumber) {
+            return voiceStatuses.stream().filter(vs -> vs.channel == channel && vs.note == noteNumber).findFirst().orElse(null);
         }
 
         @Override
@@ -338,7 +346,7 @@ logger.log(Level.WARNING, "already open: " + hashCode());
         @Override
         public void programChange(int program) {
             midiSynthesizer.programChange(channel, program);
-            voiceStatus[channel].program = program;
+            this.program = program;
         }
 
         @Override
@@ -352,7 +360,7 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
         @Override
         public int getProgram() {
-            return voiceStatus[channel].program;
+            return this.program;
         }
 
         @Override
@@ -409,14 +417,12 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
         @Override
         public void setMute(boolean mute) {
-            // TODO Auto-generated method stub
-            voiceStatus[channel].active = !mute;
+            this.mute = mute;
         }
 
         @Override
         public boolean getMute() {
-            // TODO Auto-generated method stub
-            return voiceStatus[channel].active;
+            return this.mute;
         }
 
         @Override
@@ -434,7 +440,7 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
     private final List<Receiver> receivers = new ArrayList<>();
 
-    private class JSynReceiver implements Receiver {
+    private class JSynReceiver implements MidiDeviceReceiver {
         private boolean isOpen;
 
         public JSynReceiver() {
@@ -444,6 +450,8 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
         @Override
         public void send(MidiMessage message, long timeStamp) {
+            if (!isOpen) throw new IllegalStateException("Receiver is not open");
+
             timestamp = timeStamp;
             if (isOpen) {
                 if (message instanceof ShortMessage shortMessage) {
@@ -507,6 +515,11 @@ logger.log(Level.DEBUG, message.getClass().getName());
         public void close() {
             receivers.remove(this);
             isOpen = false;
+        }
+
+        @Override
+        public MidiDevice getMidiDevice() {
+            return JSynSynthesizer.this;
         }
     }
 }

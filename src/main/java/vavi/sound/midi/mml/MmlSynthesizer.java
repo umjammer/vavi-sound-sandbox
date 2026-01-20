@@ -10,11 +10,14 @@ import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
+import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiDeviceReceiver;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Patch;
@@ -87,7 +90,9 @@ logger.log(Level.DEBUG, "wrapped synthesizer: " + synthesizer.getClass().getName
     }
 
     @Override
+    @SuppressWarnings("ForLoopReplaceableByForEach")
     public void close() {
+        for (int i = 0; i < receivers.size(); i++) receivers.get(i).close();
         synthesizer.close();
     }
 
@@ -117,24 +122,22 @@ logger.log(Level.DEBUG, "wrapped synthesizer: " + synthesizer.getClass().getName
 
     @Override
     public Receiver getReceiver() throws MidiUnavailableException {
-        return new MmlReceiver(synthesizer.getReceiver()); // TODO not works, infinite loop?
-//        return synthesizer.getReceiver();
+        return new MmlReceiver(synthesizer.getReceiver());
     }
 
     @Override
     public List<Receiver> getReceivers() {
-        return receivers; // TODO ditto
-//        return synthesizer.getReceivers();
+        return receivers;
     }
 
     @Override
     public Transmitter getTransmitter() throws MidiUnavailableException {
-        return synthesizer.getTransmitter();
+        throw new MidiUnavailableException("No transmitter available");
     }
 
     @Override
     public List<Transmitter> getTransmitters() {
-        return synthesizer.getTransmitters();
+        return Collections.emptyList();
     }
 
     @Override
@@ -159,26 +162,22 @@ logger.log(Level.DEBUG, "wrapped synthesizer: " + synthesizer.getClass().getName
 
     @Override
     public boolean isSoundbankSupported(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-        return false;
+        return soundbank instanceof MmlSoundbank;
     }
 
     @Override
     public boolean loadInstrument(Instrument instrument) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadInstrument(Instrument instrument) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean remapInstrument(Instrument from, Instrument to) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
@@ -198,40 +197,40 @@ logger.log(Level.DEBUG, "wrapped synthesizer: " + synthesizer.getClass().getName
 
     @Override
     public boolean loadAllInstruments(Soundbank soundbank) {
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadAllInstruments(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean loadInstruments(Soundbank soundbank, Patch[] patchList) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadInstruments(Soundbank soundbank, Patch[] patchList) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     private final List<Receiver> receivers = new ArrayList<>();
 
-    private class MmlReceiver implements Receiver {
+    private class MmlReceiver implements MidiDeviceReceiver {
         final Receiver receiver;
+        boolean isOpen;
 
         public MmlReceiver(Receiver receiver) {
             receivers.add(this);
             this.receiver = receiver;
 logger.log(Level.DEBUG, "receiver: " + this.receiver);
+            isOpen = true;
         }
 
         @Override
         public void send(MidiMessage message, long timeStamp) {
+            if (!isOpen) throw new IllegalStateException("Receiver is not open");
 try {
             if (message instanceof ShortMessage shortMessage) {
                 int command = shortMessage.getCommand();
@@ -252,7 +251,7 @@ logger.log(Level.DEBUG, "sysex: %02X\n%s".formatted(sysexMessage.getStatus(), St
                         switch (data[1]) {
                             case 0x7f -> { // device ID: all-call
                                 if (data[2] == 0x04 && data[3] == 0x01) { // master volume
-                                    logger.log(Level.DEBUG, "sysex: master volume: %02x %02x".formatted(data[4], data[5])); // TODO
+                                    logger.log(Level.DEBUG, "sysex: master volume: %02x %02x".formatted(data[4], data[5])); // proceeded by gervill
                                 }
                             }
                         }
@@ -280,7 +279,13 @@ logger.log(Level.DEBUG, "meta: %02x".formatted(type));
 
         @Override
         public void close() {
+            isOpen = true;
             receivers.remove(this);
+        }
+
+        @Override
+        public MidiDevice getMidiDevice() {
+            return MmlSynthesizer.this;
         }
     }
 }

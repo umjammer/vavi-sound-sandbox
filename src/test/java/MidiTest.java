@@ -23,6 +23,10 @@ import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Transmitter;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+
+import vavi.sound.midi.MidiConstants;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
@@ -46,17 +50,17 @@ public class MidiTest {
         return Files.exists(Paths.get("local.properties"));
     }
 
-    static {
-//        System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
-//        System.setProperty("javax.sound.midi.Synthesizer", "#Gervill");
-//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "NiSc:nK1v");
-//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "Ftcr:mc5p");
-//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "DGSB:Dexd");
-        System.setProperty("javax.sound.midi.Synthesizer", "#Rococoa MIDI Synthesizer");
-//        System.setProperty("javax.sound.midi.Synthesizer", "#JSyn MIDI Synthesizer");
-//        System.setProperty("javax.sound.midi.Receiver", "#Unknown name");
-//        System.setProperty("javax.sound.midi.Receiver", "#Rococoa MIDI Synthesizer");
-    }
+    @Property(name = "sequencer")
+    String sequencer = "#Real Time Sequencer";
+
+    @Property(name = "synthesizer")
+    String synthesizer = "#Gervill";
+
+    @Property(name = "receiver")
+    String receiver;
+
+    @Property(name = "rococoa.audesc")
+    String audesc;
 
     @Property(name = "vavi.test.volume.midi")
     float volume = 0.2f;
@@ -72,10 +76,27 @@ public class MidiTest {
         if (localPropertiesExists()) {
             PropsEntity.Util.bind(this);
         }
+
 Debug.println("volume: " + volume);
+        System.setProperty("javax.sound.midi.Sequencer", sequencer);
+Debug.println("sequencer: " + System.getProperty("javax.sound.midi.Sequencer"));
+
+        System.setProperty("javax.sound.midi.Synthesizer", synthesizer);
+Debug.println("synthesizer: " + System.getProperty("javax.sound.midi.Synthesizer"));
+        if (receiver != null) {
+            System.setProperty("javax.sound.midi.Receiver", receiver);
+Debug.println("receiver: " + System.getProperty("javax.sound.midi.Receiver"));
+        }
+
+        if (audesc != null) {
+            System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", audesc);
+Debug.println("audesc: " + System.getProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc"));
+        }
     }
 
     /** plain */
+    @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void tP() throws Exception {
         Sequence sequence = MidiSystem.getSequence(new File(filename));
 
@@ -98,7 +119,24 @@ Debug.println("END: " + filename);
         sequencer.close();
     }
 
-    /** info */
+    /** */
+    static String getInOut(MidiDevice device) {
+        if (device.getMaxTransmitters() == 0 && device.getMaxReceivers() == 0)
+            return "UNKNOWN(t:" + device.getMaxTransmitters() + ", r:" + device.getMaxReceivers() + ")";
+        else if (device.getMaxTransmitters() == 0)
+            return "INPUT";
+        else if (device.getMaxReceivers() == 0)
+            return "OUTPUT";
+        else
+            return "INOUT(t:" + device.getMaxTransmitters() + ", r:" + device.getMaxReceivers() + ")";
+    }
+
+    /**
+     * info
+     * @see "https://bonar.hatenablog.com/entry/20090322/1237711377"
+     */
+    @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void t0() throws Exception {
         // MIDI
         Synthesizer synthesizer;
@@ -112,41 +150,43 @@ Debug.println("END: " + filename);
 
         for (int i = 0; i < infos.length; i++) {
             device = MidiSystem.getMidiDevice(infos[i]);
-Debug.println("---- [" + i + "] " + infos[i] +" (" + device.getClass().getName() + ")" + " ----");
-Debug.println("name      : " + infos[i].getName());
-Debug.println("vendor    : " + infos[i].getVendor());
-Debug.println("descriptor: " + infos[i].getDescription());
-Debug.println("version   : " + infos[i].getVersion());
+System.err.println("---- [" + i + "] " + infos[i] +" (" + device.getClass().getName() + ")" + " " + getInOut(device) + " ----");
+System.err.println("name      : " + infos[i].getName());
+System.err.println("vendor    : " + infos[i].getVendor());
+System.err.println("descriptor: " + infos[i].getDescription());
+System.err.println("version   : " + infos[i].getVersion());
 synthInfos.add(infos[i]);
         }
 
         // Now, display strings from synthInfos list in GUI.
 
-Debug.println("----");
+System.err.println("----");
         sequencer = MidiSystem.getSequencer();
-Debug.println("default sequencer: " + sequencer.getDeviceInfo());
-Debug.println("default sequencer: " + sequencer);
+System.err.println("default sequencer: " + sequencer.getDeviceInfo());
+System.err.println("default sequencer: " + sequencer);
         sequencer.open();
 
-Debug.println("---- t0");
+System.err.println("---- t0");
         synthesizer = MidiSystem.getSynthesizer();
-Debug.println("default synthesizer: " + synthesizer.getDeviceInfo());
-Debug.println("default synthesizer: " + synthesizer);
+System.err.println("default synthesizer: " + synthesizer.getDeviceInfo());
+System.err.println("default synthesizer: " + synthesizer);
         channels = synthesizer.getChannels();
-Debug.println("channels: " + channels.length);
-Debug.println("sound bank: " + synthesizer.getDefaultSoundbank());
-Debug.println("instruments: "+ synthesizer.getLoadedInstruments().length);
+System.err.println("channels: " + channels.length);
+System.err.println("sound bank: " + synthesizer.getDefaultSoundbank());
+System.err.println("instruments: "+ synthesizer.getLoadedInstruments().length);
 
         Receiver receiver = MidiSystem.getReceiver();
-Debug.println("default receiver: " + receiver);
+System.err.println("default receiver: " + receiver);
 
         Transmitter transmitter = MidiSystem.getTransmitter();
-Debug.println("default transmitter: " + transmitter);
+System.err.println("default transmitter: " + transmitter);
 
         sequencer.close();
     }
 
     /** sf2 by spi: work */
+    @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void t1() throws Exception {
         Sequence sequence = MidiSystem.getSequence(new File(filename));
 
@@ -156,21 +196,26 @@ Debug.println("synthesizer: " + synthesizer);
         // sf
         Soundbank soundbank = synthesizer.getDefaultSoundbank();
 //Instrument[] instruments = synthesizer.getAvailableInstruments();
-Debug.println("B: ---- " + soundbank.getDescription() + " ----");
+if (soundbank != null) {
+ Debug.println("B: ---- " + soundbank.getDescription() + " ----");
 //Arrays.asList(instruments).forEach(System.err::println);
-        synthesizer.unloadAllInstruments(soundbank);
+ synthesizer.unloadAllInstruments(soundbank);
+}
         File sf2 = new File(sf2name);
+Debug.println("soundfont: " + sf2);
         if (sf2.exists()) {
             soundbank = MidiSystem.getSoundbank(sf2);
             synthesizer.loadAllInstruments(soundbank);
 Debug.println("A: ---- " + soundbank.getDescription() + " ----");
 //instruments = synthesizer.getAvailableInstruments();
 //Arrays.asList(instruments).forEach(System.err::println);
+        } else {
+Debug.println("WARNING: " + sf2 + " does not found!");
         }
 
         CountDownLatch cdl = new CountDownLatch(1);
         MetaEventListener mel = meta -> {
-Debug.println("META: " + meta.getType());
+Debug.println("META: " + MidiConstants.MetaEvent.valueOf(meta.getType()));
             if (meta.getType() == 47) cdl.countDown();
         };
         Sequencer sequencer = MidiSystem.getSequencer(false);
@@ -192,6 +237,8 @@ Debug.println("END: " + filename);
 
     /** sf2 direct: work */
     @SuppressWarnings("restriction")
+    @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void t2() throws Exception {
         com.sun.media.sound.SoftSynthesizer synthesizer = new com.sun.media.sound.SoftSynthesizer();
         synthesizer.open();
@@ -226,7 +273,10 @@ Debug.println("END: " + filename);
         synthesizer.close();
     }
 
+    @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void t3() throws Exception {
+Debug.println(filename);
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
         synthesizer.open();
 Debug.println("synthesizer: " + synthesizer);
@@ -263,6 +313,8 @@ Debug.println("END");
     }
 
     /** midi network session test, [1] seemed "session1" */
+    @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void t4() throws Exception {
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
 Debug.println("synthesizer: " + synthesizer.getClass().getName());
@@ -291,7 +343,10 @@ Debug.println("END");
     public static void main(String[] args) throws Exception {
         MidiTest app = new MidiTest();
         app.setup();
-        app.t0();
+        app.tP();
+//        app.t0();
+//        app.t1();
+//        app.t2();
 //        app.t3();
 //        app.t4();
     }

@@ -10,12 +10,14 @@ import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-
 import javax.sound.midi.Instrument;
+import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiDeviceReceiver;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Patch;
@@ -29,9 +31,10 @@ import javax.sound.midi.VoiceStatus;
 
 import vavi.util.ByteUtil;
 import vavi.util.StringUtil;
-
 import vavix.rococoa.avfoundation.AVAudioEngine;
+import vavix.rococoa.avfoundation.AVAudioMixerNode;
 import vavix.rococoa.avfoundation.AVAudioUnitMIDIInstrument;
+import vavix.rococoa.avfoundation.AVAudioUnitSampler;
 import vavix.rococoa.avfoundation.AudioComponentDescription;
 
 import static java.lang.System.getLogger;
@@ -74,7 +77,7 @@ public class RococoaSynthesizer implements Synthesizer {
     protected static final MidiDevice.Info info =
         new MidiDevice.Info("Rococoa MIDI Synthesizer",
                             "vavi",
-                            "Software synthesizer by MacOS",
+                            "Software synthesizer powered by CoreMIDI",
                             "Version " + version) {};
 
     // TODO != channel???
@@ -82,12 +85,14 @@ public class RococoaSynthesizer implements Synthesizer {
 
     private AVAudioEngine engine;
 
+    private AVAudioMixerNode mixer;
+
     private AVAudioUnitMIDIInstrument midiSynth;
 
     private final MidiChannel[] channels = new MidiChannel[MAX_CHANNEL];
 
     // TODO voice != channel ( = getMaxPolyphony())
-    private final VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
+    private final List<VoiceStatus> voiceStatuses = new ArrayList<>();
 
     private long timestump;
 
@@ -99,14 +104,12 @@ public class RococoaSynthesizer implements Synthesizer {
     @Override
     public void open() throws MidiUnavailableException {
         if (isOpen()) {
-logger.log(Level.DEBUG, "already open: " + hashCode());
+logger.log(Level.WARNING, "already open: " + hashCode());
             return;
         }
 
         for (int i = 0; i < MAX_CHANNEL; i++) {
             channels[i] = new RococoaMidiChannel(i);
-            voiceStatus[i] = new VoiceStatus();
-            voiceStatus[i].channel = i;
         }
 
         this.engine = AVAudioEngine.newInstance();
@@ -123,14 +126,17 @@ logger.log(Level.DEBUG, "AudioUnit: " + pair[0] + ":" + pair[1]);
         description.componentFlags = 0;
         description.componentFlagsMask = 0;
 
+        mixer = AVAudioMixerNode.newInstance();
         midiSynth = AVAudioUnitMIDIInstrument.init(description);
         if (midiSynth == null) {
             throw new MidiUnavailableException(audesc);
         }
 logger.log(Level.DEBUG, midiSynth + ", " + midiSynth.name() + ", " + midiSynth.version() + ", " + midiSynth.manufacturerName());
 
+        engine.attachNode(mixer);
         engine.attachNode(midiSynth);
-        engine.connect_to_format(midiSynth, engine.mainMixerNode(), null);
+        engine.connect_to_format(midiSynth, mixer, null);
+        engine.connect_to_format(mixer, engine.mainMixerNode(), null);
         engine.prepare();
         boolean r = engine.start();
 logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
@@ -138,6 +144,7 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
 
     @Override
     public void close() {
+        for (int i = 0; i < receivers.size(); i++) receivers.get(i).close();
         engine.stop();
     }
 
@@ -153,13 +160,11 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
 
     @Override
     public int getMaxReceivers() {
-        // TODO Auto-generated method stub
-        return 1;
+        return -1;
     }
 
     @Override
     public int getMaxTransmitters() {
-        // TODO Auto-generated method stub
         return 0;
     }
 
@@ -175,14 +180,12 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
 
     @Override
     public Transmitter getTransmitter() throws MidiUnavailableException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new MidiUnavailableException("No transmitter available");
     }
 
     @Override
     public List<Transmitter> getTransmitters() {
-        // TODO Auto-generated method stub
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -202,73 +205,67 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
 
     @Override
     public VoiceStatus[] getVoiceStatus() {
-        return voiceStatus;
+        return voiceStatuses.toArray(VoiceStatus[]::new);
     }
 
     @Override
     public boolean isSoundbankSupported(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-        return false;
+        return soundbank instanceof RococoaSoundbank;
     }
 
     @Override
     public boolean loadInstrument(Instrument instrument) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadInstrument(Instrument instrument) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean remapInstrument(Instrument from, Instrument to) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public Soundbank getDefaultSoundbank() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public Instrument[] getAvailableInstruments() {
-        // TODO Auto-generated method stub
-        return new Instrument[0];
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public Instrument[] getLoadedInstruments() {
-        // TODO Auto-generated method stub
-        return new Instrument[0];
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean loadAllInstruments(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-        return false;
+        // TODO limit synth is "appl:dls "
+        return ((AVAudioUnitSampler) midiSynth).loadSoundBankInstrument(
+                ((RococoaSoundbank) soundbank).getPath().toUri(),
+                0,
+                AVAudioUnitSampler.kAUSampler_DefaultMelodicBankMSB,
+                AVAudioUnitSampler.kAUSampler_DefaultBankLSB);
     }
 
     @Override
     public void unloadAllInstruments(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean loadInstruments(Soundbank soundbank, Patch[] patchList) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadInstruments(Soundbank soundbank, Patch[] patchList) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     private class RococoaMidiChannel implements MidiChannel {
@@ -276,9 +273,12 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
         private final int channel;
 
         private final int[] polyPressure = new int[128];
+        private int bank;
+        private int program;
         private int pressure;
         private int pitchBend;
         private final int[] control = new int[128];
+        private boolean mute;
 
         /** */
         public RococoaMidiChannel(int channel) {
@@ -288,15 +288,30 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
         @Override
         public void noteOn(int noteNumber, int velocity) {
             midiSynth.startNote(noteNumber, velocity, channel);
-            voiceStatus[channel].note = noteNumber;
-            voiceStatus[channel].volume = velocity;
+
+            VoiceStatus voiceStatus = new VoiceStatus();
+            voiceStatus.channel = channel;
+            voiceStatus.note = noteNumber;
+            voiceStatus.volume = velocity;
+            voiceStatus.bank = bank;
+            voiceStatus.program = program;
+            voiceStatus.active = true;
+            voiceStatuses.add(voiceStatus);
         }
 
         @Override
         public void noteOff(int noteNumber, int velocity) {
             midiSynth.stopNote(noteNumber, channel); // TODO velocity
-            voiceStatus[channel].note = 0;
-            voiceStatus[channel].volume = velocity;
+
+            VoiceStatus voiceStatus = find(channel, noteNumber);
+            if (voiceStatus != null) {
+                voiceStatus.active = false;
+                voiceStatuses.remove(voiceStatus);
+            }
+        }
+
+        private VoiceStatus find(int channel, int noteNumber) {
+            return voiceStatuses.stream().filter(vs -> vs.channel == channel && vs.note == noteNumber).findFirst().orElse(null);
         }
 
         @Override
@@ -340,7 +355,7 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
         @Override
         public void programChange(int program) {
             midiSynth.sendProgramChange(program, channel);
-            voiceStatus[channel].program = program;
+            this.program = program;
         }
 
         @Override
@@ -354,7 +369,7 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
 
         @Override
         public int getProgram() {
-            return voiceStatus[channel].program;
+            return this.program;
         }
 
         @Override
@@ -411,32 +426,28 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
 
         @Override
         public void setMute(boolean mute) {
-            // TODO Auto-generated method stub
-            voiceStatus[channel].active = !mute;
+            this.mute = !mute;
         }
 
         @Override
         public boolean getMute() {
-            // TODO Auto-generated method stub
-            return voiceStatus[channel].active;
+            return this.mute;
         }
 
         @Override
         public void setSolo(boolean soloState) {
-            // TODO Auto-generated method stub
-
+            throw new UnsupportedOperationException("not implemented yet");
         }
 
         @Override
         public boolean getSolo() {
-            // TODO Auto-generated method stub
-            return false;
+            throw new UnsupportedOperationException("not implemented yet");
         }
     }
 
     private final List<Receiver> receivers = new ArrayList<>();
 
-    private class RococoaReceiver implements Receiver {
+    private class RococoaReceiver implements MidiDeviceReceiver {
         private boolean isOpen;
 
         public RococoaReceiver() {
@@ -446,6 +457,8 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
 
         @Override
         public void send(MidiMessage message, long timeStamp) {
+            if (!isOpen) throw new IllegalStateException("Receiver is not open");
+
             timestump = timeStamp;
             if (isOpen) {
                 if (message instanceof ShortMessage shortMessage) {
@@ -484,9 +497,33 @@ logger.log(Level.DEBUG, "unknown short: %02X".formatted(command));
                     byte[] data = sysexMessage.getData();
 logger.log(Level.DEBUG, "sysex: %02X\n%s".formatted(sysexMessage.getStatus(), StringUtil.getDump(data)));
                     midiSynth.sendMIDISysExEvent(data);
+                    switch (data[0]) {
+                        case 0x7f: // Universal Realtime
+                            @SuppressWarnings("unused")
+                            int c = data[1]; // 0x7f: Disregards channel
+                            // Sub-ID, Sub-ID2
+                            if (data[2] == 0x04 && data[3] == 0x01) { // Device Control / Master Volume
+                                // TODO doesn't work
+                                float gain = ((data[4] & 0x7f) | ((data[5] & 0x7f) << 7)) / 16383f;
+                                float dB = (float) (Math.log(gain) / Math.log(10.0) * 20.0) * 4;
+logger.log(Level.DEBUG, "sysex volume: gain: %03.2f, dB: %-3.0f%n", gain, dB);
+                                mixer.setOutputVolume(gain);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+
+                    midiSynth.sendMIDISysExEvent(sysexMessage.getMessage());
+                } else if (message instanceof MetaMessage) {
+                    MetaMessage metaMessage = (MetaMessage) message;
+logger.log(Level.DEBUG, "meta: %02x", metaMessage.getType());
+                    switch (metaMessage.getType()) {
+                        case 0x2f:
+                            break;
+                    }
                 } else {
-                    // TODO meta message
-logger.log(Level.DEBUG, message.getClass().getName());
+                    assert false;
                 }
             } else {
                 throw new IllegalStateException("receiver is not open");
@@ -497,6 +534,11 @@ logger.log(Level.DEBUG, message.getClass().getName());
         public void close() {
             receivers.remove(this);
             isOpen = false;
+        }
+
+        @Override
+        public MidiDevice getMidiDevice() {
+            return RococoaSynthesizer.this;
         }
     }
 }

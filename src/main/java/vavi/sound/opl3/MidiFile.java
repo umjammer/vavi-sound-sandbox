@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.Arrays;
-
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 import vavi.sound.opl3.MidPlayer.MidiTypeFile;
 
@@ -77,19 +76,5 @@ logger.log(Level.DEBUG, "tracklen: %d".formatted(player.tracks[0].tend));
     @Override
     public void init(Context context) {
         this.context = context;
-    }
-
-    @Override
-    public int nativeVelocity(int channel, int velocity) {
-//        if ((adlib.style & Adlib.MIDI_STYLE) != 0) {
-        int nv = (context.voiceStatus()[channel].volume * velocity) / 128;
-
-        if (nv > 127) {
-            nv = 127;
-        }
-
-        nv = Adlib.my_midi_fm_vol_table[nv];
-        return nv;
-//        }
     }
 }

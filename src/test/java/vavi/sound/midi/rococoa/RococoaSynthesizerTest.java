@@ -11,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
-
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Receiver;
@@ -19,18 +18,17 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
-
 import vavi.sound.midi.MidiConstants.MetaEvent;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import static vavi.sound.midi.MidiUtil.volume;
 
@@ -92,7 +90,7 @@ class RococoaSynthesizerTest {
 
     @Test
     @DisplayName("directly")
-    @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test() throws Exception {
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
         synthesizer.open();
@@ -136,8 +134,8 @@ Debug.println("END");
     }
 
     @Test
-    @Disabled
     @DisplayName("by spi")
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test1() throws Exception {
         Synthesizer synthesizer = new RococoaSynthesizer();
         synthesizer.open();

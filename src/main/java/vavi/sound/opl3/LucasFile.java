@@ -8,7 +8,6 @@ package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 
 
@@ -44,26 +43,5 @@ class LucasFile extends MidiFile {
         this.context = context;
 
         context.adlib().style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
-        super.init(context);
-    }
-
-    @Override
-    public int nativeVelocity(int channel, int velocity) {
-//        if ((adlib.style & Adlib.MIDI_STYLE) != 0) {
-        int nv = (context.voiceStatus()[channel].volume * velocity) / 128;
-//        if ((adlib.style & Adlib.LUCAS_STYLE) != 0) {
-        nv *= 2;
-//        }
-
-        if (nv > 127) {
-            nv = 127;
-        }
-
-        nv = Adlib.my_midi_fm_vol_table[nv];
-//        if ((adlib.style & Adlib.LUCAS_STYLE) != 0) {
-        nv = (int) ((float) Math.sqrt((nv)) * 11.0F);
-//        }
-        return nv;
-//        }
     }
 }

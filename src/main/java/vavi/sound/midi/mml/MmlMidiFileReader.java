@@ -21,7 +21,7 @@ import static java.lang.System.getLogger;
 
 
 /**
- * MmlMidiFileReader implemented by vavi.sound.mfi.vavi package
+ * MmlMidiFileReader implemented by vavi.sound.mml package
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 241206 nsano initial version <br>

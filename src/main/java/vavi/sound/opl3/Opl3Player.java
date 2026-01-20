@@ -103,15 +103,17 @@ logger.log(Level.DEBUG, "encoding: " + encoding);
 
         for (int i = 0; i < len; i += 4) {
             short[] data = opl.read();
-            short chA = data[0];
-            short chB = data[1];
+//            short chA = data[0];
+//            short chB = data[1];
+            short chA = (short) (data[0] + data[2]);
+            short chB = (short) (data[1] + data[3]);
             buf[i] = (byte) (chA & 0xff);
-            buf[i + 1] = (byte) (chA >> 8 & 0xff);
+            buf[i + 1] = (byte) ((chA >> 8) & 0xff);
             buf[i + 2] = (byte) (chB & 0xff);
-            buf[i + 3] = (byte) (chB >> 8 & 0xff);
+            buf[i + 3] = (byte) ((chB >> 8) & 0xff);
         }
 //logger.log(Level.TRACE, "read: " + len);
-      return buf;
+        return buf;
     }
 
     public abstract void rewind(int subSong) throws IOException;

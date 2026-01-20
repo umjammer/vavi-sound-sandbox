@@ -7,6 +7,7 @@
 package vavi.sound.midi.mocha;
 
 import java.io.IOException;
+import java.lang.System.Logger;
 
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MidiChannel;
@@ -21,6 +22,9 @@ import vavi.util.Debug;
 
 import mocha.sound.Instrumental;
 
+import static java.lang.System.Logger.Level.DEBUG;
+import static java.lang.System.getLogger;
+
 
 /**
  * MochaOscillator.
@@ -30,6 +34,8 @@ import mocha.sound.Instrumental;
  */
 @SuppressWarnings("restriction")
 public class MochaOscillator extends ModelAbstractOscillator {
+
+    private static final Logger logger = getLogger(MochaOscillator.class.getName());
 
     /** */
     public class MochaInstrument extends SimpleInstrument {
@@ -72,7 +78,7 @@ public class MochaOscillator extends ModelAbstractOscillator {
     @Override
     public void setSampleRate(float sampleRate) {
         if (MochaOscillator.sampleRate != sampleRate) {
-Debug.println("sampleRate: " + sampleRate);
+logger.log(DEBUG, "sampleRate: " + sampleRate);
             MochaOscillator.sampleRate = sampleRate;
         }
         super.setSampleRate(sampleRate);
@@ -88,7 +94,7 @@ Debug.println("sampleRate: " + sampleRate);
 
     @Override
     public Instrument getInstrument(Patch patch) {
-//Debug.println("patch: " + patch.getBank() + "," + patch.getProgram());
+//logger.log(TRACE, "patch: " + patch.getBank() + "," + patch.getProgram());
         for (Instrument ins : instruments) {
             Patch p = ins.getPatch();
             if (p.getBank() != patch.getBank())
@@ -101,10 +107,10 @@ Debug.println("sampleRate: " + sampleRate);
                     continue;
                 }
             }
-//Debug.println("instrument: " + ins);
+//logger.log(TRACE, "instrument: " + ins);
             return ins;
         }
-Debug.println("instrument not found for: " + patch.getBank() + "," + patch.getProgram());
+logger.log(DEBUG, "instrument not found for: " + patch.getBank() + "," + patch.getProgram());
         return instruments[0];
     }
 

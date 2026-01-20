@@ -101,7 +101,7 @@ Debug.println("OUT: " + outAudioFormat);
     }
 
     @Test
-    @DisplayName("as spi")
+    @DisplayName("via spi")
     void test1() throws Exception {
 
         Path path = Paths.get(OpusFormatConversionProviderTest.class.getResource(inFile).toURI());

@@ -6,12 +6,6 @@
 
 package vavi.sound.midi.opl3;
 
-import java.io.BufferedInputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Receiver;
@@ -19,8 +13,15 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
 
+import java.io.BufferedInputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import vavi.util.Debug;
@@ -47,8 +48,8 @@ import static vavi.sound.midi.MidiUtil.volume;
 class Opl3SynthesizerTest {
 
     static {
-//        System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
-        System.setProperty("javax.sound.midi.Synthesizer", "#OPL3 MIDI Synthesizer");
+        System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
+        System.setProperty("javax.sound.midi.Synthesizer", "#Adlib MIDI Synthesizer");
     }
 
     static boolean localPropertiesExists() {
@@ -69,6 +70,17 @@ class Opl3SynthesizerTest {
         if (localPropertiesExists()) {
             PropsEntity.Util.bind(this);
         }
+Debug.println("volume: " + volume);
+    }
+
+    @BeforeAll
+    static void setupAll() throws Exception {
+        System.setProperty("vavi.sound.opl3.MidiFile", "true");
+    }
+
+    @AfterAll
+    static void teardown() throws Exception {
+        System.setProperty("vavi.sound.opl3.MidiFile", "false");
     }
 
     @Test
@@ -112,10 +124,11 @@ System.err.println("END");
         synthesizer.close();
     }
 
-    @Disabled("not implemented yet (see META-INF/services)")
     @Test
     @DisplayName("spi")
     void test0() throws Exception {
+Debug.println(opl3test);
+
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
         assertEquals(Opl3Synthesizer.class, synthesizer.getClass());
         synthesizer.open();

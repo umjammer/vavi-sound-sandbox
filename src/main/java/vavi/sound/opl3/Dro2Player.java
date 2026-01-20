@@ -126,7 +126,7 @@ class Dro2Player extends Opl3Player {
 logger.log(Level.DEBUG, "id: " + DroPlayer.ID);
 logger.log(Level.DEBUG, "version: " + 2);
 logger.log(Level.DEBUG, "length: " + length);
-logger.log(Level.DEBUG, "mstotal: " + msTotal);
+logger.log(Level.DEBUG, "msTotal: " + msTotal);
 logger.log(Level.DEBUG, "opl3Type: " + opl3Type);
 logger.log(Level.DEBUG, "delay256: " + delay256);
 logger.log(Level.DEBUG, "delayShift8: " + delayShift8);

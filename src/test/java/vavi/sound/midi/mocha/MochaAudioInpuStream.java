@@ -8,15 +8,17 @@ package vavi.sound.midi.mocha;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.nio.ByteBuffer;
-
 import javax.sound.sampled.AudioFormat;
-
-import vavi.util.Debug;
 
 import mocha.sound.Maximizer;
 import mocha.sound.SoundConstants;
 import mocha.sound.SoundReadable;
+
+import static java.lang.System.Logger.Level.DEBUG;
+import static java.lang.System.getLogger;
 
 
 /**
@@ -26,6 +28,8 @@ import mocha.sound.SoundReadable;
  * @version 0.00 2020/10/30 umjammer initial version <br>
  */
 public class MochaAudioInpuStream extends InputStream {
+
+    private static final Logger logger = getLogger(MochaAudioInpuStream.class.getName());
 
     boolean signed = true;
     boolean big_endian = true;
@@ -43,7 +47,7 @@ public class MochaAudioInpuStream extends InputStream {
     }
 
     void init(SoundReadable readable) throws IOException {
-Debug.println("readable: " + readable.length());
+logger.log(DEBUG, "readable: " + readable.length());
         start = System.currentTimeMillis();
         double volume = Math.pow(2, sample_size_byte * 8 - 1) - 1;
         maximizer = new Maximizer(readable, volume);
@@ -68,7 +72,7 @@ Debug.println("readable: " + readable.length());
             }
             index++;
             if (index % (SoundConstants.SAMPLE_RATE * 2 * 5) == 0) {
-                System.out.println("wrote " + (index / SoundConstants.SAMPLE_RATE / 2) + " sec");
+                logger.log(Level.TRACE, "wrote " + (index / SoundConstants.SAMPLE_RATE / 2) + " sec");
             }
             ByteBuffer byteBuffer = ByteBuffer.allocate(8);
             byteBuffer.putLong((long) value);
@@ -78,7 +82,7 @@ Debug.println("readable: " + readable.length());
             listBufferIndex = 0;
         }
         int ret = Byte.toUnsignedInt(listBuffer[listBufferIndex++]);
-        // System.out.println("wav:" + ret);
+//logger.log(Level.TRACE, "wav:" + ret);
         return ret;
     }
 
@@ -93,6 +97,6 @@ Debug.println("readable: " + readable.length());
     @Override
     public void close() throws IOException {
         maximizer.terminate();
-//        System.out.println("total time:" + ((System.currentTimeMillis() - start) / 1000));
+//logger.log(Level.TRACE, "total time:" + ((System.currentTimeMillis() - start) / 1000));
     }
 }

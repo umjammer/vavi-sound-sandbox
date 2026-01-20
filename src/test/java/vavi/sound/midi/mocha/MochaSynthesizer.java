@@ -8,18 +8,18 @@ package vavi.sound.midi.mocha;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiDevice;
+import javax.sound.midi.MidiDeviceReceiver;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Patch;
@@ -37,7 +37,8 @@ import javax.sound.sampled.SourceDataLine;
 
 import mocha.sound.Instrumental;
 import mocha.sound.TimeLine;
-import vavi.util.Debug;
+
+import static java.lang.System.getLogger;
 
 
 /**
@@ -49,6 +50,8 @@ import vavi.util.Debug;
  * @version 0.00 2020/10/30 umjammer initial version <br>
  */
 public class MochaSynthesizer implements Synthesizer {
+
+    private static final System.Logger logger = getLogger(MochaSynthesizer.class.getName());
 
     static {
         try {
@@ -66,8 +69,6 @@ public class MochaSynthesizer implements Synthesizer {
         }
     }
 
-    static Logger logger = Logger.getLogger(MochaSynthesizer.class.getName());
-
     private static final String version;
 
     /** the device information */
@@ -82,7 +83,7 @@ public class MochaSynthesizer implements Synthesizer {
 
     private final MochaMidiChannel[] channels = new MochaMidiChannel[MAX_CHANNEL];
 
-    private final VoiceStatus[] voiceStatus = new VoiceStatus[MAX_CHANNEL];
+    private final List<VoiceStatus> voiceStatuses = new ArrayList<>();
 
     private long timestamp;
 
@@ -119,14 +120,12 @@ public class MochaSynthesizer implements Synthesizer {
     @Override
     public void open() throws MidiUnavailableException {
         if (isOpen()) {
-Debug.println("already open: " + hashCode());
+logger.log(Level.WARNING, "already open: " + hashCode());
             return;
         }
 
         for (int i = 0; i < MAX_CHANNEL; i++) {
             channels[i] = new MochaMidiChannel(i);
-            voiceStatus[i] = new VoiceStatus();
-            voiceStatus[i].channel = i;
             channels[i].instrument = (Instrumental) soundBank.getInstruments()[i == 9 ? 1 : 0].getData();
         }
 
@@ -151,8 +150,8 @@ Debug.println("already open: " + hashCode());
             //
             DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, mocha.getFormat(), AudioSystem.NOT_SPECIFIED);
             line = (SourceDataLine) AudioSystem.getLine(lineInfo);
-Debug.println(line.getClass().getName());
-            line.addLineListener(event -> Debug.println(event.getType()));
+logger.log(Level.TRACE, line.getClass().getName());
+            line.addLineListener(event -> logger.log(Level.DEBUG, event.getType()));
 
             line.open();
             line.start();
@@ -166,7 +165,7 @@ Debug.println(line.getClass().getName());
     /** */
     private void play() {
         byte[] buf = new byte[4 * (int) mocha.getFormat().getSampleRate() / 10];
-//Debug.printf("buf: %d", buf.length);
+//logger.log(Level.TRACE, "buf: %d", buf.length);
 
         while (isOpen) {
             try {
@@ -180,20 +179,22 @@ Debug.println(line.getClass().getName());
                 timestamp = System.currentTimeMillis();
                 msec = msec > 100 ? 100 : msec;
                 int l = mocha.read(buf, 0, 4 * (int) (mocha.getFormat().getSampleRate() * msec / 1000.0));
-//Debug.printf("adlib: %d", l);
+//logger.log(Level.TRACE, "adlib: %d", l);
                 if (l > 0) {
                     line.write(buf, 0, l);
                 }
                 Thread.sleep(100); // TODO how to define?
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.log(Level.ERROR, e.getMessage(), e);
             }
         }
     }
 
     @Override
+    @SuppressWarnings("ForLoopReplaceableByForEach")
     public void close() {
         isOpen = false;
+        for (int i = 0; i < receivers.size(); i++) receivers.get(i).close();
         line.drain();
         line.close();
         executor.shutdown();
@@ -211,7 +212,7 @@ Debug.println(line.getClass().getName());
 
     @Override
     public int getMaxReceivers() {
-        return 1;
+        return -1;
     }
 
     @Override
@@ -231,7 +232,7 @@ Debug.println(line.getClass().getName());
 
     @Override
     public Transmitter getTransmitter() throws MidiUnavailableException {
-        return null;
+        throw new MidiUnavailableException("No transmitter available");
     }
 
     @Override
@@ -256,72 +257,62 @@ Debug.println(line.getClass().getName());
 
     @Override
     public VoiceStatus[] getVoiceStatus() {
-        return voiceStatus;
+        return voiceStatuses.toArray(VoiceStatus[]::new);
     }
 
     @Override
     public boolean isSoundbankSupported(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-        return false;
+        return soundbank instanceof MochaSoundbank;
     }
 
     @Override
     public boolean loadInstrument(Instrument instrument) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadInstrument(Instrument instrument) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean remapInstrument(Instrument from, Instrument to) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public Soundbank getDefaultSoundbank() {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public Instrument[] getAvailableInstruments() {
-        // TODO Auto-generated method stub
-        return new Instrument[0];
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public Instrument[] getLoadedInstruments() {
-        return new Instrument[0];
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean loadAllInstruments(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadAllInstruments(Soundbank soundbank) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public boolean loadInstruments(Soundbank soundbank, Patch[] patchList) {
-        // TODO Auto-generated method stub
-        return false;
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     @Override
     public void unloadInstruments(Soundbank soundbank, Patch[] patchList) {
-        // TODO Auto-generated method stub
-
+        throw new UnsupportedOperationException("not implemented yet");
     }
 
     public class MochaMidiChannel implements MidiChannel {
@@ -329,9 +320,11 @@ Debug.println(line.getClass().getName());
         private final int channel;
 
         private final int[] polyPressure = new int[128];
+        private int program;
         private int pressure;
         private int pitchBend;
         private final int[] control = new int[128];
+        private boolean mute;
 
         Instrumental instrument;
 
@@ -344,15 +337,31 @@ Debug.println(line.getClass().getName());
         public void noteOn(int noteNumber, int velocity) {
             timeline.addReadable(0, instrument.play(noteNumber, 0.5, velocity));
             //
-            voiceStatus[channel].note = noteNumber;
+            VoiceStatus voiceStatus = new VoiceStatus();
+            voiceStatus.note = noteNumber;
+            voiceStatus.volume = velocity;
+            voiceStatus.program = program;
+            voiceStatus.channel = channel;
+            voiceStatus.active = true;
+            voiceStatuses.add(voiceStatus);
+
             this.pressure = velocity;
         }
 
         @Override
         public void noteOff(int noteNumber, int velocity) {
             //
-            voiceStatus[channel].note = 0;
             this.pressure = velocity;
+
+            VoiceStatus voiceStatus = find(channel, noteNumber);
+            if (voiceStatus != null) {
+                voiceStatus.active = false;
+                voiceStatuses.remove(voiceStatus);
+            }
+        }
+
+        private VoiceStatus find(int channel, int noteNumber) {
+            return voiceStatuses.stream().filter(vs -> vs.channel == channel && vs.note == noteNumber).findFirst().orElse(null);
         }
 
         @Override
@@ -394,7 +403,7 @@ Debug.println(line.getClass().getName());
         @Override
         public void programChange(int program) {
             //
-            voiceStatus[channel].program = program;
+            this.program = program;
         }
 
         @Override
@@ -408,7 +417,7 @@ Debug.println(line.getClass().getName());
 
         @Override
         public int getProgram() {
-            return voiceStatus[channel].program;
+            return this.program;
         }
 
         @Override
@@ -464,12 +473,12 @@ Debug.println(line.getClass().getName());
 
         @Override
         public void setMute(boolean mute) {
-            voiceStatus[channel].active = !mute;
+            this.mute = !mute;
         }
 
         @Override
         public boolean getMute() {
-            return voiceStatus[channel].active;
+            return this.mute;
         }
 
         @Override
@@ -487,7 +496,7 @@ Debug.println(line.getClass().getName());
 
     private final List<Receiver> receivers = new ArrayList<>();
 
-    private class MochaReceiver implements Receiver {
+    private class MochaReceiver implements MidiDeviceReceiver {
         private boolean isOpen;
 
         public MochaReceiver() {
@@ -497,9 +506,7 @@ Debug.println(line.getClass().getName());
 
         @Override
         public void send(MidiMessage message, long timeStamp) {
-            if (!isOpen) {
-                throw new IllegalStateException("receiver is not open");
-            }
+            if (!isOpen) throw new IllegalStateException("receiver is not open");
 
             switch (message) {
                 case ShortMessage shortMessage -> {
@@ -530,16 +537,16 @@ Debug.println(line.getClass().getName());
                             channels[channel].setPitchBend(data1 | (data2 << 7));
                             break;
                         default:
-                            Debug.printf("unhandled short: %02X\n", command);
+                            logger.log(Level.DEBUG, "unhandled short: %02X\n", command);
                     }
                 }
                 case SysexMessage sysexMessage -> {
                     byte[] data = sysexMessage.getData();
-//Debug.print("sysex:\n" + StringUtil.getDump(data));
-                    Debug.printf(Level.FINE, "sysex: %02x %02x %02x", data[1], data[2], data[3]);
+//logger.log(Level.TRACE, "sysex:\n" + StringUtil.getDump(data));
+                    logger.log(Level.TRACE, "sysex: %02x %02x %02x", data[1], data[2], data[3]);
                 }
                 case MetaMessage metaMessage -> {
-                    Debug.printf("meta: %02x", metaMessage.getType());
+logger.log(Level.DEBUG, "meta: %02x".formatted(metaMessage.getType()));
                     switch (metaMessage.getType()) {
                         case 0x2f:
                             break;
@@ -555,6 +562,11 @@ Debug.println(line.getClass().getName());
         public void close() {
             receivers.remove(this);
             isOpen = false;
+        }
+
+        @Override
+        public MidiDevice getMidiDevice() {
+            return MochaSynthesizer.this;
         }
     }
 }

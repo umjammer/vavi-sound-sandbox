@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.rococoa.cocoa.foundation.NSArray;
@@ -70,6 +71,7 @@ class ITLibraryTest {
     }
 
     @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
     void test() {
         ITLibrary library = ITLibrary.libraryWithAPIVersion("1.1");

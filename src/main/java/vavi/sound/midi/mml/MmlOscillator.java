@@ -25,6 +25,12 @@ import static java.lang.System.getLogger;
 
 /**
  * MmlOscillator.
+ * <p>
+ * how to implement an oscillator.
+ * <ul>
+ *  <li>make it stateless except sampling rate (oscillator instances are created multiply at playing)</li>
+ *  <li>a sound engine should be separated from the oscillator, hold active notes and be referenced as a singleton</li>
+ * </ul>
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 241206 nsano initial version <br>
@@ -88,7 +94,7 @@ public class MmlOscillator extends ModelAbstractOscillator {
     public Instrument[] getInstruments() {
         Instrument[] instruments = soundbank.getInstruments();
         for (Instrument i : instruments) {
-            ((SimpleInstrument) i).add(getPerformer());
+            ((SimpleInstrument) i).add(getPerformer()); // important!
         }
         return instruments;
     }
@@ -126,7 +132,7 @@ public class MmlOscillator extends ModelAbstractOscillator {
     public void meta(int meta, byte[] data) {
 logger.log(Level.TRACE, "meta: %02x".formatted(meta));
         if (meta == 0x51) {
-            currentTempo = (data[0] & 0xff) * 0x10000 + (data[1] & 0xff) * 0x100 + (data[2] & 0xff);
+            currentTempo = (data[0] & 0xff) * 0x1_0000 + (data[1] & 0xff) * 0x100 + (data[2] & 0xff);
         }
     }
 
@@ -149,7 +155,7 @@ logger.log(Level.TRACE, "programChange: %d, %02x, %02x, @%d".formatted(channel, 
         for (int i = 0; i < len; i++) {
             float value = 0.0f;
             if (note != null) {
-                value += (float) (note.velocity * note.inst.getValue(note.number));
+                value += (float) ((note.velocity / 127f) * note.inst.getValue(note.number));
             }
             buffer[offset + i] = value;
         }
