@@ -553,6 +553,10 @@
           <groupId>com.github.umjammer</groupId>
           <artifactId>ACD-JAPI</artifactId>
         </exclusion>
+        <exclusion>
+          <artifactId>rococoa-contrib</artifactId>
+          <groupId>com.github.umjammer.rococoa</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
 
