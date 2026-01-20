@@ -34,9 +34,9 @@ public abstract class AVAudioFormat extends NSObject {
         AVAudioFormat alloc();
     }
 
-    public static AVAudioFormat init(AVAudioCommonFormat format, double sampleRate, int channels, boolean interleaved) {
+    public static AVAudioFormat init(int format, double sampleRate, int channels, boolean interleaved) {
         AVAudioFormat audioFormat = CLASS.alloc();
-        return audioFormat.initWithCommonFormat_sampleRate_channels_interleaved(format.ordinal(), sampleRate, channels, interleaved);
+        return audioFormat.initWithCommonFormat_sampleRate_channels_interleaved(format, sampleRate, channels, interleaved);
     }
 
     // TODO not work
@@ -69,4 +69,6 @@ public abstract class AVAudioFormat extends NSObject {
     public static final int PCMFormatInt32 = 4;
 
     public abstract NSDictionary settings();
+
+    public abstract boolean isInterleaved();
 }

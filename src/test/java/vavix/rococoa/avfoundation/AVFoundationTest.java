@@ -96,7 +96,7 @@ Debug.println(file);
         AVAudioFormat inputFormat = file.fileFormat();
 Debug.println(inputFormat);
 
-        AVAudioFormat outputFormat = AVAudioFormat.init(AVAudioCommonFormat.pcmFormatInt16, inputFormat.sampleRate(), 2, true);
+        AVAudioFormat outputFormat = AVAudioFormat.init(AVAudioCommonFormat.pcmFormatInt16.ordinal(), inputFormat.sampleRate(), 2, true);
 Debug.println(outputFormat);
         AVAudioConverter converter = AVAudioConverter.init(inputFormat, outputFormat);
 Debug.println(converter);
