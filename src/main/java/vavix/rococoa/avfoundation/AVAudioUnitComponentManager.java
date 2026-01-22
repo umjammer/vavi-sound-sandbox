@@ -35,7 +35,7 @@ public abstract class AVAudioUnitComponentManager extends NSObject {
         AVAudioUnitComponentManager sharedAudioUnitComponentManager();
     }
 
-    public static AVAudioUnitComponentManager sharedInstance() {
+    public static AVAudioUnitComponentManager shared() {
         AVAudioUnitComponentManager manager = CLASS.sharedAudioUnitComponentManager();
 logger.log(Level.DEBUG, manager);
         return manager;
@@ -46,7 +46,7 @@ logger.log(Level.DEBUG, manager);
     public List<AVAudioUnitComponent> components(AudioComponentDescription desc) {
         List<AVAudioUnitComponent> result = new ArrayList<>();
         NSArray components = componentsMatchingDescription(desc.byValue());
-logger.log(Level.DEBUG, components.count());
+logger.log(Level.DEBUG, "components: " + components.count());
         for (int i = 0; i < components.count(); i++) {
             result.add(org.rococoa.Rococoa.cast(components.objectAtIndex(i), AVAudioUnitComponent.class));
         }

@@ -6,16 +6,31 @@
 
 package vavix.rococoa.avfoundation;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
-import com.sun.jna.CallbackThreadInitializer;
-import com.sun.jna.Native;
+import java.util.List;
+import javax.sound.sampled.AudioFileFormat.Type;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import com.sun.jna.Pointer;
 
-import org.rococoa.RunOnMainThread;
+import org.rococoa.Foundation;
+import org.rococoa.ObjCBlocks.BlockLiteral;
+import org.rococoa.ObjCObjectByReference;
+import org.rococoa.Rococoa;
+import org.rococoa.cocoa.appkit.NSApplication;
+import org.rococoa.cocoa.appkit.NSViewController;
+import org.rococoa.cocoa.appkit.NSWindow;
+import org.rococoa.cocoa.foundation.NSError;
 import vavi.util.ByteUtil;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
@@ -27,12 +42,13 @@ import vavix.rococoa.avfoundation.AudioStreamBasicDescription.AudioFormatFlag;
 import vavix.rococoa.avfoundation.AudioStreamBasicDescription.AudioFormatID;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+
+import static org.rococoa.ObjCBlocks.block;
 
 
 /**
@@ -55,6 +71,12 @@ class AVFoundationTest {
 
     @Property(name = "sf2")
     String sf2name = System.getProperty("user.home") + "/Library/Audio/Sounds/Banks/Orchestra/default.sf2";
+
+    @Property(name = "au.type")
+    String auType;
+
+    @Property(name = "au.vendor")
+    String auVendor;
 
     @BeforeEach
     void setup() throws Exception {
@@ -84,16 +106,15 @@ Debug.println(outputFormat);
 
     /**
      * convert
-     *
-     * TODO not work
      */
     @Test
-    @Disabled
     void test() throws Exception {
-        URI uri = URI.create("file:///Users/nsano/Music/0/out.m4a");
+        URI uri = Path.of("src/test/resources", "test.m4a").toUri();
         AVAudioFile file = AVAudioFile.init(uri);
 Debug.println(file);
-        AVAudioFormat inputFormat = file.fileFormat();
+        // AVAudioFile automatically decodes to a processing format (PCM).
+        // To test AVAudioConverter, we convert from this processing format to our target format.
+        AVAudioFormat inputFormat = file.processingFormat();
 Debug.println(inputFormat);
 
         AVAudioFormat outputFormat = AVAudioFormat.init(AVAudioCommonFormat.pcmFormatInt16.ordinal(), inputFormat.sampleRate(), 2, true);
@@ -101,19 +122,57 @@ Debug.println(outputFormat);
         AVAudioConverter converter = AVAudioConverter.init(inputFormat, outputFormat);
 Debug.println(converter);
 
-        AVAudioCompressedBuffer inBuffer = AVAudioCompressedBuffer.init(inputFormat, 1024, converter.maximumOutputPacketSize());
+        AVAudioPCMBuffer inBuffer = AVAudioPCMBuffer.init(inputFormat, 1024);
 Debug.println(inBuffer);
         AVAudioPCMBuffer outBuffer = AVAudioPCMBuffer.init(outputFormat, 1024);
 Debug.println(outBuffer);
 
-        AVAudioConverter.InputBlock inputBlock = (inNumPackets, outStatus) -> {
-            outStatus.setValue(AVAudioConverterInputStatus.haveData.ordinal());
-            return inBuffer.id();
-        };
+        BlockLiteral inputBlock = block((AVAudioConverter.InputBlock) (block, inNumPackets, outStatus) -> {
+//Debug.println("enter block: " + inNumPackets + ", " + outStatus);
+            ObjCObjectByReference error = new ObjCObjectByReference();
+            boolean r = file.readIntoBuffer_error(inBuffer, error);
+//Debug.println("readIntoBuffer: " + r + ", " + error.getValueAs(NSError.class));
+            if (r && error.getValueAs(NSError.class) == null) {
+                if (inBuffer.frameLength() == 0) {
+                    outStatus.setValue(AVAudioConverterInputStatus.endOfStream.ordinal());
+                    return null;
+                }
+                outStatus.setValue(AVAudioConverterInputStatus.haveData.ordinal());
+                return inBuffer.id();
+            } else {
+                outStatus.setValue(AVAudioConverterInputStatus.endOfStream.ordinal());
+                if (error.getValueAs(NSError.class) != null) {
+Debug.println("error: " + error.getValueAs(NSError.class).description());
+                }
+                return null;
+            }
+        });
 
-        AVAudioConverterOutputStatus status = converter.convert(outBuffer, inputBlock);
-//        boolean status = converter.convert(outBuffer, inBuffer);
-Debug.println(status);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        AVAudioConverterOutputStatus status;
+        int count = 0;
+        do {
+            status = converter.convert(outBuffer, inputBlock);
+            if (status == AVAudioConverterOutputStatus.haveData) {
+                ByteBuffer bb = ByteBuffer.allocate(outBuffer.frameLength() * outputFormat.channelCount() * Short.BYTES).order(ByteOrder.LITTLE_ENDIAN);
+                ShortBuffer sb = bb.asShortBuffer();
+                sb.put(outBuffer.int16ChannelData().getPointer(0).getShortArray(0, outBuffer.frameLength() * outputFormat.channelCount()));
+                os.write(bb.array());
+                count += outBuffer.frameLength();
+System.out.println("count: " + count);
+            }
+        } while (status == AVAudioConverterOutputStatus.haveData);
+Debug.println("Total frames converted: " + count);
+
+        os.flush();
+        os.close();
+
+        Path out = Path.of("tmp", "avf_test.wav");
+        AudioFormat format = new AudioFormat((float) inputFormat.sampleRate(), 16, 2, true, false);
+        AudioSystem.write(new AudioInputStream(new ByteArrayInputStream(os.toByteArray()), format, os.size() / format.getFrameSize()), Type.WAVE, out.toFile());
+
+        Foundation.getRococoaLibrary().releaseObjCBlock(inputBlock.getPointer());
     }
 
     /**
@@ -288,7 +347,7 @@ Debug.println("stated: " + r);
         AudioComponentDescription description = new AudioComponentDescription();
         description.componentType = AudioComponentDescription.kAudioUnitType_MusicDevice;
 //        description.componentSubType = AudioComponentDescription.kAudioUnitSubType_DLSSynth;
-//        description.componentManufacturer = ByteUtil.readBeInt("Ftcr".getBytes(), 0);
+//        description.componentManufacturer = ByteUtil.readBeInt(auVendor.getBytes(), 0);
         int r = AudioToolbox.instance.AudioComponentCount(description);
 Debug.println("AudioComponentCount: " + r);
 
@@ -306,24 +365,23 @@ Debug.println("AudioComponent: " + name);
         AudioComponentDescription description = new AudioComponentDescription();
         description.componentType = AudioComponentDescription.kAudioUnitType_MusicDevice;
 //        description.componentSubType = AudioComponentDescription.kAudioUnitSubType_DLSSynth;
-//        description.componentManufacturer = ByteUtil.readBeInt("Ftcr".getBytes(), 0);
+//        description.componentManufacturer = ByteUtil.readBeInt(auVendor.getBytes(), 0);
         int r = AudioToolbox.instance.AudioComponentCount(description);
 Debug.println("AudioComponentCount: " + r);
 
-        for (AVAudioUnitComponent c : AVAudioUnitComponentManager.sharedInstance().components(description)) {
+        for (AVAudioUnitComponent c : AVAudioUnitComponentManager.shared().components(description)) {
 Debug.println("AVAudioUnitComponent: " + c.audioComponentDescription() + ", " + c.name() + ", " + c.manufacturerName() + ", " + c.versionString() + ", " + c.hasMIDIInput() + ", " + c.hasCustomView() + ", " + c.isSandboxSafe());
         }
     }
 
     /**
      * AudioUnit instantiation
-     * TODO not work bec block
-     *
-     * @see "https://stackoverflow.com/questions/32386391/jna-objective-c-rococoa-calendar-callback"
      */
-    @Disabled
     @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test7() throws Exception {
+        AVAudioUnitComponentManager manager = AVAudioUnitComponentManager.shared();
+
         AudioComponentDescription description = new AudioComponentDescription();
         description.componentType = AudioComponentDescription.kAudioUnitType_MusicDevice;
         description.componentSubType = ByteUtil.readBeInt("mc5p".getBytes(), 0);
@@ -331,19 +389,37 @@ Debug.println("AVAudioUnitComponent: " + c.audioComponentDescription() + ", " + 
         description.componentFlags = 0;
         description.componentFlagsMask = 0;
 
-        AUAudioUnit audioUnit = AUAudioUnit.initWithComponentDescription(description);
+        List<AVAudioUnitComponent> list = manager.components(description);
+        if (list.isEmpty()) throw new IllegalArgumentException("no such desc: " + auType + ":" + auVendor);
+
+        AudioComponentDescription desc = list.getFirst().audioComponentDescription();
+Debug.println("Attempting to instantiate: " + desc);
+
+        AUAudioUnit audioUnit = AUAudioUnit.instantiate(desc, 0);
 Debug.println("AudioUnit: " + audioUnit.description());
-        AUAudioUnit.CompletionHandlerCallback callback = new AUAudioUnit.CompletionHandlerCallback() {
-            @Override
-            @RunOnMainThread
-            public void completionHandler(Pointer outCompletionHandler) {
-//                NSViewController viewControler = outCompletionHandler.getValueAs(NSViewController.class);
-//Debug.println("viewControler: " + viewControler);
-//                viewControler.loadView();
-            }
-        };
-        Native.setCallbackThreadInitializer(callback, new CallbackThreadInitializer(false, false, "Cocoa Dispatch Thread"));
-        audioUnit.requestViewControllerWithCompletionHandler(callback);
+
+        NSApplication app = NSApplication.sharedApplication();
+        app.setActivationPolicy(0); // NSApplicationActivationPolicyRegular
+        app.finishLaunching();
+        app.activate();
+
+        BlockLiteral completionHandle = block((AUAudioUnit.AUViewControllerBase) (block, viewControllerId) -> {
+Debug.println("block enter: " + viewControllerId);
+            NSViewController vc = Rococoa.wrap(viewControllerId, NSViewController.class);
+Debug.println(vc);
+
+            Foundation.runOnMainThread(() -> {
+                NSWindow window = NSWindow.windowWithContentViewController(vc);
+                window.center();
+                window.makeKeyAndOrderFront(null);
+            });
+        });
+
+        audioUnit.requestViewControllerWithCompletionHandler(completionHandle);
+
+        Thread.sleep(20000);
+
+        Foundation.getRococoaLibrary().releaseObjCBlock(completionHandle.getPointer());
     }
 
     @Test

@@ -6,7 +6,7 @@
 
 package vavix.rococoa.avfoundation;
 
-import com.sun.jna.Callback;
+import org.rococoa.ObjCObjectByReference;
 
 
 /**
@@ -17,10 +17,5 @@ import com.sun.jna.Callback;
  */
 public interface AUAudioUnitFactory {
 
-    AUAudioUnit createAudioUnitWithComponentDescription(AudioComponentDescription.ByValue desc);
-
-    /**
-     * @param completionHandler Function<AUViewControllerBase, Void>
-     */
-    void requestViewControllerWithCompletionHandler(Callback completionHandler);
+    AUAudioUnit createAudioUnitWithComponentDescription_error(AudioComponentDescription.ByValue desc, ObjCObjectByReference error);
 }

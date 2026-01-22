@@ -77,7 +77,7 @@ public abstract class AVAudioUnitMIDIInstrument extends AVAudioUnit {
      */
     public void sendMIDISysExEvent(byte[] midiData) {
 //logger.log(Level.TRACE, "sysex: %02X\n%s".formatted(midiData[0], StringUtil.getDump(midiData)));
-        NSData data = NSData.CLASS.dataWithBytes_length(midiData, midiData.length);
+        NSData data = NSData.dataWithBytes(midiData);
         sendMIDISysExEvent(data);
     }
 

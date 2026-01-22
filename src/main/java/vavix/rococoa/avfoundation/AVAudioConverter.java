@@ -7,13 +7,18 @@
 package vavix.rococoa.avfoundation;
 
 import org.rococoa.ID;
+import org.rococoa.ObjCBlock;
+import org.rococoa.ObjCBlocks.BlockLiteral;
 import org.rococoa.ObjCClass;
 import org.rococoa.ObjCObjectByReference;
 import org.rococoa.cocoa.foundation.NSError;
+import org.rococoa.cocoa.foundation.NSInteger;
 import org.rococoa.cocoa.foundation.NSObject;
 
 import com.sun.jna.Callback;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 
 
 /**
@@ -24,14 +29,14 @@ import com.sun.jna.ptr.IntByReference;
  */
 public abstract class AVAudioConverter extends NSObject {
 
-    enum AVAudioConverterOutputStatus {
-        endOfStream,
-        error,
+    public enum AVAudioConverterOutputStatus {
         haveData,
-        inputRanDry
+        inputRanDry,
+        endOfStream,
+        error
     }
 
-    enum AVAudioConverterInputStatus {
+    public enum AVAudioConverterInputStatus {
         haveData,
         noDataNow,
         endOfStream
@@ -54,9 +59,9 @@ public abstract class AVAudioConverter extends NSObject {
 
     public abstract AVAudioConverter initFromFormat_toFormat(AVAudioFormat fromFormat, AVAudioFormat toFormat);
 
-    public abstract int convertToBuffer_error_withInputFromBlock(AVAudioBuffer outBuffer, ObjCObjectByReference error, InputBlock inputBlock);
+    public abstract int convertToBuffer_error_withInputFromBlock(AVAudioBuffer outBuffer, ObjCObjectByReference error, BlockLiteral /* ^AVAudioConverterInputBlock */ inputBlock);
 
-    public AVAudioConverterOutputStatus convert(AVAudioBuffer outBuffer, InputBlock inputBlock) {
+    public AVAudioConverterOutputStatus convert(AVAudioBuffer outBuffer, BlockLiteral inputBlock) {
         ObjCObjectByReference outError = new ObjCObjectByReference();
         int r = convertToBuffer_error_withInputFromBlock(outBuffer, outError, inputBlock);
         NSError error = outError.getValueAs(NSError.class);
@@ -80,8 +85,8 @@ public abstract class AVAudioConverter extends NSObject {
 
     public abstract int maximumOutputPacketSize();
 
-    interface InputBlock extends Callback {
-        ID apply(int inNumPackets, IntByReference outStatus);
+    interface InputBlock extends ObjCBlock {
+        ID apply(BlockLiteral block, int inNumPackets, LongByReference outStatus);
     }
 
     public abstract void reset();
