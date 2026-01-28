@@ -14,7 +14,7 @@ package vavi.sound.twinvq;
  */
 public class GetBits {
 
-    final int bitcount;
+    final int size_in_bits;
 
     int pos;
 
@@ -22,8 +22,14 @@ public class GetBits {
     final int buffer_len;
     int buffer_pos;
 
+    /** Returns the number of bits that have been read from the bitstream */
     public int get_bits_count() {
-        return bitcount;
+        return buffer_pos * 8 + pos;
+    }
+
+    /** Returns total size of the bitstream in bits */
+    public int get_bits_size() {
+        return size_in_bits;
     }
 
     public byte get_bits1() {
@@ -34,9 +40,9 @@ public class GetBits {
         buffer = new char[bufSize];
         buffer_len = bufSize;
         buffer_pos = 0;
-        bitcount = 8 * bufSize;
+        size_in_bits = 8 * bufSize;
         for (int i = 0; i < bufSize; i++) {
-            buffer[i] = (char) buf[i];
+            buffer[i] = (char) (buf[i] & 0xff);
         }
     }
 

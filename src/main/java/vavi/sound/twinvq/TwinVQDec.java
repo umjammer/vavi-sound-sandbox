@@ -280,6 +280,19 @@ public class TwinVQDec {
         else               return a;
     }
 
+    /**
+     * Clip a float value into the amin-amax range.
+     * @param a value to clip
+     * @param amin minimum value of the clip range
+     * @param amax maximum value of the clip range
+     * @return clipped value
+     */
+    static float av_clipf_c(float a, float amin, float amax) {
+        if      (a < amin) return amin;
+        else if (a > amax) return amax;
+        else               return a;
+    }
+
     static final byte[] ff_log2_tab= {
             0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3,
             4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
@@ -315,7 +328,7 @@ public class TwinVQDec {
     }
 
     static float twinvq_mulawinv(float y, float clip, float mu) {
-        y = av_clip_c((int) (y / clip), -1, 1);
+        y = av_clipf_c(y / clip, -1.0f, 1.0f);
         return (float) (clip * FFSIGN(y) * (Math.exp(Math.log(1 + mu) * Math.abs(y)) - 1) / mu);
     }
 
@@ -500,7 +513,7 @@ public class TwinVQDec {
 
         for (int i = 0; i < fw_cb_len; i++)
             for (int j = 0; j < bark_n_coef; j++, idx++) {
-                float tmp2 = mtab.fmode[ftype.ordinal()].bark_cb[fw_cb_len * in[j] + i] * (1.0f / 4096);
+                float tmp2 = mtab.fmode[ftype.ordinal()].bark_cb[fw_cb_len * (in[j] & 0xff) + i] * (1.0f / 4096);
                 float st = use_hist != 0 ? (1.0f - val) * tmp2 + val * hist[idx] + 1.0f : tmp2 + 1.0f;
 
                 hist[idx] = tmp2;
@@ -515,13 +528,30 @@ public class TwinVQDec {
     private static void read_cb_data(TwinVQContext tctx, GetBits gb, byte[] dst, TwinVQFrameType ftype) {
         int dstP = 0;
 
+        // Debug: track bit position at start
+        int startBitPos = gb.get_bits_count();
+        int bits0 = tctx.bits_main_spec[0][ftype.ordinal()][0];
+        int bits1 = tctx.bits_main_spec[1][ftype.ordinal()][0];
+        System.err.println("read_cb_data start: ftype=" + ftype + ", n_div=" + tctx.n_div[ftype.ordinal()] +
+            ", bits0=" + bits0 + ", bits1=" + bits1 + ", startBitPos=" + startBitPos);
+
         for (int i = 0; i < tctx.n_div[ftype.ordinal()]; i++) {
             int bs_second_part = (i >= tctx.bits_main_spec_change[ftype.ordinal()]) ? 1 : 0;
 
+            int bitsBefore = gb.get_bits_count();
             dst[dstP++] = (byte) gb.get_bits(tctx.bits_main_spec[0][ftype.ordinal()][bs_second_part]);
             dst[dstP++] = (byte) gb.get_bits(tctx.bits_main_spec[1][ftype.ordinal()][bs_second_part]);
-//logger.log(Level.TRACE, "cb[%3d]: %d, %02x, %d, %02x, %d".formatted(i, tctx.bits_main_spec[0][ftype.ordinal()][bs_second_part], dst[dstP - 2], tctx.bits_main_spec[1][ftype.ordinal()][bs_second_part], dst[dstP - 1], bs_second_part));
+            int bitsAfter = gb.get_bits_count();
+
+            // Debug first 10 codebook indices for the first call
+            if (i < 10 && dstP <= 20) {
+                System.err.println("CB read[" + i + "]: cb0=" + (dst[dstP - 2] & 0xff) + ", cb1=" + (dst[dstP - 1] & 0xff) +
+                    ", bitPos=" + bitsBefore + "->" + bitsAfter + ", bufPos=" + gb.buffer_pos);
+            }
         }
+
+        int endBitPos = gb.get_bits_count();
+        System.err.println("read_cb_data end: totalBitsRead=" + (endBitPos - startBitPos));
     }
 
     /** */
@@ -531,7 +561,16 @@ public class TwinVQDec {
         int channels = tctx.avctx.ch_layout.nb_channels;
 
         GetBits gb = new GetBits(buf, buf_size);
-        gb.skip_bits(gb.get_bits(8));
+        int skip = gb.get_bits(8);
+        // Show first 20 bytes of buffer for debugging
+        StringBuilder bufHex = new StringBuilder("buf hex: ");
+        for (int i = 0; i < Math.min(20, buf_size); i++) {
+            bufHex.append(String.format("%02x ", buf[i] & 0xff));
+        }
+        System.err.println("Frame start: buf_size=" + buf_size + ", skip=" + skip + ", bitPosAfterSkipByte=" + gb.get_bits_count());
+        System.err.println(bufHex.toString());
+        gb.skip_bits(skip);
+        System.err.println("After skip " + skip + " bits: bitPos=" + gb.get_bits_count());
 
         bits.window_type = gb.get_bits(TWINVQ_WINDOW_TYPE_BITS);
 

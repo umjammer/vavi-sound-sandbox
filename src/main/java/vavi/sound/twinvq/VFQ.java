@@ -267,10 +267,13 @@ logger.log(Level.DEBUG, "size: " + size + ", blen: " + c.frame_bit_len + ", brem
 
             pkt.data[0] = (byte) (8 - c.remaining_bits); // Number of bits to skip
             pkt.data[1] = c.last_frame_bits;
+            // Debug: this should advance by 'size' bytes each call
             ret = s.pb.read(pkt.data, 2, size);
+            System.err.println("VQF read: size=" + size + ", ret=" + ret + ", remaining_bits=" + c.remaining_bits);
 
             if (ret <= 0) {
-                throw new IllegalStateException("read");
+                // End of file reached
+                return null;
             }
 
             c.last_frame_bits = pkt.data[size + 1];
