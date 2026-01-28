@@ -22,7 +22,7 @@ public class GuitarString {
     private static final Logger logger = getLogger(GuitarString.class.getName());
 
     /** the buffer that will hold the data for our simulation */
-    private RingBuffer stringBuffer;
+    private final RingBuffer stringBuffer;
     /** the length of our buffer */
     private int stringLength;
     /** the amount of time (in 'tics') the simulation has been running */

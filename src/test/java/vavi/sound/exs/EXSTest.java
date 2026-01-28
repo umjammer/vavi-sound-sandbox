@@ -26,6 +26,7 @@ import org.junit.jupiter.params.provider.ValueSource;
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2025-04-10 nsano initial version <br>
+ * @see "https://github.com/git-moss/ConvertWithMoss"
  */
 class EXSTest {
 

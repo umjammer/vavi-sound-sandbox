@@ -117,7 +117,7 @@ if (!onIde) {
 } else {
         cdl.await();
 }
-System.err.println("END");
+Debug.println("END");
         sequencer.removeMetaEventListener(mel);
         sequencer.close();
 
