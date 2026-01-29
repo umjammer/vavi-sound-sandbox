@@ -49,7 +49,7 @@ import static vavi.sound.twinvq.LibAV.MKTAG;
  * @version 0.00 2024-08-09 nsano initial version <br>
  * @see "https://github.com/libav/libav/blob/master/libavformat/vqf.c"
  */
-class VFQ {
+public class VFQ {
 
     private static final Logger logger = getLogger(VFQ.class.getName());
 
@@ -155,7 +155,7 @@ class VFQ {
 
                 header_size -= 8;
 
-logger.log(Level.DEBUG, "chunk: " + chunk_tag + ", " + len);
+logger.log(Level.TRACE, "chunk: " + chunk_tag + ", " + len);
                 switch (chunk_tag) {
                     case TAG_COMM -> {
                         s.pb.readFully(comm_chunk, 0, 12);
@@ -241,7 +241,7 @@ logger.log(Level.DEBUG, "chunk: " + chunk_tag + ", " + len);
             st.codecpar.extradata = new byte[12 + AV_INPUT_BUFFER_PADDING_SIZE];
             st.codecpar.extradata_size = 12;
             System.arraycopy(comm_chunk, 0, st.codecpar.extradata, 0, 12);
-logger.log(Level.DEBUG, "extradata_size: " + st.codecpar.extradata_size + "\n" + StringUtil.getDump(st.codecpar.extradata));
+logger.log(Level.TRACE, "extradata_size: " + st.codecpar.extradata_size + "\n" + StringUtil.getDump(st.codecpar.extradata));
 
 //            ff_metadata_conv_ctx(s, null, vqf_metadata_conv);
 
@@ -257,7 +257,7 @@ logger.log(Level.ERROR, e.getMessage(), e);
             VqfContext c = s.priv_data;
             int ret;
             int size = (c.frame_bit_len - c.remaining_bits + 7) >> 3;
-logger.log(Level.DEBUG, "size: " + size + ", blen: " + c.frame_bit_len + ", brem: " + c.remaining_bits + ", lfbits: " + (c.last_frame_bits & 0xff));
+logger.log(Level.TRACE, "size: " + size + ", blen: " + c.frame_bit_len + ", brem: " + c.remaining_bits + ", lfbits: " + (c.last_frame_bits & 0xff));
 
             AVPacket pkt = new AVPacket(size + 2);
 
@@ -269,7 +269,7 @@ logger.log(Level.DEBUG, "size: " + size + ", blen: " + c.frame_bit_len + ", brem
             pkt.data[1] = c.last_frame_bits;
             // Debug: this should advance by 'size' bytes each call
             ret = s.pb.read(pkt.data, 2, size);
-            System.err.println("VQF read: size=" + size + ", ret=" + ret + ", remaining_bits=" + c.remaining_bits);
+            logger.log(Level.TRACE, "VQF read: size=" + size + ", ret=" + ret + ", remaining_bits=" + c.remaining_bits);
 
             if (ret <= 0) {
                 // End of file reached
@@ -308,7 +308,7 @@ logger.log(Level.ERROR, e.getMessage(), e);
         return 0;
     }
 
-    static AVInputFormat ff_vqf_demuxer = new AVInputFormat() {{
+    public static AVInputFormat ff_vqf_demuxer = new AVInputFormat() {{
         name = "vqf";
         long_name = "Nippon Telegraph and Telephone Corporation (NTT) TwinVQ";
         priv_data_size = -1; // sizeof(VqfContext)

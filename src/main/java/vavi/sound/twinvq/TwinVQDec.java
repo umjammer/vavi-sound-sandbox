@@ -215,7 +215,7 @@ public class TwinVQDec {
         }
     }
 
-    static class TwinVQContext {
+    public static class TwinVQContext {
         AVCodecContext avctx = new AVCodecContext();
         AVFloatDSPContext fdsp;
         final AVTXContext[] tx = new AVTXContext[3];
@@ -532,7 +532,7 @@ public class TwinVQDec {
         int startBitPos = gb.get_bits_count();
         int bits0 = tctx.bits_main_spec[0][ftype.ordinal()][0];
         int bits1 = tctx.bits_main_spec[1][ftype.ordinal()][0];
-        System.err.println("read_cb_data start: ftype=" + ftype + ", n_div=" + tctx.n_div[ftype.ordinal()] +
+        logger.log(Level.TRACE, "read_cb_data start: ftype=" + ftype + ", n_div=" + tctx.n_div[ftype.ordinal()] +
             ", bits0=" + bits0 + ", bits1=" + bits1 + ", startBitPos=" + startBitPos);
 
         for (int i = 0; i < tctx.n_div[ftype.ordinal()]; i++) {
@@ -545,13 +545,13 @@ public class TwinVQDec {
 
             // Debug first 10 codebook indices for the first call
             if (i < 10 && dstP <= 20) {
-                System.err.println("CB read[" + i + "]: cb0=" + (dst[dstP - 2] & 0xff) + ", cb1=" + (dst[dstP - 1] & 0xff) +
+                logger.log(Level.TRACE, "CB read[" + i + "]: cb0=" + (dst[dstP - 2] & 0xff) + ", cb1=" + (dst[dstP - 1] & 0xff) +
                     ", bitPos=" + bitsBefore + "->" + bitsAfter + ", bufPos=" + gb.buffer_pos);
             }
         }
 
         int endBitPos = gb.get_bits_count();
-        System.err.println("read_cb_data end: totalBitsRead=" + (endBitPos - startBitPos));
+        logger.log(Level.TRACE, "read_cb_data end: totalBitsRead=" + (endBitPos - startBitPos));
     }
 
     /** */
@@ -567,10 +567,10 @@ public class TwinVQDec {
         for (int i = 0; i < Math.min(20, buf_size); i++) {
             bufHex.append(String.format("%02x ", buf[i] & 0xff));
         }
-        System.err.println("Frame start: buf_size=" + buf_size + ", skip=" + skip + ", bitPosAfterSkipByte=" + gb.get_bits_count());
-        System.err.println(bufHex.toString());
+        logger.log(Level.TRACE, "Frame start: buf_size=" + buf_size + ", skip=" + skip + ", bitPosAfterSkipByte=" + gb.get_bits_count());
+        logger.log(Level.TRACE, bufHex.toString());
         gb.skip_bits(skip);
-        System.err.println("After skip " + skip + " bits: bitPos=" + gb.get_bits_count());
+        logger.log(Level.TRACE, "After skip " + skip + " bits: bitPos=" + gb.get_bits_count());
 
         bits.window_type = gb.get_bits(TWINVQ_WINDOW_TYPE_BITS);
 
@@ -625,7 +625,7 @@ public class TwinVQDec {
     }
 
     /** @override init */
-    static int twinvq_decode_init(AVCodecContext avctx) {
+    public static int twinvq_decode_init(AVCodecContext avctx) {
         int isampf, ibps, channels;
         TwinVQContext tctx = avctx.priv_data;
 
@@ -634,16 +634,16 @@ public class TwinVQDec {
             return AVERROR_INVALIDDATA;
         }
         channels = ByteUtil.readBeInt(avctx.extradata) + 1;
-logger.log(Level.DEBUG, "channels: " + channels);
+logger.log(Level.TRACE, "channels: " + channels);
         avctx.bit_rate = ByteUtil.readBeInt(avctx.extradata, 4) * 1000;
-logger.log(Level.DEBUG, "bit_rate: " + avctx.bit_rate);
+logger.log(Level.TRACE, "bit_rate: " + avctx.bit_rate);
         isampf = ByteUtil.readBeInt(avctx.extradata, 8);
 
         if (isampf < 8 || isampf > 44) {
             logger.log(Level.ERROR, "Unsupported sample rate");
             return AVERROR_INVALIDDATA;
         }
-logger.log(Level.DEBUG, "isampf: " + isampf);
+logger.log(Level.TRACE, "isampf: " + isampf);
         switch (isampf) {
             case 44:
                 avctx.sample_rate = 44100;
@@ -668,13 +668,13 @@ logger.log(Level.DEBUG, "isampf: " + isampf);
         avctx.ch_layout.nb_channels = channels;
 
         ibps = avctx.bit_rate / (1000 * channels);
-logger.log(Level.DEBUG, "ibps: " + ibps);
+logger.log(Level.TRACE, "ibps: " + ibps);
         if (ibps < 8 || ibps > 48) {
             logger.log(Level.ERROR, "Bad bitrate per channel value %d".formatted(ibps));
             return AVERROR_INVALIDDATA;
         }
 
-logger.log(Level.DEBUG, "mtab: " + (isampf << 8) + ibps);
+logger.log(Level.TRACE, "mtab: " + (isampf << 8) + ibps);
         switch ((isampf << 8) + ibps) {
             case (8 << 8) + 8:
                 tctx.mtab = mode_08_08;

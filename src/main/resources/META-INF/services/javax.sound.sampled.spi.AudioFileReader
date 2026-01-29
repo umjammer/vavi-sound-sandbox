@@ -1,3 +1,4 @@
 vavi.sound.sampled.opus.OpusAudioFileReader
 #vavi.sound.sampled.rococoa.RococoaAudioFileReader
 vavi.sound.sampled.opl3.Opl3AudioFileReader
+vavi.sound.sampled.twinvq.TwinvqAudioFileReader

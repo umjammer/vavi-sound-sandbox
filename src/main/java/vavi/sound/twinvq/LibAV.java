@@ -56,18 +56,18 @@ public class LibAV {
 
 //#region avformat
 
-    static class AVInputFormat {
+    public static class AVInputFormat {
         String name;
         String long_name;
         int priv_data_size;
-        Function<byte[], Integer> read_probe;
-        Function<AVFormatContext, Integer> read_header;
-        Function<AVFormatContext, AVPacket> read_packet;
+        public Function<byte[], Integer> read_probe;
+        public Function<AVFormatContext, Integer> read_header;
+        public Function<AVFormatContext, AVPacket> read_packet;
         TetraFunction<AVFormatContext, Integer, Long, Integer, Integer> read_seek;
         String extensions;
     }
 
-    static class AVFormatContext {
+    public static class AVFormatContext {
 
         public VqfContext priv_data = new VqfContext();
         public AVStream[] streams = new AVStream[1];
@@ -75,7 +75,7 @@ public class LibAV {
         public Map<String, Object> metadata = new HashMap<>();
     }
 
-    static class AVStream {
+    public static class AVStream {
 
         public AVCodecContext codecpar = new AVCodecContext();
         public long start_time;
@@ -83,11 +83,6 @@ public class LibAV {
         public AVStream(AVFormatContext s, Object o) {
             s.streams[0] = this;
         }
-    }
-
-    static class AVProbeData {
-
-        public byte[] buf;
     }
 
 //#endregion
@@ -102,15 +97,15 @@ public class LibAV {
 
     static final int AV_INPUT_BUFFER_PADDING_SIZE = 8;
 
-    static class AVChannelLayout {
+    public static class AVChannelLayout {
 
         /**
          * Number of channels in this layout. Mandatory field.
          */
-        int nb_channels;
+        public int nb_channels;
     }
 
-    static class AVCodecContext {
+    public static class AVCodecContext {
 
         public TwinVQContext priv_data;
 
@@ -229,14 +224,14 @@ public class LibAV {
         interface TXFunction extends LibAV.TetraConsumer<AVTXContext, float[], Integer, float[], Integer> {}
     }
 
-    static class AVFrame {
+    public static class AVFrame {
 
         public int nb_samples;
         public Object extended_data;
         public byte[] data;
     }
 
-    static class AVPacket {
+    public static class AVPacket {
 
         public byte[] data;
         public int size;
@@ -260,7 +255,7 @@ public class LibAV {
     static void ff_init_ff_sine_windows(int index) {
         float[] windows = new float[1 << index];
         ff_sine_window_init(windows, 1 << index);
-logger.log(Level.DEBUG, "index: " + index + ", windows: " + windows.length);
+logger.log(Level.TRACE, "index: " + index + ", windows: " + windows.length);
         ff_sine_windows.put(index, windows);
     }
 
@@ -292,7 +287,7 @@ logger.log(Level.DEBUG, "index: " + index + ", windows: " + windows.length);
         // Our MDCT class uses mdctSize = N (full size), so we need mdctSize = 2*len.
         // 32 - numberOfLeadingZeros(len) gives floor(log2(len)) + 1 = log2(2*len) for powers of 2.
         int nbits = 32 - Integer.numberOfLeadingZeros(len);  // nbits = log2(2*len)
-        logger.log(Level.DEBUG, "av_tx_init: type=" + type + ", len=" + len + ", nbits=" + nbits + ", scale=" + scale[0]);
+        logger.log(Level.TRACE, "av_tx_init: type=" + type + ", len=" + len + ", nbits=" + nbits + ", scale=" + scale[0]);
         MDCT mdct = new MDCT(nbits, inv != 0, scale[0]);
         tx[index] = (x, out, outp, in, inp) -> mdct.imdctHalf(out, outp, in, inp);
         return 0;

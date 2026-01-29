@@ -11,15 +11,12 @@ import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.ShortBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.CountDownLatch;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioInputStream;
@@ -27,25 +24,21 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine.Info;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
-
 import vavi.sound.twinvq.LibAV.AVCodecContext;
 import vavi.sound.twinvq.LibAV.AVFormatContext;
 import vavi.sound.twinvq.LibAV.AVFrame;
 import vavi.sound.twinvq.LibAV.AVInputFormat;
 import vavi.sound.twinvq.LibAV.AVPacket;
 import vavi.sound.twinvq.TwinVQDec.TwinVQContext;
-import vavi.sound.twinvq.obsolate.TwinVQInputStream;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
 import vavi.util.properties.annotation.PropsEntity.Util;
 
-import static javax.sound.sampled.LineEvent.Type.STOP;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+
 import static vavi.sound.SoundUtil.volume;
 
 
@@ -95,60 +88,6 @@ Debug.print("volume: " + volume);
     }
 
     String out = "tmp/twinvq-vavi-out.pcm";
-
-    @Test
-    @Disabled("obsolete")
-    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
-    void test2() throws Exception {
-
-        InputStream in = new BufferedInputStream(Files.newInputStream(Path.of(twinvq)));
-
-        int sampleRate = 44100;
-        ByteOrder byteOrder = ByteOrder.LITTLE_ENDIAN;
-
-        AudioFormat audioFormat = new AudioFormat(
-                Encoding.PCM_SIGNED,
-                sampleRate,
-                16,
-                1,
-                2,
-                sampleRate,
-                byteOrder.equals(ByteOrder.BIG_ENDIAN));
-System.err.println(audioFormat);
-
-        InputStream is = new TwinVQInputStream(in,
-                4,
-                2,
-                4,
-                byteOrder);
-
-        OutputStream os = new BufferedOutputStream(Files.newOutputStream(Path.of(out)));
-
-        int bufferSize = 2048;
-
-        Info info = new Info(SourceDataLine.class, audioFormat);
-        SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
-        line.open(audioFormat);
-        CountDownLatch cdl = new CountDownLatch(1);
-        line.addLineListener(e -> { Debug.println(e.getType()); if (STOP == e.getType()) { cdl.countDown(); }});
-        line.start();
-        volume(line, volume);
-
-        byte[] buf = new byte[bufferSize];
-        int l = 0;
-        while (is.available() > 0) {
-            l = is.read(buf, 0, bufferSize);
-            line.write(buf, 0, l);
-            os.write(buf, 0, l);
-        }
-
-        cdl.await();
-
-        line.drain();
-        line.close();
-        os.close();
-        is.close();
-    }
 
     @Test
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
