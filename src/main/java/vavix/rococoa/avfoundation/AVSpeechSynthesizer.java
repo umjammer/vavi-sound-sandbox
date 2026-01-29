@@ -85,7 +85,7 @@ public abstract class AVSpeechSynthesizer extends NSObject {
     }
 
     public interface AVSpeechSynthesizerBufferCallback extends ObjCBlock {
-        void apply(BlockLiteral literal, ID /* AVAudioBuffer */ buffer);
+        void apply(BlockLiteral block, ID /* AVAudioBuffer */ audioBuffer);
     }
 
     public abstract void writeUtterance_toBufferCallback(AVSpeechUtterance utterance, BlockLiteral /* ^AVSpeechSynthesizerBufferCallback */ bufferCallback);

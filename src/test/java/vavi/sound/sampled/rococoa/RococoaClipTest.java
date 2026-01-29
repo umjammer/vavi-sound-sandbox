@@ -124,7 +124,7 @@ Debug.println("duration: " + duration + ", " + movie.duration().timeValue + ", "
 
     @Deprecated
     static void test1(String[] args) throws Exception {
-        QTMovieView movieView = QTMovieView.CLASS.create();
+        QTMovieView movieView = QTMovieView.create();
         movieView.setControllerVisible(true);
         movieView.setPreservesAspectRatio(true);
         JFrame frame = new JFrame();

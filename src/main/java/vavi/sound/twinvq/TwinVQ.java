@@ -23,9 +23,6 @@ package vavi.sound.twinvq;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 
 import vavi.sound.twinvq.LibAV.AVCodecContext;
 import vavi.sound.twinvq.LibAV.AVFloatDSPContext;
@@ -213,7 +210,6 @@ public class TwinVQ {
     static void dequant(TwinVQContext tctx, byte[] cb_bits, float[] out,
                         TwinVQFrameType ftype, short[] cb0, short[] cb1, int cb1P, int cb_len) {
         int pos = 0;
-
         int cb_bitsP = 0;
         for (int i = 0; i < tctx.n_div[ftype.ordinal()]; i++) {
             int sign0 = 1;
@@ -243,9 +239,8 @@ public class TwinVQ {
 //logger.log(Level.TRACE, "bits: " + bits + ", tmp0: " + tmp0 + ", tmp1: " + tmp1 + ", cb_len: " + cb_len + ", tab0: " + tab0 + ", tab1: " + tab1 + ", cb0: " + cb0.length + ", cb1: " + cb1.length + ", cb1P: " + cb1P);
 
             for (int j = 0; j < length; j++) {
-//logger.log(Level.TRACE, "%d, %d, %d, %d".formatted(pos + j, tab0 + j, cb1P + tab1 + j, tctx.permut[ftype.ordinal()][pos + j] & 0xffff));
-                out[tctx.permut[ftype.ordinal()][pos + j] & 0xffff] = sign0 * cb0[tab0 + j] +
-                        sign1 * cb1[cb1P + tab1 + j];
+                int outIdx = tctx.permut[ftype.ordinal()][pos + j] & 0xffff;
+                out[outIdx] = sign0 * cb0[tab0 + j] + sign1 * cb1[cb1P + tab1 + j];
             }
 
             pos += length;
@@ -264,15 +259,15 @@ public class TwinVQ {
         if (ftype == TWINVQ_FT_LONG) {
             for (int i = 0; i < channels; i++)
                 out[i] = (1.0f / (1 << 13)) *
-                        twinvq_mulawinv(step * 0.5f + step * bits.gain_bits[i], TWINVQ_AMP_MAX, TWINVQ_MULAW_MU);
+                        twinvq_mulawinv(step * 0.5f + step * (bits.gain_bits[i] & 0xff), TWINVQ_AMP_MAX, TWINVQ_MULAW_MU);
         } else {
             for (int i = 0; i < channels; i++) {
                 float val = (1.0f / (1 << 23)) *
-                        twinvq_mulawinv(step * 0.5f + step * bits.gain_bits[i], TWINVQ_AMP_MAX, TWINVQ_MULAW_MU);
+                        twinvq_mulawinv(step * 0.5f + step * (bits.gain_bits[i] & 0xff), TWINVQ_AMP_MAX, TWINVQ_MULAW_MU);
 
                 for (int j = 0; j < sub; j++)
                     out[i * sub + j] =
-                            val * twinvq_mulawinv(sub_step * 0.5f + sub_step * bits.sub_gain_bits[i * sub + j],
+                            val * twinvq_mulawinv(sub_step * 0.5f + sub_step * (bits.sub_gain_bits[i * sub + j] & 0xff),
                                     TWINVQ_SUB_AMP_MAX, TWINVQ_MULAW_MU);
             }
         }
@@ -315,7 +310,7 @@ public class TwinVQ {
             int chunk_end = ((i + 1) * (mtab.n_lsp & 0xff) + funny_rounding[i]) / (mtab.lsp_split & 0xff);
             for (; j < chunk_end; j++)
                 lsp[j] = cb[lpc_idx1 * (mtab.n_lsp & 0xff) + j] +
-                        cb[cb2 + lpc_idx2[i] * (mtab.n_lsp & 0xff) + j];
+                        cb[cb2 + (lpc_idx2[i] & 0xff) * (mtab.n_lsp & 0xff) + j];
         }
 
         rearrange_lsp(mtab.n_lsp, lsp, 0.0001f);
@@ -361,6 +356,31 @@ public class TwinVQ {
         }
     }
 
+    /** Integer log base 2 (floor). */
+    static int ff_log2(int v) {
+        int n = 0;
+        if ((v & 0xffff_0000) != 0) {
+            v >>>= 16;
+            n += 16;
+        }
+        if ((v & 0xff00) != 0) {
+            v >>>= 8;
+            n += 8;
+        }
+        if ((v & 0xf0) != 0) {
+            v >>>= 4;
+            n += 4;
+        }
+        if ((v & 0xc) != 0) {
+            v >>>= 2;
+            n += 2;
+        }
+        if ((v & 0x2) != 0) {
+            n += 1;
+        }
+        return n;
+    }
+
     static final byte[] wtype_to_wsize = new byte[] {0, 0, 2, 2, 2, 1, 0, 1, 1};
 
     /** */
@@ -368,7 +388,6 @@ public class TwinVQ {
                                  int wtype, float[] in, int inP, float[] prev, int prev_bufP, int ch) {
         AVTXContext tx = tctx.tx[ftype.ordinal()];
         AVTXContext.TXFunction tx_fn = tctx.tx_fn[ftype.ordinal()];
-logger.log(Level.DEBUG, "ftype: " + ftype + "(" + ftype.ordinal() + ")");
         TwinVQModeTab mtab = tctx.mtab;
         int bsize = mtab.size / mtab.fmode[ftype.ordinal()].sub;
         int size = mtab.size;
@@ -398,16 +417,36 @@ logger.log(Level.DEBUG, "ftype: " + ftype + "(" + ftype.ordinal() + ")");
 
             wsize = types_sizes[wtype_to_wsize[sub_wtype]];
 
-            tx_fn.accept(tx, buf1, bsize * j, in, bsize * j /*, Float.BYTES */); // TODO not implemented
+            // Debug: check spectrum input for this channel/subframe
+            float specMax = 0;
+            for (int k = 0; k < bsize; k++) {
+                if (Math.abs(in[inP + bsize * j + k]) > Math.abs(specMax)) specMax = in[inP + bsize * j + k];
+            }
+            logger.log(Level.TRACE, "IMDCT input ch=" + ch + ", sub=" + j + ", inP=" + inP + ", spec max=" + specMax);
 
-System.err.printf("j: %d, win: %d, size: %d%n", j, (int) Math.log(wsize), wsize / 2);
-            tctx.fdsp.vector_fmul_window(tctx.curr_frame, out2, prev_buf, (bsize - wsize) / 2,
+            tx_fn.accept(tx, buf1, bsize * j, in, inP + bsize * j);
+
+            // Debug: check IMDCT output for this channel
+            // IMDCT writes to output[0..n2-1] where n2=bsize/2 for imdctHalf
+            int n2 = bsize / 2;
+            float imdctMaxFirstHalf = 0;
+            float imdctMaxSecondHalf = 0;
+            for (int k = 0; k < n2; k++) {
+                if (Math.abs(buf1[bsize * j + k]) > Math.abs(imdctMaxFirstHalf)) imdctMaxFirstHalf = buf1[bsize * j + k];
+            }
+            for (int k = n2; k < bsize; k++) {
+                if (Math.abs(buf1[bsize * j + k]) > Math.abs(imdctMaxSecondHalf)) imdctMaxSecondHalf = buf1[bsize * j + k];
+            }
+            logger.log(Level.TRACE, "IMDCT output ch=" + ch + ", sub=" + j + ", buf1[0..n2-1] max=" + imdctMaxFirstHalf + ", buf1[n2..bsize-1] max=" + imdctMaxSecondHalf);
+
+            int wsize_log2 = ff_log2(wsize);
+            tctx.fdsp.vector_fmul_window(tctx.curr_frame, out2, prev_buf, prev_bufP + (bsize - wsize) / 2,
                     buf1, bsize * j,
-                    ff_sine_windows.get((int) Math.log(wsize)),
+                    ff_sine_windows.get(wsize_log2),
                     wsize / 2);
             out2 += wsize;
 
-            System.arraycopy(buf1, bsize * j + wsize / 2, tctx.curr_frame, out2, (bsize - wsize / 2) * Float.BYTES);
+            System.arraycopy(buf1, bsize * j + wsize / 2, tctx.curr_frame, out2, bsize - wsize / 2);
 
             out2 += ftype == TWINVQ_FT_MEDIUM ? (bsize - wsize) / 2 : bsize - wsize;
 
@@ -420,16 +459,23 @@ System.err.printf("j: %d, win: %d, size: %d%n", j, (int) Math.log(wsize), wsize 
 
     static void imdct_output(TwinVQContext tctx, TwinVQFrameType ftype, int wtype, float[][] out, int offset) {
         TwinVQModeTab mtab = tctx.mtab;
-        int prev_buf = tctx.last_block_pos[0]; // tctx.prev_frame
+        int prev_bufP = tctx.last_block_pos[0]; // offset into tctx.prev_frame
         int channels = tctx.avctx.ch_layout.nb_channels;
-        int size1, size2, i;
-        int out1, out2;
+        int size1, size2;
 
-        for (i = 0; i < channels; i++)
+        for (int i = 0; i < channels; i++) {
             imdct_and_window(tctx, ftype, wtype,
                     tctx.spectrum, i * mtab.size,
-                    tctx.prev_frame, prev_buf + 2 * i * mtab.size,
+                    tctx.prev_frame, prev_bufP + 2 * i * mtab.size,
                     i);
+            // Debug: check curr_frame values for this channel
+            float currMax = 0;
+            int currStart = 2 * i * mtab.size;
+            for (int k = 0; k < mtab.size; k++) {
+                if (Math.abs(tctx.curr_frame[currStart + k]) > Math.abs(currMax)) currMax = tctx.curr_frame[currStart + k];
+            }
+            logger.log(Level.TRACE, "After imdct_and_window ch=" + i + ", curr_frame[" + currStart + "..] max=" + currMax);
+        }
 
         if (out == null)
             return;
@@ -437,15 +483,62 @@ System.err.printf("j: %d, win: %d, size: %d%n", j, (int) Math.log(wsize), wsize 
         size2 = tctx.last_block_pos[0];
         size1 = mtab.size - size2;
 
-        out1 = offset; // out[0]
-        System.arraycopy(prev_buf, 0, out1, 0, size1 * out1);
-        System.arraycopy(tctx.curr_frame, 0, out1, size1, size2 * out1);
+        // Copy from prev_frame and curr_frame to output buffer for channel 0
+        System.arraycopy(tctx.prev_frame, prev_bufP, out[0], offset, size1);
+        System.arraycopy(tctx.curr_frame, 0, out[0], offset + size1, size2);
 
         if (channels == 2) {
-            out2 = offset; // out[1]
-            System.arraycopy(prev_buf, 2 * mtab.size, out2, 0, size1 * out2);
-            System.arraycopy(tctx.curr_frame, 2 * mtab.size, out2, size1, size2 * out2);
-            tctx.fdsp.butterflies_float(out[0], out1, out[1], out2, mtab.size);
+            // Debug: check curr_frame ch1 values before copy
+            float maxCurrCh0 = 0, maxCurrCh1 = 0;
+            for (int i = 0; i < size2; i++) {
+                if (Math.abs(tctx.curr_frame[i]) > Math.abs(maxCurrCh0))
+                    maxCurrCh0 = tctx.curr_frame[i];
+                if (Math.abs(tctx.curr_frame[2 * mtab.size + i]) > Math.abs(maxCurrCh1))
+                    maxCurrCh1 = tctx.curr_frame[2 * mtab.size + i];
+            }
+            float maxPrevCh0 = 0, maxPrevCh1 = 0;
+            for (int i = 0; i < size1; i++) {
+                if (Math.abs(tctx.prev_frame[prev_bufP + i]) > Math.abs(maxPrevCh0))
+                    maxPrevCh0 = tctx.prev_frame[prev_bufP + i];
+                if (Math.abs(tctx.prev_frame[prev_bufP + 2 * mtab.size + i]) > Math.abs(maxPrevCh1))
+                    maxPrevCh1 = tctx.prev_frame[prev_bufP + 2 * mtab.size + i];
+            }
+            logger.log(Level.TRACE, "Source frames: prev_bufP=" + prev_bufP + ", size1=" + size1 + ", size2=" + size2 +
+                ", prev_ch0=" + maxPrevCh0 + ", prev_ch1=" + maxPrevCh1 +
+                ", curr_ch0=" + maxCurrCh0 + ", curr_ch1=" + maxCurrCh1);
+
+            // Copy from prev_frame and curr_frame to output buffer for channel 1
+            System.arraycopy(tctx.prev_frame, prev_bufP + 2 * mtab.size, out[1], offset, size1);
+            System.arraycopy(tctx.curr_frame, 2 * mtab.size, out[1], offset + size1, size2);
+
+            // Debug: check if Mid and Side have identical values (which would cause R to be zero)
+            float maxMid = 0, maxSide = 0;
+            int identicalCount = 0;
+            float maxDiff = 0;
+            int firstIdenticalIdx = -1;
+            for (int i = 0; i < mtab.size; i++) {
+                if (Math.abs(out[0][offset + i]) > Math.abs(maxMid)) maxMid = out[0][offset + i];
+                if (Math.abs(out[1][offset + i]) > Math.abs(maxSide)) maxSide = out[1][offset + i];
+                if (out[0][offset + i] == out[1][offset + i]) {
+                    identicalCount++;
+                    if (firstIdenticalIdx < 0 && out[0][offset + i] != 0) firstIdenticalIdx = i;
+                }
+                float diff = Math.abs(out[0][offset + i] - out[1][offset + i]);
+                if (diff > maxDiff) maxDiff = diff;
+            }
+            logger.log(Level.TRACE, "Before butterflies: Mid max=" + maxMid + ", Side max=" + maxSide +
+                ", identical=" + identicalCount + "/" + mtab.size + ", maxDiff=" + maxDiff +
+                ", firstNonZeroIdentical=" + firstIdenticalIdx);
+
+            tctx.fdsp.butterflies_float(out[0], offset, out[1], offset, (short) mtab.size);
+
+            // Debug: check values after butterflies
+            float maxLeft = 0, maxRight = 0;
+            for (int i = 0; i < mtab.size; i++) {
+                if (Math.abs(out[0][offset + i]) > Math.abs(maxLeft)) maxLeft = out[0][offset + i];
+                if (Math.abs(out[1][offset + i]) > Math.abs(maxRight)) maxRight = out[1][offset + i];
+            }
+            logger.log(Level.TRACE, "After butterflies: Left max=" + maxLeft + ", Right max=" + maxRight);
         }
     }
 
@@ -462,7 +555,32 @@ System.err.printf("j: %d, win: %d, size: %d%n", j, (int) Math.log(wsize), wsize 
                 mtab.fmode[ftype.ordinal()].cb0, mtab.fmode[ftype.ordinal()].cb1, 0,
                 mtab.fmode[ftype.ordinal()].cb_len_read & 0xff);
 
+        // Debug: spectrum per-channel analysis after dequant
+        float dequantMax0 = 0, dequantMax1 = 0;
+        int identicalAfterDequant = 0;
+        for (int ii = 0; ii < mtab.size; ii++) {
+            if (Math.abs(out[ii]) > Math.abs(dequantMax0)) dequantMax0 = out[ii];
+            if (channels > 1) {
+                if (Math.abs(out[mtab.size + ii]) > Math.abs(dequantMax1)) dequantMax1 = out[mtab.size + ii];
+                if (out[ii] == out[mtab.size + ii]) identicalAfterDequant++;
+            }
+        }
+        logger.log(Level.TRACE, "ftype=" + ftype + ", After dequant: ch0 max=" + dequantMax0 +
+            ", ch1 max=" + dequantMax1 + ", identical=" + identicalAfterDequant + "/" + mtab.size);
+
+        // Check how many values are non-zero in each channel's region
+        int nonZeroCh0 = 0, nonZeroCh1 = 0;
+        for (int ii = 0; ii < mtab.size; ii++) {
+            if (out[ii] != 0) nonZeroCh0++;
+            if (channels > 1 && out[mtab.size + ii] != 0) nonZeroCh1++;
+        }
+        logger.log(Level.TRACE, "DEQUANT: ftype=" + ftype + ", ch0 nonzero=" + nonZeroCh0 + "/" + mtab.size +
+            ", ch1 nonzero=" + nonZeroCh1 + "/" + mtab.size + ", ch0max=" + dequantMax0 + ", ch1max=" + dequantMax1);
+
         dec_gain(tctx, ftype, gain);
+
+        // Debug: gain values
+        logger.log(Level.TRACE, "Gain[0]=" + gain[0] + ", Gain[1]=" + (sub > 1 ? gain[1] : "N/A"));
 
         if (ftype == TWINVQ_FT_LONG) {
             int cb_len_p = (tctx.n_div[3] + (mtab.ppc_shape_len & 0xff) * channels - 1) / tctx.n_div[3];
@@ -490,8 +608,8 @@ System.err.printf("j: %d, win: %d, size: %d%n", j, (int) Math.log(wsize), wsize 
                 tctx.decode_ppc.accept(tctx, bits.p_coef[i], bits.g_coef[i],
                         ppc_shape, + i * mtab.ppc_shape_len, out, chunk);
 
-            decode_lsp(tctx, bits.lpc_idx1[i], bits.lpc_idx2[i],
-                    bits.lpc_hist_idx[i], lsp, tctx.lsp_hist[i]);
+            decode_lsp(tctx, bits.lpc_idx1[i] & 0xff, bits.lpc_idx2[i],
+                    bits.lpc_hist_idx[i] & 0xff, lsp, tctx.lsp_hist[i]);
 
             dec_lpc_spectrum_inv(tctx, lsp, ftype, tctx.tmp_buf);
 
@@ -500,6 +618,14 @@ System.err.printf("j: %d, win: %d, size: %d%n", j, (int) Math.log(wsize), wsize 
                 chunk += block_size;
             }
         }
+
+        // Debug: final spectrum before IMDCT
+        float finalSpecMax0 = 0, finalSpecMax1 = 0;
+        for (int ii = 0; ii < mtab.size; ii++) {
+            if (Math.abs(out[ii]) > Math.abs(finalSpecMax0)) finalSpecMax0 = out[ii];
+            if (channels > 1 && Math.abs(out[mtab.size + ii]) > Math.abs(finalSpecMax1)) finalSpecMax1 = out[mtab.size + ii];
+        }
+        logger.log(Level.TRACE, "Final spectrum before IMDCT: ch0 max=" + finalSpecMax0 + ", ch1 max=" + finalSpecMax1);
     }
 
     static final TwinVQFrameType[] ff_twinvq_wtype_to_ftype_table = {
@@ -512,7 +638,7 @@ System.err.printf("j: %d, win: %d, size: %d%n", j, (int) Math.log(wsize), wsize 
      * @override decode
      * @return block align
      */
-    static int ff_twinvq_decode_frame(AVCodecContext avctx, AVFrame frame, int[] got_frame_ptr, AVPacket avpkt) {
+    public static int ff_twinvq_decode_frame(AVCodecContext avctx, AVFrame frame, int[] got_frame_ptr, AVPacket avpkt) {
         byte[] buf = avpkt.data;
         int buf_size = avpkt.size;
         TwinVQContext tctx = avctx.priv_data;
@@ -554,6 +680,16 @@ System.err.printf("j: %d, win: %d, size: %d%n", j, (int) Math.log(wsize), wsize 
             return buf_size;
         }
 
+        // Debug: check final output values
+        if (out != null) {
+            float maxCh0 = 0, maxCh1 = 0;
+            for (int i = 0; i < frame.nb_samples; i++) {
+                if (Math.abs(out[0][i]) > Math.abs(maxCh0)) maxCh0 = out[0][i];
+                if (out.length > 1 && Math.abs(out[1][i]) > Math.abs(maxCh1)) maxCh1 = out[1][i];
+            }
+            logger.log(Level.TRACE, "Final output: ch0 max=" + maxCh0 + ", ch1 max=" + maxCh1);
+        }
+
         got_frame_ptr[0] = 1;
 
         // VQF can deliver packets 1 byte greater than block align
@@ -577,6 +713,7 @@ System.err.printf("j: %d, win: %d, size: %d%n", j, (int) Math.log(wsize), wsize 
         for (int i = 0; i < 3; i++) {
             int bsize = tctx.mtab.size / tctx.mtab.fmode[i].sub;
             float[] scale = new float[] { (float) (-Math.sqrt(norm / bsize) / (1 << 15)) };
+            logger.log(Level.TRACE, "MDCT init i=" + i + ", bsize=" + bsize + ", scale=" + scale[0]);
             if ((ret = av_tx_init(tctx.tx, tctx.tx_fn, i, AV_TX_FLOAT_MDCT, 1, bsize, scale, 0)) != 0)
                 return ret;
         }
@@ -596,9 +733,9 @@ System.err.printf("j: %d, win: %d, size: %d%n", j, (int) Math.log(wsize), wsize 
                 tctx.cos_tabs[i][m / 4 - j] = tctx.cos_tabs[i][j];
         }
 
-        ff_init_ff_sine_windows((int) Math.log(size_m));
-        ff_init_ff_sine_windows((int) Math.log(size_s / 2d));
-        ff_init_ff_sine_windows((int) Math.log(mtab.size));
+        ff_init_ff_sine_windows(ff_log2(size_m));
+        ff_init_ff_sine_windows(ff_log2(size_s / 2));
+        ff_init_ff_sine_windows(ff_log2(mtab.size));
 
         return 0;
     }
@@ -671,9 +808,6 @@ System.err.printf("j: %d, win: %d, size: %d%n", j, (int) Math.log(wsize), wsize 
     static void construct_perm_table(TwinVQContext tctx, TwinVQFrameType ftype) {
         int block_size, size;
         TwinVQModeTab mtab = tctx.mtab;
-        ByteBuffer bbf = ByteBuffer.allocate(tctx.tmp_buf.length * Float.BYTES).order(ByteOrder.LITTLE_ENDIAN);
-        FloatBuffer tmp_perm = bbf.asFloatBuffer();
-        tmp_perm.put(tctx.tmp_buf);
 
         if (ftype == TWINVQ_FT_PPC) {
             size = tctx.avctx.ch_layout.nb_channels;
@@ -682,18 +816,55 @@ System.err.printf("j: %d, win: %d, size: %d%n", j, (int) Math.log(wsize), wsize 
             size = tctx.avctx.ch_layout.nb_channels * mtab.fmode[ftype.ordinal()].sub;
             block_size = mtab.size / mtab.fmode[ftype.ordinal()].sub;
         }
-logger.log(Level.DEBUG, "size: " + size + ", block_size: " + block_size);
 
-        short[] bbfs = new short[bbf.capacity() / Short.BYTES];
-        permutate_in_line(bbfs, tctx.n_div[ftype.ordinal()], size,
+        // Temporary buffer for permutation operations (reuse tmp_buf's storage as short[])
+        short[] tmp_perm = new short[tctx.tmp_buf.length * 2];
+
+        permutate_in_line(tmp_perm, tctx.n_div[ftype.ordinal()], size,
                 block_size, tctx.length[ftype.ordinal()],
                 tctx.length_change[ftype.ordinal()] & 0xff, ftype);
 
-        transpose_perm(tctx.permut[ftype.ordinal()], bbfs, tctx.n_div[ftype.ordinal()],
+        transpose_perm(tctx.permut[ftype.ordinal()], tmp_perm, tctx.n_div[ftype.ordinal()],
                 tctx.length[ftype.ordinal()], tctx.length_change[ftype.ordinal()] & 0xff);
-        bbf.asShortBuffer().get(bbfs);
 
         linear_perm(tctx.permut[ftype.ordinal()], tctx.permut[ftype.ordinal()], size, size * block_size);
+
+        // Debug: check permutation table range and distribution
+        int minPerm = Integer.MAX_VALUE, maxPerm = Integer.MIN_VALUE;
+        int ch0Count = 0, ch1Count = 0;
+        int threshold = mtab.size; // indices < mtab.size go to ch0, >= mtab.size go to ch1
+        for (int i = 0; i < size * block_size; i++) {
+            int val = tctx.permut[ftype.ordinal()][i] & 0xffff;
+            if (val < minPerm) minPerm = val;
+            if (val > maxPerm) maxPerm = val;
+            if (val < threshold) ch0Count++;
+            else ch1Count++;
+        }
+        logger.log(Level.TRACE, "Permut table ftype=" + ftype + ", size=" + size + ", block_size=" + block_size +
+            ", total=" + (size * block_size) + ", range=[" + minPerm + "," + maxPerm + "]" +
+            ", ch0 count=" + ch0Count + " (to ch0 region 0-" + (threshold-1) + ")" +
+            ", ch1 count=" + ch1Count + " (to ch1 region " + threshold + "-" + (2*threshold-1) + ")");
+
+        // Print first 20 permutation values to see the pattern
+        if (ftype == TWINVQ_FT_LONG) {
+            StringBuilder sb = new StringBuilder("Permut LONG first 20: ");
+            for (int i = 0; i < 20 && i < size * block_size; i++) {
+                sb.append(tctx.permut[ftype.ordinal()][i] & 0xffff).append(" ");
+            }
+            logger.log(Level.TRACE, sb.toString());
+
+            // Check for duplicate permutation values
+            java.util.Set<Integer> seen = new java.util.HashSet<>();
+            int duplicates = 0;
+            for (int i = 0; i < size * block_size; i++) {
+                int val = tctx.permut[ftype.ordinal()][i] & 0xffff;
+                if (!seen.add(val)) {
+                    duplicates++;
+                    if (duplicates <= 5) logger.log(Level.TRACE, "Duplicate permut value: " + val + " at index " + i);
+                }
+            }
+            logger.log(Level.TRACE, "Permut LONG duplicates: " + duplicates);
+        }
     }
 
     /** */
@@ -755,7 +926,7 @@ logger.log(Level.DEBUG, "size: " + size + ", block_size: " + block_size);
             tctx.length[i][0] = (byte) rounded_up;
             tctx.length[i][1] = (byte) rounded_down;
             tctx.length_change[i] = (byte) num_rounded_up;
-logger.log(Level.DEBUG, "rounded_up: " + rounded_up + ", rounded_down: " + rounded_down + ", num_rounded_up: " + num_rounded_up);
+logger.log(Level.TRACE, "rounded_up: " + rounded_up + ", rounded_down: " + rounded_down + ", num_rounded_up: " + num_rounded_up);
         }
 
         for (int frametype = TWINVQ_FT_SHORT.ordinal(); frametype <= TWINVQ_FT_PPC.ordinal(); frametype++)
@@ -763,7 +934,7 @@ logger.log(Level.DEBUG, "rounded_up: " + rounded_up + ", rounded_down: " + round
     }
 
     /** @override close */
-    static int ff_twinvq_decode_close(AVCodecContext avctx) {
+    public static int ff_twinvq_decode_close(AVCodecContext avctx) {
         TwinVQContext tctx = avctx.priv_data;
 
         return 0;

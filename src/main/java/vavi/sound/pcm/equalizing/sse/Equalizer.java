@@ -53,12 +53,11 @@ class Equalizer {
             lower = upper = gain = 0;
         }
 
-        /** */
+        @Override
         public String toString() {
             return String.format("%gHz to %gHz, %gdB %c%c", lower, upper, gain, left ? 'L' : ' ', right ? 'R' : ' ');
         }
 
-        /** */
         @Override
         public int compareTo(Parameter o) {
             return (int) (lower - o.lower);

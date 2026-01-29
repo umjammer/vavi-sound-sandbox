@@ -33,42 +33,49 @@ public abstract class AVAudioFile extends NSObject {
         AVAudioFile alloc();
     }
 
+    /** for reading */
     public static AVAudioFile init(URI uri) throws IOException {
         NSURL fileURL = NSURL.URLWithString(uri.toString());
         AVAudioFile file = CLASS.alloc();
-        ObjCObjectByReference outError = new ObjCObjectByReference();
-        file.initForReading_error(fileURL, outError);
-        if (outError.getPointer() != Pointer.NULL) {
-            NSError error = outError.getValueAs(NSError.class);
-            throw new IOException(error.description());
+        ObjCObjectByReference error = new ObjCObjectByReference();
+        file.initForReading_error(fileURL, error);
+        if (error.getValueAs(NSError.class) != null) {
+            throw new IOException(error.getValueAs(NSError.class).description());
         }
         return file;
     }
 
+    /** for writing */
     public static AVAudioFile init(URI uri, NSDictionary settings, int commonFormat, boolean interleaved) throws IOException {
         NSURL fileURL = NSURL.URLWithString(uri.toString());
         AVAudioFile file = CLASS.alloc();
-        NSError error = null;
+        ObjCObjectByReference error = new ObjCObjectByReference();
         file.initForWriting_settings_commonFormat_interleaved_error(fileURL, settings, commonFormat, interleaved, error);
-        if (error != null) {
-            throw new IOException(error.description());
+        if (error.getValueAs(NSError.class) != null) {
+            throw new IOException(error.getValueAs(NSError.class).description());
         }
         return file;
     }
 
-    public abstract AVAudioFile initForReading_error(NSURL fileURL, ObjCObjectByReference /* NSError */ outError);
+    public abstract AVAudioFile initForReading_error(NSURL fileURL, ObjCObjectByReference outError);
 
-    public abstract AVAudioFile initForWriting_settings_commonFormat_interleaved_error(NSURL fileURL, NSDictionary settings, int commonFormat, boolean interleaved, NSError error);
+    public abstract AVAudioFile initForWriting_settings_commonFormat_interleaved_error(NSURL fileURL, NSDictionary settings, int commonFormat, boolean interleaved, ObjCObjectByReference error);
 
     public abstract NSURL url();
 
     public abstract AVAudioFormat fileFormat();
 
+    /**
+     * Reads an entire audio buffer.
+     * @return A value of true on a successful read.
+     */
     public abstract boolean readIntoBuffer_error(AVAudioPCMBuffer buffer, ObjCObjectByReference outError);
 
     public abstract boolean readIntoBuffer_frameCount_error(AVAudioPCMBuffer buffer, int frames, ObjCObjectByReference outError);
 
-    public abstract boolean writeFromBuffer_error(AVAudioPCMBuffer buffer, NSError error);
+    public abstract boolean writeFromBuffer_error(AVAudioPCMBuffer buffer, ObjCObjectByReference error);
 
     public abstract void close();
+
+    public abstract AVAudioFormat processingFormat();
 }

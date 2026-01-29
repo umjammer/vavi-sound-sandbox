@@ -1,4 +1,4 @@
-# vavi.sound.pcm.resampling.ssrc
+# vavi.sound.pcm.resampling.sse
 
 Provides SSE equalizer related classes.
 

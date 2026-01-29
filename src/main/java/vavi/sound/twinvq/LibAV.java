@@ -15,7 +15,6 @@ import java.util.function.Function;
 
 import vavi.sound.twinvq.TwinVQDec.TwinVQContext;
 import vavi.sound.twinvq.VFQ.VqfContext;
-import vavi.util.Debug;
 
 import static java.lang.System.getLogger;
 
@@ -57,18 +56,18 @@ public class LibAV {
 
 //#region avformat
 
-    static class AVInputFormat {
+    public static class AVInputFormat {
         String name;
         String long_name;
         int priv_data_size;
-        Function<byte[], Integer> read_probe;
-        Function<AVFormatContext, Integer> read_header;
-        Function<AVFormatContext, AVPacket> read_packet;
+        public Function<byte[], Integer> read_probe;
+        public Function<AVFormatContext, Integer> read_header;
+        public Function<AVFormatContext, AVPacket> read_packet;
         TetraFunction<AVFormatContext, Integer, Long, Integer, Integer> read_seek;
         String extensions;
     }
 
-    static class AVFormatContext {
+    public static class AVFormatContext {
 
         public VqfContext priv_data = new VqfContext();
         public AVStream[] streams = new AVStream[1];
@@ -76,7 +75,7 @@ public class LibAV {
         public Map<String, Object> metadata = new HashMap<>();
     }
 
-    static class AVStream {
+    public static class AVStream {
 
         public AVCodecContext codecpar = new AVCodecContext();
         public long start_time;
@@ -84,11 +83,6 @@ public class LibAV {
         public AVStream(AVFormatContext s, Object o) {
             s.streams[0] = this;
         }
-    }
-
-    static class AVProbeData {
-
-        public byte[] buf;
     }
 
 //#endregion
@@ -103,15 +97,15 @@ public class LibAV {
 
     static final int AV_INPUT_BUFFER_PADDING_SIZE = 8;
 
-    static class AVChannelLayout {
+    public static class AVChannelLayout {
 
         /**
          * Number of channels in this layout. Mandatory field.
          */
-        int nb_channels;
+        public int nb_channels;
     }
 
-    static class AVCodecContext {
+    public static class AVCodecContext {
 
         public TwinVQContext priv_data;
 
@@ -173,6 +167,7 @@ public class LibAV {
          *
          * @param dst  result vector
          *             constraints: 16-byte aligned
+         * @param dstP destination vector start index
          * @param src0 first source vector
          *             constraints: 16-byte aligned
          * @param src0P first source vector start index
@@ -181,35 +176,26 @@ public class LibAV {
          * @param src1P second source vector start index
          * @param win  half-window vector
          *             constraints: 16-byte aligned
-         * @param len  length of vector
+         * @param len  length of half-window (output will be 2*len samples)
          *             constraints: multiple of 4
          */
         public void vector_fmul_window(float[] dst, int dstP, float[] src0, int src0P, float[] src1, int src1P, float[] win, int len) {
-Debug.printf("dst: %d, dstP: %d, src0: %d, src0P: %d, src1: %d, src1P: %d, win: %d, len: %d", dst.length, dstP, src0.length, src0P, src1.length, src1P, win.length, len);
-            int winSize = win.length;
-            int len1 = len - 4;
-            int idx0 = len;
-            int idxDst = len;
-            int idx1 = len1;
+            // Match the original C implementation:
+            // dst  += len; win  += len; src0 += len;
+            // for (i = -len, j = len - 1; i < 0; i++, j--) {
+            //     dst[i] = s0*wj - s1*wi; dst[j] = s0*wi + s1*wj;
+            // }
+            int dstOff = dstP + len;
+            int winOff = len;
+            int src0Off = src0P + len;
 
-            for (int i = -len; i < 0; i += 4) {
-                int winIdx = (i + len) % winSize; // Ensure win index is within bounds
-
-                float w0 = win[winIdx];
-                float w1 = win[(winIdx + winSize / 2) % winSize]; // Offset for second half
-                float s0 = src0[idx0 + i];
-                float s1 = src1[idx1 + i];
-
-                float p0 = w0 * s0;
-                float p1 = w1 * s1;
-                float p2 = w1 * s0;
-                float p3 = w0 * s1;
-
-                float result1 = p0 - p3;
-                float result2 = p2 + p1;
-
-                dst[idxDst + i] = result1;
-                dst[idxDst + i + len1] = result2;
+            for (int i = -len, j = len - 1; i < 0; i++, j--) {
+                float s0 = src0[src0Off + i];
+                float s1 = src1[src1P + j];
+                float wi = win[winOff + i];
+                float wj = win[winOff + j];
+                dst[dstOff + i] = s0 * wj - s1 * wi;
+                dst[dstOff + j] = s0 * wi + s1 * wj;
             }
         }
 
@@ -223,11 +209,13 @@ Debug.printf("dst: %d, dstP: %d, src0: %d, src0P: %d, src1: %d, src1P: %d, win: 
          * @param len length of vectors, multiple of 4
          */
         public void butterflies_float(float[] v1, int p1, float[] v2, int p2, short len) {
+            // Match FFmpeg's butterflies_float_c exactly:
+            // v1[i] = v1[i] + v2[i] (sum)
+            // v2[i] = v1[i] - v2[i] (difference)
             for (int i = 0; i < len; i++) {
-                float a = v1[p1 + i];
-                float b = v2[p2 + i];
-                v1[p1 + i] = a + b;  // sum stored in v1
-                v2[p2 + i] = a - b;  // difference stored in v2
+                float t = v1[p1 + i] - v2[p2 + i];
+                v1[p1 + i] += v2[p2 + i];
+                v2[p2 + i] = t;
             }
         }
     }
@@ -236,14 +224,14 @@ Debug.printf("dst: %d, dstP: %d, src0: %d, src0P: %d, src1: %d, src1P: %d, win: 
         interface TXFunction extends LibAV.TetraConsumer<AVTXContext, float[], Integer, float[], Integer> {}
     }
 
-    static class AVFrame {
+    public static class AVFrame {
 
         public int nb_samples;
         public Object extended_data;
         public byte[] data;
     }
 
-    static class AVPacket {
+    public static class AVPacket {
 
         public byte[] data;
         public int size;
@@ -267,7 +255,7 @@ Debug.printf("dst: %d, dstP: %d, src0: %d, src0P: %d, src1: %d, src1P: %d, win: 
     static void ff_init_ff_sine_windows(int index) {
         float[] windows = new float[1 << index];
         ff_sine_window_init(windows, 1 << index);
-logger.log(Level.DEBUG, "index: " + index + ", windows: " + windows.length);
+logger.log(Level.TRACE, "index: " + index + ", windows: " + windows.length);
         ff_sine_windows.put(index, windows);
     }
 
@@ -278,37 +266,30 @@ logger.log(Level.DEBUG, "index: " + index + ", windows: " + windows.length);
     }
 
     static int ff_get_buffer(LibAV.AVCodecContext avctx, AVFrame frame, int flags) {
-        int ret = 0;
-
-        if (frame.nb_samples * (long) avctx.ch_layout.nb_channels > avctx.max_samples) {
+        // Only check max_samples if it has been set (non-zero)
+        if (avctx.max_samples > 0 && frame.nb_samples * (long) avctx.ch_layout.nb_channels > avctx.max_samples) {
             logger.log(Level.ERROR, "samples per frame %d, exceeds max_samples %d".formatted(frame.nb_samples, avctx.max_samples));
             return -1;
         }
-//        ret = ff_decode_frame_props(avctx, frame);
-        if (ret < 0)
-            return -1;
 
-        avctx.sw_pix_fmt = avctx.pix_fmt;
+        // Allocate frame data
+        int channels = avctx.ch_layout.nb_channels;
+        frame.extended_data = new float[channels][frame.nb_samples];
+        frame.data = new byte[channels * frame.nb_samples * Float.BYTES];
 
-//        ret = avctx.get_buffer2(avctx, frame, flags);
-        if (ret < 0)
-            return -1;
-
-//        validate_avframe_allocation(avctx, frame);
-
-//        ret = ff_attach_decode_data(frame);
-        if (ret < 0)
-            return -1;
-
-        return ret;
+        return 0;
     }
 
     static int av_tx_init(AVTXContext[] ctx, AVTXContext.TXFunction[] tx, int index, int /*AVTXType*/ type,
                           int inv, int len, float[] scale, long flags) {
-logger.log(Level.DEBUG, "type: " + type);
-        scale[0] = 1f;
-        MDCT mdct = new MDCT(Float.SIZE, false, scale[0]);
-        tx[index] = (x, in, inp, out, op) -> mdct.imdctHalf(in, inp, out, op);
+        // In FFmpeg's av_tx for MDCT, 'len' is the number of frequency bins (N/2).
+        // imdct_half takes 'len' coefficients and produces 'len' time samples.
+        // Our MDCT class uses mdctSize = N (full size), so we need mdctSize = 2*len.
+        // 32 - numberOfLeadingZeros(len) gives floor(log2(len)) + 1 = log2(2*len) for powers of 2.
+        int nbits = 32 - Integer.numberOfLeadingZeros(len);  // nbits = log2(2*len)
+        logger.log(Level.TRACE, "av_tx_init: type=" + type + ", len=" + len + ", nbits=" + nbits + ", scale=" + scale[0]);
+        MDCT mdct = new MDCT(nbits, inv != 0, scale[0]);
+        tx[index] = (x, out, outp, in, inp) -> mdct.imdctHalf(out, outp, in, inp);
         return 0;
     }
 

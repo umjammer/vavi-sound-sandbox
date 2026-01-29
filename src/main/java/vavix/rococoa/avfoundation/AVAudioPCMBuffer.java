@@ -6,6 +6,8 @@
 
 package vavix.rococoa.avfoundation;
 
+import com.sun.jna.Pointer;
+
 import org.rococoa.ObjCClass;
 
 
@@ -31,4 +33,14 @@ public abstract class AVAudioPCMBuffer extends AVAudioBuffer {
     public abstract AVAudioPCMBuffer initWithPCMFormat_frameCapacity(AVAudioFormat format, int frameCapacity);
 
     public abstract int frameLength();
+
+    public abstract Pointer floatChannelData();
+
+    public abstract Pointer int16ChannelData();
+
+    public abstract Pointer int32ChannelData();
+
+    public abstract /* AVAudioFrameCount */ int frameCapacity();
+
+    public abstract /* NSUInteger */ int stride();
 }
