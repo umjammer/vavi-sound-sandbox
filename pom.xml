@@ -363,7 +363,12 @@
     <dependency>
       <groupId>com.github.umjammer.rococoa</groupId> <!-- org.rococoa / com.github.umjammer.rococoa -->
       <artifactId>rococoa-cocoa</artifactId>
-      <version>0.8.14</version>
+      <version>0.8.15</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.umjammer.rococoa</groupId> <!-- org.rococoa / com.github.umjammer.rococoa -->
+      <artifactId>rococoa-contrib</artifactId>
+      <version>0.8.15</version>
     </dependency>
     <dependency>
       <groupId>${tritonus.groupId}</groupId>
