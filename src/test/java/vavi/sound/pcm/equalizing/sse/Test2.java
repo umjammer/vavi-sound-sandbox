@@ -34,6 +34,7 @@ import javax.swing.event.MouseInputListener;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import vavi.sound.pcm.equalizing.sse.Equalizer.Parameter;
 import vavi.util.Debug;
@@ -80,6 +81,7 @@ System.setOut(new PrintStream("NUL")); // shut fuckin' j-ogg's mouth
     }
 
     @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test1() throws Exception {
         exec();
     }
