@@ -33,7 +33,10 @@ import javax.swing.event.MouseInputAdapter;
 import javax.swing.event.MouseInputListener;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import vavi.sound.pcm.equalizing.sse.Equalizer.Parameter;
+import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
 
@@ -53,7 +56,9 @@ public class Test2 {
         return Files.exists(Paths.get("local.properties"));
     }
 
+    @Property(name = "sse.in")
     String inFile;
+
     String outFile = "tmp/out.vavi.wav";
 
     @Property(name = "vavi.test.volume")
@@ -63,17 +68,27 @@ public class Test2 {
     public static void main(String[] args) throws Exception {
 System.setOut(new PrintStream("NUL")); // shut fuckin' j-ogg's mouth
         Test2 app = new Test2();
-        if (localPropertiesExists()) {
-            PropsEntity.Util.bind(app);
-        }
+        app.setup();
         app.exec();
+    }
+
+    @BeforeEach
+    void setup() throws Exception {
+        if (localPropertiesExists()) {
+            PropsEntity.Util.bind(this);
+        }
+    }
+
+    @Test
+    void test1() throws Exception {
+        exec();
     }
 
     /** */
     void exec() throws Exception {
         Properties props = new Properties();
         props.load(EqualizerTest.class.getResourceAsStream("/vavi/sound/pcm/equalizing/sse/local.properties"));
-        inFile = props.getProperty("equalizer.in.wav");
+Debug.print(inFile);
 
         equalizer = new Equalizer(14);
 
