@@ -22,9 +22,6 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 
-import org.gagravarr.ogg.OggFile;
-import org.gagravarr.opus.OpusFile;
-import vavi.sound.sampled.opus.OpusEncoding;
 import vavi.sound.sampled.opus.OpusFileFormatType;
 import vavi.sound.twinvq.LibAV.AVInputFormat;
 import vavi.sound.twinvq.VFQ;
@@ -77,7 +74,7 @@ public class TwinvqAudioFileReader extends AudioFileReader {
      *                                       valid audio file data recognized by the system.
      * @throws IOException                   if an I/O exception occurs.
      */
-    protected AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
+    protected static AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
 logger.log(DEBUG, "enter available: " + bitStream.available());
         AVInputFormat inputFormat = VFQ.ff_vqf_demuxer;
         try {
@@ -149,7 +146,7 @@ logger.log(DEBUG, "finally available: " + bitStream.available());
      *                                       valid audio file data recognized by the system.
      * @throws IOException                   if an I/O exception occurs.
      */
-    protected AudioInputStream getAudioInputStream(InputStream inputStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
+    protected static AudioInputStream getAudioInputStream(InputStream inputStream, int mediaLength) throws UnsupportedAudioFileException, IOException {
         AudioFileFormat audioFileFormat = getAudioFileFormat(inputStream, mediaLength);
         return new AudioInputStream(inputStream, audioFileFormat.getFormat(), audioFileFormat.getFrameLength());
     }
