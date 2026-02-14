@@ -354,7 +354,7 @@
       <version>1.0.22</version>
       <exclusions>
         <exclusion>
-          <groupId>com.github.umjammer</groupId>
+          <groupId>vavi</groupId>
           <artifactId>vavi-sound-nda</artifactId>
         </exclusion>
       </exclusions>
@@ -481,6 +481,12 @@
       <artifactId>vavi-sound-aac</artifactId>
       <version>0.8.12</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.github.umjammer</groupId>
+          <artifactId>vavi-sound</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 <!--
  -->
@@ -489,6 +495,12 @@
       <artifactId>mp3spi</artifactId>
       <version>1.9.16</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.github.umjammer</groupId>
+          <artifactId>vavi-sound</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -570,6 +582,12 @@
       <artifactId>vavi-sound-alac</artifactId>
       <version>0.3.5</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.github.umjammer</groupId>
+          <artifactId>vavi-sound</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
