@@ -11,18 +11,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
 import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine.Info;
-import javax.sound.sampled.SourceDataLine;
 
 import vavi.io.OutputEngine;
 import vavi.io.OutputEngineInputStream;
-import vavi.sound.ilbc.Decoder;
 import vavi.sound.twinvq.LibAV.AVCodecContext;
 import vavi.sound.twinvq.LibAV.AVFormatContext;
 import vavi.sound.twinvq.LibAV.AVFrame;
@@ -31,9 +24,6 @@ import vavi.sound.twinvq.LibAV.AVPacket;
 import vavi.sound.twinvq.TwinVQ;
 import vavi.sound.twinvq.TwinVQDec;
 import vavi.sound.twinvq.TwinVQDec.TwinVQContext;
-
-import static java.lang.System.getLogger;
-import static vavi.sound.SoundUtil.volume;
 
 
 /**
@@ -44,18 +34,6 @@ import static vavi.sound.SoundUtil.volume;
  */
 class Twinvq2PcmAudioInputStream extends AudioInputStream {
 
-    private static final Logger logger = getLogger(Twinvq2PcmAudioInputStream.class.getName());
-
-    /** gross */
-    private static ThreadLocal<TwinvqOutputEngine> engineStore = new InheritableThreadLocal<>();
-
-    /** gross */
-    private static TwinvqOutputEngine init(InputStream in, AVInputFormat twinvq) throws IOException {
-        TwinvqOutputEngine engine = new TwinvqOutputEngine(in, twinvq);
-        engineStore.set(engine);
-        return engine;
-    }
-
     /**
      * Constructor.
      *
@@ -64,20 +42,7 @@ class Twinvq2PcmAudioInputStream extends AudioInputStream {
      * @param length the length in sample frames of the data in this stream.
      */
     public Twinvq2PcmAudioInputStream(InputStream in, AudioFormat format, long length, AVInputFormat twinvq) throws IOException {
-        super(new OutputEngineInputStream(init(in, twinvq)), format, length);
-    }
-
-    @Override
-    public AudioFormat getFormat() {
-        AudioFormat originalFormat = super.getFormat();
-        return new AudioFormat(
-                originalFormat.getEncoding(),
-                engineStore.get().sampleRate,
-                16,
-                engineStore.get().channels,
-                engineStore.get().channels * 2,
-                engineStore.get().sampleRate,
-                false);
+        super(new OutputEngineInputStream(new TwinvqOutputEngine(in, twinvq)), format, length);
     }
 
     /** */
@@ -91,7 +56,6 @@ class Twinvq2PcmAudioInputStream extends AudioInputStream {
         private final AVInputFormat inputFormat;
         private final AVCodecContext codecContext;
 
-        private final int sampleRate;
         private final int channels;
 
         /** */
@@ -109,7 +73,6 @@ class Twinvq2PcmAudioInputStream extends AudioInputStream {
             TwinVQDec.twinvq_decode_init(codecContext);
 
             // Audio output setup
-            this.sampleRate = codecContext.sample_rate;
             this.channels = codecContext.ch_layout.nb_channels;
 
             this.frame = new AVFrame();
