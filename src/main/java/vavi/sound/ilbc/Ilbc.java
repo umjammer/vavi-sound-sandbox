@@ -899,22 +899,22 @@ public class Ilbc {
         }
         int mode = Integer.parseInt(argv[0]);
         if (mode != 20 && mode != 30) {
-            throw new IllegalArgumentException(String.format("Wrong mode %s, must be 20, or 30", argv[0]));
+            throw new IllegalArgumentException("Wrong mode %s, must be 20, or 30".formatted(argv[0]));
         }
         try {
-            iFile = AudioSystem.getAudioInputStream(new BufferedInputStream(Files.newInputStream(Paths.get(argv[1]))));
-        } catch (IOException | UnsupportedAudioFileException e) {
-            throw new IllegalArgumentException(String.format("Cannot open input file %s", argv[1]));
+            iFile = new BufferedInputStream(Files.newInputStream(Paths.get(argv[1])));
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Cannot open input file %s".formatted(argv[1]), e);
         }
         try {
             eFile = Files.newOutputStream(Paths.get(argv[2]));
         } catch (IOException e) {
-            throw new IllegalArgumentException(String.format("Cannot open encoded file %s", argv[2]));
+            throw new IllegalArgumentException("Cannot open encoded file %s".formatted(argv[2]), e);
         }
         try {
             oFile = Files.newOutputStream(Paths.get(argv[3]));
         } catch (IOException e) {
-            throw new IllegalArgumentException(String.format("Cannot open decoded file %s", argv[3]));
+            throw new IllegalArgumentException("Cannot open decoded file %s".formatted(argv[3]), e);
         }
         if (argv.length == 5) {
             cFile = Files.newInputStream(Paths.get(argv[4]));

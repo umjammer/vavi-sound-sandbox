@@ -8,7 +8,7 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-sound-sandbox</artifactId>
-  <version>1.0.12</version>
+  <version>1.0.13</version>
 
   <name>Vavi Sound API (Sandbox)</name>
   <url>https://github.com/umjammer/vavi-sound-sandbox</url>
@@ -335,7 +335,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.14.1</version>
+        <version>6.0.2</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -354,7 +354,7 @@
       <version>1.0.22</version>
       <exclusions>
         <exclusion>
-          <groupId>com.github.umjammer</groupId>
+          <groupId>vavi</groupId>
           <artifactId>vavi-sound-nda</artifactId>
         </exclusion>
       </exclusions>
@@ -391,7 +391,7 @@
     <dependency>
       <groupId>com.github.philburk</groupId>
       <artifactId>jsyn</artifactId>
-      <version>v16.8.1</version>
+      <version>v17.2.0</version>
     </dependency>
 <!--
     <dependency>
@@ -479,7 +479,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- net.sourceforge.jaadec / com.github.umjammer -->
       <artifactId>vavi-sound-aac</artifactId>
-      <version>0.8.12</version>
+      <version>0.8.13</version>
       <scope>test</scope>
     </dependency>
 <!--
@@ -489,6 +489,12 @@
       <artifactId>mp3spi</artifactId>
       <version>1.9.16</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.github.umjammer</groupId>
+          <artifactId>vavi-sound</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -570,6 +576,12 @@
       <artifactId>vavi-sound-alac</artifactId>
       <version>0.3.5</version>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.github.umjammer</groupId>
+          <artifactId>vavi-sound</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
