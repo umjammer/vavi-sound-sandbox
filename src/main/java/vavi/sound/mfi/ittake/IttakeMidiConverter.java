@@ -139,13 +139,13 @@ logger.log(Level.DEBUG, "tickLength: " + sequence.getTickLength());
         context.setMfiResolution(6L << sequence.getResolution());
         int headerIndex = mfiTrack.size(); // TODO
 logger.log(Level.DEBUG, "headerIndex: " + headerIndex);
-        CuePointMessage biginning = new CuePointMessage(0, 0);
+        CuePointMessage biginning = new CuePointMessage().init(0, 0);
         mfiTrack.add(new MfiEvent(biginning, 0L));
         int volume = 0;
         if (volume != 0) {
             for (int i = 0; i < 16; i++) {
                 if (trackUsed[i]) { // TODO
-                    VolumeMessage sound = new VolumeMessage(0, 0xff, i, volume);
+                    VolumeMessage sound = new VolumeMessage().init(0, 0xff, i, volume);
                     mfiTrack.add(new MfiEvent(sound, 0L));
                 }
             }
@@ -195,7 +195,7 @@ logger.log(Level.DEBUG, "here: " + j + ", " + timeOver);
                             if (shortMessage.getData2() != 0) { // velocity
                                 tempo[i] = new MfiEvent(new NoteMessage(0, i, MfiContext.toMLDNote(shortMessage.getData1()), 0), presentTime);
                                 if (prevVelocity[i] != shortMessage.getData2() || prevVelocity[i] == -1) {
-                                    VolumeMessage sound = new VolumeMessage(0, 0xff, i, shortMessage.getData2() / 2);
+                                    VolumeMessage sound = new VolumeMessage().init(0, 0xff, i, shortMessage.getData2() / 2);
                                     mfiTrack.add(new MfiEvent(sound, presentTime));
                                     prevVelocity[i] = shortMessage.getData2(); // velocity
                                 }
@@ -225,8 +225,8 @@ logger.log(Level.DEBUG, "here: " + j + ", " + timeOver);
                 if (command == ShortMessage.PROGRAM_CHANGE) {
                     int i = shortMessage.getChannel();
                     if (i < 4) {
-                        ChangeVoiceMessage prev = new ChangeVoiceMessage(0, 0xff, shortMessage.getChannel(), shortMessage.getData1());
-                        ChangeBankMessage next = new ChangeBankMessage(0, 0xff, shortMessage.getChannel(), shortMessage.getData1());
+                        ChangeVoiceMessage prev = new ChangeVoiceMessage().init(0, 0xff, shortMessage.getChannel(), shortMessage.getData1());
+                        ChangeBankMessage next = new ChangeBankMessage().init(0, 0xff, shortMessage.getChannel(), shortMessage.getData1());
                         mfiTrack.add(new MfiEvent(prev, presentTime));
                         mfiTrack.add(new MfiEvent(next, presentTime));
                     }
@@ -235,21 +235,21 @@ logger.log(Level.DEBUG, "here: " + j + ", " + timeOver);
                 int metaType = metaMessage.getType();
                 switch (metaType) {
                 case 81: // Tempo setting
-                    TempoMessage tempoMessage = new TempoMessage(0, 0xff, context.getMidiResolution(), (metaMessage.getData()[0] << 8) | metaMessage.getData()[1]);
+                    TempoMessage tempoMessage = new TempoMessage().init(0, 0xff, context.getMidiResolution(), (metaMessage.getData()[0] << 8) | metaMessage.getData()[1]);
                     mfiTrack.add(new MfiEvent(tempoMessage, presentTime));
                     break;
                 case 47: // End of Track
                     break;
                 case 3:
-                    TitlMessage titl = new TitlMessage(TitlMessage.TYPE, metaMessage.getData());
+                    TitlMessage titl = new TitlMessage().init(TitlMessage.TYPE, metaMessage.getData());
                     mfiTrack.add(new MfiEvent(titl, presentTime));
                     break;
                 case 1: // Text
-                    ProtMessage prot = new ProtMessage(ProtMessage.TYPE, metaMessage.getData());
+                    ProtMessage prot = new ProtMessage().init(ProtMessage.TYPE, metaMessage.getData());
                     mfiTrack.add(new MfiEvent(prot, presentTime));
                     break;
                 case 2: // Copyright
-                    CopyMessage copy = new CopyMessage(CopyMessage.TYPE, metaMessage.getData());
+                    CopyMessage copy = new CopyMessage().init(CopyMessage.TYPE, metaMessage.getData());
                     mfiTrack.add(new MfiEvent(copy, presentTime));
                     break;
                 default:
@@ -260,7 +260,7 @@ logger.log(Level.DEBUG, "here: " + j + ", " + timeOver);
             j++;
         } while (j < midiTracks[t].size());
 
-        EndOfTrackMessage end = new EndOfTrackMessage(0, 0);
+        EndOfTrackMessage end = new EndOfTrackMessage().init(0, 0);
         mfiTrack.add(new MfiEvent(end, presentTime));
 
         long prev = 0L;

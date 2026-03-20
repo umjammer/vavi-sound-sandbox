@@ -23,7 +23,7 @@ import static java.lang.System.getLogger;
 
 
 /**
- * Opl3AudioInputStream.
+ * Opl3ToPcmAudioInputStream.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/23 umjammer initial version <br>

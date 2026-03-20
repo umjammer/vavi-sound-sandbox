@@ -92,6 +92,7 @@ class RococoaSynthesizerTest {
     @DisplayName("directly")
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test() throws Exception {
+Debug.println(rococoaTest);
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
         synthesizer.open();
 Debug.println("synthesizer: " + synthesizer);

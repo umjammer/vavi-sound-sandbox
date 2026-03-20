@@ -15,7 +15,6 @@ import javax.sound.midi.Sequence;
 
 import jp.or.rim.kt.kemusiro.sound.MMLException;
 import vavi.sound.midi.BasicMidiFileReader;
-import vavi.sound.midi.mfi.MfiMidiFileReader;
 
 import static java.lang.System.getLogger;
 
@@ -28,7 +27,7 @@ import static java.lang.System.getLogger;
  */
 public class MmlMidiFileReader extends BasicMidiFileReader {
 
-    private static final Logger logger = getLogger(MfiMidiFileReader.class.getName());
+    private static final Logger logger = getLogger(MmlMidiFileReader.class.getName());
 
     @Override
     public Sequence getSequence(InputStream is) throws InvalidMidiDataException, IOException {

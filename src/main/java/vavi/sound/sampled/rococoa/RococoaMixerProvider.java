@@ -6,12 +6,16 @@
 
 package vavi.sound.sampled.rococoa;
 
+import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.util.Properties;
 
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.Mixer.Info;
 import javax.sound.sampled.spi.MixerProvider;
+
+import vavi.sound.midi.rococoa.RococoaSynthesizer;
 
 import static java.lang.System.getLogger;
 
@@ -25,6 +29,24 @@ import static java.lang.System.getLogger;
 public class RococoaMixerProvider extends MixerProvider {
 
     private static final Logger logger = getLogger(RococoaMixerProvider.class.getName());
+
+    static {
+        try {
+            try (InputStream is = RococoaMixerProvider.class.getResourceAsStream("/META-INF/maven/vavi/vavi-sound-sandbox/pom.properties")) {
+                if (is != null) {
+                    Properties props = new Properties();
+                    props.load(is);
+                    version = props.getProperty("version", "undefined in pom.properties");
+                } else {
+                    version = System.getProperty("vavi.test.version", "undefined");
+                }
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    static final String version;
 
     @Override
     public Info[] getMixerInfo() {

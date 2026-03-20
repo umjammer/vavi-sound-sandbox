@@ -126,7 +126,7 @@ Debug.print("volume: " + volume);
                 channels * 2,
                 sampleRate,
                 false);
-System.err.println("Audio format: " + audioFormat);
+Debug.println("Audio format: " + audioFormat);
 
         Info info = new Info(SourceDataLine.class, audioFormat);
         SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
@@ -150,7 +150,7 @@ System.err.println("Audio format: " + audioFormat);
 
                 // Debug: print first few samples of first frame
                 if (frameCount < 3) {
-                    System.err.printf("Frame %d: samples=%d, ch0[0..3]=[%.6f, %.6f, %.6f, %.6f]%n",
+                    Debug.printf("Frame %d: samples=%d, ch0[0..3]=[%.6f, %.6f, %.6f, %.6f]%n",
                             frameCount, samples,
                             audioData[0][0], audioData[0][1], audioData[0][2], audioData[0][3]);
                 }

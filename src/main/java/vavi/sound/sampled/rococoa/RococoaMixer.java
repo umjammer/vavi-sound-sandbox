@@ -6,8 +6,6 @@
 
 package vavi.sound.sampled.rococoa;
 
-import java.io.InputStream;
-import java.util.Properties;
 import javax.sound.sampled.Control;
 import javax.sound.sampled.Control.Type;
 import javax.sound.sampled.Line;
@@ -15,7 +13,7 @@ import javax.sound.sampled.LineListener;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 
-import vavi.sound.midi.rococoa.RococoaSynthesizer;
+import static vavi.sound.sampled.rococoa.RococoaMixerProvider.version;
 
 
 /**
@@ -25,24 +23,6 @@ import vavi.sound.midi.rococoa.RococoaSynthesizer;
  * @version 0.00 2022/02/21 umjammer initial version <br>
  */
 public class RococoaMixer implements Mixer {
-
-    static {
-        try {
-            try (InputStream is = RococoaSynthesizer.class.getResourceAsStream("/META-INF/maven/vavi/vavi-sound-sandbox/pom.properties")) {
-                if (is != null) {
-                    Properties props = new Properties();
-                    props.load(is);
-                    version = props.getProperty("version", "undefined in pom.properties");
-                } else {
-                    version = System.getProperty("vavi.test.version", "undefined");
-                }
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static final String version;
 
     public static final Mixer.Info mixerInfo = new Mixer.Info(
             "Rococoa Mixer",

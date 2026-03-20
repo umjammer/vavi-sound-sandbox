@@ -7,12 +7,10 @@
 package vavi.sound.midi.mocha;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javax.sound.midi.Instrument;
@@ -39,6 +37,7 @@ import mocha.sound.Instrumental;
 import mocha.sound.TimeLine;
 
 import static java.lang.System.getLogger;
+import static vavi.sound.midi.mocha.MochaMidiDeviceProvider.version;
 
 
 /**
@@ -52,24 +51,6 @@ import static java.lang.System.getLogger;
 public class MochaSynthesizer implements Synthesizer {
 
     private static final System.Logger logger = getLogger(MochaSynthesizer.class.getName());
-
-    static {
-        try {
-            try (InputStream is = MochaSynthesizer.class.getResourceAsStream("/META-INF/maven/vavi/vavi-sound-sandbox/pom.properties")) {
-                if (is != null) {
-                    Properties props = new Properties();
-                    props.load(is);
-                    version = props.getProperty("version", "undefined in pom.properties");
-                } else {
-                    version = System.getProperty("vavi.test.version", "undefined");
-                }
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static final String version;
 
     /** the device information */
     protected static final MidiDevice.Info info =

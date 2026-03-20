@@ -6,8 +6,10 @@
 
 package vavi.sound.midi.mocha;
 
+import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.util.Properties;
 import javax.sound.midi.MidiDevice;
 import javax.sound.midi.spi.MidiDeviceProvider;
 
@@ -24,15 +26,30 @@ public class MochaMidiDeviceProvider extends MidiDeviceProvider {
 
     private static final Logger logger = getLogger(MochaMidiDeviceProvider.class.getName());
 
+    static {
+        try {
+            try (InputStream is = MochaMidiDeviceProvider.class.getResourceAsStream("/META-INF/maven/vavi/vavi-sound-sandbox/pom.properties")) {
+                if (is != null) {
+                    Properties props = new Properties();
+                    props.load(is);
+                    version = props.getProperty("version", "undefined in pom.properties");
+                } else {
+                    version = System.getProperty("vavi.test.version", "undefined");
+                }
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    static final String version;
+
     /** */
     public final static int MANUFACTURER_ID = 0x5e;
 
-    /** */
-    private static final MidiDevice.Info[] infos = new MidiDevice.Info[] { MochaSynthesizer.info };
-
     @Override
     public MidiDevice.Info[] getDeviceInfo() {
-        return infos;
+        return new MidiDevice.Info[] { MochaSynthesizer.info };
     }
 
     /** */
