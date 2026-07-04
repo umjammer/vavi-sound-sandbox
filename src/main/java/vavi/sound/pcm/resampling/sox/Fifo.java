@@ -76,7 +76,9 @@ logger.log(Level.DEBUG, "fifo: length: %d, start: %d, end: %d, point: %d, n: %08
                 continue;
             }
             allocation += n;
-            data = new double[allocation];
+            double[] newData = new double[allocation];
+            System.arraycopy(data, 0, newData, 0, end);
+            data = newData;
         }
     }
 
@@ -107,16 +109,17 @@ logger.log(Level.DEBUG, "fifo: length: %d, start: %d, end: %d, point: %d, n: %08
         return n;
     }
 
-    /** */
+    /** @return the read position <em>before</em> advancing, as in the C original */
     int read(int n, double[] data) {
         if (n > end - begin) {
             throw new IndexOutOfBoundsException();
         }
+        int p = begin;
         if (data != null) {
             System.arraycopy(this.data, begin, data, 0, n);
         }
         begin += n;
-        return begin;
+        return p;
     }
 
     /** */

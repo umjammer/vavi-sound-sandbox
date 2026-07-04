@@ -71,7 +71,6 @@ public class PerfectResampler {
                 double c = 0;
                 double d = 0; // = 0 to kill compiler warning
                 int pos = i * num_phases + j - 1;
-logger.log(Level.DEBUG, "coefs:%d, index:%d\n".formatted(coefs.length, pos - 1));
                 fm1 = (pos > 0 ? coefs[pos - 1] : 0) * multiplier;
                 switch (interp_order) {
                 case 1:
@@ -140,7 +139,7 @@ logger.log(Level.DEBUG, "coefs:%d, index:%d\n".formatted(coefs.length, pos - 1))
             int integer;
             int fraction;
             long all() {
-                return (long) integer << 32 | (fraction);
+                return (long) integer << 32 | (fraction & 0xffffffffL);
             }
             void all(long v) {
                 integer = (int) ((v >> 32));
@@ -217,23 +216,20 @@ logger.log(Level.DEBUG, "coefs:%d, index:%d\n".formatted(coefs.length, pos - 1))
 
         while (num_in >= f.dft_length) {
             int inputP = stage.fifo.read_ptr();
+            double[] input = stage.fifo.data;
             stage.fifo.read(f.dft_length - overlap, null);
-            double[] input = new double[inputP + f.dft_length - overlap];
             num_in -= f.dft_length - overlap;
 
             int outputP = output_fifo.reserve(f.dft_length);
             output = output_fifo.data;
             output_fifo.trim_by((f.dft_length + overlap) >> 1);
-//logger.log(Level.TRACE, "%d, %d, %d, %d, %d".formatted(input.length, inputP, output.length, outputP, f.dft_length));
-            System.arraycopy(input, inputP, output, outputP, Math.min(f.dft_length, input.length - inputP)); // TODO added min
 
-double[] o = new double[f.dft_length];
-System.arraycopy(output, outputP, o, 0, f.dft_length);
-if (s.bit_rev_table == null) {
-s.bit_rev_table = new int[dft_br_len(f.dft_length)];
-s.sin_cos_table = new double[dft_sc_len(f.dft_length)];
-}
-//logger.log(Level.TRACE, "%d, %s".formatted(f.dft_length, s.bit_rev_table.length));
+            double[] o = new double[f.dft_length];
+            System.arraycopy(input, inputP, o, 0, f.dft_length);
+            if (s.bit_rev_table == null) {
+                s.bit_rev_table = new int[dft_br_len(f.dft_length)];
+                s.sin_cos_table = new double[dft_sc_len(f.dft_length)];
+            }
 
             SplitRadixFft.rdft(f.dft_length, 1, o, s.bit_rev_table, s.sin_cos_table);
             o[0] *= f.coefs[0];
@@ -249,7 +245,7 @@ s.sin_cos_table = new double[dft_sc_len(f.dft_length)];
                 o[j] = o[i];
             }
 
-System.arraycopy(o, 0, output, outputP, f.dft_length);
+            System.arraycopy(o, 0, output, outputP, (f.dft_length - overlap) >> 1);
         }
     };
 
@@ -276,13 +272,12 @@ System.arraycopy(o, 0, output, outputP, f.dft_length);
                 output[outputP + i + 1] = 0;
             }
 
-double[] o = new double[f.dft_length];
-System.arraycopy(output, outputP, o, 0, f.dft_length);
-if (s.bit_rev_table == null) {
-s.bit_rev_table = new int[dft_br_len(f.dft_length)];
-s.sin_cos_table = new double[dft_sc_len(f.dft_length)];
-}
-logger.log(Level.DEBUG, "%d, %s".formatted(f.dft_length, s.bit_rev_table));
+            double[] o = new double[f.dft_length];
+            System.arraycopy(output, outputP, o, 0, f.dft_length);
+            if (s.bit_rev_table == null) {
+                s.bit_rev_table = new int[dft_br_len(f.dft_length)];
+                s.sin_cos_table = new double[dft_sc_len(f.dft_length)];
+            }
 
             SplitRadixFft.rdft(f.dft_length, 1, o, s.bit_rev_table, s.sin_cos_table);
             o[0] *= f.coefs[0];
@@ -294,7 +289,7 @@ logger.log(Level.DEBUG, "%d, %s".formatted(f.dft_length, s.bit_rev_table));
             }
             SplitRadixFft.rdft(f.dft_length, -1, o, s.bit_rev_table, s.sin_cos_table);
 
-System.arraycopy(o, 0, output, outputP, f.dft_length);
+            System.arraycopy(o, 0, output, outputP, f.dft_length - overlap);
         }
     };
 
@@ -723,11 +718,11 @@ logger.log(Level.DEBUG, "%d, %d, %.2f".formatted(num_in, max_num_out, p.out_in_r
             for (i = 0; p.at.integer < num_in; ++i, p.at.all(p.at.all() + p.step.all())) {
                 int atP = p.at.integer; // input
                 int fraction = p.at.fraction;
-                int phase = fraction >> (32 - PHASE_BITS()); // high-order bits
+                int phase = fraction >>> (32 - PHASE_BITS()); // high-order bits (fraction is unsigned in C)
                 double x = 0;
                 double sum = 0;
                 if (COEF_INTERP() > 0) { // low-order bits, scaled to [0,1)
-                    x = (fraction << PHASE_BITS()) * (1 / Stage.MULT32);
+                    x = ((fraction << PHASE_BITS()) & 0xffffffffL) * (1 / Stage.MULT32);
                 } else {
                     sum = 0;
                 }
@@ -1136,10 +1131,10 @@ final StageFunction u100_0 = new RatePolyFir0() {
             final int max_divisor = 2048; // Keep coef table size ~< 500kb
             final double epsilon = 4 / Stage.MULT32; // Scaled to half this at max_divisor
             rate.upsample = rate.factor < 1;
-            for (i = (int) factor, rate.level = 0; i != 0; ++rate.level, i >>= 1) {
+            for (i = (int) factor >> 1, rate.level = 0; i != 0; ++rate.level, i >>= 1) {
                 // log base 2
             }
-            factor /= 1 << ((rate.level + (rate.upsample ? 1 : 0) == 0) ? 1 : 0);
+            factor /= 1 << (rate.level + (rate.upsample ? 0 : 1));
             for (i = 2; i <= max_divisor && divisor == 1; ++i) {
                 double try_d = factor * i;
                 int try_ = (int) (try_d + .5);
@@ -1218,7 +1213,7 @@ logger.log(Level.DEBUG, "fir_len=%d phases=%d coef_interp=%d mult=%d size=%d".fo
             /* static */
             Filter[] filters = {
                 new Filter(2 * half_fir_coefs_low.length - 1, half_fir_coefs_low, 0, 0),
-                new Filter(0, null, .986, 1109),
+                new Filter(0, null, .986, 110),
                 new Filter(0, null, .986, 125),
                 new Filter(0, null, .986, 170),
                 new Filter(0, null, .996, 170),
@@ -1230,8 +1225,8 @@ logger.log(Level.DEBUG, "fir_len=%d phases=%d coef_interp=%d mult=%d size=%d".fo
             assert (quality.value - Quality.Low.value < filters.length);
             half_band_filter_init(shared, rate.upsample ? 1 : 0, f.len, f.h, bw, att, mult, phase, allow_aliasing);
             if (rate.upsample) {
-                rate.stages[-1].fn = double_sample; // Finish off setting up pre-stage
-                rate.stages[-1].preload = shared.half_band[1].post_peak[0] >> 1;
+                rate.stages[0].fn = double_sample; // Finish off setting up pre-stage; [0] is C's stages[-1]
+                rate.stages[0].preload = shared.half_band[1].post_peak[0] >> 1;
                 // Start setting up post-stage; TODO don't use dft for short filters
                 if ((1 - rate.factor) / (1 - bw) > 2) {
                     half_band_filter_init(shared, 0, new int[] { 0 }, null, Math.max(rate.factor, min), att, 1, phase, allow_aliasing);
@@ -1257,8 +1252,14 @@ logger.log(Level.DEBUG, "fir_len=%d phases=%d coef_interp=%d mult=%d size=%d".fo
                 s.fn = half_sample;
                 s.preload = shared.half_band[1].post_peak[0];
                 s.which = 1;
-            } else {
-                s = rate.stages[rate.level + 1 + 1];
+            } else { // C: *s = post_stage (struct copy)
+                Stage post = rate.stages[rate.level + 1 + 1];
+                s.fn = post.fn;
+                s.pre = post.pre;
+                s.pre_post = post.pre_post;
+                s.preload = post.preload;
+                s.which = post.which;
+                s.shared = post.shared;
             }
         }
         for (i = rate.input_stage_num; i <= rate.output_stage_num; ++i) {
@@ -1354,10 +1355,14 @@ logger.log(Level.DEBUG, "stage=%-3dpre_post=%-3dpre=%-3dpreload=%d".formatted(i,
         priv.phase = 25;
         priv.shared_ptr = 0; // p.shared
 
+        priv.coef_interp = coef_interp;
+        priv.phase = phase;
+        priv.bandwidth = bandwidth;
         priv.allow_aliasing = allow_aliasing;
         priv.quality = Quality.values()[quality + 1];
 
-        if (priv.quality.value < 2 && (priv.bandwidth != 0 || priv.phase != 25 || priv.allow_aliasing)) {
+        // C: (unsigned) quality < 2, so Default (-1) never triggers this
+        if (priv.quality.value >= 0 && priv.quality.value < 2 && (priv.bandwidth != 0 || priv.phase != 25 || priv.allow_aliasing)) {
             throw new IllegalArgumentException("override options not allowed with this quality level");
         }
 
