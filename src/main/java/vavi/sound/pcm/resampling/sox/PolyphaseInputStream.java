@@ -72,6 +72,9 @@ class PolyphaseInputStream extends FilterInputStream {
             } else {
                 int r = in.read(sample);
                 if (r < 0) {
+                    int[] resamples = resampler.drain();
+logger.log(Level.DEBUG, "drain: " + resamples.length);
+                    out.write(toBytes(resamples));
                     out.flush();
                     out.close();
                 } else {
@@ -81,13 +84,19 @@ class PolyphaseInputStream extends FilterInputStream {
                     }
                     int[] resamples = resampler.resample(samples);  // TODO single channel ???
 logger.log(Level.DEBUG, r / 2 + ", " + resamples.length);
-                    byte[] result = new byte[resamples.length * 2];
-                    for (int i = 0; i < resamples.length; i++) {
-                        ByteUtil.writeLeShort((short) resamples[i], result, i * 2); // LE
-                    }
-                    out.write(result);
+                    out.write(toBytes(resamples));
                 }
             }
+        }
+
+        /** 16bit LE */
+        private static byte[] toBytes(int[] samples) {
+            byte[] result = new byte[samples.length * 2];
+            for (int i = 0; i < samples.length; i++) {
+                int v = Math.clamp(samples[i], -32768, 32767);
+                ByteUtil.writeLeShort((short) v, result, i * 2); // LE
+            }
+            return result;
         }
 
         @Override

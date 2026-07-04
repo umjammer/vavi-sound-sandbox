@@ -324,8 +324,8 @@ fail:
 //logger.log(Level.DEBUG, .formatted("# end\n\n")));
     }
 
-//    /** */
-//    private static final int RIBLEN = 2048;
+    /** */
+    private static final int RIBLEN = 2048;
 
     /** */
     private static float st_gcd(float a, float b) {
@@ -372,7 +372,7 @@ fail:
         // start
 
         double skip = 0;
-// moved to #resample()
+        int size;
         int k;
 
         if (inrate == outrate) {
@@ -391,7 +391,13 @@ fail:
         work.outskip = (int) (work.lcmrate / outrate);
         work.factor = (double) work.inskip / (double) work.outskip;
         work.inpipe = 0;
-// moved to #resample()
+        {
+            int f = RIBLEN / Math.max(work.inskip, work.outskip);
+            if (f == 0) {
+                f = 1;
+            }
+            size = f * work.outskip; // reasonable input block size
+        }
 
         // Find the prime factors of inskip and outskip
         int total = optimize_factors(work.inskip, work.outskip, l1, l2);
@@ -417,13 +423,13 @@ logger.log(Level.DEBUG, "Poly:  window: %s  size: %d  cutoff: %.2f.".formatted((
                 prod = s.up;
             }
             f_len = ((f_len + prod - 1) / prod) * prod; // reduces rounding-errors in polyphase()
-//          s.size = size;
+            s.size = size;
             s.hsize = f_len / s.up; // this much of window is past-history
             s.held = 0;
-logger.log(Level.DEBUG, "Poly:  stage %d:  Up by %d, down by %d,  i_samps %d, hsize %d".formatted(k + 1, s.up, s.down, -1/* size */, s.hsize));
+logger.log(Level.DEBUG, "Poly:  stage %d:  Up by %d, down by %d,  i_samps %d, hsize %d".formatted(k + 1, s.up, s.down, size, s.hsize));
             s.filt_len = f_len;
             s.filt_array = new double[f_len];
-//          s.window = new double[s.hsize + size];
+            s.window = new double[s.hsize + size];
             uprate *= s.up;
 logger.log(Level.DEBUG, "Poly:         :  filt_len %d, cutoff freq %.1f".formatted(f_len, uprate * cutoff / f_cutoff));
             uprate /= s.down;
@@ -434,21 +440,21 @@ logger.log(Level.DEBUG, "Poly:         :  filt_len %d, cutoff freq %.1f".formatt
             skip += f_len;
             skip /= s.down;
 
-//          size = (size * s.up) / s.down; // this is integer
+            size = (size * s.up) / s.down; // this is integer
         }
         work.oskip = (int) (skip / 2);
         { // bogus last stage is for output buffering
             PolyStage s = new PolyStage();
             work.stage[k] = s;
             s.up = s.down = 0;
-//          s.size = size;
+            s.size = size;
             s.hsize = 0;
             s.held = 0;
             s.filt_len = 0;
             s.filt_array = null;
-//          s.window = new double[size];
+            s.window = new double[size];
         }
-logger.log(Level.DEBUG, "Poly:  output samples %d, oskip %d".formatted(-1 /* size */, work.oskip));
+logger.log(Level.DEBUG, "Poly:  output samples %d, oskip %d".formatted(size, work.oskip));
     }
 
     /**
@@ -519,49 +525,70 @@ logger.log(Level.DEBUG, "Poly:  output samples %d, oskip %d".formatted(-1 /* siz
         return (int) sample;
     }
 
-    /** */
+    /**
+     * Resamples the given samples. May be called repeatedly with successive
+     * chunks of a stream; filter history is kept across calls. Output is
+     * delayed by the filter pipeline, so the remainder must be fetched with
+     * {@link #drain()} after the last chunk.
+     */
     public int[] resample(int[] ibuf) {
+        return flowAll(ibuf);
+    }
 
-        int j;
-        int size;
-        {
-            int f = ibuf.length / Math.max(work.inskip, work.outskip);
-            if (f == 0) {
-                f = 1;
+    /**
+     * Process tail of input samples.
+     */
+    public int[] drain() {
+        // Call "flow" with null input.
+        return flowAll(null);
+    }
+
+    /**
+     * Drives {@link #flow} like the sox effects engine: keeps offering the
+     * remaining input until all is consumed (null input: drains until dry),
+     * collecting whatever output is produced.
+     */
+    private int[] flowAll(int[] ibuf) {
+        PolyStage s1 = work.stage[work.total]; // the 'last' stage is output buffer
+        int[] buf = new int[s1.size];
+        int[] out = new int[0];
+        int total = 0;
+        int off = 0;
+        int remaining = ibuf != null ? ibuf.length : 0;
+        while (true) {
+            int[] isamp = { remaining };
+            int[] osamp = { buf.length };
+            flow(ibuf, off, isamp, buf, osamp);
+            if (total + osamp[0] > out.length) {
+                out = Arrays.copyOf(out, Math.max(total + osamp[0], out.length * 2 + buf.length));
             }
-            size = f * work.outskip; // reasonable input block size
-logger.log(Level.DEBUG, "size 0: " + size);
+            System.arraycopy(buf, 0, out, total, osamp[0]);
+            total += osamp[0];
+            off += isamp[0];
+            remaining -= isamp[0];
+            if (ibuf != null ? remaining <= 0 : osamp[0] == 0) {
+                break;
+            }
         }
-        for (j = 0; j < work.total; j++) {
-            PolyStage s = work.stage[j];
-            s.size = size;
-            s.window = new double[s.hsize + size];
-            size = (size * s.up) / s.down; // this is integer
-logger.log(Level.DEBUG, "size [" + j + "]: " + size);
-        }
-        {
-            PolyStage s = work.stage[j];
-            s.size = size;
-logger.log(Level.DEBUG, "size [" + j + "]: " + size);
-            s.window = new double[size];
-        }
+        return Arrays.copyOf(out, total);
+    }
 
-        //----
-
-        int osamp = (int) (ibuf.length / work.factor);
-        int[] obuf;
-
-        //----
+    /**
+     * C: st_poly_flow. ibuf == null means draining.
+     *
+     * @param isamp [in/out] offered input count / input samples consumed
+     * @param osamp [in/out] obuf capacity / output samples produced (from obuf[0])
+     */
+    private void flow(int[] ibuf, int ioff, int[] isamp, int[] obuf, int[] osamp) {
 
         // Sanity check: how much can we tolerate?
-//logger.log(Level.TRACE, "isamp=%d osamp=%d".formatted(isamp[0], osamp[0]); System.err.flush()));
         PolyStage s0 = work.stage[0]; // the first stage
         PolyStage s1 = work.stage[work.total]; // the 'last' stage is output buffer
         {
-            int in_size = ibuf.length;
+            int in_size = isamp[0];
             int gap = s0.size - s0.held; // space available in this 'input' buffer
             if ((in_size > gap) || (ibuf == null)) {
-                in_size = gap;
+                isamp[0] = in_size = gap;
             }
             if (in_size > 0) {
                 int q = s0.hsize; // s0.window
@@ -571,10 +598,7 @@ logger.log(Level.DEBUG, "size [" + j + "]: " + size);
                 if (ibuf != null) {
                     work.inpipe += work.factor * in_size;
                     for (int k = 0; k < in_size; k++) {
-//if (k < 300) {
-// logger.log(Level.TRACE, "%d".formatted(ibuf[k]));
-//}
-                        s0.window[q++] = ibuf[k] / ISCALE;
+                        s0.window[q++] = ibuf[ioff + k] / ISCALE;
                     }
                 } else { // ibuf == null is draining
                     for (int k = 0; k < in_size; k++) {
@@ -592,12 +616,6 @@ logger.log(Level.DEBUG, "size [" + j + "]: " + size);
                 PolyStage s = work.stage[k];
                 int out = work.stage[k + 1].hsize; // rate.stage[k + 1].window
 
-//logger.log(Level.TRACE, "stage: %d insize=%d".formatted(k + 1, s.window.length); System.err.flush());
-//for (int l = 0; l < s.window.length; l++) {
-// if (l < 300) {
-//  logger.log(Level.TRACE, "%f".formatted(s.window[l]));
-// }
-//}
                 polyphase(work.stage[k + 1].window, out, s);
 
                 // copy input history into lower portion of rate.window[k]
@@ -615,28 +633,23 @@ logger.log(Level.DEBUG, "size [" + j + "]: " + size);
 
             int oskip = work.oskip;
             int out_size = s1.held;
-//logger.log(Level.TRACE, "out_size 0: " + out_size);
             int out_buf = s1.hsize; // s1.window
 
             if (ibuf == null && out_size > Math.ceil(work.inpipe)) {
                 out_size = (int) Math.ceil(work.inpipe);
-//logger.log(Level.TRACE, "out_size 1: " + out_size);
             }
 
-            if (out_size > oskip + osamp) {
-                out_size = oskip + osamp;
-//logger.log(Level.TRACE, "out_size 2: " + out_size);
+            if (out_size > oskip + osamp[0]) {
+                out_size = oskip + osamp[0];
             }
 
-            obuf = new int[out_size];
-logger.log(Level.DEBUG, "out_size: " + out_size);
             for (q = 0, k = oskip; k < out_size; k++) {
                 obuf[q++] = clipfloat(s1.window[out_buf + k] * ISCALE); // should clip - limit
             }
 
-            osamp = q;
-            work.inpipe -= osamp;
-            oskip -= out_size - osamp;
+            osamp[0] = q;
+            work.inpipe -= osamp[0];
+            oskip -= out_size - osamp[0];
             work.oskip = oskip;
 
             s1.hsize += out_size;
@@ -645,15 +658,5 @@ logger.log(Level.DEBUG, "out_size: " + out_size);
                 s1.hsize = 0;
             }
         }
-
-        return obuf;
-    }
-
-    /**
-     * Process tail of input samples.
-     */
-    public int[] drain() {
-        // Call "flow" with null input.
-        return resample(new int[0]);  // TODO does not work
     }
 }
