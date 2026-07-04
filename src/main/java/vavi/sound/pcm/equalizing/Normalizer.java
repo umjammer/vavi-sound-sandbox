@@ -34,20 +34,27 @@ class Normalizer {
 
         LittleEndianDataInputStream leis = new LittleEndianDataInputStream(in); 
         length = leis.readInt();
-        leis.read(riff_type, 0, 4);
+        int read = 0;
+        while (read < 4) {
+            int r = leis.read(riff_type, read, 4 - read);
+            if (r == -1) break;
+            read += r;
+        }
 
-        System.out.print("RIFF Header\n");
-        System.out.print("----------------------------\n");
-        System.out.printf("          Length: %d\n", length);
-        System.out.printf("            Type: %s\n", new String(riff_type));
-        System.out.print("----------------------------\n");
+        if (out == null) {
+            System.out.print("RIFF Header\n");
+            System.out.print("----------------------------\n");
+            System.out.printf("          Length: %d\n", length);
+            System.out.printf("            Type: %s\n", new String(riff_type));
+            System.out.print("----------------------------\n");
+        }
 
         // Write RIFF Header
 
         if (out != null) {
             LittleEndianDataOutputStream leos = new LittleEndianDataOutputStream(out); 
             leos.writeBytes("RIFF");
-            leos.writeInt(4);
+            leos.writeInt(length);
             leos.writeBytes("WAVE");
         }
 
@@ -67,32 +74,52 @@ class Normalizer {
         fmt_chunk.setBlockSize(leis.readShort());
         fmt_chunk.setSamplingBits(leis.readShort());
 
-        System.out.print("FMT Chunk\n");
-        System.out.print("----------------------------\n");
-        System.out.printf("          Length: %d\n", length);
-        System.out.print("     Format Type: ");
-        if (fmt_chunk.getFormatId() == 0) {
-            System.out.print("Mono\n");
-        } else if (fmt_chunk.getFormatId() == 1) {
-            System.out.print("Stereo\n");
-        } else {
-            System.out.print("unknown\n");
+        if (length > 16) {
+            long skipped = 0;
+            while (skipped < length - 16) {
+                long s = in.skip(length - 16 - skipped);
+                if (s <= 0) {
+                    int b = in.read();
+                    if (b == -1) break;
+                    skipped++;
+                } else {
+                    skipped += s;
+                }
+            }
         }
 
-        System.out.printf(" Channel Numbers: %d\n", fmt_chunk.getNumberChannels());
-        System.out.printf("     Sample Rate: %d\n", fmt_chunk.getSamplingRate());
-        System.out.printf("Bytes Per Second: %d\n", fmt_chunk.getBytesPerSecond());
-        System.out.print("Bytes Per Sample: ");
-        if (fmt_chunk.getBlockSize()== 1) {
-            System.out.printf("8 bit mono (%d)\n", fmt_chunk.getBlockSize());
-        } else if (fmt_chunk.getBlockSize() == 2) {
-            System.out.printf("8 bit stereo or 16 bit mono (%d)\n", fmt_chunk.getBlockSize());
-        } else if (fmt_chunk.getBlockSize() == 4) {
-            System.out.printf("16 bit stereo (%d)\n", fmt_chunk.getBlockSize());
+        if (length % 2 != 0) {
+            in.read();
         }
 
-        System.out.printf(" Bits Per Sample: %d\n", fmt_chunk.getSamplingBits());
-        System.out.print("----------------------------\n");
+        if (out == null) {
+            System.out.print("FMT Chunk\n");
+            System.out.print("----------------------------\n");
+            System.out.printf("          Length: %d\n", length);
+            System.out.print("     Format Type: ");
+            if (fmt_chunk.getFormatId() == 1) {
+                System.out.print("PCM\n");
+            } else {
+                System.out.printf("unknown (%d)\n", fmt_chunk.getFormatId());
+            }
+
+            System.out.printf(" Channel Numbers: %d\n", fmt_chunk.getNumberChannels());
+            System.out.printf("     Sample Rate: %d\n", fmt_chunk.getSamplingRate());
+            System.out.printf("Bytes Per Second: %d\n", fmt_chunk.getBytesPerSecond());
+            System.out.print("Bytes Per Sample: ");
+            if (fmt_chunk.getBlockSize() == 1) {
+                System.out.printf("8 bit mono (%d)\n", fmt_chunk.getBlockSize());
+            } else if (fmt_chunk.getBlockSize() == 2) {
+                System.out.printf("8 bit stereo or 16 bit mono (%d)\n", fmt_chunk.getBlockSize());
+            } else if (fmt_chunk.getBlockSize() == 4) {
+                System.out.printf("16 bit stereo (%d)\n", fmt_chunk.getBlockSize());
+            } else {
+                System.out.printf("unknown (%d)\n", fmt_chunk.getBlockSize());
+            }
+
+            System.out.printf(" Bits Per Sample: %d\n", fmt_chunk.getSamplingBits());
+            System.out.print("----------------------------\n");
+        }
 
         // Write FMT Chunk
 
@@ -112,53 +139,66 @@ class Normalizer {
     }
 
     /** */
-    static int parse_data(InputStream in, WAVE.fmt fmt_chunk, OutputStream out) throws IOException {
+    static int parse_data(InputStream in, WAVE.fmt fmt_chunk, OutputStream out, double ratio) throws IOException {
         int length;
-        int deepest;
+        int deepest = 0;
         int t;
-        int h;
-        int r;
-        double ratio;
-
-        deepest = 0;
 
         LittleEndianDataInputStream leis = new LittleEndianDataInputStream(in); 
         length = leis.readInt();
-        in.mark(length); // TODO OutOfMemoryError
-
-        System.out.print("DATA chunk\n");
-        System.out.print("----------------------------\n");
-        System.out.printf("          Length: %d\n", length);
-
-        System.out.print("Scanning for biggest/smallest peak\n");
-
-        if (fmt_chunk.getSamplingBits() == 16) {
-            for (t = 0; t < length / 2; t++) {
-                r = in.read() + (in.read() << 8);
-                r = Math.abs(r);
-                if (r > deepest) {
-                    deepest = r;
-                }
-            }
-        } else if (fmt_chunk.getSamplingBits() == 8) {
-            for (t = 0; t < length; t++) {
-                h = in.read();
-                h = Math.abs(h);
-                if (h > deepest) {
-                    deepest = h;
-                }
-            }
-        }
-
-        System.out.printf("Deepest: %d\n", deepest);
 
         if (out == null) {
-            return 0;
+            System.out.print("DATA chunk\n");
+            System.out.print("----------------------------\n");
+            System.out.printf("          Length: %d\n", length);
+            System.out.print("Scanning for biggest/smallest peak\n");
+
+            if (fmt_chunk.getSamplingBits() == 16) {
+                for (t = 0; t < length / 2; t++) {
+                    int b1 = in.read();
+                    int b2 = in.read();
+                    if (b1 == -1 || b2 == -1) {
+                        break;
+                    }
+                    short r = (short) ((b2 << 8) | (b1 & 0xff));
+                    int absVal = Math.abs(r);
+                    if (absVal > deepest) {
+                        deepest = absVal;
+                    }
+                }
+            } else if (fmt_chunk.getSamplingBits() == 8) {
+                for (t = 0; t < length; t++) {
+                    int h = in.read();
+                    if (h == -1) {
+                        break;
+                    }
+                    int s = h - 128;
+                    int absVal = Math.abs(s);
+                    if (absVal > deepest) {
+                        deepest = absVal;
+                    }
+                }
+            } else {
+                long skipped = 0;
+                while (skipped < length) {
+                    long s = in.skip(length - skipped);
+                    if (s <= 0) {
+                        int b = in.read();
+                        if (b == -1) break;
+                        skipped++;
+                    } else {
+                        skipped += s;
+                    }
+                }
+            }
+
+            if (length % 2 != 0) {
+                in.read();
+            }
+
+            System.out.printf("Deepest: %d\n", deepest);
+            return deepest;
         }
-
-        System.out.print("Creating new wave\n");
-
-        in.reset();
 
         // Write Data Chunk
 
@@ -166,20 +206,48 @@ class Normalizer {
         leos.writeBytes("data");
         leos.writeInt(length);
 
-        ratio = 32768 / (float) deepest;
-        System.out.printf("Ratio: %.5f\n", ratio);
-
         if (fmt_chunk.getSamplingBits() == 16) {
             for (t = 0; t < length / 2; t++) {
-                r = in.read() + (in.read() << 8);
-                r = (int) (r * ratio);
-                leos.writeShort(r);
+                int b1 = in.read();
+                int b2 = in.read();
+                if (b1 == -1 || b2 == -1) {
+                    break;
+                }
+                short r = (short) ((b2 << 8) | (b1 & 0xff));
+                int scaled = (int) (r * ratio);
+                if (scaled > 32767) scaled = 32767;
+                else if (scaled < -32768) scaled = -32768;
+                leos.writeShort((short) scaled);
             }
         } else if (fmt_chunk.getSamplingBits() == 8) {
             for (t = 0; t < length; t++) {
-                h = in.read();
-                h = (int) (h * ratio);
-                out.write(h);
+                int h = in.read();
+                if (h == -1) {
+                    break;
+                }
+                int s = h - 128;
+                int scaled = (int) (s * ratio);
+                if (scaled > 127) scaled = 127;
+                else if (scaled < -128) scaled = -128;
+                leos.write(scaled + 128);
+            }
+        } else {
+            byte[] buf = new byte[4096];
+            int rem = length;
+            while (rem > 0) {
+                int r = in.read(buf, 0, Math.min(buf.length, rem));
+                if (r == -1) break;
+                leos.write(buf, 0, r);
+                rem -= r;
+            }
+        }
+
+        if (length % 2 != 0) {
+            int pad = in.read();
+            if (pad != -1) {
+                leos.write(pad);
+            } else {
+                leos.write(0);
             }
         }
 
@@ -189,7 +257,6 @@ class Normalizer {
     /** */
     static int normalize(String inname, String outname) throws IOException {
         InputStream in;
-        OutputStream out;
         byte[] chunk_name = new byte[4];
         WAVE.fmt fmt_chunk = new WAVE.fmt();
 
@@ -200,18 +267,7 @@ class Normalizer {
             return -1;
         }
 
-        if (outname != null) {
-            try {
-                out = new BufferedOutputStream(Files.newOutputStream(Paths.get(outname)));
-            } catch (IOException e) {
-                in.close();
-                System.out.printf("Could not open file for writing: %s\n", outname);
-                return 0;
-            }
-        } else {
-            out = null;
-        }
-
+        int deepest = 0;
         while (true) {
             if (in.read(chunk_name, 0, 4) < 4) {
                 break;
@@ -219,20 +275,103 @@ class Normalizer {
 
             String type = new String(chunk_name);
             switch (type) {
-            case "RIFF" -> parse_header(in, out);
-            case "fmt " -> parse_fmt(in, fmt_chunk, out);
-            case "data" -> parse_data(in, fmt_chunk, out);
+            case "RIFF" -> parse_header(in, null);
+            case "fmt " -> parse_fmt(in, fmt_chunk, null);
+            case "data" -> deepest = parse_data(in, fmt_chunk, null, 1.0);
             default -> {
-                System.out.printf("Unknown chunk: '%s'\n", type);
-                return -1;
+                LittleEndianDataInputStream leis = new LittleEndianDataInputStream(in);
+                int length = leis.readInt();
+                long skipped = 0;
+                while (skipped < length) {
+                    long s = in.skip(length - skipped);
+                    if (s <= 0) {
+                        int b = in.read();
+                        if (b == -1) break;
+                        skipped++;
+                    } else {
+                        skipped += s;
+                    }
+                }
+                if (length % 2 != 0) {
+                    in.read();
+                }
+            }
+            }
+        }
+        in.close();
+
+        if (outname == null) {
+            return 0;
+        }
+
+        double ratio;
+        if (deepest == 0) {
+            ratio = 1.0;
+        } else {
+            if (fmt_chunk.getSamplingBits() == 16) {
+                ratio = 32767.0 / deepest;
+            } else {
+                ratio = 127.0 / deepest;
+            }
+        }
+
+        System.out.print("Creating new wave\n");
+        System.out.printf("Ratio: %.5f\n", ratio);
+
+        InputStream in2;
+        OutputStream out2;
+        try {
+            in2 = new BufferedInputStream(Files.newInputStream(Paths.get(inname)));
+        } catch (IOException e) {
+            System.out.printf("Couldn't open file for reading: %s\n", inname);
+            return -1;
+        }
+        try {
+            out2 = new BufferedOutputStream(Files.newOutputStream(Paths.get(outname)));
+        } catch (IOException e) {
+            in2.close();
+            System.out.printf("Could not open file for writing: %s\n", outname);
+            return -1;
+        }
+
+        while (true) {
+            if (in2.read(chunk_name, 0, 4) < 4) {
+                break;
+            }
+
+            String type = new String(chunk_name);
+            switch (type) {
+            case "RIFF" -> parse_header(in2, out2);
+            case "fmt " -> parse_fmt(in2, fmt_chunk, out2);
+            case "data" -> parse_data(in2, fmt_chunk, out2, ratio);
+            default -> {
+                LittleEndianDataInputStream leis = new LittleEndianDataInputStream(in2);
+                int length = leis.readInt();
+                LittleEndianDataOutputStream leos = new LittleEndianDataOutputStream(out2);
+                leos.writeBytes(type);
+                leos.writeInt(length);
+                byte[] buf = new byte[4096];
+                int rem = length;
+                while (rem > 0) {
+                    int r = in2.read(buf, 0, Math.min(buf.length, rem));
+                    if (r == -1) break;
+                    leos.write(buf, 0, r);
+                    rem -= r;
+                }
+                if (length % 2 != 0) {
+                    int pad = in2.read();
+                    if (pad != -1) {
+                        leos.write(pad);
+                    } else {
+                        leos.write(0);
+                    }
+                }
             }
             }
         }
 
-        if (out != null) {
-            out.close();
-        }
-        in.close();
+        out2.close();
+        in2.close();
 
         return 0;
     }
