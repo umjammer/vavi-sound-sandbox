@@ -43,9 +43,8 @@ import static java.lang.System.getLogger;
  * @author Cognitone (Juce port, converter)
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2025/04/25 umjammer port to java <br>
- * @see "https://github.com/git-moss/ConvertWithMoss"
  */
-class Convert {
+public class Convert {
 
     private static final Logger logger = getLogger(Convert.class.getName());
 
@@ -81,7 +80,7 @@ class Convert {
         boolean any = false;
 
         List<String> commandLine = new ArrayList<>(Arrays.asList(args));
-        // Lacking getopt() on Windows, this is a quick & simple hack to pasre command line options
+        // Lacking getopt() on Windows, this is a quick & simple hack to parse command line options
         while (commandLine.size() > 2) {
             String token = commandLine.getFirst();
             if (token.startsWith("-")) {
@@ -118,7 +117,6 @@ class Convert {
                 if (token.indexOf('2') > 0) {
                     quality = 2;
                 }
-                //DBG(token);
                 commandLine.removeFirst();
             }
         }
@@ -134,10 +132,7 @@ class Convert {
         SoundFont sf = new SoundFont(inFilename);
         logger.log(Level.DEBUG, "Reading " + inFilename.getAbsolutePath());
 
-        if (!sf.read()) {
-            logger.log(Level.DEBUG, "Error reading file");
-            return;
-        }
+        sf.read();
 
         if (dump)
             sf.dumpPresets();

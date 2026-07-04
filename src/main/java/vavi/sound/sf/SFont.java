@@ -30,12 +30,14 @@ import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.ShortBuffer;
+import java.nio.channels.SeekableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -43,18 +45,16 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 import vavi.io.LittleEndianSeekableDataInputStream;
 import vavi.io.LittleEndianSeekableDataOutputStream;
-import vavi.util.ByteUtil;
 
 import static java.lang.System.getLogger;
-import static org.kc7bfi.jflac.sound.spi.FlacFileFormatType.FLAC;
-import static org.tritonus.sampled.file.pvorbis.VorbisAudioFileWriter.OGG;
 import static vavi.sound.sf.SFont.Generator.Gen_Instrument;
 import static vavi.sound.sf.SFont.Generator.Gen_KeyRange;
 import static vavi.sound.sf.SFont.Generator.Gen_VelRange;
 
 
 /**
- * SFont.
+ * SFont. SoundFont 2 with the MuseScore/Polyphone compressed sample
+ * extensions: SF3 (Ogg Vorbis) and SF4 (FLAC).
  *
  * @author Werner Schweer and others (MuseScore)
  * @author Davy Triponney (Polyphone)
@@ -62,7 +62,7 @@ import static vavi.sound.sf.SFont.Generator.Gen_VelRange;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2025/04/25 umjammer port to java <br>
  */
-class SFont {
+public class SFont {
 
     private static final Logger logger = getLogger(SFont.class.getName());
 
@@ -70,16 +70,22 @@ class SFont {
         return "%c%c%c%c".formatted((char) a, (char) b, (char) c, (char) d);
     }
 
-    // Disable this, if you don't want to use the Juce Vorbis code
-    static final int USE_JUCE_VORBIS = 1;
+    /** resolved by name against the installed audio spi (tritonus pvorbis) */
+    public static final AudioFileFormat.Type OGG = new AudioFileFormat.Type("Vorbis", "ogg");
 
-    // Enable this, if compression format is set individually per sample (not yet possible)
-    static final int USE_MULTIPLE_COMPRESSION_FORMATS = 0;
+    /** resolved by name against the installed audio spi (tritonus pvorbis) */
+    public static final AudioFormat.Encoding VORBIS = new AudioFormat.Encoding("VORBIS");
+
+    /** resolved by name against the installed audio spi (jflac and family) */
+    public static final AudioFileFormat.Type FLAC = new AudioFileFormat.Type("FLAC", "flac");
+
+    /** resolved by name against the installed audio spi (jflac and family) */
+    public static final AudioFormat.Encoding FLAC_ENC = new AudioFormat.Encoding("FLAC");
 
     //
     // sfVersionTag
     //
-    enum FileType {
+    public enum FileType {
         SF2Format,
         SF3Format,
         SF4Format
@@ -91,7 +97,7 @@ class SFont {
         int minor;
     }
 
-    enum Generator {
+    public enum Generator {
         Gen_StartAddrOfs, Gen_EndAddrOfs, Gen_StartLoopAddrOfs,
         Gen_EndLoopAddrOfs, Gen_StartAddrCoarseOfs, Gen_ModLFO2Pitch,
         Gen_VibLFO2Pitch, Gen_ModEnv2Pitch, Gen_FilterFc, Gen_FilterQ,
@@ -112,10 +118,10 @@ class SFont {
         Gen_Dummy
     }
 
-    enum Transform {
+    public enum Transform {
         Linear(0),
         AbsoluteValue(2);
-        final int v;
+        public final int v;
 
         Transform(int v) {
             this.v = v;
@@ -126,22 +132,24 @@ class SFont {
      * Bit-masked SampleType, extended with flags
      * for compression (See SF2 spec for details)
      */
-    enum SampleType {
+    public enum SampleType {
         Mono(1),
         Right(2),
         Left(4),
-        Linked(8),        // Compression flags
-        TypeVorbis(16),  // compatible with FluidSynth/MuseScore
-        TypeFlac(32),        // ROM sample flag
+        Linked(8),
+        // Compression flags
+        TypeVorbis(16), // compatible with FluidSynth/MuseScore
+        TypeFlac(32),
+        // ROM sample flag
         Rom(0x8000);
-        final int v;
+        public final int v;
 
         SampleType(int v) {
             this.v = v;
         }
     }
 
-    enum SampleCompression {
+    public enum SampleCompression {
         Raw,
         Vorbis,
         Flac
@@ -150,91 +158,69 @@ class SFont {
     //
     // ModulatorList
     //
-    static class ModulatorList {
+    public static class ModulatorList {
 
-        public ModulatorList() {
-        }
-
-        int src;
-        Generator dst;
-        int amount;
-        int amtSrc;
-        Transform transform;
+        public int src;
+        public Generator dst;
+        public int amount;
+        public int amtSrc;
+        public Transform transform;
     }
 
     //
     // GeneratorList
     //
-    static class /* union */ GeneratorAmount {
+    public static class /* union */ GeneratorAmount {
 
-        short word;
-        Byte bytes = new Byte();
+        public short word;
+        public Byte bytes = new Byte();
 
-        static class Byte {
+        public static class Byte {
 
-            byte lo, hi;
+            public byte lo, hi;
         }
     }
 
-    static class GeneratorList {
+    public static class GeneratorList {
 
-        public GeneratorList() {
-        }
-
-        Generator gen;
-        GeneratorAmount amount = new GeneratorAmount();
+        public Generator gen;
+        public GeneratorAmount amount = new GeneratorAmount();
     }
 
     //
     // Zone
     //
-    static class Zone {
+    public static class Zone {
 
-        public
-        int instrumentIndex;
-        List<GeneratorList> generators = new ArrayList<>();
-        List<ModulatorList> modulators = new ArrayList<>();
+        public int instrumentIndex;
+        public List<GeneratorList> generators = new ArrayList<>();
+        public List<ModulatorList> modulators = new ArrayList<>();
     }
 
     //
     // Preset
     //
-    static class Preset {
+    public static class Preset {
 
-        public Preset() {
-            name = null;
-            preset = 0;
-            bank = 0;
-            presetBagNdx = 0;
-            library = 0;
-            genre = 0;
-            morphology = 0;
-        }
+        public String name;
+        public int preset;
+        public int bank;
+        public int presetBagNdx; // used only for read
+        public int library;
+        public int genre;
+        public int morphology;
 
-        String name;
-        int preset;
-        int bank;
-        int presetBagNdx; // used only for read
-        int library;
-        int genre;
-        int morphology;
-
-        List<Zone> zones = new ArrayList<>();
+        public List<Zone> zones = new ArrayList<>();
     }
 
     //
     // Instrument
     //
-    static class Instrument {
+    public static class Instrument {
 
-        public Instrument() {
-            index = 0;
-            name = null;
-        }
-
-        int index;        // used only for reading
-        String name;
-        List<Zone> zones = new ArrayList<>();
+        public int index; // used only for reading
+        public String name;
+        public List<Zone> zones = new ArrayList<>();
     }
 
     //
@@ -242,20 +228,12 @@ class SFont {
     //
 
     /** Optional meta data for verification of samples after decompression */
+    public static class SampleMeta {
 
-    static class SampleMeta {
-
-        public SampleMeta() {
-            name = "";
-            samples = 0;
-            loopstart = 0;
-            loopend = 0;
-        }
-
-        String name;
-        int samples;   // original number of samples
-        int loopstart; // Relative
-        int loopend;
+        public String name = "";
+        public int samples;   // original number of samples
+        public int loopstart; // Relative
+        public int loopend;
     }
 
     // Size in bytes for file positioning - critical
@@ -268,27 +246,7 @@ class SFont {
      * from start after loaded into RAM. This is to support Vorbis and Flac
      * compression, which unpredictably changes offsets in the file.
      */
-
-    static class Sample {
-
-        public Sample() {
-            name = "";
-            start = 0;
-            end = 0;
-            loopstart = 0;
-            loopend = 0;
-            samplerate = 0;
-            origpitch = 0;
-            pitchadj = 0;
-            sampleLink = 0;
-            sampletype = SampleType.Mono.v;
-            byteDataSize = 0;
-            byteData = null;
-            sampleDataSize = 0;
-            sampleData = null;
-            meta = null;
-            // All members are required to be all-zero, for a clean Sample instance is used as terminator in shdr chunk!
-        }
+    public static class Sample {
 
         /**
          * Getting the number of samples is a bit shaky, because this is
@@ -304,20 +262,17 @@ class SFont {
         }
 
         public SampleCompression getCompressionType() {
-            if (sampletype == SampleType.TypeVorbis.v) return SampleCompression.Vorbis;
-            if (sampletype == SampleType.TypeFlac.v) return SampleCompression.Flac;
+            if ((sampletype & SampleType.TypeVorbis.v) != 0) return SampleCompression.Vorbis;
+            if ((sampletype & SampleType.TypeFlac.v) != 0) return SampleCompression.Flac;
             return SampleCompression.Raw;
         }
 
         public void setCompressionType(SampleCompression c) {
+            sampletype &= ~(SampleType.TypeVorbis.v | SampleType.TypeFlac.v);
             switch (c) {
-                case SampleCompression.Vorbis:
-                case SampleCompression.Flac:
-                    sampletype |= SampleType.values()[c.ordinal()].v;
-                    break;
-                case SampleCompression.Raw:
-                    sampletype &= ~((int) (SampleType.TypeVorbis.v + SampleType.TypeFlac.v));
-                    break;
+                case Vorbis -> sampletype |= SampleType.TypeVorbis.v;
+                case Flac -> sampletype |= SampleType.TypeFlac.v;
+                case Raw -> { }
             }
         }
 
@@ -345,9 +300,7 @@ class SFont {
             return meta;
         }
 
-        /**
-         * Verify if sample was properly restored after decompression.
-         */
+        /** Verify if sample was properly restored after decompression. */
         public boolean checkMeta() {
             if (meta == null)
                 return true;
@@ -356,113 +309,84 @@ class SFont {
                     && (meta.loopend - meta.loopstart) == (loopend - loopstart);
         }
 
-        String name;
-        int start;
-        int end;
-        int loopstart;
-        int loopend;
-        int samplerate;
-        int origpitch;
-        int pitchadj;
-        int sampleLink;
-        int sampletype;
+        public String name = "";
+        public int start;
+        public int end;
+        public int loopstart;
+        public int loopend;
+        public int samplerate;
+        public int origpitch;
+        public int pitchadj;
+        public int sampleLink;
+        public int sampletype = SampleType.Mono.v;
         // Raw byte data, used for compression i/o
-        int byteDataSize;
-        byte[] byteData;
+        public int byteDataSize;
+        public byte[] byteData;
         // Native SF2 sample data, after decompression
-        int sampleDataSize;
-        short[] sampleData;
+        public int sampleDataSize;
+        public short[] sampleData;
 
-        SampleMeta meta;
+        public SampleMeta meta;
     }
 
     //
     // SoundFont
     //
-    static class SoundFont {
+    public static class SoundFont {
 
-//#if ! USE_JUCE_VORBIS
-
-        /** This is a hack to simplify static Ogg callbacks for decoding */
-        public static class CallbackData {
-
-            Sample decodeSample;
-            int decodePosition;
-        }
-//#endif
-
-        public SoundFont(final File filename) {
+        public SoundFont(File filename) {
             _path = filename;
-            _engine = null;
-            _name = null;
-            _date = null;
-            _comment = null;
-            _tools = null;
-            _creator = null;
-            _product = null;
-            _copyright = null;
-            _infile = null;
-            _outfile = null;
-            _fileFormatIn = FileType.SF2Format;
-            _fileFormatOut = FileType.SF2Format;
-            _fileSizeIn = 0;
-            _fileSizeOut = 0;
-//            _manager = null;
-
-//            _manager.registerBasicFormats();
-//            _audioFormatVorbis = (OggVorbisAudioFormat) (_manager.findFormatForFileExtension("ogg"));
-//            _audioFormatFlac = (FlacAudioFormat) (_manager.findFormatForFileExtension("flac"));
-
-//            assert _audioFormatVorbis != null;
-//            assert _audioFormatFlac != null;
-
-//            _qualityOptionsVorbis = _audioFormatVorbis.getQualityOptions();
-//            _qualityOptionsFlac = _audioFormatFlac.getQualityOptions();
-
-            // DEBUG: Use this snippet to learn about quality options
-//            logger.log(Level.DEBUG, "Vorbis");
-//            for (int i = 0; i < _qualityOptionsVorbis.size(); i++)
-//                logger.log(Level.DEBUG, i + ": " + _qualityOptionsVorbis.get(i));
-//            logger.log(Level.DEBUG, "FLAC");
-//            for (int i = 0; i < _qualityOptionsFlac.size(); i++)
-//                logger.log(Level.DEBUG, i + ": " + _qualityOptionsFlac.get(i));
+            _name = filename.getName();
         }
 
-        public boolean read() throws IOException {
-            _fileSizeIn = _path.length();
-            _infile = new LittleEndianSeekableDataInputStream(Files.newByteChannel(_path.toPath()));
+        /** reads from an already open channel, e.g. in-memory data */
+        public SoundFont(SeekableByteChannel channel, String name) {
+            _channel = channel;
+            _name = name;
+        }
 
-            try {
-                int len = readFourcc("RIFF");
-                readSignature("sfbk");
-                len -= 4;
-                while (len != 0) {
-                    int len2 = readFourcc("LIST");
-                    len -= (len2 + 8);
-                    byte[] fourcc = new byte[4];
+        public void read() throws IOException {
+            SeekableByteChannel channel = _channel != null ? _channel : Files.newByteChannel(_path.toPath());
+            _fileSizeIn = channel.size();
+            _infile = new LittleEndianSeekableDataInputStream(channel);
+
+            int len = readFourcc("RIFF");
+            readSignature("sfbk");
+            len -= 4;
+            while (len > 0) {
+                int len2 = readFourcc("LIST");
+                len -= (len2 + 8);
+                byte[] fourcc = new byte[4];
+                fourcc[0] = 0;
+                readSignature(fourcc);
+                len2 -= 4;
+                while (len2 > 0) {
                     fourcc[0] = 0;
-                    readSignature(fourcc);
-                    len2 -= 4;
-                    while (len2 != 0) {
-                        fourcc[0] = 0;
-                        int len3 = readFourcc(fourcc);
-                        len2 -= (len3 + 8);
-                        readSection(fourcc, len3);
-                    }
+                    int len3 = readFourcc(fourcc);
+                    len2 -= (len3 + 8);
+                    readSection(fourcc, len3);
                 }
-                // load sample data
-                for (Sample sample : _samples)
-                    readSampleData(sample);
-            } catch (Exception e) {
-                logger.log(Level.ERROR, e.getMessage(), e);
-                return false;
             }
-            return true;
+            // load sample data
+            for (Sample sample : _samples) {
+                try {
+                    readSampleData(sample);
+                } catch (UnsupportedAudioFileException e) {
+                    throw new IOException("no audio decoder for " + _fileFormatIn, e);
+                } catch (IOException | RuntimeException e) {
+                    logger.log(Level.WARNING, "cannot decode sample: " + sample.name + ": " + e);
+                    sample.sampleData = new short[0];
+                    sample.sampleDataSize = 0;
+                    sample.start = 0;
+                    sample.end = 0;
+                }
+            }
         }
 
-        public boolean write(final File filename, FileType format, int quality) throws IOException {
+        public void write(File filename, FileType format, int quality) throws IOException {
 
-            _outfile = new LittleEndianSeekableDataOutputStream(Files.newByteChannel(filename.toPath(), StandardOpenOption.TRUNCATE_EXISTING));
+            _outfile = new LittleEndianSeekableDataOutputStream(Files.newByteChannel(filename.toPath(),
+                    StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING));
             _outfile.position(0);
             _fileFormatOut = format;
 
@@ -473,80 +397,78 @@ class SFont {
 
             int riffLenPos;
             int listLenPos;
-            try {
-                _outfile.writeBytes("RIFF");
-                riffLenPos = (int) _outfile.position();
-                writeDword(0);
-                _outfile.writeBytes("sfbk");
 
-                _outfile.writeBytes("LIST");
-                listLenPos = (int) _outfile.position();
-                writeDword(0);
-                _outfile.writeBytes("INFO");
+            _outfile.writeBytes("RIFF");
+            riffLenPos = (int) _outfile.position();
+            writeDword(0);
+            _outfile.writeBytes("sfbk");
 
-                writeIfil();
-                if (!_name.isEmpty()) writeStringSection("INAM", _name);
-                if (!_engine.isEmpty()) writeStringSection("isng", _engine);
-                if (!_product.isEmpty()) writeStringSection("IPRD", _product);
-                if (!_creator.isEmpty()) writeStringSection("IENG", _creator);
-                if (!_tools.isEmpty()) writeStringSection("ISFT", _tools);
-                if (!_date.isEmpty()) writeStringSection("ICRD", _date);
-                if (!_comment.isEmpty()) writeStringSection("ICMT", _comment);
-                if (!_copyright.isEmpty()) writeStringSection("ICOP", _copyright);
+            _outfile.writeBytes("LIST");
+            listLenPos = (int) _outfile.position();
+            writeDword(0);
+            _outfile.writeBytes("INFO");
 
-                int pos = (int) _outfile.position();
-                _outfile.position(listLenPos);
-                writeDword(pos - listLenPos - 4);
-                _outfile.position(pos);
+            writeIfil();
+            if (_name != null && !_name.isEmpty()) writeStringSection("INAM", _name);
+            if (_engine != null && !_engine.isEmpty()) writeStringSection("isng", _engine);
+            if (_product != null && !_product.isEmpty()) writeStringSection("IPRD", _product);
+            if (_creator != null && !_creator.isEmpty()) writeStringSection("IENG", _creator);
+            if (_tools != null && !_tools.isEmpty()) writeStringSection("ISFT", _tools);
+            if (_date != null && !_date.isEmpty()) writeStringSection("ICRD", _date);
+            if (_comment != null && !_comment.isEmpty()) writeStringSection("ICMT", _comment);
+            if (_copyright != null && !_copyright.isEmpty()) writeStringSection("ICOP", _copyright);
 
-                _outfile.writeBytes("LIST");
-                listLenPos = (int) _outfile.position();
-                writeDword(0);
+            int pos = (int) _outfile.position();
+            _outfile.position(listLenPos);
+            writeDword(pos - listLenPos - 4);
+            _outfile.position(pos);
 
-                _outfile.writeBytes("sdta");
-                writeSmpl(quality);
-                pos = (int) _outfile.position();
-                _outfile.position(listLenPos);
-                writeDword(pos - listLenPos - 4);
-                _outfile.position(pos);
+            _outfile.writeBytes("LIST");
+            listLenPos = (int) _outfile.position();
+            writeDword(0);
 
-                _outfile.writeBytes("LIST");
-                listLenPos = (int) _outfile.position();
-                writeDword(0);
-                _outfile.writeBytes("pdta");
+            _outfile.writeBytes("sdta");
+            writeSmpl(quality);
+            pos = (int) _outfile.position();
+            _outfile.position(listLenPos);
+            writeDword(pos - listLenPos - 4);
+            _outfile.position(pos);
 
-                writePhdr();
-                writeBag("pbag", _pZones);
-                writeMod("pmod", _pZones);
-                writeGen("pgen", _pZones);
-                writeInst();
-                writeBag("ibag", _iZones);
-                writeMod("imod", _iZones);
-                writeGen("igen", _iZones);
-                writeShdr();
+            _outfile.writeBytes("LIST");
+            listLenPos = (int) _outfile.position();
+            writeDword(0);
+            _outfile.writeBytes("pdta");
 
-                if (_fileFormatOut != FileType.SF2Format)
-                    writeShdX();
+            writePhdr();
+            writeBag("pbag", _pZones);
+            writeMod("pmod", _pZones);
+            writeGen("pgen", _pZones);
+            writeInst();
+            writeBag("ibag", _iZones);
+            writeMod("imod", _iZones);
+            writeGen("igen", _iZones);
+            writeShdr();
 
-                pos = (int) _outfile.position();
-                _outfile.position(listLenPos);
-                writeDword(pos - listLenPos - 4);
-                _outfile.position(pos);
+            if (_fileFormatOut != FileType.SF2Format)
+                writeShdX();
 
-                int endPos = (int) _outfile.position();
-                _outfile.position(riffLenPos);
-                writeDword(endPos - riffLenPos - 4);
+            pos = (int) _outfile.position();
+            _outfile.position(listLenPos);
+            writeDword(pos - listLenPos - 4);
+            _outfile.position(pos);
 
-                _fileSizeOut = endPos;
-            } catch (Exception s) {
-                logger.log(Level.DEBUG, "write SF2 file failed: " + s);
-                return false;
+            int endPos = (int) _outfile.position();
+            _outfile.position(riffLenPos);
+            writeDword(endPos - riffLenPos - 4);
+            _outfile.flush();
+            _outfile.origin().close();
+
+            _fileSizeOut = endPos;
+
+            if (_fileSizeIn > 0) {
+                int percent = Math.toIntExact(Math.round(100 * (double) _fileSizeOut / (double) _fileSizeIn));
+                logger.log(Level.DEBUG, "File size change: " + percent + "%");
             }
-
-            int percent = Math.toIntExact(Math.round(100 * (double) _fileSizeOut / (double) _fileSizeIn));
-            logger.log(Level.DEBUG, "File size change: " + percent + "%");
-
-            return true;
         }
 
         public void dumpPresets() {
@@ -566,7 +488,6 @@ class SFont {
             return _infile.readUnsignedShort();
         }
 
-
         private int readShort() throws IOException {
             return _infile.readShort();
         }
@@ -579,7 +500,7 @@ class SFont {
             return _infile.readUnsignedByte();
         }
 
-        private int readFourcc(final String signature) throws IOException {
+        private int readFourcc(String signature) throws IOException {
             readSignature(signature);
             return readDword();
         }
@@ -604,8 +525,8 @@ class SFont {
             _infile.skipBytes(n);
         }
 
-        private void readSection(final byte[] fourcc, int len) throws IOException {
-logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
+        private void readSection(byte[] fourcc, int len) throws IOException {
+            logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
             switch (FOURCC(fourcc[0], fourcc[1], fourcc[2], fourcc[3])) {
                 case "ifil":    // version
                     readVersion();
@@ -667,15 +588,16 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
                     readShdr(len);
                     break;
 
-                case "shdX": // original sample lenghts & loops for verification (compressed formats only)
+                case "shdX": // original sample lengths & loops for verification (compressed formats only)
                     readShdX(len);
                     break;
 
                 case "irom":    // sample rom
                 case "iver":    // sample rom version
                 default:
+                    logger.log(Level.DEBUG, "skipping fourcc " + new String(fourcc));
                     skip(len);
-                    throw new IOException("unknown fourcc " + new String(fourcc));
+                    break;
             }
         }
 
@@ -683,8 +605,8 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
             byte[] data = new byte[4];
             if (_infile.readNBytes(data, 0, 4) != 4)
                 throw new IOException("unexpected end of file");
-            _version.major = data[0] + (data[1] << 8);
-            _version.minor = data[2] + (data[3] << 8);
+            _version.major = (data[0] & 0xff) + ((data[1] & 0xff) << 8);
+            _version.minor = (data[2] & 0xff) + ((data[3] & 0xff) << 8);
 
             _fileFormatIn = FileType.SF2Format;
             if (_version.major == 3) _fileFormatIn = FileType.SF3Format;
@@ -695,14 +617,14 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
             if (n == 0)
                 return "";
 
-            // Visual C++ doesn't allow a variable array size here
-            if (n > 2014) n = 1024;
             byte[] data = new byte[n];
-
             if (_infile.readNBytes(data, 0, n) != n)
                 throw new IOException("unexpected end of file");
 
-            return new String(data).replace("\u0000", "");
+            int end = 0;
+            while (end < n && data[end] != 0)
+                end++;
+            return new String(data, 0, end, StandardCharsets.UTF_8);
         }
 
         private void readPhdr(int len) throws IOException {
@@ -782,7 +704,7 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
                     m.dst = Generator.values()[readWord()];
                     m.amount = readShort();
                     m.amtSrc = readWord();
-                    m.transform = Transform.values()[readWord()];
+                    m.transform = readWord() == Transform.AbsoluteValue.v ? Transform.AbsoluteValue : Transform.Linear;
                 }
             }
             if (size != 10)
@@ -797,7 +719,7 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
             for (Zone zone : zones) {
                 size -= (zone.generators.size() * 4);
                 if (size < 0)
-                    break;
+                    throw new IOException("generator list too small");
 
                 for (int g = 0; g < zone.generators.size(); g++) {
                     GeneratorList gen = zone.generators.get(g);
@@ -806,10 +728,9 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
                     if (gen.gen == Gen_KeyRange || gen.gen == Gen_VelRange) {
                         gen.amount.bytes.lo = (byte) readByte();
                         gen.amount.bytes.hi = (byte) readByte();
-                    } else if (gen.gen == Gen_Instrument)
+                    } else {
                         gen.amount.word = (short) readWord();
-                    else
-                        gen.amount.word = (short) readWord();
+                    }
                 }
             }
             if (size != 4)
@@ -852,7 +773,7 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
                 s.loopend = readDword();
                 s.samplerate = readDword();
                 s.origpitch = readByte();
-                s.pitchadj = readChar();
+                s.pitchadj = (byte) readChar();
                 s.sampleLink = readWord();
                 s.sampletype = readWord();
 
@@ -867,10 +788,9 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
          */
         private void readShdX(int size) throws IOException {
             int n = size / SampleMetaSize;
-            assert _samples.size() == n - 1;
             logger.log(Level.DEBUG, "Reading verification data for " + _samples.size() + " samples");
 
-            for (int i = 0; i < n - 1; ++i) {
+            for (int i = 0; i < n - 1 && i < _samples.size(); ++i) {
                 SampleMeta m = _samples.get(i).createMeta();
                 m.name = readString(20);
                 m.samples = readDword();
@@ -882,33 +802,15 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
             skip(SampleMetaSize);   // trailing record
         }
 
-        private int readSampleData(Sample s) throws IOException, UnsupportedAudioFileException {
-//#if USE_MULTIPLE_COMPRESSION_FORMATS
-//          switch (s.getCompressionType()) {
-//              case Raw:
-//                  return readSampleDataRaw(s);
-//              case Vorbis:
-//                  return readSampleDataVorbis(s);
-//              case Flac:
-//                  return readSampleDataFlac(s);
-//              default:
-//                  break;
-//          }
-//#else
-            if (_fileFormatIn == FileType.SF2Format)
-                return readSampleDataRaw(s);
-
-            if (_fileFormatIn == FileType.SF3Format)
-                return readSampleDataVorbis(s);
-
-            if (_fileFormatIn == FileType.SF4Format)
-                return readSampleDataFlac(s);
-//#endif
-            assert false;
-            return 0;
+        private void readSampleData(Sample s) throws IOException, UnsupportedAudioFileException {
+            switch (_fileFormatIn) {
+                case SF2Format -> readSampleDataRaw(s);
+                case SF3Format -> readSampleDataCompressed(s);
+                case SF4Format -> readSampleDataCompressed(s);
+            }
         }
 
-        private int readSampleDataRaw(Sample s) throws IOException {
+        private void readSampleDataRaw(Sample s) throws IOException {
             // Offsets in SF2 are based on samples (short)
             _infile.position(_samplePos + (long) s.start * Short.BYTES);
 
@@ -916,9 +818,9 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
             s.sampleDataSize = numSamples;
             byte[] b = new byte[numSamples * Short.BYTES];
             s.sampleData = new short[numSamples];
-            int read = _infile.readNBytes(b, 0, numSamples * Short.BYTES);
-            ShortBuffer sb = ByteBuffer.wrap(b).order(ByteOrder.BIG_ENDIAN).asShortBuffer();
-            sb.get(s.sampleData);
+            _infile.readFully(b, 0, numSamples * Short.BYTES);
+            // sample data in SF2 is little endian
+            ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().get(s.sampleData);
 
             // normalize offsets & make loop relative
             s.loopstart -= s.start;
@@ -927,139 +829,95 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
             s.end = numSamples;
 
             s.createMeta();
-
-            return read;
         }
 
-        private int readSampleDataVorbis(Sample s) throws IOException, UnsupportedAudioFileException {
-            // Offsets in SF3 are bytes
+        /** SF3 (Ogg Vorbis) and SF4 (FLAC): offsets are byte positions into the smpl chunk */
+        private void readSampleDataCompressed(Sample s) throws IOException, UnsupportedAudioFileException {
             int numBytes = (s.end - s.start);
             s.byteDataSize = numBytes;
             s.byteData = new byte[numBytes];
             _infile.position(_samplePos + s.start);
-            _infile.readNBytes(s.byteData, 0, numBytes);
+            _infile.readFully(s.byteData, 0, numBytes);
 
-//#if USE_JUCE_VORBIS
-
-            ByteArrayInputStream input = new ByteArrayInputStream(s.byteData, 0, s.byteDataSize);
-            AudioInputStream reader = AudioSystem.getAudioInputStream(input);
-            if (reader == null)
-                throw new IOException("Failed decoding Vorbis data!");
-            byte[] buffer = reader.readAllBytes();
+            AudioInputStream encoded = AudioSystem.getAudioInputStream(
+                    new ByteArrayInputStream(s.byteData, 0, s.byteDataSize));
+            // decoders only accept enumerated sample rates, but the rate is
+            // irrelevant for decoding, so hide it from the provider lookup
+            AudioFormat ef = encoded.getFormat();
+            AudioFormat lax = new AudioFormat(ef.getEncoding(), AudioSystem.NOT_SPECIFIED,
+                    ef.getSampleSizeInBits(), ef.getChannels(), ef.getFrameSize(),
+                    AudioSystem.NOT_SPECIFIED, ef.isBigEndian(), ef.properties());
+            encoded = new AudioInputStream(encoded, lax, AudioSystem.NOT_SPECIFIED);
+            byte[] buffer;
+            ByteOrder order;
+            // convert by encoding first, decoders reject fully specified target formats
+            try (AudioInputStream decoded = AudioSystem.getAudioInputStream(AudioFormat.Encoding.PCM_SIGNED, encoded)) {
+                AudioFormat format = decoded.getFormat();
+                // decoders may leave fields unspecified, then 16 bit is implied
+                if (format.getSampleSizeInBits() != AudioSystem.NOT_SPECIFIED && format.getSampleSizeInBits() != 16)
+                    throw new IOException("unexpected decoded format: " + format);
+                order = format.isBigEndian() ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN;
+                buffer = decoded.readAllBytes();
+            }
             int numSamples = buffer.length / Short.BYTES;
 
-            // copy buffer to sampleData
             s.sampleDataSize = numSamples;
             s.sampleData = new short[numSamples];
-            for (int i = 0; i < numSamples; i++)
-                s.sampleData[i] = (short) Math.round(ByteUtil.readBeShort(buffer, i * Short.BYTES) * 32768.f);
-//#else
+            ByteBuffer.wrap(buffer).order(order).asShortBuffer().get(s.sampleData);
 
-//            decodeOggVorbis(s);
-//            int numSamples = s.numSamples();
-
-//#endif
-
-            // normalize offsets & make loop relative
+            // normalize offsets, loop offsets in the file are already relative
             s.start = 0;
             s.end = numSamples;
-            // loop in file was already relative ...
-            //s.loopstart -= s.start;
-            //s.loopend   -= s.start;
 
-            assert s.checkMeta();
+            if (!s.checkMeta())
+                logger.log(Level.WARNING, "sample verification failed: " + s.name);
             s.dropByteData();
-            return numBytes;
-        }
-
-        private int readSampleDataFlac(Sample s) throws IOException, UnsupportedAudioFileException {
-            // Offsets in SF4 are bytes
-            int numBytes = (s.end - s.start);
-            s.byteDataSize = numBytes;
-            s.byteData = new byte[numBytes];
-            _infile.position(_samplePos + s.start);
-            _infile.readNBytes(s.byteData, 0, numBytes);
-
-            ByteArrayInputStream input = new ByteArrayInputStream(s.byteData, 0, s.byteDataSize);
-            AudioInputStream reader = AudioSystem.getAudioInputStream(input);
-            if (reader == null)
-                throw new IOException("Failed decoding FLAC data!");
-
-            byte[] buffer = reader.readAllBytes();
-            int numSamples = buffer.length / Short.BYTES;
-
-            // copy buffer to sampleData
-            s.sampleDataSize = numSamples;
-            s.sampleData = new short[numSamples];
-            for (int i = 0; i < numSamples; i++)
-                s.sampleData[i] = (short) Math.round(ByteUtil.readBeShort(buffer, i * Short.BYTES) * 32768.f);
-
-            // normalize offsets & make loop relative
-            s.start = 0;
-            s.end = numSamples;
-            // loop in file was already relative ...
-            //s.loopstart -= s.start;
-            //s.loopend   -= s.start;
-
-            s.dropByteData();
-            assert s.checkMeta();
-
-            return numBytes;
         }
 
         private void writeDword(int val) throws IOException {
-            byte[] b = new byte[4];
-            ByteUtil.writeBeInt(val, b);
-            write(b, 4);
+            _outfile.writeInt(val);
         }
 
         private void writeWord(short val) throws IOException {
-            byte[] b = new byte[2];
-            ByteUtil.writeBeShort(val, b);
-            write(b, 2);
+            _outfile.writeShort(val);
         }
 
         private void writeByte(byte val) throws IOException {
-            write(new byte[] {val}, 1);
+            _outfile.writeByte(val);
         }
 
         private void writeChar(char val) throws IOException {
-            write(new byte[] {(byte) val}, 1);
+            _outfile.writeByte((byte) val);
         }
 
         private void writeShort(short val) throws IOException {
-            write(ByteUtil.getLeBytes(val), 2);
+            _outfile.writeShort(val);
         }
 
-        private void write(final byte[] p, int n) throws IOException {
-            write(p, n);
+        private void write(byte[] p, int n) throws IOException {
+            _outfile.write(p, 0, n);
         }
 
-        private void writeString(final String string, int size) throws IOException {
-            // Visual C++ doesn't allow variable arrays
-            final int limit = string.getBytes().length;
-            byte[] name = new byte[limit];
-            // Yes, there are better ways to port this ...
-            if (limit > 0)
-                System.arraycopy(string.getBytes(), 0, name, 0, limit);
-
-            write(name, limit);
+        /** writes exactly {@code size} bytes, NUL padded */
+        private void writeString(String string, int size) throws IOException {
+            byte[] b = string == null ? new byte[0] : string.getBytes(StandardCharsets.UTF_8);
+            byte[] name = new byte[size];
+            System.arraycopy(b, 0, name, 0, Math.min(b.length, size));
+            write(name, size);
         }
 
-        private void writeStringSection(final String fourcc, final String string) throws IOException {
-            final byte[] s = string.getBytes();
+        private void writeStringSection(String fourcc, String string) throws IOException {
+            byte[] s = string.getBytes(StandardCharsets.UTF_8);
             write(fourcc.getBytes(), 4);
-            int nn = s.length + 1;
-            int n = ((nn + 1) / 2) * 2;
+            int nn = s.length + 1; // with NUL terminator
+            int n = ((nn + 1) / 2) * 2; // word aligned
             writeDword(n);
-            write(s, nn);
-            if ((n - nn) != 0) {
-                char c = 0;
-                writeChar(c);
-            }
+            byte[] padded = new byte[n];
+            System.arraycopy(s, 0, padded, 0, s.length);
+            write(padded, n);
         }
 
-        private void writePreset(int zoneIdx, final Preset preset) throws IOException {
+        private void writePreset(int zoneIdx, Preset preset) throws IOException {
             writeString(preset.name, 20);
             writeWord((short) preset.preset);
             writeWord((short) preset.bank);
@@ -1069,26 +927,25 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
             writeDword(preset.morphology);
         }
 
-        private void writeModulator(final ModulatorList m) throws IOException {
+        private void writeModulator(ModulatorList m) throws IOException {
             writeWord((short) m.src);
-            writeWord((short) m.dst.ordinal());
+            writeWord((short) (m.dst == null ? 0 : m.dst.ordinal()));
             writeShort((short) m.amount);
             writeWord((short) m.amtSrc);
-            writeWord((short) m.transform.ordinal());
+            writeWord((short) (m.transform == null ? 0 : m.transform.v));
         }
 
-        private void writeGenerator(final GeneratorList g) throws IOException {
-            writeWord((short) g.gen.ordinal());
+        private void writeGenerator(GeneratorList g) throws IOException {
+            writeWord((short) (g.gen == null ? 0 : g.gen.ordinal()));
             if (g.gen == Gen_KeyRange || g.gen == Gen_VelRange) {
                 writeByte(g.amount.bytes.lo);
                 writeByte(g.amount.bytes.hi);
-            } else if (g.gen == Gen_Instrument)
+            } else {
                 writeWord(g.amount.word);
-            else
-                writeWord(g.amount.word);
+            }
         }
 
-        private void writeInstrument(int zoneIdx, final Instrument instrument) throws IOException {
+        private void writeInstrument(int zoneIdx, Instrument instrument) throws IOException {
             writeString(instrument.name, 20);
             writeWord((short) zoneIdx);
         }
@@ -1097,8 +954,11 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
             writeString("ifil", 4);
             writeDword(4);
             byte[] data = new byte[4];
-            if (_fileFormatOut == FileType.SF3Format) _version.major = 3;
-            if (_fileFormatOut == FileType.SF4Format) _version.major = 4;
+            switch (_fileFormatOut) {
+                case SF2Format -> _version.major = 2;
+                case SF3Format -> _version.major = 3;
+                case SF4Format -> _version.major = 4;
+            }
             data[0] = (byte) _version.major;
             data[1] = (byte) (_version.major >> 8);
             data[2] = (byte) _version.minor;
@@ -1116,10 +976,8 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
 
             long offsetFromChunk = 0;
             switch (_fileFormatOut) {
-                case SF2Format: // SF2
-                {
-                    for (int i = 0; i < _samples.size(); i++) {
-                        Sample s = _samples.get(i);
+                case SF2Format: {
+                    for (Sample s : _samples) {
                         int written = writeSampleDataPlain(s);
 
                         s.setCompressionType(SampleCompression.Raw);
@@ -1133,11 +991,9 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
                     }
                     break;
                 }
-                case SF3Format: // SF3
-                {
-                    for (int i = 0; i < _samples.size(); i++) {
-                        Sample s = _samples.get(i);
-                        int written = writeSampleDataVorbis(s, quality);
+                case SF3Format: {
+                    for (Sample s : _samples) {
+                        int written = writeSampleDataCompressed(s, VORBIS, OGG, quality);
 
                         s.setCompressionType(SampleCompression.Vorbis);
                         // Offsets in SF3 based on byte offset in file.
@@ -1146,24 +1002,18 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
                         offsetFromChunk += written;
                         s.end = (int) offsetFromChunk;
                         // Important: keep relative loop offsets in file, so it can be restored after loading.
-                        // Loop is already relative ...
                     }
                     break;
                 }
-                case SF4Format: // SF4
-                {
-                    for (int i = 0; i < _samples.size(); i++) {
-                        Sample s = _samples.get(i);
-                        int written = writeSampleDataFlac(s, quality);
+                case SF4Format: {
+                    for (Sample s : _samples) {
+                        int written = writeSampleDataCompressed(s, FLAC_ENC, FLAC, quality);
 
                         s.setCompressionType(SampleCompression.Flac);
                         // Offsets in SF4 based on byte offset in file.
-                        // Hack start/end of sample metadata to accommodate this:
                         s.start = (int) offsetFromChunk;
                         offsetFromChunk += written;
                         s.end = (int) offsetFromChunk;
-                        // Important: keep relative loop offsets in file, so it can be restored after loading.
-                        // Loop is already relative ...
                     }
                     break;
                 }
@@ -1180,22 +1030,23 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
             writeDword((n + 1) * 38);
             int zoneIdx = 0;
 
-            for (final Preset p : _presets) {
+            for (Preset p : _presets) {
                 writePreset(zoneIdx, p);
                 zoneIdx += p.zones.size();
             }
             Preset p = new Preset();
+            p.name = "EOP";
             writePreset(zoneIdx, p);
         }
 
-        private void writeBag(final String fourcc, List<Zone> zones) throws IOException {
+        private void writeBag(String fourcc, List<Zone> zones) throws IOException {
             writeString(fourcc, 4);
             int n = zones.size();
             writeDword((n + 1) * 4);
             int gIndex = 0;
             int pIndex = 0;
 
-            for (final Zone z : zones) {
+            for (Zone z : zones) {
                 writeWord((short) gIndex);
                 writeWord((short) pIndex);
                 gIndex += z.generators.size();
@@ -1205,18 +1056,17 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
             writeWord((short) pIndex);
         }
 
-        private void writeMod(final String fourcc, final List<Zone> zones) throws IOException {
+        private void writeMod(String fourcc, List<Zone> zones) throws IOException {
             writeString(fourcc, 4);
             int n = 0;
 
-            for (final Zone zone : zones) {
+            for (Zone zone : zones) {
                 n += zone.modulators.size();
             }
             writeDword((n + 1) * 10);
 
-            for (final Zone zone : zones) {
-                for (int k = 0; k < zone.modulators.size(); k++) {
-                    final ModulatorList m = zone.modulators.get(k);
+            for (Zone zone : zones) {
+                for (ModulatorList m : zone.modulators) {
                     writeModulator(m);
                 }
             }
@@ -1225,18 +1075,17 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
             writeModulator(mod);
         }
 
-        private void writeGen(final String fourcc, List<Zone> zones) throws IOException {
+        private void writeGen(String fourcc, List<Zone> zones) throws IOException {
             writeString(fourcc, 4);
             int n = 0;
 
-            for (final Zone zone : zones) {
+            for (Zone zone : zones) {
                 n += zone.generators.size();
             }
             writeDword((n + 1) * 4);
 
-            for (final Zone zone : zones) {
-                for (int k = 0; k < zone.generators.size(); k++) {
-                    final GeneratorList g = zone.generators.get(k);
+            for (Zone zone : zones) {
+                for (GeneratorList g : zone.generators) {
                     writeGenerator(g);
                 }
             }
@@ -1251,11 +1100,12 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
             writeDword((n + 1) * 22);
             int zoneIdx = 0;
 
-            for (final Instrument p : _instruments) {
+            for (Instrument p : _instruments) {
                 writeInstrument(zoneIdx, p);
                 zoneIdx += p.zones.size();
             }
             Instrument p = new Instrument();
+            p.name = "EOI";
             writeInstrument(zoneIdx, p);
         }
 
@@ -1267,10 +1117,12 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
 
             // Empty last sample as terminator
             Sample s = new Sample();
+            s.name = "EOS";
+            s.sampletype = 0;
             writeShdrEach(s);
         }
 
-        private void writeShdrEach(final Sample s) throws IOException {
+        private void writeShdrEach(Sample s) throws IOException {
             writeString(s.name, 20);
             writeDword(s.start);
             writeDword(s.end);
@@ -1302,10 +1154,10 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
             writeShdXEach(m);
         }
 
-        private void writeShdXEach(final SampleMeta m) throws IOException {
+        private void writeShdXEach(SampleMeta m) throws IOException {
             assert m != null;
 
-            int start = (int) _outfile.position();
+            long start = _outfile.position();
 
             writeString(m.name, 20);
             writeDword(m.samples);
@@ -1316,269 +1168,98 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
         }
 
         private int writeSampleDataPlain(Sample s) throws IOException {
-            assert s.numSamples() > 0;
+            if (s.numSamples() <= 0)
+                return 0;
 
             int numBytes = s.numSamples() * Short.BYTES;
             byte[] b = new byte[numBytes];
-            ShortBuffer sb = ByteBuffer.wrap(b).order(ByteOrder.BIG_ENDIAN).asShortBuffer();
+            ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(s.sampleData, 0, s.numSamples());
             write(b, numBytes);
-            sb.get(s.sampleData);
             return numBytes;
         }
 
-        private int writeSampleDataVorbis(Sample s, int quality) throws IOException {
-            assert s.numSamples() > 0;
-            final int numSamples = s.numSamples();
-            int rawBytes = numSamples * Short.BYTES;
-            int option = 4;
-
-//#if USE_JUCE_VORBIS
-
-            byte[] b = new byte[rawBytes];
-            for (int i = 0; i < numSamples; i++)
-                ByteUtil.writeBeShort((short) (s.sampleData[i] / 32768.f), b, i * Short.BYTES); // scale to unity
-
-            /*
-             0: 64 kbps
-             1: 80 kbps
-             2: 96 kbps
-             3: 112 kbps
-             4: 128 kbps
-             5: 160 kbps
-             6: 192 kbps
-             7: 224 kbps
-             8: 256 kbps
-             9: 320 kbps
-             10: 500 kbps */
-            switch (quality) {
-                case 0:
-                    option = 5;
-                    break; // Low quality
-                case 1:
-                    option = 8;
-                    break; // Medium quality
-                case 2:
-                    option = 10;
-                    break; // High quality
-            }
-//            assert option < _qualityOptionsVorbis.size();
-
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
-            AudioFormat format = new AudioFormat(s.samplerate, 16, 1, true, true);
-            AudioInputStream ais = new AudioInputStream(new ByteArrayInputStream(b), format, b.length);
-            AudioSystem.write(ais, OGG, output);
-            // writer MUST be deleted to properly flush & close ...
-
-            int numBytes = output.size();
-            write(output.toByteArray(), numBytes);
-
-//#else  // USE_JUCE_VORBIS
-
-//            ogg_stream_state os;
-//            ogg_page og;
-//            ogg_packet op;
-//            vorbis_info vi;
-//            vorbis_dsp_state vd;
-//            vorbis_block vb;
-//            vorbis_comment vc;
-//
-//            vorbis_info_init(vi);
-//
-//            float qualityF = 1.0f;
-//            switch (quality) {
-//                case 0:
-//                    option = 5;
-//                    qualityF = 0.2f;
-//                    break; // Low quality
-//                case 1:
-//                    option = 8;
-//                    qualityF = 0.6f;
-//                    break; // Medium quality
-//                case 2:
-//                    option = 10;
-//                    qualityF = 1.0f;
-//                    break; // High quality
-//            }
-//
-//            int ret = vorbis_encode_init_vbr(vi, 1, s.samplerate, qualityF);
-//            if (ret) {
-//                logger.log(Level.DEBUG, "vorbis init failed\n");
-//                return false;
-//            }
-//
-//            vorbis_comment_init(vc);
-//            vorbis_analysis_init(vd, vi);
-//            vorbis_block_init(vd, vb);
-//            srand(time(null));
-//            ogg_stream_init(os, rand());
-//
-//            ogg_packet header;
-//            ogg_packet header_comm;
-//            ogg_packet header_code;
-//
-//            vorbis_analysis_headerout(vd, vc, header, header_comm, header_code);
-//            ogg_stream_packetin(os, header);
-//            ogg_stream_packetin(os, header_comm);
-//            ogg_stream_packetin(os, header_code);
-//
-//            byte[] obuf = new byte[1048576]; // 1024 * 1024
-//            byte[] p = obuf;
-//
-//            for (; ; ) {
-//                int result = ogg_stream_flush(os, og);
-//                if (result == 0)
-//                    break;
-//                memcpy(p, og.header, og.header_len);
-//                p += og.header_len;
-//                memcpy(p, og.body, og.body_len);
-//                p += og.body_len;
-//            }
-//
-//            long i;
-//            int page = 0;
-//
-//            for (; ; ) {
-//                int bufflength = jmin(BLOCK_SIZE, numSamples - page * BLOCK_SIZE);
-//                float[][] buffer = vorbis_analysis_buffer(vd, bufflength);
-//                int j = 0;
-//                int max = jmin((page + 1) * BLOCK_SIZE, numSamples);
-//                for (i = page * BLOCK_SIZE; i < max; i++) {
-//                    buffer[0][j] = s.sampleData[i] / 32768.f;
-//                    // buffer[0][j] = ibuffer[i] / 35000.f; // HACK: attenuate samples due to libsndfile bug
-//                    j++;
-//                }
-//
-//                vorbis_analysis_wrote(vd, bufflength);
-//
-//                while (vorbis_analysis_blockout(vd, vb) == 1) {
-//                    vorbis_analysis(vb, 0);
-//                    vorbis_bitrate_addblock(vb);
-//
-//                    while (vorbis_bitrate_flushpacket(vd, op)) {
-//                        ogg_stream_packetin(os, op);
-//
-//                        for (; ; ) {
-//                            int result = ogg_stream_pageout(os, og);
-//                            if (result == 0)
-//                                break;
-//                            memcpy(p, og.header, og.header_len);
-//                            p += og.header_len;
-//                            memcpy(p, og.body, og.body_len);
-//                            p += og.body_len;
-//                        }
-//                    }
-//                }
-//                page++;
-//                if ((max == numSamples) || !((numSamples - page * BLOCK_SIZE) > 0))
-//                    break;
-//            }
-//
-//            vorbis_analysis_wrote(vd, 0);
-//
-//            while (vorbis_analysis_blockout(vd, vb) == 1) {
-//                vorbis_analysis(vb, 0);
-//                vorbis_bitrate_addblock(vb);
-//
-//                while (vorbis_bitrate_flushpacket(vd, op)) {
-//                    ogg_stream_packetin(os, op);
-//
-//                    for (; ; ) {
-//                        int result = ogg_stream_pageout(os, og);
-//                        if (result == 0)
-//                            break;
-//                        memcpy(p, og.header, og.header_len);
-//                        p += og.header_len;
-//                        memcpy(p, og.body, og.body_len);
-//                        p += og.body_len;
-//                    }
-//                }
-//            }
-//
-//            ogg_stream_clear(os);
-//            vorbis_block_clear(vb);
-//            vorbis_dsp_clear(vd);
-//            vorbis_comment_clear(vc);
-//            vorbis_info_clear(vi);
-//
-//            int numBytes = p - obuf;
-//            write(obuf, numBytes);
-
-//#endif // USE_JUCE_VORBIS
-
-            int percent = Math.round(100.f * (float) numBytes / (float) rawBytes);
-//            logger.log(Level.DEBUG, "Compressed " + _qualityOptionsVorbis.get(option) + ": " + s.name + " (" + percent + "%)");
-
-            return numBytes;
-        }
-
-        private int writeSampleDataFlac(Sample s, int quality) throws IOException {
-            assert s.numSamples() > 0;
-            final int numSamples = s.numSamples();
+        private int writeSampleDataCompressed(Sample s, AudioFormat.Encoding encoding, AudioFileFormat.Type fileType, int quality) throws IOException {
+            if (s.numSamples() <= 0)
+                return 0;
+            int numSamples = s.numSamples();
             int rawBytes = numSamples * Short.BYTES;
 
             byte[] b = new byte[rawBytes];
-            for (int i = 0; i < numSamples; i++)
-                ByteUtil.writeBeShort((short) (s.sampleData[i] / 32768.f), b, i * Short.BYTES); // scale to unity
+            ByteBuffer.wrap(b).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(s.sampleData, 0, numSamples);
 
-            int option = 8;
-            /*
-             0: 0 (Fastest)
-             1: 1
-             2: 2
-             3: 3
-             4: 4
-             5: 5 (Default)
-             6: 6
-             7: 7
-             8: 8 (Highest quality) */
-            switch (quality) {
-                case 0:
-                    option = 1;
-                    break; // Low quality
-                case 1:
-                    option = 5;
-                    break; // Medium quality
-                case 2:
-                    option = 8;
-                    break; // High quality
-            }
-//            assert option < _qualityOptionsFlac.size();
-
+            // TODO quality is currently not passed to the encoders
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            AudioFormat format = new AudioFormat(s.samplerate, 16, 1, true, true);
-            AudioInputStream ais = new AudioInputStream(new ByteArrayInputStream(b), format, b.length);
-            AudioSystem.write(ais, FLAC, output);
-            // writer MUST be deleted to properly flush & close ...
+            AudioFormat format = new AudioFormat(s.samplerate, 16, 1, true, false);
+            AudioInputStream pcm = new AudioInputStream(new ByteArrayInputStream(b), format, numSamples);
+            AudioInputStream encoded = AudioSystem.getAudioInputStream(encoding, pcm);
+            AudioSystem.write(encoded, fileType, output);
 
             int numBytes = output.size();
             write(output.toByteArray(), numBytes);
 
             int percent = Math.round(100.f * (float) numBytes / (float) rawBytes);
-//            logger.log(Level.DEBUG, "Compressed FLAC " + _qualityOptionsFlac.get(option) + ": " + s.name + " (" + percent + "%)");
+            logger.log(Level.DEBUG, "Compressed " + fileType + ": " + s.name + " (" + percent + "%)");
 
             return numBytes;
         }
 
-//        boolean writeCSample(Sample s, int idx);
+        // accessors
 
-//#if ! USE_JUCE_VORBIS
-//        private boolean decodeOggVorbis(Sample s) {
-//            assert (s.numSamples() > 0);
-//
-//            int numBytes = s.numSamples() * Short.BYTES;
-//            write((byte[]) s.sampleData, numBytes);
-//            return numBytes;
-//        }
-//#endif
+        public List<Preset> getPresets() {
+            return _presets;
+        }
 
-        // You may want to access these from your code, so make it a friend class */
+        public List<Instrument> getInstruments() {
+            return _instruments;
+        }
 
-        protected List<Preset> _presets = new ArrayList<>();
-        protected List<Instrument> _instruments = new ArrayList<>();
-        protected List<Sample> _samples = new ArrayList<>();
+        public List<Sample> getSamples() {
+            return _samples;
+        }
+
+        public String getName() {
+            return _name;
+        }
+
+        public String getEngine() {
+            return _engine;
+        }
+
+        public String getCreator() {
+            return _creator;
+        }
+
+        public String getProduct() {
+            return _product;
+        }
+
+        public String getDate() {
+            return _date;
+        }
+
+        public String getComment() {
+            return _comment;
+        }
+
+        public String getCopyright() {
+            return _copyright;
+        }
+
+        public String getTools() {
+            return _tools;
+        }
+
+        public FileType getFileFormatIn() {
+            return _fileFormatIn;
+        }
+
+        protected final List<Preset> _presets = new ArrayList<>();
+        protected final List<Instrument> _instruments = new ArrayList<>();
+        protected final List<Sample> _samples = new ArrayList<>();
 
         private File _path;
-        private SFont.sfVersionTag _version = new sfVersionTag();
+        private SeekableByteChannel _channel;
+        private final sfVersionTag _version = new sfVersionTag();
 
         private String _engine;
         private String _name;
@@ -1595,16 +1276,11 @@ logger.log(Level.DEBUG, "read: " + new String(fourcc) + ", " + len);
         private LittleEndianSeekableDataInputStream _infile;
         private LittleEndianSeekableDataOutputStream _outfile;
 
-        private FileType _fileFormatIn, _fileFormatOut;
+        private FileType _fileFormatIn = FileType.SF2Format;
+        private FileType _fileFormatOut = FileType.SF2Format;
         private long _fileSizeIn, _fileSizeOut;
 
-//        private AudioFormatManager _manager;
-//        private OggVorbisAudioFormat _audioFormatVorbis;
-//        private FlacAudioFormat _audioFormatFlac;
-//        private List<String> _qualityOptionsVorbis;
-//        private List<String> _qualityOptionsFlac;
-
-        private List<Zone> _pZones = new ArrayList<>(); // owned by _presets after loading
-        private List<Zone> _iZones = new ArrayList<>(); // owned by _instruments after loading
+        private final List<Zone> _pZones = new ArrayList<>(); // owned by _presets after loading
+        private final List<Zone> _iZones = new ArrayList<>(); // owned by _instruments after loading
     }
 }

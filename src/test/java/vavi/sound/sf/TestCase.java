@@ -32,7 +32,7 @@ public class TestCase {
     }
 
     @Property
-    String sf3 = System.getProperty("user.home") + "/Documents/MuseScore3/Extension Packs/MUSFE/1.2.0/soundfonts/MuseScore_General_HQ.sf3";
+    String sf3 = System.getProperty("user.home") + "/Library/Audio/Sounds/Banks/Orchestra/MuseScore_General.sf3";
 
     @BeforeEach
     void setup() throws Exception {
