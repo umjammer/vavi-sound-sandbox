@@ -8,6 +8,7 @@ package vavi.sound.pcm.resampling.sox;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.util.Arrays;
 
 import static java.lang.System.getLogger;
 
@@ -66,6 +67,9 @@ public class Resampler {
     private static final int MAXNWING = 80 << LC;
 
     private static final int ISCALE = 0x10000;
+
+    /** Total I/O buffer size (doubles), split between x and y */
+    private static final int BUFFSIZE = 8192;
 
     /** largest factor for which exact-coefficients upsampling will be used */
     private static final int NQMAX = 511;
@@ -224,6 +228,17 @@ logger.log(Level.DEBUG, "resample: rate ratio " + work.inRate + " : " + work.out
         if (work.quadr < 0) { // exact coeff's method
             work.t = work.xOff * work.nq;
         }
+
+        int i = BUFFSIZE - 2 * work.xOff;
+        if (i < work.factor + 1.0 / work.factor) { // Check input buffer size
+            throw new IllegalArgumentException("Factor is too small or large for BUFFSIZE");
+        }
+        int xSize = (int) (2 * work.xOff + i / (1.0 + work.factor));
+        int ySize = BUFFSIZE - xSize;
+logger.log(Level.DEBUG, "xSize %d, ySize %d, xOff %d".formatted(xSize, ySize, work.xOff));
+        work.x = new double[xSize];
+        work.y = new double[ySize];
+        // need xOff zeros at beginning of x[] (java arrays are zero filled)
     }
 
     /**
@@ -241,41 +256,91 @@ logger.log(Level.DEBUG, "resample: rate ratio " + work.inRate + " : " + work.out
     }
 
     /**
-     * Processed signed long samples from ibuf to obuf.
+     * Resamples the given samples. May be called repeatedly with successive
+     * chunks of a stream; filter history is kept across calls. Output is
+     * delayed by the filter, so the remainder must be fetched with
+     * {@link #drain()} after the last chunk.
      * @param iBuf input buffer
      * @return output buffer
      */
     public int[] resample(int[] iBuf) {
+        return flowAll(iBuf, iBuf.length);
+    }
+
+    /**
+     * Process tail of input samples.
+     * @return output
+     */
+    public int[] drain() {
+logger.log(Level.DEBUG, "xOff " + work.xOff + "  <--- DRAIN");
+        // stuff end with xOff zeros
+        return flowAll(null, work.xOff);
+    }
+
+    /**
+     * Drives {@link #flow} like the sox effects engine: keeps offering the
+     * remaining input until all is consumed, collecting whatever output is
+     * produced. null input feeds zeros (draining).
+     */
+    private int[] flowAll(int[] iBuf, int inLen) {
+        int[] buf = new int[work.y.length];
+        int[] out = new int[0];
+        int total = 0;
+        int off = 0;
+        int remaining = inLen;
+        while (remaining > 0) {
+            int[] isamp = { remaining };
+            int[] osamp = { buf.length };
+            flow(iBuf, off, isamp, buf, osamp);
+            if (total + osamp[0] > out.length) {
+                out = Arrays.copyOf(out, Math.max(total + osamp[0], out.length * 2 + buf.length));
+            }
+            System.arraycopy(buf, 0, out, total, osamp[0]);
+            total += osamp[0];
+            off += isamp[0];
+            remaining -= isamp[0];
+        }
+        return Arrays.copyOf(out, total);
+    }
+
+    /**
+     * C: flow. Processed signed long samples from ibuf to obuf.
+     *
+     * @param iBuf input, null means draining (zeros are fed)
+     * @param iOff offset in iBuf
+     * @param isamp [in/out] offered input count / input samples consumed
+     * @param osamp [in/out] obuf capacity / output samples produced (from obuf[0])
+     */
+    private void flow(int[] iBuf, int iOff, int[] isamp, int[] obuf, int[] osamp) {
 
         int nOut;
 
+logger.log(Level.DEBUG, "xp: " + work.xp + ", xRead: " + work.xRead + ", iSamp: " + isamp[0] + ", xOff: " + work.xOff);
+
         // constrain amount we actually process
-logger.log(Level.DEBUG, "xp: " + work.xp + ", xRead: " + work.xRead + ", iSamp: " + iBuf.length + ", xOff: " + work.xOff);
-
-        int xSize = 2 * work.xOff + iBuf.length;
-        int ySize = (int) (iBuf.length * work.factor);
-        work.x = new double[xSize];
-        work.y = new double[ySize];
-
-        //
-
         int nProc = work.x.length - work.xp;
-logger.log(Level.DEBUG, "nProc 1: " + nProc + ", xSize: " + work.x.length + ", ySize: " + work.y.length);
+
+        int i = Math.min(work.y.length, osamp[0]);
+        if (nProc * work.factor >= i) {
+            nProc = (int) (i / work.factor);
+        }
 
         int nx = nProc - work.xRead; // space for right-wing future-data
         if (nx <= 0) {
             throw new IllegalStateException("Can not handle this sample rate change. nx not positive: " + nx);
         }
+        if (nx > isamp[0]) {
+            nx = isamp[0];
+        }
 logger.log(Level.DEBUG, "nx " + nx + ", nProc: " + nProc);
 
-        int i;
-        if (iBuf.length == 0) {
+        if (iBuf == null) {
             for (i = work.xRead; i < nx + work.xRead; i++) {
                 work.x[i] = 0;
             }
         } else {
             for (i = work.xRead; i < nx + work.xRead; i++) {
-                work.x[i] = (double) iBuf[i - work.xRead] / ISCALE;
+                work.x[i] = (double) iBuf[iOff + i - work.xRead] / ISCALE;
             }
         }
         int last = i;
@@ -284,8 +349,9 @@ logger.log(Level.DEBUG, "nx " + nx + ", nProc: " + nProc);
         if (nProc <= 0) {
             // fill in starting here next time
             work.xRead = last;
-            // leave *isamp alone, we consumed it
-            return new int[0];
+            isamp[0] = nx; // we consumed it
+            osamp[0] = 0;
+            return;
         }
         if (work.quadr < 0) { // exact coeff's method
             nOut = srcEX(nProc);
@@ -328,34 +394,20 @@ logger.log(Level.DEBUG, "k: " + k + ", last: " + last);
         work.xRead = i;
         work.xp = work.xOff;
 
-        int[] oBuf = new int[nOut];
         for (i = 0; i < nOut; i++) {
             double ftemp = work.y[i] * ISCALE;
 
             if (ftemp >= ST_SAMPLE_MAX) {
-                oBuf[i] = ST_SAMPLE_MAX;
+                obuf[i] = ST_SAMPLE_MAX;
             } else if (ftemp <= ST_SAMPLE_MIN) {
-                oBuf[i] = ST_SAMPLE_MIN;
+                obuf[i] = ST_SAMPLE_MIN;
             } else {
-                oBuf[i] = (int) ftemp;
+                obuf[i] = (int) ftemp;
             }
         }
 
-        return oBuf;
-    }
-
-    /**
-     * Process tail of input samples.
-     * @return output
-     */
-    public int[] drain() {
-
-//logger.log(Level.TRACE, "Xoff %d, Xt %d  <--- DRAIN".formatted(this.xOff, this.xt));
-
-        // stuff end with Xoff zeros
-        int[] oBuf = resample(new int[work.xOff]);
-logger.log(Level.DEBUG, "DRAIN: " + work.xOff);
-        return oBuf;
+        isamp[0] = nx;
+        osamp[0] = nOut;
     }
 
     /**
