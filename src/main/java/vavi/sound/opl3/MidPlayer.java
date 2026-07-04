@@ -404,10 +404,9 @@ logger.log(Level.TRACE, "[%2X]".formatted(v));
                                 if (peek(pos + l) == 0xf7) {
                                     f = true;
                                 }
-                                byte[] b = new byte[l + 2];
+                                byte[] b = new byte[l + 1];
                                 b[0] = (byte) (v & 0xff);
-                                b[1] = (byte) (l & 0xff); // TODO variable length not considered
-                                for (int i = 2; i < b.length; i++) {
+                                for (int i = 1; i < b.length; i++) {
                                     b[i] = (byte) (takeBE(1) & 0xff);
                                 }
 logger.log(Level.TRACE, "sysex: %02x, %d\n%s".formatted(v, l, StringUtil.getDump(b, Math.min(l + 2, 64))));
@@ -565,19 +564,20 @@ logger.log(Level.TRACE, "pos: %d, end: %d".formatted(pos, tracks[t].tend));
      * @param data {@link SysexMessage#getData()}
      */
     public static int[] fromSysex(byte[] data) {
-        int pos = 1;
+        // data layout: 7d 10 ch xx n0 .. n21 (22 nibbles from data[4])
+        int pos = 0;
         int[] x = new int[11];
         x[0] = ((data[pos + 4] & 0xff) << 4) + (data[pos + 5] & 0xff);
-        x[2] = 0xff - (((data[pos + 6] & 0xff) << 4) + data[pos + 7] & 0x3f);
+        x[2] = 0xff - ((((data[pos + 6] & 0xff) << 4) + (data[pos + 7] & 0xff)) & 0x3f);
         x[4] = 0xff - (((data[pos + 8] & 0xff) << 4) + (data[pos + 9] & 0xff));
         x[6] = 0xff - (((data[pos + 10] & 0xff) << 4) + (data[pos + 11] & 0xff));
         x[8] = ((data[pos + 12] & 0xff) << 4) + (data[pos + 13] & 0xff);
         x[1] = ((data[pos + 14] & 0xff) << 4) + (data[pos + 15] & 0xff);
-        x[3] = 0xff - (((data[pos + 16] & 0xff) << 4) + (data[pos + 17] & 0x3f));
+        x[3] = 0xff - ((((data[pos + 16] & 0xff) << 4) + (data[pos + 17] & 0xff)) & 0x3f);
         x[5] = 0xff - (((data[pos + 18] & 0xff) << 4) + (data[pos + 19] & 0xff));
         x[7] = 0xff - (((data[pos + 20] & 0xff) << 4) + (data[pos + 21] & 0xff));
         x[9] = ((data[pos + 22] & 0xff) << 4) + (data[pos + 23] & 0xff);
-        x[10] = ((data[pos + 24] & 0xff) << 4) + (data[pos + 24] & 0xff);
+        x[10] = ((data[pos + 24] & 0xff) << 4) + (data[pos + 25] & 0xff);
 logger.log(Level.DEBUG, "%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x".formatted(x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10]));
         return x;
     }

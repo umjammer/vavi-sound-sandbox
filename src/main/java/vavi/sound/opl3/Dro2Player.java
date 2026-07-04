@@ -135,11 +135,14 @@ logger.log(Level.DEBUG, "delayShift8: " + delayShift8);
 
         // TODO after data, title, author, desc tag
 
-        length -= 26 + l;
         total = 0;
 
         rewind(0);
-        if (opl3Type != 0) {
+        // hardware type: 0 == OPL2, 1 == dual OPL2, 2 == OPL3.
+        // only a real OPL3 capture may switch the chip to "new" (OPL3) mode:
+        // in new mode channels are gated by the 0xc0 stereo bits, which
+        // OPL2/dual OPL2 data never sets, so enabling it mutes everything
+        if (opl3Type == 2) {
             write(1, 5, 1);
         }
     }

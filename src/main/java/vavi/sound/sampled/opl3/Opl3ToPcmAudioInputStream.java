@@ -77,9 +77,9 @@ logger.log(Level.DEBUG, "engin start");
             } else {
                 if (player.update()) {
                     double sec = 1.0 / player.getRefresh();
-logger.log(Level.TRACE, "engine bytes: " + (int) (sampleRate * sec) + ", " + player.getRefresh());
+logger.log(Level.TRACE, "engine bytes: " + (int) (sampleRate * sec + 0.5) + ", " + player.getRefresh());
 
-                    byte[] buf = player.read(4 * (int) (sampleRate * sec));
+                    byte[] buf = player.read(4 * (int) (sampleRate * sec + 0.5));
                     out.write(buf, 0, buf.length);
                 } else {
                     for (int wait = 0; wait < 30; ++wait) {

@@ -147,6 +147,9 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
             channels[c].setIns(instruments[channels[c].program]);
 
+            // adplug: ch[i].vol = 127; without this MIDI_STYLE files are
+            // silent until the song sends a channel volume (CC 7) event
+            channels[c].volume = 127;
             channels[c].nShift = -25;
         }
 
@@ -606,7 +609,7 @@ logger.log(Level.DEBUG, "sysex volume: gain: %4.2f".formatted(gain));
                             }
                         }
                         case 0x7d -> { // test
-                            switch (data[2]) {
+                            switch (data[1]) {
                                 case 0x10: // 7D 10 ch -- set an instrument to ch
                                     // TODO maybe for LUCAS only
 if (type != FileType.LUCAS) {
@@ -614,7 +617,7 @@ if (type != FileType.LUCAS) {
 }
                                     adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
 
-                                    int c = data[3];
+                                    int c = data[2];
                                     System.arraycopy(MidPlayer.fromSysex(data), 0, channels[c].ins, 0, 11);
 logger.log(Level.DEBUG, "sysex lucas ins ch: %d".formatted(c));
 

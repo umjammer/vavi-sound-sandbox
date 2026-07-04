@@ -289,7 +289,11 @@ logger.log(Level.TRACE, "write: %04x, %02x".formatted(address, data));
         write(0x60 + opadd, inst[4]);
         write(0x80 + opadd, inst[6]);
         write(0xe0 + opadd, inst[8]);
-        write(0xc0 + opadd, 0xf0 | inst[10]);
+        // 0xc0 is a channel register: only output this for the modulator,
+        // not the carrier, as it affects the entire channel
+        if (opadd < 0x13) {
+            write(0xc0 + percussion_map[ch - 11], 0xf0 | inst[10]);
+        }
     }
 
     /** */
@@ -355,8 +359,11 @@ logger.log(Level.TRACE, "write: %04x, %02x".formatted(address, data));
     public int read(byte[] buf, int ofs, int len) {
         for (int i = ofs; i < len; i += 4) {
             short[] data = opl3.read();
-            short chA = (short) (data[0] + data[1]);
-            short chB = (short) (data[1] + data[3]);
+            // sum CHA+CHC / CHB+CHD then clip, so loud passages saturate instead of wrapping around
+            int chA = data[0] + data[2];
+            int chB = data[1] + data[3];
+            if (chA > Short.MAX_VALUE) chA = Short.MAX_VALUE; else if (chA < Short.MIN_VALUE) chA = Short.MIN_VALUE;
+            if (chB > Short.MAX_VALUE) chB = Short.MAX_VALUE; else if (chB < Short.MIN_VALUE) chB = Short.MIN_VALUE;
             buf[i] = (byte) (chA & 0xff);
             buf[i + 1] = (byte) ((chA >> 8) & 0xff);
             buf[i + 2] = (byte) (chB & 0xff);

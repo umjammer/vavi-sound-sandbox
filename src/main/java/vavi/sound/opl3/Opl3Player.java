@@ -48,8 +48,8 @@ public abstract class Opl3Player {
     /** generic properties */
     protected  Map<String, Object> props = new HashMap<>();
 
-    /** TODO who defined 49700? */
-    public static final AudioFormat opl3 = new AudioFormat(49700.0f, 16, 2, true, false);
+    /** YMF262 native output rate: 14.318180 MHz / 288 */
+    public static final AudioFormat opl3 = new AudioFormat(49716.0f, 16, 2, true, false);
 
     /** formats using opl3 decoder database */
     public enum FileType {
@@ -103,10 +103,11 @@ logger.log(Level.DEBUG, "encoding: " + encoding);
 
         for (int i = 0; i < len; i += 4) {
             short[] data = opl.read();
-//            short chA = data[0];
-//            short chB = data[1];
-            short chA = (short) (data[0] + data[2]);
-            short chB = (short) (data[1] + data[3]);
+            // sum CHA+CHC / CHB+CHD then clip, so loud passages saturate instead of wrapping around
+            int chA = data[0] + data[2];
+            int chB = data[1] + data[3];
+            if (chA > Short.MAX_VALUE) chA = Short.MAX_VALUE; else if (chA < Short.MIN_VALUE) chA = Short.MIN_VALUE;
+            if (chB > Short.MAX_VALUE) chB = Short.MAX_VALUE; else if (chB < Short.MIN_VALUE) chB = Short.MIN_VALUE;
             buf[i] = (byte) (chA & 0xff);
             buf[i + 1] = (byte) ((chA >> 8) & 0xff);
             buf[i + 2] = (byte) (chB & 0xff);

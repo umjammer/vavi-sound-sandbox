@@ -51,8 +51,9 @@ package vavi.sound.opl3;
  * <p>
  * System properties for Daniel Becker's modification:
  * HigHats, Cymbals, Snare and Bass Drum were to silent
- * <li>opl3.top.attenuation ... top cymbal, default = 5 (original 2)</li>
+ * <li>opl3.top.attenuation ... top cymbal, high hat, default = 5 (original 2)</li>
  * <li>opl3.tomtom.attenuation ... tomtom, default = 5 (original 2)</li>
+ * <li>opl3.snare.attenuation ... snare drum, default = 5 (original 2)</li>
  * <li>opl3.bass.attenuation ... bass drum cymbal, default = 2 (original 1)</li>
  *
  * @author Robson Cozendey
@@ -87,7 +88,7 @@ public final class OPL3 {
     // ones needed by the user to interface with the emulator.
 
     /**
-     * read() returns one frame at a time, to be played at 49700 Hz,
+     * read() returns one frame at a time, to be played at 49716 Hz,
      * with each frame being four 16-bit samples,
      * corresponding to the OPL3 four output channels CHA...CHD.
      */
@@ -1311,13 +1312,15 @@ public final class OPL3 {
             // accordingly afterwards.
             double operatorOutput = super.getOperatorOutput(modulator, topCymbalOperatorPhase);
             if (operatorOutput == 0)
-                operatorOutput = Math.random() * envelope;
+                operatorOutput = Math.random() * envelope * attenuation;
             return operatorOutput;
         }
     }
 
     private class SnareDrumOperator extends Operator {
         static final int snareDrumOperatorBaseAddress = 0x14;
+        /** quippy: Same as with high hats and cymbals */
+        static final double attenuation = Double.parseDouble(System.getProperty("opl3.snare.attenuation", "5")); // was 2
 
         SnareDrumOperator() {
             super(snareDrumOperatorBaseAddress);
@@ -1349,7 +1352,7 @@ public final class OPL3 {
                     operatorOutput = 0;
             }
 
-            return operatorOutput * 2;
+            return operatorOutput * attenuation;
         }
     }
 
@@ -1409,7 +1412,7 @@ public final class OPL3 {
              _7_NEW1_Offset = 0x105,
              _2_CONNECTIONSEL6_Offset = 0x104;
 
-        static final double sampleRate = 49700;
+        static final double sampleRate = 49716;
 
         static {
             loadVibratoTable();
