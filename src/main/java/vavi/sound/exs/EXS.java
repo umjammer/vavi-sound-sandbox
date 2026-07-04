@@ -4,10 +4,11 @@
 
 package vavi.sound.exs;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,7 +18,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import vavi.io.SeekableDataInputStream;
 
 import static java.lang.System.getLogger;
 
@@ -101,6 +101,68 @@ public class EXS {
         public String getName() {
             return name;
         }
+
+        /** @return root key (note number) */
+        public int getKey() {
+            return exsZone.key & 0xff;
+        }
+
+        /** @return cents, signed */
+        public int getFineTuning() {
+            return exsZone.fineTuning;
+        }
+
+        /** @return semitones, signed */
+        public int getCoarseTuning() {
+            return exsZone.coarseTuning;
+        }
+
+        /** @return -50 ... 50 */
+        public int getPan() {
+            return exsZone.pan;
+        }
+
+        /** @return dB, signed */
+        public int getVolume() {
+            return exsZone.volume;
+        }
+
+        /** @return in sample frames */
+        public int getSampleStart() {
+            return exsZone.sampleStart;
+        }
+
+        /** @return in sample frames */
+        public int getSampleEnd() {
+            return exsZone.sampleEnd;
+        }
+
+        /** @return in sample frames */
+        public int getLoopStart() {
+            return exsZone.loopStart;
+        }
+
+        /** @return in sample frames */
+        public int getLoopEnd() {
+            return exsZone.loopEnd;
+        }
+
+        public boolean isLoopOn() {
+            return loopOn;
+        }
+
+        public boolean isOneShot() {
+            return oneShot;
+        }
+
+        /** @return true when the sample pitch follows the played key */
+        public boolean isPitchTracking() {
+            return pitch;
+        }
+
+        public boolean isVelocityRangeOn() {
+            return velocityRangeOn;
+        }
     }
 
     public static class Group {
@@ -158,6 +220,20 @@ public class EXS {
 
         public String getPath() {
             return path;
+        }
+
+        /** @return in sample frames */
+        public int getLength() {
+            return exsSample.length;
+        }
+
+        /** @return sample rate [Hz] */
+        public int getRate() {
+            return exsSample.rate;
+        }
+
+        public int getBitDepth() {
+            return exsSample.bitDepth & 0xff;
         }
     }
 
@@ -355,30 +431,69 @@ public class EXS {
         private final boolean[] bypass = new boolean[10];
     }
 
+    /** seekable byte order aware reader */
+    private static class Reader {
+
+        private final ByteBuffer buf;
+
+        Reader(byte[] data) {
+            buf = ByteBuffer.wrap(data);
+        }
+
+        void order(ByteOrder order) {
+            buf.order(order);
+        }
+
+        void position(int pos) {
+            buf.position(pos);
+        }
+
+        void read(byte[] b) {
+            buf.get(b);
+        }
+
+        byte readByte() {
+            return buf.get();
+        }
+
+        short readShort() {
+            return buf.getShort();
+        }
+
+        int readInt() {
+            return buf.getInt();
+        }
+    }
+
     public static EXS newFromByteArray(Path path) throws IOException {
+        return read(Files.readAllBytes(path), path.getFileName().toString());
+    }
+
+    public static EXS read(byte[] data, String name) throws IOException {
         EXS exs = new EXS();
-        exs.name = path.getFileName().toString();
+        exs.name = name;
 
-        // Create buffered reader
-        SeekableDataInputStream reader = new SeekableDataInputStream(new FileInputStream(path.toFile()).getChannel());
-
-        // Read header
-        ExsHeader header = EXS.readHeader(reader);
-        if (!new String(header.magic).equals("SOBT") &&
-                !new String(header.magic).equals("SOBJ") &&
-                !new String(header.magic).equals("TBOS") &&
-                !new String(header.magic).equals("JBOS")) {
+        if (data.length < 20) {
             throw new IOException("Not an exs file");
         }
 
-        logger.log(Level.INFO, ">>>>>>> " + exs.name + " <<<<<<<<<");
-        logger.log(Level.DEBUG, "Magic: " + new String(header.magic));
+        Reader reader = new Reader(data);
 
-        if (new String(header.magic).equals("SOBT") || new String(header.magic).equals("SOBJ")) {
-            exs.bigEndian = true;
+        // Read header
+        ExsHeader header = EXS.readHeader(reader);
+        String magic = new String(header.magic, StandardCharsets.US_ASCII);
+        switch (magic) {
+            case "SOBT", "SOBJ" -> exs.bigEndian = true;
+            case "TBOS", "JBOS" -> exs.bigEndian = false;
+            default -> throw new IOException("Not an exs file");
         }
 
-        // Read header again
+        logger.log(Level.DEBUG, ">>>>>>> " + exs.name + " <<<<<<<<<");
+        logger.log(Level.DEBUG, "Magic: " + magic);
+
+        // Read header again with the detected byte order
+        reader.order(exs.bigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
+        reader.position(0);
         header = EXS.readHeader(reader);
 
         // Determine if the file is size expanded by checking the size of the header
@@ -387,18 +502,27 @@ public class EXS {
             exs.isSizeExpanded = true;
         }
 
-        exs.size = (int) Files.size(path);
+        exs.size = data.length;
         logger.log(Level.DEBUG, "Size: " + exs.size);
 
         exs.readChunks(reader);
 
-        List<Map<String, List<Zone>>> ranges = exs.getZonesByKeyRanges(4);
-        logger.log(Level.DEBUG, "ranges: " + ranges);
-
         return exs;
     }
 
-    private static ExsHeader readHeader(SeekableDataInputStream reader) throws IOException {
+    public String getName() {
+        return name;
+    }
+
+    public List<Zone> getZones() {
+        return zones;
+    }
+
+    public List<Sample> getSamples() {
+        return samples;
+    }
+
+    private static ExsHeader readHeader(Reader reader) throws IOException {
         ExsHeader header = new ExsHeader();
 
         // Read reserved1
@@ -529,7 +653,7 @@ public class EXS {
         return result;
     }
 
-    private static ExsChunkHeader readChunkHeader(SeekableDataInputStream reader) throws IOException {
+    private static ExsChunkHeader readChunkHeader(Reader reader) throws IOException {
         ExsChunkHeader header = new ExsChunkHeader();
 
         // Read signature
@@ -544,7 +668,8 @@ public class EXS {
         return header;
     }
 
-    private static Zone readZone(SeekableDataInputStream reader, int pos) throws IOException {
+    /** @param size chunk content size excluding the 84 bytes common header */
+    private static Zone readZone(Reader reader, int pos, int size) throws IOException {
         reader.position(pos);
 
         ExsZone exsZone = new ExsZone();
@@ -580,9 +705,13 @@ public class EXS {
         reader.read(exsZone.reserved7);
         exsZone.groupIndex = reader.readInt();
         exsZone.sampleIndex = reader.readInt();
-        reader.read(exsZone.reserved8);
-        exsZone.sampleFade = reader.readInt();
-        exsZone.offset = reader.readInt();
+        if (size >= 108) {
+            reader.read(exsZone.reserved8);
+            exsZone.sampleFade = reader.readInt();
+        }
+        if (size >= 112) {
+            exsZone.offset = reader.readInt();
+        }
 
         Zone zone = new Zone(
                 exsZone,
@@ -598,7 +727,7 @@ public class EXS {
         return zone;
     }
 
-    private static Group readGroup(SeekableDataInputStream reader, int pos) throws IOException {
+    private static Group readGroup(Reader reader, int pos) throws IOException {
         reader.position(pos);
 
         ExsGroup exsGroup = new ExsGroup();
@@ -654,7 +783,7 @@ public class EXS {
         return group;
     }
 
-    private static Sample readSample(SeekableDataInputStream reader, int pos) throws IOException {
+    private static Sample readSample(Reader reader, int pos) throws IOException {
         reader.position(pos);
 
         ExsSample exsSample = new ExsSample();
@@ -686,7 +815,7 @@ public class EXS {
         );
     }
 
-    private static ExsParams readParams(SeekableDataInputStream reader, int pos) throws IOException {
+    private static ExsParams readParams(Reader reader, int pos) throws IOException {
         reader.position(pos);
 
         ExsParams params = new ExsParams();
@@ -709,13 +838,16 @@ public class EXS {
         return params;
     }
 
-    private void readChunks(SeekableDataInputStream reader) throws IOException {
+    private void readChunks(Reader reader) throws IOException {
         int i = 0;
 
         // Read until end of file
         while (i + 84 < this.size) {
             reader.position(i);
             ExsChunkHeader header = readChunkHeader(reader);
+            if (header.size < 0 || i + 84 + header.size > this.size) {
+                throw new IOException("Invalid chunk size: " + header.size + " at " + i);
+            }
             int chunkType = (header.signature & 0x0F000000) >> 24;
 
             switch (chunkType) {
@@ -724,10 +856,11 @@ public class EXS {
                     break;
 
                 case ZONE_CHUNK:
-                    if (header.size < 110) {
+                    // older (GarageBand era) zones are 104/108 bytes, sampleFade/offset came later
+                    if (header.size < 104) {
                         throw new IOException("Invalid zone chunk size");
                     }
-                    Zone zone = readZone(reader, i);
+                    Zone zone = readZone(reader, i, header.size);
                     zones.add(zone);
                     logger.log(Level.INFO, "Zone: " + zone.getName() + ", size: " + header.size +
                             ", keyLow: " + zone.getKeyLow() + ", keyHigh: " + zone.getKeyHigh() +
