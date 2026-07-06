@@ -34,7 +34,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class NormalizerTest {
 
     static String inFile = "src/test/resources/test.wav";
-    static final String outFile = "tmp/out.vavi.wav";
+    static final String outFile = "tmp/out_normalizer_vavi.wav";
+    @Deprecated
     static final String correctFile = "src/test/resources/vavi/sound/sampled/out.wav";
 
     @Test

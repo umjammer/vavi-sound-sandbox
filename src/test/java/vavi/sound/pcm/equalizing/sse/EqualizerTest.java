@@ -48,8 +48,7 @@ class EqualizerTest {
 
     @Property(name = "equalizer.in.wav")
     String inFile;
-    String outFile = "tmp/out.vavi.wav";
-    String correctFile = "src/test/java/resources/vavi/sound/pcm/equalizing/out.wav";
+    String outFile = "tmp/out_equalizing_vavi.wav";
 
     @Property(name = "vavi.test.volume")
     double volume = 0.2;
