@@ -9,6 +9,8 @@ Provides TwinVQ sound related classes.
 
 ### License
 
+ LGPL
+
 ## TODO
 
- * complete
+ * ~~complete~~

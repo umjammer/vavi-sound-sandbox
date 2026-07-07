@@ -4,6 +4,7 @@ vavi.sound.sampled.opl3.Opl3FormatConversionProvider
 vavi.sound.sampled.ldclep.LdCelpFormatConversionProvider
 vavi.sound.sampled.ilbc.IlbcFormatConversionProvider
 vavi.sound.sampled.twinvq.TwinvqFormatConversionProvider
+vavi.sound.sampled.xma.XmaFormatConversionProvider
 #vavi.sound.sampled.resampling.LaoeSamplingRateConversionProvider
 #vavi.sound.sampled.resampling.RohmSamplingRateConversionProvider
 #vavi.sound.sampled.resampling.SoxPerfectSamplingRateConversionProvider
