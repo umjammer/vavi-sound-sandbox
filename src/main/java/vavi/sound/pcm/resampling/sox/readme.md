@@ -41,5 +41,5 @@ Provides sox's resampling related classes.
 
 ## TODO
 
-* complete
-* other filters?
+* ~~complete~~
+* ~~other filters?~~

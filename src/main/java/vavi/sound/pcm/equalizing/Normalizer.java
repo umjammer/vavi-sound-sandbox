@@ -25,7 +25,56 @@ import vavi.util.win32.WAVE;
  * @version 0.00 060207 nsano port to Java <br>
  * @see "http://www.mikekohn.net/stuff/audio.php"
  */
-class Normalizer {
+public class Normalizer {
+
+    /**
+     * Peak-normalizes a block of signed PCM samples (the same scaling the
+     * WAV-file {@link #normalize(String, String)} path applies to the data
+     * chunk). The buffer is scanned for the deepest peak and every sample is
+     * multiplied so that the peak reaches full scale.
+     *
+     * @param pcm  interleaved little-endian PCM; modified in place
+     * @param bits 8 or 16 bits per sample
+     * @return {@code pcm} (for convenience)
+     */
+    public static byte[] normalize(byte[] pcm, int bits) {
+        int deepest = 0;
+        if (bits == 16) {
+            for (int i = 0; i + 1 < pcm.length; i += 2) {
+                short r = (short) ((pcm[i + 1] << 8) | (pcm[i] & 0xff));
+                deepest = Math.max(deepest, Math.abs(r));
+            }
+        } else if (bits == 8) {
+            for (byte b : pcm) {
+                deepest = Math.max(deepest, Math.abs((b & 0xff) - 128));
+            }
+        } else {
+            throw new IllegalArgumentException("unsupported bits: " + bits);
+        }
+
+        if (deepest == 0) {
+            return pcm; // silence, nothing to scale
+        }
+
+        double ratio = (bits == 16 ? 32767.0 : 127.0) / deepest;
+
+        if (bits == 16) {
+            for (int i = 0; i + 1 < pcm.length; i += 2) {
+                short r = (short) ((pcm[i + 1] << 8) | (pcm[i] & 0xff));
+                int scaled = (int) (r * ratio);
+                scaled = Math.clamp(scaled, -32768, 32767);
+                pcm[i] = (byte) (scaled & 0xff);
+                pcm[i + 1] = (byte) ((scaled >> 8) & 0xff);
+            }
+        } else {
+            for (int i = 0; i < pcm.length; i++) {
+                int s = (pcm[i] & 0xff) - 128;
+                int scaled = Math.clamp((int) (s * ratio), -128, 127);
+                pcm[i] = (byte) (scaled + 128);
+            }
+        }
+        return pcm;
+    }
 
     /** */
     static int parse_header(InputStream in, OutputStream out) throws IOException {

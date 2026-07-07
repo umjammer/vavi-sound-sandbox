@@ -27,7 +27,7 @@ import static java.lang.System.getLogger;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 111022 nsano initial version <br>
  */
-class PolyphaseInputStream extends FilterInputStream {
+public class PolyphaseInputStream extends FilterInputStream {
 
     private static final Logger logger = getLogger(PolyphaseInputStream.class.getName());
 

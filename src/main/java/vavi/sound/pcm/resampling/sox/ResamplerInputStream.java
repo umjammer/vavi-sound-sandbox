@@ -27,7 +27,7 @@ import static java.lang.System.getLogger;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 201029 nsano initial version <br>
  */
-class ResamplerInputStream extends FilterInputStream {
+public class ResamplerInputStream extends FilterInputStream {
 
     private static final Logger logger = getLogger(ResamplerInputStream.class.getName());
 

@@ -35,19 +35,19 @@ import static java.lang.System.getLogger;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060207 nsano port to java <br>
  */
-class Equalizer {
+public class Equalizer {
 
     private static final Logger logger = getLogger(Equalizer.class.getName());
 
     /** */
-    static class Parameter implements Comparable<Parameter> {
+    public static class Parameter implements Comparable<Parameter> {
         /** */
-        boolean left, right;
+        public boolean left, right;
         /** */
-        double lower, upper, gain, gain2;
+        public double lower, upper, gain, gain2;
 
         /** */
-        Parameter() {
+        public Parameter() {
             left = right = true;
             lower = upper = gain = 0;
         }
@@ -188,7 +188,7 @@ System.err.println("property band." + c + " not found, break");
      *
      * @param wb window length bits ???
      */
-    Equalizer(int wb) {
+    public Equalizer(int wb) {
 
         winlen = (1 << (wb - 1)) - 1;
         winlenbit = wb;
@@ -377,7 +377,7 @@ for (Parameter pp : param2) {
      * @param param
      * @param fs frequency in Hz
      */
-    void equ_makeTable(double[] lbc, double[] rbc, List<Parameter> param, double fs) {
+    public void equ_makeTable(double[] lbc, double[] rbc, List<Parameter> param, double fs) {
         int i, cires = cur_ires;
         double[] nires;
 
@@ -435,7 +435,7 @@ for (Parameter pp : param2) {
     }
 
     /** */
-    void equ_quit() {
+    public void equ_quit() {
         lires1 = null;
         lires2 = null;
         rires1 = null;
@@ -467,7 +467,7 @@ for (Parameter pp : param2) {
      * @param nch number of channels
      * @param bps bits per sample
      */
-    int equ_modifySamples(byte[] buf, int nsamples, int nch, int bps) {
+    public int equ_modifySamples(byte[] buf, int nsamples, int nch, int bps) {
         int i, p, ch;
         double[] ires;
         int amax = (1 << (bps - 1)) - 1;
