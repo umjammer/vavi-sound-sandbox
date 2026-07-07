@@ -17,7 +17,6 @@ import javax.sound.sampled.AudioInputStream;
 import vavi.io.OutputEngine;
 import vavi.io.OutputEngineInputStream;
 import vavi.sound.opl3.Opl3Player;
-import vavi.sound.opl3.Opl3Player.FileType;
 
 import static java.lang.System.getLogger;
 
@@ -52,7 +51,7 @@ public class Opl3ToPcmAudioInputStream extends AudioInputStream {
 
         /** */
         public Opl3OutputEngine(InputStream is, AudioFormat format) throws IOException {
-            player = FileType.getPlayer(format.getEncoding());
+            player = Opl3Player.getPlayer(format.getEncoding());
 logger.log(Level.TRACE, "props: " + format.properties());
             player.setProperties(format.properties());
             player.load(is);

@@ -17,7 +17,7 @@ import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/25 umjammer initial version <br>
  */
-class LucasFile extends MidiFile {
+public class LucasFile extends MidiFile {
 
     @Override
     int markSize() {
@@ -43,5 +43,10 @@ class LucasFile extends MidiFile {
         this.context = context;
 
         context.adlib().style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
+    }
+
+    @Override
+    public String desc() {
+        return "LucasArts AdLib MIDI";
     }
 }

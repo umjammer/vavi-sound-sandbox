@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -42,12 +41,15 @@ import javax.sound.midi.ShortMessage;
 import javax.sound.midi.SysexMessage;
 import javax.sound.midi.Track;
 import javax.sound.midi.Transmitter;
+import javax.sound.sampled.AudioFileFormat.Type;
+import javax.sound.sampled.AudioFormat.Encoding;
 
 import vavi.sound.midi.MidiConstants;
 import vavi.sound.midi.MidiConstants.MetaEvent;
 import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Synthesizer;
-import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
+import vavi.sound.sampled.opl3.Opl3Encoding;
+import vavi.sound.sampled.opl3.Opl3FileFormatType;
 import vavi.util.StringUtil;
 
 import static java.lang.System.getLogger;
@@ -116,58 +118,6 @@ public class MidPlayer extends Opl3Player implements Sequencer {
 
     private static final Logger logger = getLogger(MidPlayer.class.getName());
 
-    /** midi like file types */
-    public enum FileType {
-        LUCAS(new LucasFile(), "LucasArts AdLib MIDI"),
-        MIDI(new MidiFile(), "General MIDI"),
-        CMF(new CmfFile(), "Creative Music Format (CMF MIDI)"),
-        SIERRA(new SierraFile(), "Sierra On-Line EGA MIDI"),
-        ADVSIERRA(new AdvancedSierraFile(), "Sierra On-Line VGA MIDI"),
-        OLDLUCAS(new OldLucasFile(), "Lucasfilm Adlib MIDI");
-        public final MidiTypeFile midiTypeFile;
-        final String desc;
-        FileType(MidiTypeFile midiTypeFile, String desc) {
-            this.midiTypeFile = midiTypeFile;
-            this.desc = desc;
-        }
-        /**
-         * is midi like file or not
-         * @throws NoSuchElementException when not found
-         */
-        public static FileType getFileType(InputStream is) {
-            return Arrays.stream(values()).filter(e -> e.midiTypeFile.matchFormat(is)).findFirst().get();
-        }
-        static int maxMarkSize(InputStream is) {
-            return Arrays.stream(values()).mapToInt(e -> e.midiTypeFile.markSize()).max().getAsInt();
-        }
-    }
-
-    /** mark/reset are inside this method */
-    public static abstract class MidiTypeFile {
-        boolean matchFormat(InputStream bitStream) {
-            DataInputStream dis = new DataInputStream(bitStream);
-            try {
-                dis.mark(markSize());
-                return matchFormatImpl(dis);
-            } catch (IOException e) {
-                logger.log(Level.WARNING, e.getMessage(), e);
-                return false;
-            } finally {
-                try {
-                    dis.reset();
-                } catch (IOException e) {
-                    logger.log(Level.DEBUG, e.toString());
-                }
-            }
-        }
-        abstract int markSize();
-        /** no need to mark/reset inside this method */
-        abstract boolean matchFormatImpl(DataInputStream dis) throws IOException;
-        abstract void rewind(int subSong, MidPlayer player) throws IOException;
-        public abstract void init(Context context);
-        public void controlChange(int channel, int controller, int value) {}
-    }
-
     public static class MidiTrack {
         int tend;
         int spos;
@@ -202,7 +152,7 @@ public class MidPlayer extends Opl3Player implements Sequencer {
 
     private final Opl3Soundbank soundBank = new Opl3Soundbank(Adlib.midi_fm_instruments);
 
-    private FileType type;
+    private MidiTypeFile type;
     protected int subsongs;
 
     protected final MidiTrack[] tracks = new MidiTrack[MAX_CHANNELS];
@@ -223,7 +173,7 @@ public class MidPlayer extends Opl3Player implements Sequencer {
     public boolean matchFormat(InputStream bitStream) {
 logger.log(Level.TRACE, "\n" + StringUtil.getDump(bitStream, 0, 64));
         try {
-            type = FileType.getFileType(bitStream);
+            type = MidiTypeFile.getFileType(bitStream);
             return true;
         } catch (NoSuchElementException e) {
             return false;
@@ -233,6 +183,16 @@ logger.log(Level.TRACE, "\n" + StringUtil.getDump(bitStream, 0, 64));
     @Override
     public int getTotalMilliseconds() {
         return 0;
+    }
+
+    @Override
+    public Type getType() {
+        return new Opl3FileFormatType("MID", "laa,cmf"); // TODO is comma separated is right way?
+    }
+
+    @Override
+    public Encoding getEncoding() {
+        return new Opl3Encoding("MID");
     }
 
     public MidPlayer() {
@@ -315,7 +275,7 @@ logger.log(Level.DEBUG, "type: " + type);
             for (int t = 0; t < MAX_CHANNELS; ++t) {
                 if (tracks[t].on) {
                     pos = tracks[t].pos; // TODO substitution for pos!!! track > 0 cause bug
-                    if (type != FileType.SIERRA && type != FileType.ADVSIERRA) {
+                    if (!(type instanceof SierraFile)) {
                         tracks[t].iwait += takeLen();
                     } else {
                         tracks[t].iwait += takeBE(1);
@@ -442,7 +402,7 @@ logger.log(Level.TRACE, "sysex: len: " + midiMessage.getLength());
                             case 0xfb:
                             case 0xfc:
                                 // this ends the track for sierra.
-                                if (type == FileType.SIERRA || type == FileType.ADVSIERRA) {
+                                if (type instanceof SierraFile) {
                                     tracks[t].tend = pos;
 logger.log(Level.INFO, "endmark: %d -- %x".formatted(pos, pos));
                                 }
@@ -490,7 +450,7 @@ logger.log(Level.DEBUG, "meta: %02x, %s, %d\n%s".formatted(v, MidiConstants.Meta
 logger.log(Level.TRACE, "pos: %d, end: %d".formatted(pos, tracks[t].tend));
                     if (pos < tracks[t].tend) {
                         int w;
-                        if (type != FileType.SIERRA && type != FileType.ADVSIERRA) {
+                        if (!(type instanceof SierraFile)) {
                             w = takeLen();
                         } else {
                             w = takeBE(1);
@@ -604,7 +564,7 @@ logger.log(Level.DEBUG, "%02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x"
         }
 
         pos = 0;
-        type.midiTypeFile.rewind(subSong, this);
+        type.rewind(subSong, this);
 
         for (int t = 0; t < MAX_CHANNELS; ++t) {
             tracks[t].initOn();

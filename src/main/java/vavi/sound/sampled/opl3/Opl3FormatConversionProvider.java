@@ -13,6 +13,8 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.spi.FormatConversionProvider;
 
+import vavi.sound.opl3.Opl3Player;
+
 
 /**
  * Opl3FormatConversionProvider.
@@ -24,7 +26,7 @@ public class Opl3FormatConversionProvider extends FormatConversionProvider {
 
     @Override
     public AudioFormat.Encoding[] getSourceEncodings() {
-        return new AudioFormat.Encoding[] {Opl3Encoding.MID, Opl3Encoding.DRO1, Opl3Encoding.DRO2};
+        return Opl3Player.getEncodings().toArray(AudioFormat.Encoding[]::new);
     }
 
     @Override

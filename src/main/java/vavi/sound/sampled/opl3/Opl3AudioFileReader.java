@@ -24,7 +24,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.sound.sampled.spi.AudioFileReader;
 
 import vavi.sound.SoundUtil;
-import vavi.sound.opl3.Opl3Player.FileType;
+import vavi.sound.opl3.Opl3Player;
 
 import static java.lang.System.Logger.Level.DEBUG;
 import static java.lang.System.Logger.Level.TRACE;
@@ -87,13 +87,13 @@ public class Opl3AudioFileReader extends AudioFileReader {
 logger.log(DEBUG, "enter: available: " + bitStream.available());
         AudioFormat.Encoding encoding;
         try {
-            encoding = FileType.getEncoding(bitStream);
+            encoding = Opl3Player.getEncoding(bitStream);
         } catch (Exception e) {
 logger.log(DEBUG, "error exit: available: " + bitStream.available());
 logger.log(TRACE, e.getMessage(), e);
             throw (UnsupportedAudioFileException) new UnsupportedAudioFileException().initCause(e);
         }
-        AudioFileFormat.Type type = FileType.getType(encoding);
+        AudioFileFormat.Type type = Opl3Player.getType(encoding);
         Map<String, Object> props = new HashMap<>();
 logger.log(TRACE, "uri: " + uri);
         props.put("uri", uri); // for advanced sierra file

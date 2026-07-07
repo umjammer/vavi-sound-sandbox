@@ -36,8 +36,9 @@ import javax.sound.sampled.SourceDataLine;
 
 import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
 import vavi.sound.opl3.Adlib;
+import vavi.sound.opl3.LucasFile;
 import vavi.sound.opl3.MidPlayer;
-import vavi.sound.opl3.MidPlayer.FileType;
+import vavi.sound.opl3.MidiTypeFile;
 import vavi.sound.opl3.Opl3Player;
 import vavi.util.StringUtil;
 
@@ -90,7 +91,7 @@ public class Opl3Synthesizer implements Synthesizer {
 
     // ----
 
-    private FileType type;
+    private MidiTypeFile type;
 
     private Adlib adlib;
 
@@ -113,7 +114,7 @@ public class Opl3Synthesizer implements Synthesizer {
         return info;
     }
 
-    public void open(FileType type, Adlib.Writer writer) throws MidiUnavailableException {
+    public void open(MidiTypeFile type, Adlib.Writer writer) throws MidiUnavailableException {
         if (isOpen()) {
 logger.log(Level.WARNING, "already open: " + hashCode());
             return;
@@ -155,7 +156,7 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
 logger.log(Level.DEBUG, "type: " + type);
         this.type = type;
-        type.midiTypeFile.init(new Context());
+        type.init(new Context());
 
         //
         isOpen = true;
@@ -215,7 +216,7 @@ logger.log(Level.DEBUG, line.getClass().getName());
 
     @Override
     public void open() throws MidiUnavailableException {
-        open(FileType.MIDI, null);
+        open(MidiTypeFile.getFileType("MidiFile"), null);
     }
 
     @Override
@@ -440,7 +441,7 @@ logger.log(Level.DEBUG, "control change[%d]: vol(%02x): %d".formatted(channel, c
 logger.log(Level.TRACE, "control change unhandled[%d]: (%02x): %d".formatted(channel, controller, value));
             }
 
-            type.midiTypeFile.controlChange(channel, controller, value);
+            type.controlChange(channel, controller, value);
 
             //
             control[controller] = value;
@@ -612,7 +613,7 @@ logger.log(Level.DEBUG, "sysex volume: gain: %4.2f".formatted(gain));
                             switch (data[1]) {
                                 case 0x10: // 7D 10 ch -- set an instrument to ch
                                     // TODO maybe for LUCAS only
-if (type != FileType.LUCAS) {
+if (!(type instanceof LucasFile)) {
  logger.log(Level.WARNING, "sysex: set LUCAS_STYLE for " + type);
 }
                                     adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;

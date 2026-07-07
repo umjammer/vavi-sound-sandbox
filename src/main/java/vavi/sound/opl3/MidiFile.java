@@ -12,7 +12,6 @@ import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.Arrays;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
-import vavi.sound.opl3.MidPlayer.MidiTypeFile;
 
 import static java.lang.System.getLogger;
 
@@ -30,7 +29,7 @@ import static java.lang.System.getLogger;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/25 umjammer initial version <br>
  */
-class MidiFile extends MidiTypeFile {
+public class MidiFile extends MidiTypeFile {
 
     private static final Logger logger = getLogger(MidiFile.class.getName());
 
@@ -76,5 +75,10 @@ logger.log(Level.DEBUG, "tracklen: %d".formatted(player.tracks[0].tend));
     @Override
     public void init(Context context) {
         this.context = context;
+    }
+
+    @Override
+    public String desc() {
+        return "General MIDI";
     }
 }

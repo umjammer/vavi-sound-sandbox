@@ -25,7 +25,12 @@ import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.Arrays;
 
+import javax.sound.sampled.AudioFileFormat.Type;
+import javax.sound.sampled.AudioFormat.Encoding;
+
 import vavi.io.LittleEndianDataInputStream;
+import vavi.sound.sampled.opl3.Opl3Encoding;
+import vavi.sound.sampled.opl3.Opl3FileFormatType;
 
 import static java.lang.System.getLogger;
 
@@ -38,7 +43,7 @@ import static java.lang.System.getLogger;
  * @author Adam Nielsen <malvineous@shikadi.net>
  * @author Wraithverge <liam82067@yahoo.com>
  */
-class Dro2Player extends Opl3Player {
+public class Dro2Player extends Opl3Player {
 
     private static final Logger logger = getLogger(Dro2Player.class.getName());
 
@@ -58,6 +63,16 @@ class Dro2Player extends Opl3Player {
     private int total = 0;
 
     private static final int MARK_SIZE = 9;
+
+    @Override
+    public Type getType() {
+        return new Opl3FileFormatType("DRO2", "dro");
+    }
+
+    @Override
+    public Encoding getEncoding() {
+        return new Opl3Encoding("DRO2");
+    }
 
     @Override
     public boolean matchFormat(InputStream bitStream) {
