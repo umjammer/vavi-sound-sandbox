@@ -16,6 +16,11 @@
 | dro v2  |   ✅    | dro  | dro2      | DOSBox Raw OPL Format v2                                                  |
 | sci     |   ✅    | sci  | midi      | Sierra's AdLib Audio File Format                                          |
 | adv sci |   ✅    | sci? | midi      | advanced Sierra's AdLib Audio File Format                                 |
+| hsc     |   ✅    | hsc  | hsc       | HSC AdLib Composer / HSC-Tracker Format                                   |
+| sng     |   ✅    | sng  | sng       | SNG File Format (Adlib Visual Composer "ObsM")                            |
+| d00     |   ✅    | d00  | d00       | EdLib packed Format (JCH, versions 0-4)                                   |
+| rad     |   ✅    | rad  | rad       | Reality AdLib Tracker Format (v1 and v2)                                  |
+| adl     |   ✅    | adl  | adl       | Westwood ADL Format (EoB, Dune II, Kyrandia, LoL; versions 1-4)          |
 
 ## References
 
