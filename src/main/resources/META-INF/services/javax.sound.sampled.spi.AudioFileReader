@@ -3,3 +3,4 @@ vavi.sound.sampled.opus.OpusAudioFileReader
 vavi.sound.sampled.opl3.Opl3AudioFileReader
 vavi.sound.sampled.twinvq.TwinvqAudioFileReader
 vavi.sound.sampled.xma.XmaAudioFileReader
+vavi.sound.sampled.wma.WmaAudioFileReader
