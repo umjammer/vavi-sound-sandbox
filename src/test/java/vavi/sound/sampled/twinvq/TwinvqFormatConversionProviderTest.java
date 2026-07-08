@@ -178,7 +178,7 @@ Debug.println(originalAudioFormat);
     @Test
     @DisplayName("when unsupported file coming")
     void test5() throws Exception {
-        InputStream is = TwinvqFormatConversionProviderTest.class.getResourceAsStream("/test.wma");
+        InputStream is = TwinvqFormatConversionProviderTest.class.getResourceAsStream("/test.caf");
         int available = is.available();
         UnsupportedAudioFileException e = assertThrows(UnsupportedAudioFileException.class, () -> {
 Debug.println(is);
