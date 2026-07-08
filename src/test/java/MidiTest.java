@@ -59,8 +59,11 @@ public class MidiTest {
     @Property(name = "receiver")
     String receiver;
 
-    @Property(name = "rococoa.audesc")
-    String audesc;
+    @Property(name = "au.type")
+    String auType;
+
+    @Property(name = "au.vendor")
+    String auVendor;
 
     @Property(name = "vavi.test.volume.midi")
     float volume = 0.2f;
@@ -88,8 +91,9 @@ Debug.println("synthesizer: " + System.getProperty("javax.sound.midi.Synthesizer
 Debug.println("receiver: " + System.getProperty("javax.sound.midi.Receiver"));
         }
 
-        if (audesc != null) {
-            System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", audesc);
+        if (auType != null && auVendor != null) {
+            String auDesc = auVendor + ":" + auType;
+            System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", auDesc);
 Debug.println("audesc: " + System.getProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc"));
         }
     }

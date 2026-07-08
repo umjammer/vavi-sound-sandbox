@@ -43,27 +43,7 @@ import static vavi.sound.midi.MidiUtil.volume;
 @PropsEntity(url = "file:local.properties")
 class RococoaSynthesizerTest {
 
-    //
-    // how to make voltage work
-    // * make voltage use the same jvm
-    // ```
-    // % pushd /Library/Application Support/Voltage/VRE13
-    // % mv 64 64.off
-    // % ln -s $JAVA_13_HOME 64
-    // ```
-    // * add voltage class path
-    // `/Library/Application Support/Voltage/voltage.jar`
-    // * run by the same jvm
-    //
     static {
-//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "Chry:Vltg"); // normally not work (jvm collision)
-//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "");
-//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "DGSB:Dexd");
-//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "AKai:MpcB");
-//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "NiSc:nK1v");
-//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "Ftcr:mc5p"); // Kairatune
-//        System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", "VmbA:Srge");
-
         System.setProperty("javax.sound.midi.Sequencer", "#Real Time Sequencer");
         System.setProperty("javax.sound.midi.Synthesizer", "#Rococoa MIDI Synthesizer");
     }
@@ -81,10 +61,22 @@ class RococoaSynthesizerTest {
     @Property(name = "rococoa.test")
     String rococoaTest = "src/test/resources/test.mid";
 
+    @Property(name = "au.type")
+    String auType;
+
+    @Property(name = "au.vendor")
+    String auVendor;
+
     @BeforeEach
     void setup() throws Exception {
         if (localPropertiesExists()) {
             PropsEntity.Util.bind(this);
+        }
+
+        if (auType != null && auVendor != null) {
+            String auDesc = auVendor + ":" + auType;
+Debug.println("auDesc:" + auDesc);
+            System.setProperty("vavi.sound.midi.rococoa.RococoaSynthesizer.audesc", auDesc);
         }
     }
 

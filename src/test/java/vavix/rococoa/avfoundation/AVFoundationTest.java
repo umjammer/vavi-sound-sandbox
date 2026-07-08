@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import javax.sound.sampled.AudioFileFormat.Type;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -415,6 +416,8 @@ Debug.println("AudioUnit: " + audioUnit.description());
         app.setActivationPolicy(0); // NSApplicationActivationPolicyRegular
         app.activate();
 
+        CountDownLatch cdl = new CountDownLatch(1);
+
         BlockLiteral completionHandle = block((AUAudioUnit.AUViewControllerBase) (block, viewControllerId) -> {
 Debug.println("block enter: " + viewControllerId);
             NSViewController vc = Rococoa.wrap(viewControllerId, NSViewController.class);
@@ -431,7 +434,7 @@ Debug.println(vc);
 
         audioUnit.requestViewControllerWithCompletionHandler(completionHandle);
 
-        Thread.sleep(20000);
+        cdl.await(); // TODO count down by the window closing
 
         Foundation.getRococoaLibrary().releaseObjCBlock(completionHandle.getPointer());
     }

@@ -108,6 +108,7 @@ Debug.println("thirdAis: " + thirdAis.getFormat());
 
         // 2. play
         AudioInputStream resultAis = AudioSystem.getAudioInputStream(new File(outFile));
+Debug.println("resultAis: " + resultAis.getClass().getName());
         assertEquals(outSamplingRate, (int) resultAis.getFormat().getSampleRate());
 
         //

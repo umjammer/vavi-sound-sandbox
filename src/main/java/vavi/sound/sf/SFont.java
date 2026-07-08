@@ -392,7 +392,7 @@ public class SFont {
 
             // Add a warning that samples were decompressed from a lossy format
             if (_fileFormatIn == FileType.SF3Format && _fileFormatOut != _fileFormatIn) {
-                logger.log(Level.INFO, "\n\n" + "CAUTION: Samples in this file were decompressed from a lossy format (Ogg Vorbis). If you want to edit this file, you should get the original uncompressed SF2 file.");
+                logger.log(Level.INFO, "CAUTION: Samples in this file were decompressed from a lossy format (Ogg Vorbis). If you want to edit this file, you should get the original uncompressed SF2 file.");
             }
 
             int riffLenPos;
