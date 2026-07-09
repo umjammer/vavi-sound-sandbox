@@ -4,7 +4,7 @@
  * Programmed by Naohide Sano
  */
 
-package com.keitaiwiki.music;
+package vavi.sound.openDoja;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -16,6 +16,11 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
+import opendoja.audio.mld.MLD;
+import opendoja.audio.mld.MLDPlayer;
+import opendoja.audio.mld.MLDPlayerEvent;
+import opendoja.audio.mld.SamplerProvider;
+import opendoja.audio.mld.ma3.MA3SamplerProvider;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;

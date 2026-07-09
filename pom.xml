@@ -403,6 +403,12 @@
     </dependency>
 -->
     <dependency>
+      <groupId>dev.opendoja</groupId>
+      <artifactId>opendoja</artifactId>
+      <version>0.2.5</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <scope>test</scope>
