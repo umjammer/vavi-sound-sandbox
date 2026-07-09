@@ -157,8 +157,6 @@ Debug.println("OUT: " + outAudioFormat);
         assertEquals(OPUS, ais.getFormat().getEncoding());
     }
 
-    // com.sun.media.sound.SoftMidiAudioFileReader consumes 4byte unexpectedly.
-    // so it's excluded when test. see -agent jvm option at maven-surefire-plugin
     @Test
     @DisplayName("when unsupported file coming")
     void test5() throws Exception {

@@ -14,7 +14,6 @@ import java.util.Arrays;
 import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
-import vavi.sound.opl3.MidPlayer.MidiTypeFile;
 
 import static java.lang.System.getLogger;
 
@@ -25,7 +24,7 @@ import static java.lang.System.getLogger;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/25 umjammer initial version <br>
  */
-class CmfFile extends MidiTypeFile {
+public class CmfFile extends MidiTypeFile {
 
     private static final Logger logger = getLogger(CmfFile.class.getName());
 
@@ -144,5 +143,10 @@ class CmfFile extends MidiTypeFile {
 //                }
             }
         }
+    }
+
+    @Override
+    public String desc() {
+        return "Creative Music Format (CMF MIDI)";
     }
 }

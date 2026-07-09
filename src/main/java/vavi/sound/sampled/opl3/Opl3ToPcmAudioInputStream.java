@@ -17,13 +17,12 @@ import javax.sound.sampled.AudioInputStream;
 import vavi.io.OutputEngine;
 import vavi.io.OutputEngineInputStream;
 import vavi.sound.opl3.Opl3Player;
-import vavi.sound.opl3.Opl3Player.FileType;
 
 import static java.lang.System.getLogger;
 
 
 /**
- * Opl3AudioInputStream.
+ * Opl3ToPcmAudioInputStream.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/23 umjammer initial version <br>
@@ -52,7 +51,7 @@ public class Opl3ToPcmAudioInputStream extends AudioInputStream {
 
         /** */
         public Opl3OutputEngine(InputStream is, AudioFormat format) throws IOException {
-            player = FileType.getPlayer(format.getEncoding());
+            player = Opl3Player.getPlayer(format.getEncoding());
 logger.log(Level.TRACE, "props: " + format.properties());
             player.setProperties(format.properties());
             player.load(is);
@@ -77,9 +76,9 @@ logger.log(Level.DEBUG, "engin start");
             } else {
                 if (player.update()) {
                     double sec = 1.0 / player.getRefresh();
-logger.log(Level.TRACE, "engine bytes: " + (int) (sampleRate * sec) + ", " + player.getRefresh());
+logger.log(Level.TRACE, "engine bytes: " + (int) (sampleRate * sec + 0.5) + ", " + player.getRefresh());
 
-                    byte[] buf = player.read(4 * (int) (sampleRate * sec));
+                    byte[] buf = player.read(4 * (int) (sampleRate * sec + 0.5));
                     out.write(buf, 0, buf.length);
                 } else {
                     for (int wait = 0; wait < 30; ++wait) {

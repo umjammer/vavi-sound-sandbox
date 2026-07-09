@@ -23,7 +23,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 
-import vavi.sound.opl3.Opl3Player.FileType;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
@@ -68,8 +67,8 @@ Debug.println("volume: " + volume + ", use opl midi?: " + System.getProperty("va
     void test1() throws Exception {
         Path path = Path.of(opl3);
         InputStream is = new BufferedInputStream(Files.newInputStream(path));
-        AudioFormat.Encoding encoding = FileType.getEncoding(is);
-        Opl3Player player = FileType.getPlayer(encoding);
+        AudioFormat.Encoding encoding = Opl3Player.getEncoding(is);
+        Opl3Player player = Opl3Player.getPlayer(encoding);
         player.setProperties(Map.of("uri", path.toUri()));
         player.load(is);
 

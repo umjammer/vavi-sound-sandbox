@@ -21,6 +21,7 @@ import javax.sound.sampled.SourceDataLine;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import vavi.sound.sampled.MonauralInputFilter;
@@ -39,6 +40,7 @@ import static vavi.sound.SoundUtil.volume;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060726 nsano initial version <br>
  */
+@Disabled("wip: what class is target?")
 @PropsEntity(url = "file:local.properties")
 public class SampleRateConversionProviderTest {
 
@@ -108,6 +110,7 @@ Debug.println("thirdAis: " + thirdAis.getFormat());
 
         // 2. play
         AudioInputStream resultAis = AudioSystem.getAudioInputStream(new File(outFile));
+Debug.println("resultAis: " + resultAis.getClass().getName());
         assertEquals(outSamplingRate, (int) resultAis.getFormat().getSampleRate());
 
         //

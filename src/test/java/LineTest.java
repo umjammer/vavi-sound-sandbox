@@ -14,6 +14,7 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.TargetDataLine;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import vavi.util.properties.annotation.Property;
@@ -46,6 +47,9 @@ public class LineTest {
         if (localPropertiesExists()) {
             PropsEntity.Util.bind(this);
         }
+
+        // TODO why cannot i use #name ???, misc devices force to use this?
+        System.setProperty("javax.sound.sampled.TargetDataLine", "com.sun.media.sound.DirectAudioDeviceProvider");
     }
 
     /**

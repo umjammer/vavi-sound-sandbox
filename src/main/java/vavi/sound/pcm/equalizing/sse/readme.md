@@ -1,10 +1,6 @@
-# vavi.sound.pcm.resampling.sse
+# vavi.sound.pcm.equalizing.sse
 
-Provides SSE equalizer related classes.
-
-## Status
-
-not tested
+Provides SSE (Shibatch Super Equalizer) related classes.
 
 ## References
 

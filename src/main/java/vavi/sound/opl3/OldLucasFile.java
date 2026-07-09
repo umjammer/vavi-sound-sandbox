@@ -13,7 +13,6 @@ import java.lang.System.Logger.Level;
 import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
-import vavi.sound.opl3.MidPlayer.MidiTypeFile;
 
 import static java.lang.System.getLogger;
 
@@ -24,7 +23,7 @@ import static java.lang.System.getLogger;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/25 umjammer initial version <br>
  */
-class OldLucasFile extends MidiTypeFile {
+public class OldLucasFile extends MidiTypeFile {
 
     private static final Logger logger = getLogger(OldLucasFile.class.getName());
 
@@ -108,5 +107,10 @@ logger.log(Level.DEBUG, "\n%d: ".formatted(p));
         }
 
         context.adlib().style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
+    }
+
+    @Override
+    public String desc() {
+        return "Lucasfilm Adlib MIDI";
     }
 }

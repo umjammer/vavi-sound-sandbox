@@ -9,12 +9,12 @@ package vavi.sound.midi.opl3;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.NoSuchElementException;
-
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.Sequence;
 
 import vavi.sound.midi.BasicMidiFileReader;
-import vavi.sound.opl3.MidPlayer.FileType;
+import vavi.sound.opl3.MidiTypeFile;
+import vavi.sound.opl3.MidiFile;
 
 
 /**
@@ -33,7 +33,7 @@ public class Opl3MidiFileReader extends BasicMidiFileReader {
                IOException {
 
         try {
-            FileType type = FileType.getFileType(is);
+            MidiTypeFile type = MidiFile.getFileType(is);
             return null;
         } catch (NoSuchElementException e) {
             throw (InvalidMidiDataException) new InvalidMidiDataException().initCause(e);

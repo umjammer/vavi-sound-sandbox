@@ -50,7 +50,7 @@ class PerfectResamplerTest {
     }
 
     static String inFile = "src/test/resources/test.wav";
-    static String outFile = "tmp/out.vavi.wav";
+    static String outFile = "tmp/out_sox_perfect.wav";
 
     @Property(name = "vavi.test.volume")
     double volume = 0.2;
@@ -97,13 +97,22 @@ long time = System.currentTimeMillis();
         int[] results = new int[(int) (samples.length * resamplingRate / sampleRate)];
         int[] il = new int[] { samples.length };
         int[] ol = new int[] { results.length };
+        // sox `flow` emits output produced by *previous* calls, so the first call
+        // only feeds the input; `drain` flushes the remainder
         resampler.flow(samples, results, il, ol);
-Debug.println("done: " + (System.currentTimeMillis() - time) + " ms");
+        int total = ol[0];
+        int[] rest = new int[results.length - total];
+        int[] ol2 = new int[] { rest.length };
+        resampler.drain(rest, ol2);
+        System.arraycopy(rest, 0, results, total, ol2[0]);
+        total += ol2[0];
+Debug.println("done: " + (System.currentTimeMillis() - time) + " ms, samples: " + total);
 
         // int[] to byte[]
         byte[] dest = new byte[results.length * 2];
-        for (int i = 0; i < ol[0] /*results.length*/; i++) {
-            ByteUtil.writeLeShort((short) results[i], dest, i * 2);
+        for (int i = 0; i < total; i++) {
+            int v = Math.clamp(results[i], -32768, 32767);
+            ByteUtil.writeLeShort((short) v, dest, i * 2);
 //Debug.println("result[" + i + "]: " + results[i]);
         }
 Debug.println("dest:\n" + StringUtil.getDump(dest, 128));

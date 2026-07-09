@@ -32,9 +32,9 @@ public interface MidiConvertible {
         /** */
         public int getProgram(Instrument instrument) {
             return switch (instrument) {
-                case SquareWaveInstrument ignore -> 0;
-                case SineWaveInstrument ignore -> 1;
-                case FMGeneralInstrument ignore -> 2;
+                case SquareWaveInstrument _ -> 0;
+                case SineWaveInstrument _ -> 1;
+                case FMGeneralInstrument _ -> 2;
                 default -> throw new IllegalArgumentException("Unexpected value: " + instrument);
             };
         }
@@ -42,8 +42,8 @@ public interface MidiConvertible {
         /** */
         public int getBank(Instrument instrument) {
             return switch (instrument) {
-                case SquareWaveInstrument ignore -> 0;
-                case SineWaveInstrument ignore -> 0;
+                case SquareWaveInstrument _ -> 0;
+                case SineWaveInstrument _ -> 0;
                 case FMGeneralInstrument fmGeneralInstrument -> 0 /* fmGeneralInstrument.*/; // TODO
                 default -> throw new IllegalArgumentException("Unexpected value: " + instrument);
             };

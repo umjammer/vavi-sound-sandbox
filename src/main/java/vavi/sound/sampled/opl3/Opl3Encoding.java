@@ -6,7 +6,6 @@
 
 package vavi.sound.sampled.opl3;
 
-
 import javax.sound.sampled.AudioFormat;
 
 
@@ -18,17 +17,12 @@ import javax.sound.sampled.AudioFormat;
  */
 public class Opl3Encoding extends AudioFormat.Encoding {
 
-    /** Specifies any OPL3 encoded data. */
-    public static final Opl3Encoding MID = new Opl3Encoding("MID");
-    public static final Opl3Encoding DRO1 = new Opl3Encoding("DRO1");
-    public static final Opl3Encoding DRO2 = new Opl3Encoding("DRO2");
-
     /**
      * Constructs a new encoding.
      *
      * @param name Name of the OPL3 encoding.
      */
-    private Opl3Encoding(String name) {
+    public Opl3Encoding(String name) {
         super(name);
     }
 }

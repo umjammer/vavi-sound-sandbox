@@ -17,6 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import javax.sound.sampled.AudioFileFormat.Type;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -395,13 +396,27 @@ Debug.println("AVAudioUnitComponent: " + c.audioComponentDescription() + ", " + 
         AudioComponentDescription desc = list.getFirst().audioComponentDescription();
 Debug.println("Attempting to instantiate: " + desc);
 
+        // NOTE: instantiate BEFORE AppKit/AWT is initialized; once AWT is up,
+        // out-of-process hosting (used e.g. for intel only AUs via rosetta)
+        // fails with kAudioUnitErr_FailedInitialization (-10875)
         AUAudioUnit audioUnit = AUAudioUnit.instantiate(desc, 0);
 Debug.println("AudioUnit: " + audioUnit.description());
 
+        // bootstrap AWT: LWCToolkit starts the [NSApp run] event loop on the process
+        // main thread. without a running event loop the AU view opens but never
+        // receives mouse/keyboard events (the panel looks alive but ignores clicks).
+        // don't call NSApplication#run yourself: AppKit was already touched from this
+        // (non-main) thread, so event dispatch dies with
+        // NSAssertMainEventQueueIsCurrentEventQueue / SIGTRAP.
+        java.awt.Toolkit.getDefaultToolkit();
+
+        // AWT runs the event loop; just make this process a regular,
+        // focusable app so the AU window can become key.
         NSApplication app = NSApplication.sharedApplication();
         app.setActivationPolicy(0); // NSApplicationActivationPolicyRegular
-        app.finishLaunching();
         app.activate();
+
+        CountDownLatch cdl = new CountDownLatch(1);
 
         BlockLiteral completionHandle = block((AUAudioUnit.AUViewControllerBase) (block, viewControllerId) -> {
 Debug.println("block enter: " + viewControllerId);
@@ -410,14 +425,16 @@ Debug.println(vc);
 
             Foundation.runOnMainThread(() -> {
                 NSWindow window = NSWindow.windowWithContentViewController(vc);
+                window.setReleasedWhenClosed(false);
                 window.center();
                 window.makeKeyAndOrderFront(null);
+                app.activate(); // re-activate now that a key window exists
             });
         });
 
         audioUnit.requestViewControllerWithCompletionHandler(completionHandle);
 
-        Thread.sleep(20000);
+        cdl.await(); // TODO count down by the window closing
 
         Foundation.getRococoaLibrary().releaseObjCBlock(completionHandle.getPointer());
     }

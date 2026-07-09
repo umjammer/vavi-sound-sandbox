@@ -24,9 +24,12 @@ import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.Arrays;
+import javax.sound.sampled.AudioFileFormat.Type;
+import javax.sound.sampled.AudioFormat.Encoding;
 
 import vavi.io.LittleEndianDataInputStream;
-import vavi.util.Debug;
+import vavi.sound.sampled.opl3.Opl3Encoding;
+import vavi.sound.sampled.opl3.Opl3FileFormatType;
 
 import static java.lang.System.getLogger;
 
@@ -47,7 +50,7 @@ import static java.lang.System.getLogger;
  * <li> 3-oct-04: the DRO format is not yet finalized. beware.
  * <li> 10-jun-12: the DRO 1 format is finalized, but capturing is buggy.
  */
-class DroPlayer extends Opl3Player {
+public class DroPlayer extends Opl3Player {
 
     private static final Logger logger = getLogger(DroPlayer.class.getName());
 
@@ -66,6 +69,16 @@ class DroPlayer extends Opl3Player {
     private int currChip = 0;
 
     private static final int MARK_SIZE = 11;
+
+    @Override
+    public Type getType() {
+        return new Opl3FileFormatType("DOSBox Raw OPL", "dro");
+    }
+
+    @Override
+    public Encoding getEncoding() {
+        return new Opl3Encoding("DRO1");
+    }
 
     @Override
     public boolean matchFormat(InputStream bitStream) {
@@ -132,11 +145,14 @@ logger.log(Level.DEBUG, "oplType: " + opl3_mode);
 
         data = dis;
 
-        length -= 24;
         total = 0;
 
         rewind(0);
-        if (opl3_mode == 1 || opl3_mode == 2) {
+        // hardware type: 0 == OPL2, 1 == dual OPL2, 2 == OPL3.
+        // only a real OPL3 capture may switch the chip to "new" (OPL3) mode:
+        // in new mode channels are gated by the 0xc0 stereo bits, which
+        // OPL2/dual OPL2 data never sets, so enabling it mutes everything
+        if (opl3_mode == 2) {
             write(1, 5, 1);
         }
     }

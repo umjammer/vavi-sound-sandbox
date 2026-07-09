@@ -6,6 +6,13 @@
 
 package vavi.sound.midi.opl3;
 
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
@@ -27,24 +34,17 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
-import java.io.InputStream;
-import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
 import vavi.sound.opl3.Adlib;
+import vavi.sound.opl3.LucasFile;
 import vavi.sound.opl3.MidPlayer;
-import vavi.sound.opl3.MidPlayer.FileType;
+import vavi.sound.opl3.MidiTypeFile;
 import vavi.sound.opl3.Opl3Player;
 import vavi.util.StringUtil;
 
 import static java.lang.System.getLogger;
 import static vavi.sound.SoundUtil.volume;
+import static vavi.sound.midi.opl3.Opl3MidiDeviceProvider.version;
 
 
 /**
@@ -65,24 +65,6 @@ import static vavi.sound.SoundUtil.volume;
 public class Opl3Synthesizer implements Synthesizer {
 
     private static final Logger logger = getLogger(Opl3Synthesizer.class.getName());
-
-    static {
-        try {
-            try (InputStream is = Opl3Synthesizer.class.getResourceAsStream("/META-INF/maven/vavi/vavi-sound-sandbox/pom.properties")) {
-                if (is != null) {
-                    Properties props = new Properties();
-                    props.load(is);
-                    version = props.getProperty("version", "undefined in pom.properties");
-                } else {
-                    version = System.getProperty("vavi.test.version", "undefined");
-                }
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static final String version;
 
     /** the device information */
     protected static final MidiDevice.Info info =
@@ -109,7 +91,7 @@ public class Opl3Synthesizer implements Synthesizer {
 
     // ----
 
-    private FileType type;
+    private MidiTypeFile type;
 
     private Adlib adlib;
 
@@ -132,7 +114,7 @@ public class Opl3Synthesizer implements Synthesizer {
         return info;
     }
 
-    public void open(FileType type, Adlib.Writer writer) throws MidiUnavailableException {
+    public void open(MidiTypeFile type, Adlib.Writer writer) throws MidiUnavailableException {
         if (isOpen()) {
 logger.log(Level.WARNING, "already open: " + hashCode());
             return;
@@ -166,12 +148,15 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
             channels[c].setIns(instruments[channels[c].program]);
 
+            // adplug: ch[i].vol = 127; without this MIDI_STYLE files are
+            // silent until the song sends a channel volume (CC 7) event
+            channels[c].volume = 127;
             channels[c].nShift = -25;
         }
 
 logger.log(Level.DEBUG, "type: " + type);
         this.type = type;
-        type.midiTypeFile.init(new Context());
+        type.init(new Context());
 
         //
         isOpen = true;
@@ -231,7 +216,7 @@ logger.log(Level.DEBUG, line.getClass().getName());
 
     @Override
     public void open() throws MidiUnavailableException {
-        open(FileType.MIDI, null);
+        open(MidiTypeFile.getFileType("MidiFile"), null);
     }
 
     @Override
@@ -456,7 +441,7 @@ logger.log(Level.DEBUG, "control change[%d]: vol(%02x): %d".formatted(channel, c
 logger.log(Level.TRACE, "control change unhandled[%d]: (%02x): %d".formatted(channel, controller, value));
             }
 
-            type.midiTypeFile.controlChange(channel, controller, value);
+            type.controlChange(channel, controller, value);
 
             //
             control[controller] = value;
@@ -625,15 +610,15 @@ logger.log(Level.DEBUG, "sysex volume: gain: %4.2f".formatted(gain));
                             }
                         }
                         case 0x7d -> { // test
-                            switch (data[2]) {
+                            switch (data[1]) {
                                 case 0x10: // 7D 10 ch -- set an instrument to ch
                                     // TODO maybe for LUCAS only
-if (type != FileType.LUCAS) {
+if (!(type instanceof LucasFile)) {
  logger.log(Level.WARNING, "sysex: set LUCAS_STYLE for " + type);
 }
                                     adlib.style = Adlib.LUCAS_STYLE | Adlib.MIDI_STYLE;
 
-                                    int c = data[3];
+                                    int c = data[2];
                                     System.arraycopy(MidPlayer.fromSysex(data), 0, channels[c].ins, 0, 11);
 logger.log(Level.DEBUG, "sysex lucas ins ch: %d".formatted(c));
 

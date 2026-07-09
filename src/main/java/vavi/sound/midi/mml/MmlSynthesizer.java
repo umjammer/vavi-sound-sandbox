@@ -33,6 +33,7 @@ import vavi.sound.midi.MidiUtil;
 import vavi.util.StringUtil;
 
 import static java.lang.System.getLogger;
+import static vavi.sound.midi.mml.MmlMidiDeviceProvider.version;
 
 
 /**
@@ -44,24 +45,6 @@ import static java.lang.System.getLogger;
 public class MmlSynthesizer implements Synthesizer {
 
     private static final Logger logger = getLogger(MmlSynthesizer.class.getName());
-
-    static {
-        try {
-            try (InputStream is = MmlSynthesizer.class.getResourceAsStream("/META-INF/maven/vavi/vavi-sound-sandbox/pom.properties")) {
-                if (is != null) {
-                    Properties props = new Properties();
-                    props.load(is);
-                    version = props.getProperty("version", "undefined in pom.properties");
-                } else {
-                    version = System.getProperty("vavi.test.version", "undefined");
-                }
-            }
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static final String version;
 
     /** the device information */
     protected static final Info info =

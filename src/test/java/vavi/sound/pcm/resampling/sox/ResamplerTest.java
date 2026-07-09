@@ -16,7 +16,6 @@ import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.logging.Level;
-
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -24,16 +23,15 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.SourceDataLine;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-
 import vavi.util.ByteUtil;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static vavi.sound.SoundUtil.volume;
@@ -53,7 +51,7 @@ public class ResamplerTest {
     }
 
     static String inFile = "src/test/resources/test.wav";
-    static String outFile = "tmp/out.vavi.wav";
+    static String outFile = "tmp/out_sox_resampler.wav";
 
     @Property(name = "vavi.test.volume")
     double volume = 0.2;
@@ -71,7 +69,7 @@ public class ResamplerTest {
     }
 
     @Test
-    @Disabled
+//    @Disabled
     @DisplayName("direct")
     public void test1() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
@@ -160,9 +158,8 @@ Debug.println("result: " + r);
         assertEquals((int) resamplingRate, (int) resultAis.getFormat().getSampleRate());
     }
 
-    // noisy
     @Test
-    @Disabled
+//    @Disabled
     @DisplayName("via filer input stream")
     public void test2() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));

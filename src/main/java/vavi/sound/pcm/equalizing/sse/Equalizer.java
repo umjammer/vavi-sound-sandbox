@@ -19,7 +19,6 @@ import java.lang.System.Logger.Level;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -36,19 +35,19 @@ import static java.lang.System.getLogger;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 060207 nsano port to java <br>
  */
-class Equalizer {
+public class Equalizer {
 
     private static final Logger logger = getLogger(Equalizer.class.getName());
 
     /** */
-    static class Parameter implements Comparable<Parameter> {
+    public static class Parameter implements Comparable<Parameter> {
         /** */
-        boolean left, right;
+        public boolean left, right;
         /** */
-        double lower, upper, gain, gain2;
+        public double lower, upper, gain, gain2;
 
         /** */
-        Parameter() {
+        public Parameter() {
             left = right = true;
             lower = upper = gain = 0;
         }
@@ -189,7 +188,7 @@ System.err.println("property band." + c + " not found, break");
      *
      * @param wb window length bits ???
      */
-    Equalizer(int wb) {
+    public Equalizer(int wb) {
 
         winlen = (1 << (wb - 1)) - 1;
         winlenbit = wb;
@@ -259,7 +258,7 @@ System.err.println("property band." + c + " not found, break");
         Parameter e = null;
         for (int i = 1; i < param2.size(); i++) {
             e = param2.get(i);
-            if (e.upper < fs / 2) {
+            if (e.upper >= fs / 2) {
                 break;
             }
             double lhn2 = hn_lpf(n, e.upper, fs);
@@ -281,11 +280,10 @@ System.err.println("property band." + c + " not found, break");
      * @param ch channel #
      */
     static void process_param(double[] bc, List<Parameter> param, List<Parameter> param2, double fs, int ch) {
-        Parameter p = null, e2;
 
         // set gain for each band
         for (int i = 0; i <= bands.length; i++) {
-            p = new Parameter();
+            Parameter p = new Parameter();
             p.lower = i == 0 ? 0 : bands[i - 1];
             p.upper = i == bands.length ? fs : bands[i];
             p.gain = bc[i];
@@ -293,12 +291,9 @@ System.err.println("property band." + c + " not found, break");
 logger.log(Level.DEBUG, "0: ch: " + ch + ": [" + i + "]: " + p);
         }
 
-        //
-        for (int i = 0; i < param.size(); i++) {
-//logger.log(Level.TRACE, "1: ch: " + ch + ": [" + i + "]");
-            Parameter e = param.get(i);
+        // overlay each parametric band onto the band segments, splitting segments as needed
+        for (Parameter e : param) {
             if ((ch == 0 && !e.left) || (ch == 1 && !e.right)) {
-//logger.log(Level.TRACE, "ch " + ch + ": ignore: unmatched channel");
                 continue;
             }
             if (e.lower >= e.upper) {
@@ -306,110 +301,68 @@ logger.log(Level.DEBUG, "ch " + ch + ": lower >= upper: " + e.lower + ", " + e.u
                 continue;
             }
 
-            Iterator<Parameter> pi = param2.iterator();
-            while (pi.hasNext()) {
-                p = pi.next();
-                if (p.upper > e.lower) {
-//logger.log(Level.TRACE, "ch " + ch + ": p.upper > e.lower: " + p.upper + ", " + e.lower);
-                    break;
-                }
+            int j = 0;
+            while (j < param2.size() && param2.get(j).upper <= e.lower) {
+                j++;
             }
 
-            while (pi.hasNext() && p.lower < e.upper) {
+            while (j < param2.size() && param2.get(j).lower < e.upper) {
+                Parameter p = param2.get(j);
                 if (e.lower <= p.lower && p.upper <= e.upper) {
                     p.gain *= Math.pow(10, e.gain / 20);
 logger.log(Level.DEBUG, "1.5.1: gain: " + p.gain);
-                    p = pi.next();
+                    j++;
                     continue;
                 }
                 if (p.lower < e.lower && e.upper < p.upper) {
-                    e2 = new Parameter();
-                    e2.lower = e.upper;
-                    e2.upper = p.upper;
-                    e2.gain = p.gain;
-logger.log(Level.DEBUG, "1.5.2: gain: " + p.gain);
-                    param2.add(i + 1, e2);
+                    Parameter m = new Parameter();
+                    m.lower = e.lower;
+                    m.upper = e.upper;
+                    m.gain = p.gain * Math.pow(10, e.gain / 20);
+logger.log(Level.DEBUG, "1.5.2: gain: " + m.gain);
+                    param2.add(j + 1, m);
 
-                    e2 = new Parameter();
-                    e2.lower = e.lower;
-                    e2.upper = e.upper;
-                    e2.gain = p.gain * Math.pow(10, e.gain / 20);
-logger.log(Level.DEBUG, "1.5.3: gain: " + p.gain);
-                    param2.add(i + 1, e2);
+                    Parameter u = new Parameter();
+                    u.lower = e.upper;
+                    u.upper = p.upper;
+                    u.gain = p.gain;
+logger.log(Level.DEBUG, "1.5.3: gain: " + u.gain);
+                    param2.add(j + 2, u);
 
                     p.upper = e.lower;
 
-                    p = pi.next();
-                    p = pi.next();
-                    p = pi.next();
+                    j += 3;
                     continue;
                 }
                 if (p.lower < e.lower) {
-                    e2 = new Parameter();
-                    e2.lower = e.lower;
-                    e2.upper = p.upper;
-                    e2.gain = p.gain * Math.pow(10, e.gain / 20);
-logger.log(Level.DEBUG, "1.5.4: gain: " + p.gain);
-                    param2.add(i + 1, e2);
+                    Parameter m = new Parameter();
+                    m.lower = e.lower;
+                    m.upper = p.upper;
+                    m.gain = p.gain * Math.pow(10, e.gain / 20);
+logger.log(Level.DEBUG, "1.5.4: gain: " + m.gain);
+                    param2.add(j + 1, m);
 
                     p.upper = e.lower;
 
-                    p = pi.next();
-                    p = pi.next();
+                    j += 2;
                     continue;
                 }
                 if (e.upper < p.upper) {
-                    e2 = new Parameter();
-                    e2.lower = e.upper;
-                    e2.upper = p.upper;
-                    e2.gain = p.gain;
-                    param2.add(i + 1, e2);
+                    Parameter u = new Parameter();
+                    u.lower = e.upper;
+                    u.upper = p.upper;
+                    u.gain = p.gain;
+                    param2.add(j + 1, u);
 
                     p.upper = e.upper;
                     p.gain = p.gain * Math.pow(10, e.gain / 20);
 logger.log(Level.DEBUG, "1.5.5: gain: " + p.gain);
 
-                    p = pi.next();
-                    p = pi.next();
+                    j += 2;
                     continue;
                 }
                 assert false : "impossible";
             }
-        }
-int i = 0;
-for (Parameter pp : param2) {
- logger.log(Level.DEBUG, "2: ch: " + ch + ": [" + (i++) + "]: " + pp);
-}
-    }
-
-    /**
-     *
-     * @param bc
-     * @param param input
-     * @param param2 output
-     * @param fs frequency in Hz
-     * @param ch channel #
-     */
-    static void process_param2(double[] bc, List<Parameter> param, List<Parameter> param2, double fs, int ch) {
-        Parameter p = null, e2;
-
-        // set gain for each band
-        for (int i = 0; i <= bands.length; i++) {
-            p = new Parameter();
-            p.lower = i == 0 ? 0 : bands[i - 1];
-            p.upper = i == bands.length ? fs : bands[i];
-            p.gain = bc[i];
-            param2.add(p);
-logger.log(Level.DEBUG, "0: ch: " + ch + ": [" + i + "]: " + p);
-        }
-
-        //
-        for (int i = 1; i < param.size() - 1; i++) {
-            p = param.get(i);
-            e2 = param2.get(i - 1);
-            e2.upper = p.upper;
-            e2.lower = p.lower;
-            e2.gain = p.gain;
         }
 int i = 0;
 for (Parameter pp : param2) {
@@ -424,7 +377,7 @@ for (Parameter pp : param2) {
      * @param param
      * @param fs frequency in Hz
      */
-    void equ_makeTable(double[] lbc, double[] rbc, List<Parameter> param, double fs) {
+    public void equ_makeTable(double[] lbc, double[] rbc, List<Parameter> param, double fs) {
         int i, cires = cur_ires;
         double[] nires;
 
@@ -439,7 +392,7 @@ for (Parameter pp : param2) {
         process_param(lbc, param, param2, fs, 0);
 
         for (i = 0; i < winlen; i++) {
-            irest[i] = hn(i - winlen / 2, param2, fs) * win(i - winlen / 2f, winlen);
+            irest[i] = hn(i - winlen / 2, param2, fs) * win(i - winlen / 2, winlen);
         }
 
         for (; i < tabsize; i++) {
@@ -461,7 +414,7 @@ for (Parameter pp : param2) {
         process_param(rbc, param, param2, fs, 1);
 
         for (i = 0; i < winlen; i++) {
-            irest[i] = hn(i - winlen / 2, param2, fs) * win(i - winlen / 2f, winlen);
+            irest[i] = hn(i - winlen / 2, param2, fs) * win(i - winlen / 2, winlen);
         }
 
         for (; i < tabsize; i++) {
@@ -482,7 +435,7 @@ for (Parameter pp : param2) {
     }
 
     /** */
-    void equ_quit() {
+    public void equ_quit() {
         lires1 = null;
         lires2 = null;
         rires1 = null;
@@ -514,7 +467,7 @@ for (Parameter pp : param2) {
      * @param nch number of channels
      * @param bps bits per sample
      */
-    int equ_modifySamples(byte[] buf, int nsamples, int nch, int bps) {
+    public int equ_modifySamples(byte[] buf, int nsamples, int nch, int bps) {
         int i, p, ch;
         double[] ires;
         int amax = (1 << (bps - 1)) - 1;
@@ -846,7 +799,9 @@ for (Parameter pp : param2) {
      * @param argv 0: in, 1: out, 2: preamp
      */
     public static void main(String[] argv) throws Exception {
-System.setOut(new PrintStream(System.getProperty("dev.null"))); // fuckin' j-ogg
+        if (System.getProperty("dev.null") != null) {
+            System.setOut(new PrintStream(System.getProperty("dev.null"))); // fuckin' j-ogg
+        }
         // max 0 ~ 96 min, [0] is preamp
         int[] lslpos = new int[19], rslpos = new int[19];
 

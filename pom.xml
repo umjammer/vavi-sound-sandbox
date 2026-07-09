@@ -8,7 +8,7 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-sound-sandbox</artifactId>
-  <version>1.0.13</version>
+  <version>1.0.14</version>
 
   <name>Vavi Sound API (Sandbox)</name>
   <url>https://github.com/umjammer/vavi-sound-sandbox</url>
@@ -101,7 +101,7 @@
         </property>
       </activation>
       <properties>
-        <javaVersion>21</javaVersion>
+        <javaVersion>25</javaVersion>
       </properties>
       <pluginRepositories>
         <pluginRepository>
@@ -181,8 +181,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.12.1</version>
         <configuration>
-          <source>21</source> <!-- TODO release causes compilation failure why? -->
-          <target>21</target>
+          <source>25</source> <!-- TODO release causes compilation failure why? -->
+          <target>25</target>
           <compilerArgs>
             <arg>--add-exports</arg>
             <arg>java.desktop/com.sun.media.sound=ALL-UNNAMED</arg>
@@ -251,6 +251,8 @@
           <argLine>
             -Xmx4G
             --add-exports java.desktop/com.sun.media.sound=ALL-UNNAMED
+            --add-exports java.desktop/javax.sound.sampled=ALL-UNNAMED
+            --add-opens java.desktop/javax.sound.sampled=ALL-UNNAMED
             --add-opens java.base/java.io=ALL-UNNAMED
             --add-opens java.base/sun.nio.ch=ALL-UNNAMED
             -javaagent:${project.build.directory}/vavi-instrumentation.jar
@@ -335,7 +337,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>6.0.2</version>
+        <version>6.0.3</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -346,12 +348,12 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.16</version>
+      <version>1.1.18</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.22</version>
+      <version>1.0.26</version>
       <exclusions>
         <exclusion>
           <groupId>vavi</groupId>
@@ -378,7 +380,7 @@
     <dependency>
       <groupId>com.github.lostromb</groupId>
       <artifactId>concentus</artifactId>
-      <version>acaadf2075</version>
+      <version>6c2328d</version>
       <type>pom</type>
     </dependency>
 
@@ -431,7 +433,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- com.github.umjammer / vavi -->
       <artifactId>vavi-commons-sandbox</artifactId>
-      <version>0.4.7</version>
+      <version>0.4.8</version>
       <scope>test</scope>
     </dependency>
 
@@ -568,6 +570,10 @@
           <artifactId>rococoa-contrib</artifactId>
           <groupId>com.github.umjammer.rococoa</groupId>
         </exclusion>
+        <exclusion>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcprov-jdk18on</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
 
@@ -592,9 +598,38 @@
     </dependency>
 
     <dependency>
+      <groupId>com.github.git-moss</groupId>
+      <artifactId>ConvertWithMoss</artifactId>
+      <version>16.2.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>de.mossgrabers</groupId>
+          <artifactId>uitools</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>maven:com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-core</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+<dependency>
+  <groupId>com.github.git-moss</groupId>
+  <artifactId>uitools</artifactId>
+  <version>main-632482b656-1</version>
+  <scope>test</scope>
+</dependency>
+<dependency>
+  <groupId>com.fasterxml.jackson.core</groupId>
+  <artifactId>jackson-core</artifactId>
+  <version>2.21.1</version>
+  <scope>test</scope>
+</dependency>
+
+    <dependency>
       <groupId>com.github.umjammer.vavi-commons</groupId>
       <artifactId>vavi-instrumentation</artifactId>
-      <version>1.1.16</version>
+      <version>1.1.18</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

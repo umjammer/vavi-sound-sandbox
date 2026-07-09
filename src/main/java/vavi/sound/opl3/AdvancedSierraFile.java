@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.net.URI;
-import java.nio.file.Path;
 
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 
@@ -24,7 +23,7 @@ import static java.lang.System.getLogger;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/26 umjammer initial version <br>
  */
-class AdvancedSierraFile extends SierraFile {
+public class AdvancedSierraFile extends SierraFile {
 
     private static final Logger logger = getLogger(AdvancedSierraFile.class.getName());
 
@@ -104,5 +103,10 @@ logger.log(Level.DEBUG, "uri: " + uri);
     public void init(Context context) {
         context.instruments(smyinsbank);
         context.adlib().style = Adlib.SIERRA_STYLE | Adlib.MIDI_STYLE; // advanced sierra tunes use volume;
+    }
+
+    @Override
+    public String desc() {
+        return "Sierra On-Line VGA MIDI";
     }
 }

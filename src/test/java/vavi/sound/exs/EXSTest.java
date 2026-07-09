@@ -11,8 +11,10 @@ import java.util.stream.Stream;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import de.mossgrabers.convertwithmoss.format.exs.EXS24File;
 import vavi.util.Debug;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -68,5 +70,16 @@ String json = gson.toJson(exs);
         EXS exs = EXS.newFromByteArray(Path.of(EXSTest.class.getResource("/exs/MC-202 bass.exs").toURI()));
         String json = gson.toJson(exs);
 Debug.println(json);
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
+    @DisplayName("ConvertWithMoss")
+    void test3() throws Exception {
+
+        EXS24File exs24File = new EXS24File(null);
+        exs24File.read(Files.newInputStream(Path.of("/Library/Application Support/GarageBand/Instrument Library/Sampler/Sampler Instruments/Church Organ/Full Organ.exs")));
+Debug.print("samples: " + exs24File.getSamples().size());
+        exs24File.getSamples();
     }
 }

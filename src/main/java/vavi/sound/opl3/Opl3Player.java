@@ -24,14 +24,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.ServiceLoader.Provider;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
-
-import vavi.sound.sampled.opl3.Opl3Encoding;
-import vavi.sound.sampled.opl3.Opl3FileFormatType;
+import javax.sound.sampled.AudioFormat.Encoding;
 
 import static java.lang.System.getLogger;
 
@@ -46,39 +46,39 @@ public abstract class Opl3Player {
     private static final Logger logger = getLogger(Opl3Player.class.getName());
 
     /** generic properties */
-    protected  Map<String, Object> props = new HashMap<>();
+    protected Map<String, Object> props = new HashMap<>();
 
-    /** TODO who defined 49700? */
-    public static final AudioFormat opl3 = new AudioFormat(49700.0f, 16, 2, true, false);
+    /** YMF262 native output rate: 14.318180 MHz / 288 */
+    public static final AudioFormat opl3 = new AudioFormat(49716.0f, 16, 2, true, false);
 
-    /** formats using opl3 decoder database */
-    public enum FileType {
-        MID(Opl3Encoding.MID, Opl3FileFormatType.MID, new MidPlayer()),
-        DRO1(Opl3Encoding.DRO1, Opl3FileFormatType.DRO1, new DroPlayer()),
-        DRO2(Opl3Encoding.DRO2, Opl3FileFormatType.DRO2, new Dro2Player());
-        final AudioFormat.Encoding encoding;
-        final AudioFileFormat.Type type;
-        final Opl3Player player;
-        FileType(AudioFormat.Encoding encoding, AudioFileFormat.Type type, Opl3Player player) {
-            this.encoding = encoding;
-            this.type = type;
-            this.player = player;
-        }
-        public static Opl3Player getPlayer(AudioFormat.Encoding encoding) {
+    public abstract AudioFileFormat.Type getType();
+
+    public abstract AudioFormat.Encoding getEncoding();
+
+    /** players using opl3 decoder */
+    private static final List<Opl3Player> players = ServiceLoader.load(Opl3Player.class).stream().map(Provider::get).toList();
+
+    public static Opl3Player getPlayer(AudioFormat.Encoding encoding) {
 logger.log(Level.DEBUG, "encoding: " + encoding);
-            return Arrays.stream(values()).filter(e -> e.encoding == encoding).findFirst().get().player;
-        }
-        /** @param ext lower case w/o '.' */
-        static AudioFileFormat.Type getType(String ext) {
-            return Arrays.stream(values()).filter(e -> e.type.getExtension().contains(ext)).findFirst().get().type;
-        }
-        public static AudioFileFormat.Type getType(AudioFormat.Encoding encoding) {
-            return Arrays.stream(values()).filter(e -> e.encoding == encoding).findFirst().get().type;
-        }
-        /** mark/reset will be done internally */
-        public static AudioFormat.Encoding getEncoding(InputStream is) {
-            return Arrays.stream(values()).filter(e -> e.player.matchFormat(is)).findFirst().get().encoding;
-        }
+        return players.stream().filter(p -> p.getEncoding().equals(encoding)).findFirst().orElseThrow();
+    }
+
+    /** @param ext lower case w/o '.' */
+    public static AudioFileFormat.Type getType(String ext) {
+        return players.stream().filter(p -> p.getType().getExtension().contains(ext)).findFirst().orElseThrow().getType();
+    }
+
+    public static AudioFileFormat.Type getType(AudioFormat.Encoding encoding) {
+        return players.stream().filter(p -> p.getEncoding().equals(encoding)).findFirst().orElseThrow().getType();
+    }
+
+    /** mark/reset will be done internally */
+    public static AudioFormat.Encoding getEncoding(InputStream is) {
+        return players.stream().filter(p -> p.matchFormat(is)).findFirst().orElseThrow().getEncoding();
+    }
+
+    public static List<Encoding> getEncodings() {
+        return players.stream().map(Opl3Player::getEncoding).toList();
     }
 
     private final OPL3 opl;
@@ -103,10 +103,11 @@ logger.log(Level.DEBUG, "encoding: " + encoding);
 
         for (int i = 0; i < len; i += 4) {
             short[] data = opl.read();
-//            short chA = data[0];
-//            short chB = data[1];
-            short chA = (short) (data[0] + data[2]);
-            short chB = (short) (data[1] + data[3]);
+            // sum CHA+CHC / CHB+CHD then clip, so loud passages saturate instead of wrapping around
+            int chA = data[0] + data[2];
+            int chB = data[1] + data[3];
+            if (chA > Short.MAX_VALUE) chA = Short.MAX_VALUE; else if (chA < Short.MIN_VALUE) chA = Short.MIN_VALUE;
+            if (chB > Short.MAX_VALUE) chB = Short.MAX_VALUE; else if (chB < Short.MIN_VALUE) chB = Short.MIN_VALUE;
             buf[i] = (byte) (chA & 0xff);
             buf[i + 1] = (byte) ((chA >> 8) & 0xff);
             buf[i + 2] = (byte) (chB & 0xff);

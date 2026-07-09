@@ -54,7 +54,7 @@ public class PolyphaseTest {
     }
 
     static String inFile = "src/test/resources/test.wav";
-    static String outFile = "tmp/out.vavi.wav";
+    static String outFile = "tmp/out_sox_polyphase.wav";
 
     @Property(name = "vavi.test.volume")
     double volume = 0.2;
@@ -81,7 +81,7 @@ public class PolyphaseTest {
     }
 
     @Test
-    @Disabled
+//    @Disabled
     public void test1() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
         AudioFormat format = sourceAis.getFormat();
@@ -169,9 +169,8 @@ Debug.println("result: " + r);
         assertEquals((int) resamplingRate, (int) resultAis.getFormat().getSampleRate());
     }
 
-    // TODO noisy
     @Test
-    @Disabled
+//    @Disabled
     public void test2() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
         AudioFormat format = sourceAis.getFormat();
@@ -183,7 +182,7 @@ Debug.println("result: " + r);
             2,
             format.getFrameRate(),
             format.isBigEndian());
-        AudioInputStream inAis = AudioSystem.getAudioInputStream(inFormat, sourceAis); // this monauralize not works well
+        AudioInputStream inAis = AudioSystem.getAudioInputStream(inFormat, sourceAis);
         AudioFormat outFormat = new AudioFormat(
             format.getEncoding(),
             8000,
@@ -290,7 +289,7 @@ Debug.println(Level.FINER, "line.write: " + l);
     }
 
     @Test
-    @Disabled
+    @Disabled("spi does not exist")
     @DisplayName("via spi")
     public void test4() throws Exception {
         AudioInputStream sourceAis = AudioSystem.getAudioInputStream(new File(inFile));
