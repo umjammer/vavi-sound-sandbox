@@ -5,4 +5,12 @@ vavi.sound.opl3.SngPlayer
 vavi.sound.opl3.D00Player
 vavi.sound.opl3.RadPlayer
 vavi.sound.opl3.AdlPlayer
+vavi.sound.opl3.BamPlayer
+vavi.sound.opl3.IdAdlPlayer
+vavi.sound.opl3.ImfPlayer
+vavi.sound.opl3.KsmPlayer
+vavi.sound.opl3.LdsPlayer
+vavi.sound.opl3.MkjPlayer
+vavi.sound.opl3.S3mPlayer
+vavi.sound.opl3.XsmPlayer
 vavi.sound.opl3.HscPlayer
