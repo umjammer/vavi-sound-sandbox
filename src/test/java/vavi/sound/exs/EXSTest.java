@@ -73,6 +73,7 @@ Debug.println(json);
     }
 
     @Test
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     @DisplayName("ConvertWithMoss")
     void test3() throws Exception {
 
