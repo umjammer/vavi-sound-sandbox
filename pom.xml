@@ -380,7 +380,7 @@
     <dependency>
       <groupId>com.github.lostromb</groupId>
       <artifactId>concentus</artifactId>
-      <version>3885c4e465</version>
+      <version>6c2328d</version>
       <type>pom</type>
     </dependency>
 
