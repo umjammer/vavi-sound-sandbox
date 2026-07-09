@@ -2,5 +2,5 @@ tmp/
 target/
 local.properties
 GEMINI.md
-CLAUDE.md
+AGENTS.md
 settings.local.json
