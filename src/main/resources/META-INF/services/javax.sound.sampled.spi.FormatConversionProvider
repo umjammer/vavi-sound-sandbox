@@ -6,10 +6,10 @@ vavi.sound.sampled.ilbc.IlbcFormatConversionProvider
 vavi.sound.sampled.twinvq.TwinvqFormatConversionProvider
 vavi.sound.sampled.xma.XmaFormatConversionProvider
 vavi.sound.sampled.wma.WmaFormatConversionProvider
-#vavi.sound.sampled.resampling.LaoeSamplingRateConversionProvider
-#vavi.sound.sampled.resampling.RohmSamplingRateConversionProvider
-#vavi.sound.sampled.resampling.SoxPerfectSamplingRateConversionProvider
-#vavi.sound.sampled.resampling.SoxPolyphaseSamplingRateConversionProvider
-#vavi.sound.sampled.resampling.SoxResamplingSamplingRateConversionProvider
-vavi.sound.sampled.resampling.KohnNormalingProvider
+vavi.sound.sampled.resampling.LaoeSamplingRateConversionProvider
+vavi.sound.sampled.resampling.RohmSamplingRateConversionProvider
+vavi.sound.sampled.resampling.SoxPerfectSamplingRateConversionProvider
+vavi.sound.sampled.resampling.SoxPolyphaseSamplingRateConversionProvider
+vavi.sound.sampled.resampling.SoxResamplingSamplingRateConversionProvider
+vavi.sound.sampled.resampling.KohnNormalizingProvider
 vavi.sound.sampled.resampling.SSEEqualizingProvider

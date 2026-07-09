@@ -9,6 +9,8 @@ package vavi.sound.sampled.resampling;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.sound.sampled.AudioFormat;
+
 import vavi.sound.pcm.resampling.sox.PerfectResamplerInputStream;
 
 
@@ -20,6 +22,14 @@ import vavi.sound.pcm.resampling.sox.PerfectResamplerInputStream;
  * @see PerfectResamplerInputStream
  */
 public class SoxPerfectSamplingRateConversionProvider extends SamplingRateConversionProvider {
+
+    @Override
+    public boolean isConversionSupported(AudioFormat targetFormat, AudioFormat sourceFormat) {
+        if (!Boolean.parseBoolean(System.getProperty("vavi.sound.sampled.spi.sox_perfect", "false")))
+            return false;
+
+        return super.isConversionSupported(targetFormat, sourceFormat);
+    }
 
     @Override
     protected InputStream createStream(InputStream in, float inRate, float outRate) throws IOException {

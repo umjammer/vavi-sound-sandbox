@@ -16,6 +16,8 @@ import javax.sound.sampled.AudioFormat;
  * so that {@link SSEEqualizingProvider} is selected to run it through the
  * equalizer, producing {@link AudioFormat.Encoding#PCM_SIGNED}.
  *
+ * TODO consider more
+ *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 250707 nsano initial version <br>
  */

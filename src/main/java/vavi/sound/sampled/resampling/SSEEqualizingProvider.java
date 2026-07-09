@@ -34,6 +34,14 @@ import vavi.sound.pcm.equalizing.sse.Equalizer;
  */
 public class SSEEqualizingProvider extends FormatConversionProvider {
 
+    @Override
+    public boolean isConversionSupported(AudioFormat targetFormat, AudioFormat sourceFormat) {
+        if (!Boolean.parseBoolean(System.getProperty("vavi.sound.sampled.spi.sse", "false")))
+            return false;
+
+        return super.isConversionSupported(targetFormat, sourceFormat);
+    }
+
     /** window length bits passed to {@link Equalizer#Equalizer(int)} */
     protected static final int WB = 14;
 

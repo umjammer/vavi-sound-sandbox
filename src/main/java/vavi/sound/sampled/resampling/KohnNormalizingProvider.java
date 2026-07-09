@@ -17,7 +17,7 @@ import vavi.sound.pcm.equalizing.Normalizer;
 
 
 /**
- * KohnNormalingProvider.
+ * KohnNormalizingProvider.
  * <p>
  * Peak-normalizes a PCM stream using Michael Kohn's normalizer. Tag the source
  * stream with {@link KohnEncoding#KOHN_NORMALIZE} and convert it to
@@ -30,7 +30,15 @@ import vavi.sound.pcm.equalizing.Normalizer;
  * @version 0.00 250707 nsano initial version <br>
  * @see Normalizer
  */
-public class KohnNormalingProvider extends FormatConversionProvider {
+public class KohnNormalizingProvider extends FormatConversionProvider {
+
+    @Override
+    public boolean isConversionSupported(AudioFormat targetFormat, AudioFormat sourceFormat) {
+        if (!Boolean.parseBoolean(System.getProperty("vavi.sound.sampled.spi.kohn", "false")))
+            return false;
+
+        return super.isConversionSupported(targetFormat, sourceFormat);
+    }
 
     private static boolean isSupportedPcm(AudioFormat format) {
         int bits = format.getSampleSizeInBits();
