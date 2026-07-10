@@ -92,6 +92,7 @@ Debug.println("synthesizer: " + synthesizer);
     @Test
     @DisplayName("direct")
     void test2() throws Exception {
+Debug.print(karplusStrongTest);
         Synthesizer synthesizer = new KarplusStrongSynthesizer();
         synthesizer.open();
 Debug.println("synthesizer: " + synthesizer);

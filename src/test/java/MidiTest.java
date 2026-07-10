@@ -23,6 +23,7 @@ import javax.sound.midi.Synthesizer;
 import javax.sound.midi.Transmitter;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
@@ -71,8 +72,8 @@ public class MidiTest {
     @Property(name = "midi.test")
     String filename;
 
-    @Property(name = "sf2")
-    String sf2name = System.getProperty("user.home") + "/Library/Audio/Sounds/Banks/Orchestra/default.sf2";
+    @Property
+    String soundfont = System.getProperty("user.home") + "/Library/Audio/Sounds/Banks/Orchestra/default.sf2";
 
     @BeforeEach
     void setup() throws Exception {
@@ -98,10 +99,10 @@ Debug.println("audesc: " + System.getProperty("vavi.sound.midi.rococoa.RococoaSy
         }
     }
 
-    /** plain */
     @Test
+    @DisplayName("plain, no synthesizer selection")
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
-    void tP() throws Exception {
+    void testP() throws Exception {
         Sequence sequence = MidiSystem.getSequence(new File(filename));
 
         CountDownLatch cdl = new CountDownLatch(1);
@@ -136,12 +137,12 @@ Debug.println("END: " + filename);
     }
 
     /**
-     * info
      * @see "https://bonar.hatenablog.com/entry/20090322/1237711377"
      */
     @Test
+    @DisplayName("show info")
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
-    void t0() throws Exception {
+    void test0() throws Exception {
         // MIDI
         Synthesizer synthesizer;
         Sequencer sequencer;
@@ -188,10 +189,10 @@ System.err.println("default transmitter: " + transmitter);
         sequencer.close();
     }
 
-    /** sf2 by spi: work */
     @Test
+    @DisplayName("sf2 by spi") // works!
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
-    void t1() throws Exception {
+    void test1() throws Exception {
         Sequence sequence = MidiSystem.getSequence(new File(filename));
 
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
@@ -205,7 +206,7 @@ if (soundbank != null) {
 //Arrays.asList(instruments).forEach(System.err::println);
  synthesizer.unloadAllInstruments(soundbank);
 }
-        File sf2 = new File(sf2name);
+        File sf2 = new File(soundfont);
 Debug.println("soundfont: " + sf2);
         if (sf2.exists()) {
             soundbank = MidiSystem.getSoundbank(sf2);
@@ -239,11 +240,11 @@ Debug.println("END: " + filename);
         synthesizer.close();
     }
 
-    /** sf2 direct: work */
     @SuppressWarnings("restriction")
     @Test
+    @DisplayName("sf2 by direct") // works!
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
-    void t2() throws Exception {
+    void test2() throws Exception {
         com.sun.media.sound.SoftSynthesizer synthesizer = new com.sun.media.sound.SoftSynthesizer();
         synthesizer.open();
 Debug.println("synthesizer: " + synthesizer);
@@ -252,7 +253,7 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
         sequencer.open();
 
-        File sf2 = new File(sf2name);
+        File sf2 = new File(soundfont);
         com.sun.media.sound.SF2Soundbank bank = new com.sun.media.sound.SF2Soundbank(sf2);
         synthesizer.loadAllInstruments(bank);
 
@@ -278,8 +279,9 @@ Debug.println("END: " + filename);
     }
 
     @Test
+    @DisplayName("plain")
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
-    void t3() throws Exception {
+    void test3() throws Exception {
 Debug.println(filename);
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
         synthesizer.open();
@@ -319,7 +321,7 @@ Debug.println("END");
     /** midi network session test, [1] seemed "session1" */
     @Test
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
-    void t4() throws Exception {
+    void test4() throws Exception {
         Synthesizer synthesizer = MidiSystem.getSynthesizer();
 Debug.println("synthesizer: " + synthesizer.getClass().getName());
         synthesizer.open();
@@ -347,7 +349,7 @@ Debug.println("END");
     public static void main(String[] args) throws Exception {
         MidiTest app = new MidiTest();
         app.setup();
-        app.tP();
+        app.testP();
 //        app.t0();
 //        app.t1();
 //        app.t2();
