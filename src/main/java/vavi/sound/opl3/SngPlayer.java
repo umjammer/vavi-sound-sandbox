@@ -103,13 +103,14 @@ public class SngPlayer extends Opl3Player {
         delay = buf[10] & 0xff;
         compressed = (buf[11] & 0xff) != 0;
 
-        // load section (the declared length may run slightly past EOF; pad with 0)
+        // load section (the declared length may run slightly past EOF;
+        // adplug's binistream yields (Byte)EOF = 0xff there)
         length /= 2; start /= 2; loop /= 2;
         data = new int[length][2];
         int off = 12;
         for (int i = 0; i < length; i++) {
-            data[i][0] = off < buf.length ? buf[off] & 0xff : 0; off++; // val
-            data[i][1] = off < buf.length ? buf[off] & 0xff : 0; off++; // reg
+            data[i][0] = off < buf.length ? buf[off] & 0xff : 0xff; off++; // val
+            data[i][1] = off < buf.length ? buf[off] & 0xff : 0xff; off++; // reg
         }
 
 logger.log(Level.DEBUG, "length: " + length + ", start: " + start + ", loop: " + loop + ", compressed: " + compressed);

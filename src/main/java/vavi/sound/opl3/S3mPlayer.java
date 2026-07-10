@@ -59,7 +59,7 @@ public class S3mPlayer extends Opl3Player {
         0x00, 0x01, 0x02, 0x08, 0x09, 0x0a, 0x10, 0x11, 0x12
     };
 
-    private static class S3mHeader {
+    protected static class S3mHeader {
         String name;
         int kennung, typ;
         int ordnum, insnum, patnum, flags, cwtv, ffi;
@@ -69,7 +69,7 @@ public class S3mPlayer extends Opl3Player {
         final byte[] chanset = new byte[32];
     }
 
-    private static class S3mInst {
+    protected static class S3mInst {
         int type;
         String filename;
         int d00, d01, d02, d03, d04, d05, d06, d07, d08, d09, d0a, d0b, volume, dsk;
@@ -78,7 +78,7 @@ public class S3mPlayer extends Opl3Player {
         String scri;
     }
 
-    private static class S3mPattern {
+    protected static class S3mPattern {
         int note = 0xFF;
         int oct = 0xFF;
         int instrument = 0;
@@ -87,18 +87,18 @@ public class S3mPlayer extends Opl3Player {
         int info = 0;
     }
 
-    private static class S3mChannel {
+    protected static class S3mChannel {
         int freq, nextfreq;
         int oct, vol, inst, fx, info, dualinfo, key, nextoct, trigger, note;
     }
 
-    private S3mHeader header;
-    private final S3mPattern[][][] pattern = new S3mPattern[99][64][32];
-    private final S3mInst[] inst = new S3mInst[99];
-    private final S3mChannel[] channel = new S3mChannel[9];
+    protected S3mHeader header;
+    protected final S3mPattern[][][] pattern = new S3mPattern[99][64][32];
+    protected final S3mInst[] inst = new S3mInst[99];
+    protected final S3mChannel[] channel = new S3mChannel[9];
 
-    private final byte[] orders = new byte[256];
-    private int crow, ord, speed, tempo, del, songend, loopstart, loopcnt;
+    protected final byte[] orders = new byte[256];
+    protected int crow, ord, speed, tempo, del, songend, loopstart, loopcnt;
 
     public S3mPlayer() {
         for (int i = 0; i < 9; i++) {
@@ -233,37 +233,42 @@ public class S3mPlayer extends Opl3Player {
             if (pattptr[i] == 0) continue;
             int pattOff = pattptr[i] * 16;
             int ppatlen = u16(buf, pattOff); pattOff += 2;
-            int startPattOff = pattOff;
-            for (int row = 0; (row < 64) && (pattOff < buf.length) && (pattOff - startPattOff + 2 <= ppatlen); row++) {
-                int bufval;
-                do {
-                    if (pattOff >= buf.length) break;
-                    bufval = buf[pattOff++] & 0xff;
-                    if (bufval == 0) break;
-                    int chan = bufval & 31;
-                    if ((bufval & 32) != 0) {
-                        if (pattOff >= buf.length) break;
-                        int bufval2 = buf[pattOff++] & 0xff;
-                        pattern[i][row][chan].note = bufval2 & 15;
-                        pattern[i][row][chan].oct = (bufval2 & 240) >> 4;
-                        if (pattOff >= buf.length) break;
-                        pattern[i][row][chan].instrument = buf[pattOff++] & 0xff;
-                    }
-                    if ((bufval & 64) != 0) {
-                        if (pattOff >= buf.length) break;
-                        pattern[i][row][chan].volume = buf[pattOff++] & 0xff;
-                    }
-                    if ((bufval & 128) != 0) {
-                        if (pattOff >= buf.length) break;
-                        pattern[i][row][chan].command = buf[pattOff++] & 0xff;
-                        if (pattOff >= buf.length) break;
-                        pattern[i][row][chan].info = buf[pattOff++] & 0xff;
-                    }
-                } while (bufval != 0);
-            }
+            loadPattern(i, buf, pattOff, ppatlen - 2);
         }
 
         rewind(0);
+    }
+
+    protected int loadPattern(int pat, byte[] buf, int offset, int length) {
+        int pattOff = offset;
+        for (int row = 0; (row < 64) && (pattOff < buf.length) && (pattOff - offset < length); row++) {
+            int bufval;
+            do {
+                if (pattOff >= buf.length) break;
+                bufval = buf[pattOff++] & 0xff;
+                if (bufval == 0) break;
+                int chan = bufval & 31;
+                if ((bufval & 32) != 0) {
+                    if (pattOff >= buf.length) break;
+                    int bufval2 = buf[pattOff++] & 0xff;
+                    pattern[pat][row][chan].note = bufval2 & 15;
+                    pattern[pat][row][chan].oct = (bufval2 & 240) >> 4;
+                    if (pattOff >= buf.length) break;
+                    pattern[pat][row][chan].instrument = buf[pattOff++] & 0xff;
+                }
+                if ((bufval & 64) != 0) {
+                    if (pattOff >= buf.length) break;
+                    pattern[pat][row][chan].volume = buf[pattOff++] & 0xff;
+                }
+                if ((bufval & 128) != 0) {
+                    if (pattOff >= buf.length) break;
+                    pattern[pat][row][chan].command = buf[pattOff++] & 0xff;
+                    if (pattOff >= buf.length) break;
+                    pattern[pat][row][chan].info = buf[pattOff++] & 0xff;
+                }
+            } while (bufval != 0);
+        }
+        return pattOff - offset;
     }
 
     @Override
@@ -666,7 +671,7 @@ public class S3mPlayer extends Opl3Player {
         return h;
     }
 
-    private static String readString(byte[] buf, int off, int len) {
+    protected static String readString(byte[] buf, int off, int len) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < len; i++) {
             if (off + i >= buf.length) break;
@@ -677,11 +682,11 @@ public class S3mPlayer extends Opl3Player {
         return sb.toString().trim();
     }
 
-    private static int u16(byte[] b, int off) {
+    protected static int u16(byte[] b, int off) {
         return (b[off] & 0xff) | ((b[off + 1] & 0xff) << 8);
     }
 
-    private static long u32(byte[] b, int off) {
+    protected static long u32(byte[] b, int off) {
         return (b[off] & 0xff) | ((b[off + 1] & 0xff) << 8) | ((b[off + 2] & 0xff) << 16) | ((b[off + 3] & 0xffL) << 24);
     }
 }

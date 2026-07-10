@@ -14,16 +14,21 @@ import javax.sound.sampled.SourceDataLine;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
@@ -66,8 +71,10 @@ Debug.println("volume: " + volume + ", use opl midi?: " + System.getProperty("va
 
     @Test
     @DisplayName("play via raw api")
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test1() throws Exception {
         Path path = Path.of(opl3);
+Debug.print(path);
         InputStream is = new BufferedInputStream(Files.newInputStream(path));
         AudioFormat.Encoding encoding = Opl3Player.getEncoding(is);
         Opl3Player player = Opl3Player.getPlayer(encoding);
@@ -106,19 +113,19 @@ Debug.println("volume: " + volume + ", use opl midi?: " + System.getProperty("va
         line.close();
     }
 
+    static Stream<Arguments> opl3Samples() {
+        try {
+            return Files.list(Path.of("src/test/resources/opl3")).map(Arguments::arguments);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     @ParameterizedTest
-    @ValueSource(strings = {
-            "src/test/resources/opl3/ARAB.bam",
-            "src/test/resources/opl3/16.lds",
-            "src/test/resources/opl3/2001.MKJ",
-            "src/test/resources/opl3/BEGIN.KSM",
-            "src/test/resources/opl3/CHILD1.XSM",
-            "src/test/resources/opl3/adlibsp.s3m",
-            "src/test/resources/opl3/WONDERIN.WLF"
-    })
+    @MethodSource("opl3Samples")
     @DisplayName("play via raw api multiple formats")
-    void test2(String filename) throws Exception {
-        Path path = Path.of(filename);
+    void test2(Path path) throws Exception {
+Debug.print(path);
         InputStream is = new BufferedInputStream(Files.newInputStream(path));
         AudioFormat.Encoding encoding = Opl3Player.getEncoding(is);
         vavi.util.Debug.println(path.getFileName() + " encoding: " + encoding);
