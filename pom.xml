@@ -402,10 +402,10 @@
       <version>0.7.2</version>
     </dependency>
 -->
-    <dependency>
-      <groupId>dev.opendoja</groupId>
-      <artifactId>opendoja</artifactId>
-      <version>0.2.5</version>
+    <dependency> <!-- TODO use original -->
+      <groupId>com.github.umjammer</groupId> <!-- dev.opendoja / com.github.umjammer -->
+      <artifactId>openDoja</artifactId> <!-- opendoja / openDoja -->
+      <version>0.2.5.6</version>
     </dependency>
 
     <dependency>
