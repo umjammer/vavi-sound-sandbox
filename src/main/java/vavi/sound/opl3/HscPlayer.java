@@ -74,18 +74,18 @@ public class HscPlayer extends Opl3Player {
     /** player channel-info */
     private final HscChannel[] channel = new HscChannel[9];
     /** instrument data */
-    private final int[][] instr = new int[128][12];
+    protected final int[][] instr = new int[128][12];
     /** song-arrangement (MPU-401 Trakker enhanced) */
-    private final int[] song = new int[0x80];
+    protected final int[] song = new int[0x80];
     /** pattern data ([pattern][row * 9 + channel][0: note, 1: effect]) */
-    private final int[][][] patterns = new int[50][64 * 9][2];
+    protected final int[][][] patterns = new int[50][64 * 9][2];
     /** various bytes & flags */
     private int pattpos, songpos, pattbreak, songend, mode6, bd, fadein;
     private int speed, del;
     /** adlib frequency registers */
     private final int[] adl_freq = new int[9];
     /** flag: MPU-401 Trakker mode on/off */
-    private final int mtkmode = 0;
+    protected int mtkmode = 0;
 
     public HscPlayer() {
         for (int i = 0; i < channel.length; i++) {

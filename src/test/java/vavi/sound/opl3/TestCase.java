@@ -14,14 +14,21 @@ import javax.sound.sampled.SourceDataLine;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
@@ -51,7 +58,7 @@ public class TestCase {
     double volume = 0.2;
 
     static boolean onIde = System.getProperty("vavi.test", "").equals("ide");
-    static long time = onIde ? 1000 * 1000 : 10 * 1000;
+    static long time = onIde ? 1000 * 1000 : 5 * 1000;
 
     @BeforeEach
     void setupEach() throws IOException {
@@ -64,8 +71,10 @@ Debug.println("volume: " + volume + ", use opl midi?: " + System.getProperty("va
 
     @Test
     @DisplayName("play via raw api")
+    @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test1() throws Exception {
         Path path = Path.of(opl3);
+Debug.print(path);
         InputStream is = new BufferedInputStream(Files.newInputStream(path));
         AudioFormat.Encoding encoding = Opl3Player.getEncoding(is);
         Opl3Player player = Opl3Player.getPlayer(encoding);
@@ -94,6 +103,62 @@ Debug.println("volume: " + volume + ", use opl midi?: " + System.getProperty("va
             line.write(buf, 0, buf.length);
         }
         for (int wait = 0; wait < 30; ++wait) {
+            double sec = 0.1;
+
+            byte[] buf = player.read(4 * (int) (Opl3Player.opl3.getSampleRate() * sec));
+            line.write(buf, 0, buf.length);
+        }
+
+        line.drain();
+        line.close();
+    }
+
+    static Stream<Arguments> opl3Samples() {
+        try {
+            return Files.list(Path.of("src/test/resources/opl3")).map(Arguments::arguments);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @ParameterizedTest
+    @MethodSource("opl3Samples")
+    @DisplayName("play via raw api multiple formats")
+    void test2(Path path) throws Exception {
+Debug.print(path);
+        InputStream is = new BufferedInputStream(Files.newInputStream(path));
+        AudioFormat.Encoding encoding = Opl3Player.getEncoding(is);
+        vavi.util.Debug.println(path.getFileName() + " encoding: " + encoding);
+        Opl3Player player = Opl3Player.getPlayer(encoding);
+        player.setProperties(Map.of("uri", path.toUri()));
+        player.load(is);
+
+        AudioFormat audioFormat = new AudioFormat(
+                Opl3Player.opl3.getSampleRate(),
+                16,
+                Opl3Player.opl3.getChannels(),
+                true,
+                false);
+
+        DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
+        SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
+        line.open(audioFormat);
+        line.addLineListener(ev -> Debug.println(ev.getType()));
+        line.start();
+
+        volume(line, volume);
+
+        long start = System.currentTimeMillis();
+        while (player.update()) {
+            double sec = 1.0 / player.getRefresh();
+
+            byte[] buf = player.read(4 * (int) (Opl3Player.opl3.getSampleRate() * sec));
+            line.write(buf, 0, buf.length);
+            if (System.currentTimeMillis() - start > time) {
+                break;
+            }
+        }
+        for (int wait = 0; wait < 10; ++wait) {
             double sec = 0.1;
 
             byte[] buf = player.read(4 * (int) (Opl3Player.opl3.getSampleRate() * sec));

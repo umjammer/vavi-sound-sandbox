@@ -87,7 +87,15 @@ logger.log(Level.DEBUG, "encoding: " + encoding);
         opl = new OPL3();
     }
 
+    /**
+     * Optional register-write log in adplug's playertest format
+     * ("reg <- val" in hex), for comparison against the reference dumps
+     * in adplug's test/testref directory. Null (off) by default.
+     */
+    public static java.io.PrintStream regLog;
+
     protected void write(int array, int address, int data) {
+        if (regLog != null) regLog.printf("%x <- %x%n", ((array & 1) << 8) | (address & 0xff), data & 0xff);
         opl.write(array, address, data);
     }
 

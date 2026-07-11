@@ -61,18 +61,18 @@
 
  * ~~ALAC Java sound SPI~~ ... ([graduated incubation](https://github.com/umjammer/vavi-sound-alac))
  * OPUS Java sound SPI ... (candidate to graduate)
- * sox polyphase resampler Java sound SPI ... (wip)
- * sox perfect resampler Java sound SPI ... (wip)
- * sox no name resampler Java sound SPI ... (wip)
+ * sox polyphase resampler Java sound SPI ... (done)
+ * sox perfect resampler Java sound SPI ... (done)
+ * sox no name resampler Java sound SPI ... (done)
  * normalizer Java sound SPI ... (wip)
  * Mac AudioUnit synthesizer Java MIDI SPI ... (candidate to graduate)
  * JSyn synthesizer Java MIDI SPI ... (wip)
- * OPL3(ROL,LAA,CMF,DRO,SCI,HSC,SNG,D00,ADL,RAD) synthesizer Java MIDI SPI ... (candidate to graduat)
+ * OPL3(ROL,LAA,CMF,DRO,SCI,HSC,SNG,D00,ADL,RAD,, IDADL, BAM, IMF, KSM, LDS, MKJ, S3M, XSM, XAD, A2M, ADTRACK, AMD, BMF, CFF, CMFMSSOP, COKTEL, DFM, DMO, DTM, FLASH, FMC, GOT, HRAD, HSP, HYBRID, HYP, JBM, MAD, MSC, MTK, MTR, MUS, PIS, PLX, RAW, RIX, ROL, SA2, SOP, U6M) synthesizer Java MIDI SPI ... (candidate to graduate)
  * [iTunes Library (rococoa) ... Music.app Music Database](https://github.com/umjammer/vavi-sound-sandbox/tree/master/src/main/java/vavix/rococoa/ituneslibrary)
- * MML synthesizer Java MIDI SPI ...
- * karplus strong synthesizer ...
- * sf3, sf4, exs soundfont spi ...
- * macOS AU panel ...
+ * MML synthesizer Java MIDI SPI ... (done)
+ * karplus strong synthesizer ... (done)
+ * sf3, sf4, exs soundfont spi ... (done)
+ * macOS AU panel ... (done)
  * sse (equalizer) spi? ... (wip)
 
 ## Install
@@ -82,10 +82,19 @@
 ## Usage
 
 ```java
-AudioInputStream ais = AudioSystem.getAudioInputStream(Paths.get(opus).toFile());
-Clip clip = AudioSystem.getClip();
-clip.open(AudioSystem.getAudioInputStream(new AudioFormat(44100, 16, 2, true, false), ais));
-clip.loop(Clip.LOOP_CONTINUOUSLY);
+AudioInputStream opusAis = AudioSystem.getAudioInputStream(new BufferedInputStream(Files.newInputStream(opus)));
+AudioFormat inFormat = sourceAis.getFormat();
+AudioFormat outFormat = new AudioFormat(44100, 16, 2, true, false);
+AudioInputStream pcmAis = AudioSystem.getAudioInputStream(outFormat, opusAis);
+SourceDataLine line = (SourceDataLine) AudioSystem.getLine(new DataLine.Info(SourceDataLine.class, pcmAis.getFormat()));
+line.open(pcmAis.getFormat());
+line.start();
+byte[] buffer = new byte[line.getBufferSize()];
+int bytesRead;
+while ((bytesRead = pcmAis.read(buffer)) != -1) {
+  line.write(buffer, 0, bytesRead);
+}
+line.drain();
 ```
 
 ## References
@@ -125,16 +134,16 @@ clip.loop(Clip.LOOP_CONTINUOUSLY);
 ### Library
 
  * ~~midi is super heavy~~
- * Transcoder (outdated)
+ * ~~Transcoder~~ (outdated)
  * ~~channels~~
  * jsyn pink noise
  * ~~jsyn synth volume~~
  * ~~separate alac (git subtree, split?)~~
  * rename vavi.sound.midi.opl3 to vavi.sound.midi.adlib ?
- * check midi reader
-   * tritonus???
-   * instrument is not needed???
- * system property that off opl spi
+ * ~~check midi reader~~
+   * ~~tritonus???~~
+   * ~~instrument is not needed???~~
+ * ~~system property that off opl spi~~
 
 ### codec
 
@@ -159,17 +168,17 @@ clip.loop(Clip.LOOP_CONTINUOUSLY);
 
 #### macos audiounit
 
- * open audiounit custom view
+ * ~~open audiounit custom view~~
    * ~~https://github.com/nativelibs4java/BridJ~~ (~~is able to deal objective-c blocks~~ inactive)
  * ~~volume~~
  * soundfont spi
 
 #### others
 
- * opl3
+ * ~~opl3~~
    * ~~need to fix: dro(old), midi, etc?~~ 
    * ~~opl3 volume~~
-   * opl3 midi reader
+   * ~~opl3 midi reader~~
    * https://github.com/Wohlstand/ADLMIDI-Player-Java (android)
  * https://github.com/fedex81/emuSandbox
  * https://github.com/toyoshim/tss
@@ -182,10 +191,11 @@ clip.loop(Clip.LOOP_CONTINUOUSLY);
  * https://github.com/jonasreese/soundsgood
  * https://www.kvraudio.com/plugins/macosx/audio-units/
  * https://github.com/ggrandes-clones
- * pc88 (mml)
+ * ~~pc88 (mml)~~
    * https://github.com/onitama/mucom88
    * https://github.com/BouKiCHi/mucom88
-   * https://github.com/kuma4649/MDPlayer
+     * ... https://github.com/umjammer/vavi-sound-mucom88
+   * https://github.com/kuma4649/MDPlayer ... https://github.com/umjammer/vavi-apps-mdplayer
  * ~~mml (cmd sing)~~
     * [thanks](http://asamomiji.jp/contents/mml-player)
     * crackling at end https://stackoverflow.com/a/9630897
@@ -204,7 +214,7 @@ clip.loop(Clip.LOOP_CONTINUOUSLY);
    * https://github.com/hendriks73/casampledsp
  * ~~sf3~~
    * https://github.com/cognitone/sf2convert
- * sfz
+ * ~~sfz~~
    * https://github.com/git-moss/ConvertWithMoss
  * ~~sse (equalizer)~~
  * ~~TargetDataLine wav out, data transfer~~ → `vavi-sound:HijackSourceDataLine`

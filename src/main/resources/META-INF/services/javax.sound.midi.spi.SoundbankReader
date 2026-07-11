@@ -1,2 +1,3 @@
 vavi.sound.midi.exs.ExsSoundbankReader
 vavi.sound.midi.sf.SfSoundbankReader
+vavi.sound.midi.sf.SfzSoundbankReader
