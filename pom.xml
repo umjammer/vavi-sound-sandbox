@@ -353,7 +353,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.26</version>
+      <version>1.0.27</version>
       <exclusions>
         <exclusion>
           <groupId>vavi</groupId>

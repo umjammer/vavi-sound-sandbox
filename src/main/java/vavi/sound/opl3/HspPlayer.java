@@ -49,10 +49,13 @@ public class HspPlayer extends HscPlayer {
         return new Opl3Encoding("HSP");
     }
 
+    /** worst case RLE compressed size: header + one (count, value) pair per output byte */
+    private static final int MAX_COMPRESSED_SIZE = 2 + 2 * 59187;
+
     @Override
     public boolean matchFormat(InputStream bitStream) {
         try {
-            bitStream.mark(256);
+            bitStream.mark(MAX_COMPRESSED_SIZE + 3);
             return matchFormatImpl(bitStream);
         } catch (Exception e) {
             return false;
@@ -64,19 +67,23 @@ public class HspPlayer extends HscPlayer {
     }
 
     protected boolean matchFormatImpl(InputStream is) throws IOException {
-        byte[] buf = new byte[256]; // read enough for RLE validation
-        int read = is.read(buf);
-        if (read < 4) return false;
+        // HSP has no signature, so validate the whole RLE structure: the
+        // (count, value) pairs must decompress to exactly orgsize bytes
+        // right at the end of the file.
+        byte[] buf = is.readNBytes(MAX_COMPRESSED_SIZE + 3);
+        if (buf.length < 4 || buf.length > MAX_COMPRESSED_SIZE) return false;
         int orgsize = (buf[0] & 0xff) | ((buf[1] & 0xff) << 8);
         // Decompressed size must be at least 128*12 + 51 = 1587 bytes
         if (orgsize < 128 * 12 + 51 || orgsize > 59187) return false;
-        // Validate RLE structure: sum of count bytes should approach orgsize
         int sum = 0;
-        for (int i = 2; i < read; i += 2) {
+        int i = 2;
+        while (i + 1 < buf.length) {
             sum += buf[i] & 0xff;
+            i += 2;
+            if (sum >= orgsize) break;
         }
-        // RLE count sum must be large enough to produce valid HSC data
-        return sum > 0 && sum <= orgsize;
+        if (sum < orgsize) return false; // stream too short to decompress fully
+        return buf.length - i <= 2; // decompression must complete right at EOF
     }
 
     @Override
