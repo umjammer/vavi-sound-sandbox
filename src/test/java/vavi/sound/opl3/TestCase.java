@@ -58,7 +58,7 @@ public class TestCase {
     double volume = 0.2;
 
     static boolean onIde = System.getProperty("vavi.test", "").equals("ide");
-    static long time = onIde ? 1000 * 1000 : 5 * 1000;
+    static long time = onIde ? 300 * 1000 : 2 * 1000;
 
     @BeforeEach
     void setupEach() throws IOException {
@@ -115,7 +115,12 @@ Debug.print(path);
 
     static Stream<Arguments> opl3Samples() {
         try {
-            return Files.list(Path.of("src/test/resources/opl3")).map(Arguments::arguments);
+            return Files.list(Path.of("src/test/resources/opl3"))
+                    .filter(p -> !p.toString().toLowerCase().endsWith(".003"))
+                    .filter(p -> !p.toString().toLowerCase().endsWith(".ins"))
+                    .filter(p -> !p.toString().toLowerCase().endsWith(".bnk"))
+                    .filter(p -> !p.toString().toLowerCase().endsWith(".tim")) // idadl?
+                    .map(Arguments::arguments);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

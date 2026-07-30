@@ -13,3 +13,4 @@ vavi.sound.sampled.resampling.SoxPolyphaseSamplingRateConversionProvider
 vavi.sound.sampled.resampling.SoxResamplingSamplingRateConversionProvider
 vavi.sound.sampled.resampling.KohnNormalizingProvider
 vavi.sound.sampled.resampling.SSEEqualizingProvider
+vavi.sound.sampled.misc.AutoWiredFormatConversionProvider

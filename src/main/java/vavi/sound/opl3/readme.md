@@ -89,5 +89,5 @@ instrument[16] + octave u8 + note bytes).
 
  * ~~https://github.com/scemino/NScumm.Audio~~
  * dro 🚧 maybe dual opl implementation is needed ... see [javamod](https://github.com/umjammer/javamod)
- * vavi.sound.midi.opl3 and vavi.sound.opl3 are interdependence (Context, Opl3Instrument) 
- 
+ * vavi.sound.midi.opl3 and vavi.sound.opl3 are interdependence (Context, Opl3Instrument)
+ * `src/testresources/opl3/tafa.tim` is idadl?

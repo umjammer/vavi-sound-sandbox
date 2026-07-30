@@ -398,28 +398,33 @@ public class SFZ {
             for (String token : tokens) {
                 if (token.startsWith("<") && token.endsWith(">")) {
                     currentSection = token.substring(1, token.length() - 1).toLowerCase();
-                    if ("region".equals(currentSection)) {
-                        if (currentRegion != null) {
-                            regions.add(currentRegion);
+                    switch (currentSection) {
+                        case "region" -> {
+                            if (currentRegion != null) {
+                                regions.add(currentRegion);
+                            }
+                            currentRegion = groupDefaults.copy();
                         }
-                        currentRegion = groupDefaults.copy();
-                    } else if ("group".equals(currentSection)) {
-                        if (currentRegion != null) {
-                            regions.add(currentRegion);
-                            currentRegion = null;
+                        case "group" -> {
+                            if (currentRegion != null) {
+                                regions.add(currentRegion);
+                                currentRegion = null;
+                            }
+                            groupDefaults = globalDefaults.copy();
                         }
-                        groupDefaults = globalDefaults.copy();
-                    } else if ("global".equals(currentSection)) {
-                        if (currentRegion != null) {
-                            regions.add(currentRegion);
-                            currentRegion = null;
+                        case "global" -> {
+                            if (currentRegion != null) {
+                                regions.add(currentRegion);
+                                currentRegion = null;
+                            }
+                            globalDefaults = new Region();
+                            groupDefaults = globalDefaults.copy();
                         }
-                        globalDefaults = new Region();
-                        groupDefaults = globalDefaults.copy();
-                    } else if ("control".equals(currentSection)) {
-                        if (currentRegion != null) {
-                            regions.add(currentRegion);
-                            currentRegion = null;
+                        case "control" -> {
+                            if (currentRegion != null) {
+                                regions.add(currentRegion);
+                                currentRegion = null;
+                            }
                         }
                     }
                 } else {
@@ -431,18 +436,19 @@ public class SFZ {
                             value = value.substring(1, value.length() - 1);
                         }
 
-                        if ("control".equals(currentSection)) {
-                            control.parse(key, value);
-                        } else if ("global".equals(currentSection)) {
-                            globalDefaults.parse(key, value, control);
-                            groupDefaults.parse(key, value, control);
-                        } else if ("group".equals(currentSection)) {
-                            groupDefaults.parse(key, value, control);
-                        } else if ("region".equals(currentSection)) {
-                            if (currentRegion == null) {
-                                currentRegion = groupDefaults.copy();
+                        switch (currentSection) {
+                            case "control" -> control.parse(key, value);
+                            case "global" -> {
+                                globalDefaults.parse(key, value, control);
+                                groupDefaults.parse(key, value, control);
                             }
-                            currentRegion.parse(key, value, control);
+                            case "group" -> groupDefaults.parse(key, value, control);
+                            case "region" -> {
+                                if (currentRegion == null) {
+                                    currentRegion = groupDefaults.copy();
+                                }
+                                currentRegion.parse(key, value, control);
+                            }
                         }
                     }
                 }
@@ -463,7 +469,7 @@ public class SFZ {
                 inQuotes = !inQuotes;
                 sb.append(c);
             } else if (Character.isWhitespace(c) && !inQuotes) {
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     tokens.add(sb.toString());
                     sb.setLength(0);
                 }
@@ -471,7 +477,7 @@ public class SFZ {
                 sb.append(c);
             }
         }
-        if (sb.length() > 0) {
+        if (!sb.isEmpty()) {
             tokens.add(sb.toString());
         }
         return tokens;
@@ -482,7 +488,7 @@ public class SFZ {
         char c = value.charAt(0);
         if (Character.isDigit(c)) {
             try {
-                return Math.max(0, Math.min(127, Integer.parseInt(value) + control.octaveOffset * 12 + control.noteOffset));
+                return Math.clamp(Integer.parseInt(value) + control.octaveOffset * 12L + control.noteOffset, 0, 127);
             } catch (NumberFormatException e) {
                 return 0;
             }
@@ -508,7 +514,7 @@ public class SFZ {
             int octave = Integer.parseInt(value.substring(octaveStart));
             key += (octave + 1) * 12;
             key += control.octaveOffset * 12 + control.noteOffset;
-            return Math.max(0, Math.min(127, key));
+            return Math.clamp(key, 0, 127);
         } catch (NumberFormatException e) {
             return 0;
         }

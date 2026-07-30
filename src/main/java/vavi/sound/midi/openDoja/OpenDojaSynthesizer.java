@@ -129,7 +129,7 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
 
                 int output = 0;
                 for (int i = 0; i < BLOCK_SIZE * 2; i++) {
-                    float sample = Math.max(-1.0f, Math.min(1.0f, samples[i]));
+                    float sample = Math.clamp(samples[i], -1.0f, 1.0f);
                     int value = Math.round(sample * Short.MAX_VALUE);
                     buf[output++] = (byte) (value & 0xFF);
                     buf[output++] = (byte) ((value >>> 8) & 0xFF);

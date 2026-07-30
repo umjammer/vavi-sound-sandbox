@@ -50,7 +50,8 @@ class OpenDojaSynthesizerTest {
         if (localPropertiesExists()) {
             PropsEntity.Util.bind(this);
         }
-        Debug.println("volume: " + volume);
+
+Debug.println("volume: " + volume);
     }
 
     @Test
@@ -58,7 +59,7 @@ class OpenDojaSynthesizerTest {
     void testFuetrekScale() throws Exception {
         Synthesizer synthesizer = new FuetrekSynthesizer();
         synthesizer.open();
-        Debug.println("synthesizer: " + synthesizer);
+Debug.println("synthesizer: " + synthesizer);
 
         Receiver receiver = synthesizer.getReceiver();
         volume(receiver, volume);
@@ -82,7 +83,7 @@ class OpenDojaSynthesizerTest {
     void testMa3Scale() throws Exception {
         Synthesizer synthesizer = new Ma3Synthesizer();
         synthesizer.open();
-        Debug.println("synthesizer: " + synthesizer);
+Debug.println("synthesizer: " + synthesizer);
 
         Receiver receiver = synthesizer.getReceiver();
         volume(receiver, volume);
