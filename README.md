@@ -20,12 +20,12 @@
 | sampled     | mp3           |      🚫       |       -        |       -        | this                                                                                       | [mp3](https://github.com/umjammer/vavi-sound-sandbox/tree/master/src/main/java/vavi/sound/mp3)                               | need to deal tags                                                |
 | sampled     | mp3           |       ✅       |       -        |       ✅        | [mp3spi](https://github.com/umjammer/mp3spi)                                               | [jlayer](https://github.com/umjammer/jlayer)                                                                                 |                                                                  |
 | sampled     | sse           |       ✅       |       -        |       ?        | this                                                                                       | [sse](http://shibatch.sourceforge.net/download/)                                                                             |                                                                  |
-| sampled     | normalizer    |       ?       |       -        |       ?        | this                                                                                       |                                                                                                                              |                                                                  |
-| sampled     | resampling    |       ✅       |       -        |       -        | this                                                                                       | [laoe](http://www.oli4.ch/laoe/home.html)                                                                                    |                                                                  |
-| sampled     | resampling    |       ✅       |       -        |       -        | this                                                                                       | [rohm](https://en.wikipedia.org/wiki/Rohm)                                                                                   |                                                                  |
-| sampled     | polyphase     |       ✅       |       -        |       🚧       | this                                                                                       | [sox](http://sox.sourceforge.net/) resampling                                                                                |                                                                  |
-| sampled     | resampler     |       ✅       |       -        |       -        | this                                                                                       | [sox](http://sox.sourceforge.net/) resampling                                                                                |                                                                  |
-| sampled     | perfect       |       ✅       |       -        |       -        | this                                                                                       | [sox](http://sox.sourceforge.net/) resampling                                                                                |                                                                  |
+| sampled     | normalizer    |       ✅       |       -        |       ?        | this                                                                                       |                                                                                                                              |                                                                  |
+| sampled     | resampling    |       ✅       |       -        |       ✅        | this                                                                                       | [laoe](http://www.oli4.ch/laoe/home.html)                                                                                    |                                                                  |
+| sampled     | resampling    |       ✅       |       -        |       ✅        | this                                                                                       | [rohm](https://en.wikipedia.org/wiki/Rohm)                                                                                   |                                                                  |
+| sampled     | polyphase     |       ✅       |       -        |       ✅        | this                                                                                       | [sox](http://sox.sourceforge.net/) resampling                                                                                |                                                                  |
+| sampled     | resampler     |       ✅       |       -        |       ✅        | this                                                                                       | [sox](http://sox.sourceforge.net/) resampling                                                                                |                                                                  |
+| sampled     | perfect       |       ✅       |       -        |       ✅        | this                                                                                       | [sox](http://sox.sourceforge.net/) resampling                                                                                |                                                                  |
 | sampled     | monauralize   |       ✅       |       -        |       ✅        | [tritonus-remaining](https://github.com/umjammer/tritonus/tree/develop/tritonus-remaining) | `PCM2PCMConversionProvider`                                                                                                  | works but not suitable for resampling                            |
 | sampled     | alac          |       ✅       |       -        |       ✅        | [vavi-sound-alac](https://github.com/umjammer/vavi-sound-alac)                             |                                                                                                                              | 🎓 graduated to vavi-sound-alac                                  |
 | ~~sampled~~ | ~~QTKit~~     |     ~~✅~~     |       -        |       ?        | ~~this~~                                                                                   | ~~[rococoa](https://github.com/umjammer/rococoa)~~                                                                           | deprecated                                                       |
@@ -56,6 +56,7 @@
 | midi        | karplusStrong |       ✅       |       -        |       ✅        | this                                                                                       |                                                                                                                              |                                                                  |
 | sampled     | xma           |       ✅       |       -        |       ✅        | this                                                                                       | [Echo](https://github.com/IsaacMarovitz/Echo)                                                                                |                                                                  |
 | sampled     | wma           |       ✅       |       -        |       ✅        | this                                                                                       | ffmpeg                                                                                                                       |                                                                  |
+| sampled     | auto wiring   |       ✅       |       -        |       ✅        | this                                                                                       |                                                                                                                              | chains the registered conversion spi, no format of its own       |
 
 ### Features
 
@@ -64,16 +65,20 @@
  * sox polyphase resampler Java sound SPI ... (done)
  * sox perfect resampler Java sound SPI ... (done)
  * sox no name resampler Java sound SPI ... (done)
+ * sse (equalizer) spi ... (wip)
  * normalizer Java sound SPI ... (wip)
  * Mac AudioUnit synthesizer Java MIDI SPI ... (candidate to graduate)
  * JSyn synthesizer Java MIDI SPI ... (wip)
- * OPL3(ROL,LAA,CMF,DRO,SCI,HSC,SNG,D00,ADL,RAD,, IDADL, BAM, IMF, KSM, LDS, MKJ, S3M, XSM, XAD, A2M, ADTRACK, AMD, BMF, CFF, CMFMSSOP, COKTEL, DFM, DMO, DTM, FLASH, FMC, GOT, HRAD, HSP, HYBRID, HYP, JBM, MAD, MSC, MTK, MTR, MUS, PIS, PLX, RAW, RIX, ROL, SA2, SOP, U6M) synthesizer Java MIDI SPI ... (candidate to graduate)
+ * OPL3 ([about 60 formats](src/main/java/vavi/sound/opl3/readme.md)) synthesizer Java MIDI SPI ... (candidate to graduate)
  * [iTunes Library (rococoa) ... Music.app Music Database](https://github.com/umjammer/vavi-sound-sandbox/tree/master/src/main/java/vavix/rococoa/ituneslibrary)
  * MML synthesizer Java MIDI SPI ... (done)
  * karplus strong synthesizer ... (done)
  * sf3, sf4, exs soundfont spi ... (done)
  * macOS AU panel ... (done)
- * sse (equalizer) spi? ... (wip)
+ * twinvq Java sound SPI ... (done)
+ * wma Java sound SPI ... (done)
+ * xma Java sound SPI ... (done)
+ * auto wiring format conversion Java sound SPI ... (done)
 
 ## Install
 
@@ -96,6 +101,10 @@ while ((bytesRead = pcmAis.read(buffer)) != -1) {
 }
 line.drain();
 ```
+
+### system properties
+
+* `vavi.sound.sampled.spi.autowired` ... set `false`, only kicks in when no single provider can do the conversion
 
 ## References
 
@@ -204,7 +213,7 @@ line.drain();
  * ~~Karplus-Strong~~
    * ~~synthesizer~~
  * ~~exs24 soundfont~~
-   * https://github.com/git-moss/ConvertWithMoss
+   * ~~https://github.com/git-moss/ConvertWithMoss~~
    * [`AVAudioUnitSampler` can read exs24 soundfont???](https://github.com/AudioKit/AudioKit/blob/main/Tests/AudioKitTests/Node%20Tests/Playback%20Tests/AppleSamplerTests.swift#L68)
  * ~~Muse-Sounds~~
    * https://github.com/CarlGao4/Muse-Sounds
@@ -215,7 +224,7 @@ line.drain();
  * ~~sf3~~
    * https://github.com/cognitone/sf2convert
  * ~~sfz~~
-   * https://github.com/git-moss/ConvertWithMoss
+   * ~~https://github.com/git-moss/ConvertWithMoss~~
  * ~~sse (equalizer)~~
  * ~~TargetDataLine wav out, data transfer~~ → `vavi-sound:HijackSourceDataLine`
 

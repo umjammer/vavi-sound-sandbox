@@ -348,7 +348,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.18</version>
+      <version>1.1.19</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
@@ -402,10 +402,10 @@
       <version>0.7.2</version>
     </dependency>
 -->
-    <dependency> <!-- TODO use original -->
-      <groupId>com.github.umjammer</groupId> <!-- dev.opendoja / com.github.umjammer -->
-      <artifactId>openDoja</artifactId> <!-- opendoja / openDoja -->
-      <version>0.2.5.6</version>
+    <dependency>
+      <groupId>com.github.GrenderG</groupId>
+      <artifactId>openDoja</artifactId>
+      <version>master-98aad0ff35-1</version>
     </dependency>
 
     <dependency>
@@ -495,7 +495,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- net.javazoom / com.github.umjammer -->
       <artifactId>mp3spi</artifactId>
-      <version>1.9.16</version>
+      <version>1.9.19</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -515,7 +515,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-jdk14</artifactId>
-      <version>2.0.16</version>
+      <version>2.0.18</version>
       <scope>test</scope>
     </dependency>
 <!--
@@ -628,14 +628,14 @@
 <dependency>
   <groupId>com.fasterxml.jackson.core</groupId>
   <artifactId>jackson-core</artifactId>
-  <version>2.21.1</version>
+  <version>2.21.4</version>
   <scope>test</scope>
 </dependency>
 
     <dependency>
       <groupId>com.github.umjammer.vavi-commons</groupId>
       <artifactId>vavi-instrumentation</artifactId>
-      <version>1.1.18</version>
+      <version>1.1.19</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
