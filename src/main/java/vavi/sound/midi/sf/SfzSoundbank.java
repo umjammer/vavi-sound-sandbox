@@ -90,7 +90,7 @@ public class SfzSoundbank {
         return sf2;
     }
 
-    private SF2LayerRegion toRegion(SFZ.Region region, SF2Sample sample) {
+    private static SF2LayerRegion toRegion(SFZ.Region region, SF2Sample sample) {
         SF2LayerRegion sf2Region = new SF2LayerRegion();
         sf2Region.setSample(sample);
 

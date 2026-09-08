@@ -324,6 +324,7 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
         private int program;
         private boolean mute;
+        private boolean solo;
 
         private final int[] polyPressure = new int[128];
         private int pressure;
@@ -352,7 +353,7 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
             if (voices.size() >= getMaxPolyphony()) {
                 // steal the oldest voice
-                voices.remove(0);
+                voices.removeFirst();
             }
 
             GuitarString string = new GuitarString(midiToFrequency(noteNumber));
@@ -523,13 +524,12 @@ logger.log(Level.DEBUG, "program change[%d]: %d (ignored)".formatted(channel, th
 
         @Override
         public void setSolo(boolean soloState) {
-            // TODO Auto-generated method stub
+            this.solo = soloState;
         }
 
         @Override
         public boolean getSolo() {
-            // TODO Auto-generated method stub
-            return false;
+            return solo;
         }
     }
 
@@ -598,7 +598,7 @@ logger.log(Level.DEBUG, "sysex unhandled: %02x".formatted(data[0]));
                     break;
                 }
             }
-            case null, default ->
+            default ->
 logger.log(Level.DEBUG, message.getClass().getName());
             }
         }

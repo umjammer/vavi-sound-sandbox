@@ -114,7 +114,7 @@ try {
         String title;
         @Target(value = "//TABLE//TR/TD[4]/A/@href")
         String url;
-        public String toString() {
+        @Override public String toString() {
             String sb = CharNormalizerJa.ToHalfAns2.normalize(artist) +
                     ", " +
                     CharNormalizerJa.ToHalfAns2.normalize(title);
@@ -147,7 +147,7 @@ try {
         String name;
         @Target(value = "//TABLE[4]//TR/TD[3]/DIV/text()")
         String type;
-        public String toString() {
+        @Override public String toString() {
             String sb = type +
                     ", " +
                     CharNormalizerJa.ToHalfAns2.normalize(name);
@@ -219,7 +219,7 @@ Debug.println("nextAnchor: " + nextAnchor);
         String title;
         @Target(value = "//TABLE//TR/TD[3]/A/@href")
         String url;
-        public String toString() {
+        @Override public String toString() {
             String sb = CharNormalizerJa.ToHalfAns2.normalize(artist) +
                     ", " +
                     CharNormalizerJa.ToHalfAns2.normalize(title);
@@ -288,7 +288,7 @@ Debug.println("nextAnchor: " + nextAnchor);
         String title;
         @Target(value = "//TABLE//TR/TD[4]/A/@href")
         String url;
-        public String toString() {
+        @Override public String toString() {
             String sb = CharNormalizerJa.ToHalfAns2.normalize(artist) +
                     ", " +
                     CharNormalizerJa.ToHalfAns2.normalize(title);
@@ -349,7 +349,7 @@ Debug.println("nextAnchor: " + nextAnchor);
         return result.toString();
     }
 
-    private String getComposer(String url) throws IOException {
+    private static String getComposer(String url) throws IOException {
 //Debug.println("url: " + url);
         List<Composer> cs = WebScraper.Util.scrape(Composer.class, url);
         StringBuilder lyrics_ = new StringBuilder();
@@ -438,7 +438,7 @@ Debug.println("too many errors: " + errorCount);
             this.composer = composer;
             this.probability = probability;
         }
-        public String toString() {
+        @Override public String toString() {
             return probability + "\t" + artist + "\t" + title + "\t" + composer;
         }
     }
@@ -453,7 +453,7 @@ Debug.println("too many errors: " + errorCount);
             this.title2 = title2;
             this.index = index;
         }
-        public String toString() {
+        @Override public String toString() {
             return probability + String.valueOf(index) + "\t" + artist + "\t" + title + "\t" + "(" + composer + ")" + "\t[" + artist2 + ", " + title2 + "]";
         }
     }
