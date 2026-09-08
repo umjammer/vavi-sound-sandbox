@@ -43,9 +43,9 @@ import static vavi.sound.midi.rococoa.RococoaMidiDeviceProvider.version;
  * RococoaSynthesizer.
  * <p>
  * system property
- * <li> "vavi.sound.midi.rococoa.RococoaSynthesizer.audesc"
+ * <li> {@code vavi.sound.midi.rococoa.RococoaSynthesizer.audesc} ... au desc, default {@code "appl:dls "} </li>
  * <p>
- * ex. "Ftcr:mc5p"
+ * ex. {@code "Ftcr:mc5p"}
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  * @version 0.00 2020/10/03 umjammer initial version <br>
@@ -125,7 +125,7 @@ logger.log(Level.DEBUG, "stated: " + r + ", " + hashCode());
 
     @Override
     public void close() {
-        for (int i = 0; i < receivers.size(); i++) receivers.get(i).close();
+        for (Receiver receiver : receivers) receiver.close();
         engine.stop();
     }
 
@@ -496,8 +496,7 @@ logger.log(Level.DEBUG, "sysex volume: gain: %03.2f, dB: %-3.0f%n", gain, dB);
                     }
 
                     midiSynth.sendMIDISysExEvent(sysexMessage.getMessage());
-                } else if (message instanceof MetaMessage) {
-                    MetaMessage metaMessage = (MetaMessage) message;
+                } else if (message instanceof MetaMessage metaMessage) {
 logger.log(Level.DEBUG, "meta: %02x", metaMessage.getType());
                     switch (metaMessage.getType()) {
                         case 0x2f:

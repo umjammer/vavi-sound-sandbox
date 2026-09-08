@@ -243,6 +243,7 @@ logger.log(Level.WARNING, "already open: " + hashCode());
         private int volume;
         private int program;
         private boolean mute;
+        private boolean solo;
 
         private final int[] polyPressure = new int[128];
         private int pressure;
@@ -408,14 +409,12 @@ logger.log(Level.WARNING, "already open: " + hashCode());
 
         @Override
         public void setSolo(boolean soloState) {
-            // TODO Auto-generated method stub
-
+            this.solo = soloState;
         }
 
         @Override
         public boolean getSolo() {
-            // TODO Auto-generated method stub
-            return false;
+            return solo;
         }
     }
 

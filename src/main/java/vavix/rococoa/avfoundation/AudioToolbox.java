@@ -7,6 +7,8 @@
 package vavix.rococoa.avfoundation;
 
 import com.sun.jna.Pointer;
+import com.sun.jna.ptr.ByteByReference;
+import com.sun.jna.ptr.FloatByReference;
 import com.sun.jna.ptr.IntByReference;
 import org.rococoa.Foundation;
 import org.rococoa.IDByReference;
@@ -32,8 +34,10 @@ public interface AudioToolbox extends com.sun.jna.Library {
     int MusicDeviceMIDIEvent(Pointer inUnit, int inStatus, int inData1, int inData2, int inOffsetSampleFrame);
 
     enum AudioUnitPropertyID {
+        kAudioUnitProperty_ParameterList(3),
+        kAudioUnitProperty_ParameterInfo(4),
         kMusicDeviceProperty_SoundBankURL(1100);
-        final int id;
+        public final int id;
         AudioUnitPropertyID(int id) {
             this.id = id;
         }
@@ -60,6 +64,37 @@ public interface AudioToolbox extends com.sun.jna.Library {
      * @return OSStatus
      */
     int AudioUnitGetProperty(Pointer inUnit, int inID, int inScope, int inElement, Pointer outData, IntByReference ioDataSize);
+
+    /**
+     * @param inUnit AudioUnit
+     * @param inID AudioUnitPropertyID
+     * @param inScope AudioUnitScope
+     * @param inElement AudioUnitElement
+     * @param outDataSize how big the property is, ask before allocating
+     * @return OSStatus
+     */
+    int AudioUnitGetPropertyInfo(Pointer inUnit, int inID, int inScope, int inElement, IntByReference outDataSize, ByteByReference outWritable);
+
+    /**
+     * @param inUnit AudioUnit
+     * @param inID AudioUnitParameterID
+     * @param inScope AudioUnitScope
+     * @param inElement AudioUnitElement
+     * @param inValue AudioUnitParameterValue
+     * @param inBufferOffsetInFrames 0 to take effect at once
+     * @return OSStatus
+     */
+    int AudioUnitSetParameter(Pointer inUnit, int inID, int inScope, int inElement, float inValue, int inBufferOffsetInFrames);
+
+    /**
+     * @param inUnit AudioUnit
+     * @param inID AudioUnitParameterID
+     * @param inScope AudioUnitScope
+     * @param inElement AudioUnitElement
+     * @param outValue AudioUnitParameterValue
+     * @return OSStatus
+     */
+    int AudioUnitGetParameter(Pointer inUnit, int inID, int inScope, int inElement, FloatByReference outValue);
 
     int AudioComponentCount(AudioComponentDescription inDesc);
 

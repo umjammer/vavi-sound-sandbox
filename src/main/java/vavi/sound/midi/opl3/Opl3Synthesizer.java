@@ -634,7 +634,7 @@ logger.log(Level.DEBUG, "meta: %02x".formatted(metaMessage.getType()));
                         case 0x2f -> {}
                     }
                 }
-                case null, default -> {
+                default -> {
                     assert false;
                 }
             }

@@ -576,7 +576,7 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
                 case MetaMessage metaMessage -> {
                     logger.log(Level.DEBUG, "meta: %02x".formatted(metaMessage.getType()));
                 }
-                case null, default -> {
+                default -> {
                     assert false;
                 }
             }

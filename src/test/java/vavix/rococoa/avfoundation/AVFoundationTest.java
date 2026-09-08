@@ -43,6 +43,7 @@ import vavix.rococoa.avfoundation.AudioStreamBasicDescription.AudioFormatFlag;
 import vavix.rococoa.avfoundation.AudioStreamBasicDescription.AudioFormatID;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
@@ -105,10 +106,8 @@ Debug.println(outDesc);
 Debug.println(outputFormat);
     }
 
-    /**
-     * convert
-     */
     @Test
+    @DisplayName("convert")
     void test() throws Exception {
         URI uri = Path.of("src/test/resources", "test.m4a").toUri();
         AVAudioFile file = AVAudioFile.init(uri);
@@ -176,10 +175,8 @@ Debug.println("Total frames converted: " + count);
         Foundation.getRococoaLibrary().releaseObjCBlock(inputBlock.getPointer());
     }
 
-    /**
-     * AVAudioUnitMIDIInstrument (kAudioUnitSubType_MIDISynth) w/ AudioToolbox#MusicDeviceMIDIEvent
-     */
     @Test
+    @DisplayName("AVAudioUnitMIDIInstrument (kAudioUnitSubType_MIDISynth) w/ AudioToolbox#MusicDeviceMIDIEvent")
     @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
     void test2() throws Exception {
         AVAudioEngine engine = AVAudioEngine.newInstance();
@@ -219,11 +216,10 @@ Debug.println(status);
     }
 
     /**
-     * AVAudioUnitMIDIInstrument (kAudioUnitSubType_MIDISynth) w/ it's own methods.
-     *
      * TODO w/ sound font
      */
     @Test
+    @DisplayName("AVAudioUnitMIDIInstrument (kAudioUnitSubType_MIDISynth) w/ it's own methods.")
     @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
     void test3() throws Exception {
         AVAudioEngine engine = AVAudioEngine.newInstance();
@@ -266,10 +262,8 @@ Debug.println("stated: " + r);
         midiSynth.stopNote(pitch, channel);
     }
 
-    /**
-     * AVAudioUnitMIDIInstrument (kAudioUnitSubType_DLSSynth)
-     */
     @Test
+    @DisplayName("AVAudioUnitMIDIInstrument (kAudioUnitSubType_DLSSynth)")
     @DisabledIfSystemProperty(named = "os.arch", matches = "x86_64")
     void test31() throws Exception {
         AVAudioEngine engine = AVAudioEngine.newInstance();
@@ -302,10 +296,8 @@ Debug.println("stated: " + r);
         midiSynth.stopNote(pitch, channel);
     }
 
-    /**
-     * AVAudioUnitSampler w/ sound font
-     */
     @Test
+    @DisplayName("AVAudioUnitSampler w/ sound font")
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test4() throws Exception {
         AVAudioEngine engine = AVAudioEngine.newInstance();
@@ -339,11 +331,10 @@ Debug.println("stated: " + r);
     }
 
     /**
-     * list AudioComponent
-     *
      * @see "/Library/Audio/Plug-Ins/Components/Foo.component/Contents/Info.plist"
      */
     @Test
+    @DisplayName("list AudioComponent MusicDevice")
     void test5() throws Exception {
         AudioComponentDescription description = new AudioComponentDescription();
         description.componentType = AudioComponentDescription.kAudioUnitType_MusicDevice;
@@ -360,8 +351,24 @@ Debug.println("AudioComponent: " + name);
         }
     }
 
-    /** list AVAudioUnitComponent */
     @Test
+    @DisplayName("list AudioComponent Effect")
+    void test51() throws Exception {
+        AudioComponentDescription description = new AudioComponentDescription();
+        description.componentType = AudioComponentDescription.kAudioUnitType_Effect;
+        int r = AudioToolbox.instance.AudioComponentCount(description);
+Debug.println("AudioComponentCount: " + r);
+
+        Pointer comp = null;
+        while ((comp = AudioToolbox.instance.AudioComponentFindNext(comp, description)) != null) {
+            String name = AudioToolbox.AudioComponentName(comp);
+Debug.println("AudioComponent: " + name);
+//            AVAudioUnit audioUnit = AVAudioUnit.instantiate(description, AVAudioUnit.kAudioComponentInstantiation_LoadInProcess);
+        }
+    }
+
+    @Test
+    @DisplayName("list AVAudioUnitComponent")
     void test6() throws Exception {
         AudioComponentDescription description = new AudioComponentDescription();
         description.componentType = AudioComponentDescription.kAudioUnitType_MusicDevice;
@@ -375,10 +382,8 @@ Debug.println("AVAudioUnitComponent: " + c.audioComponentDescription() + ", " + 
         }
     }
 
-    /**
-     * AudioUnit instantiation
-     */
     @Test
+    @DisplayName("AudioUnit instantiation")
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test7() throws Exception {
         AVAudioUnitComponentManager manager = AVAudioUnitComponentManager.shared();
