@@ -34,6 +34,14 @@ public class RococoaMixer implements Mixer {
     /** TODO how about multiple clips */
     private final RococoaClip clip = new RococoaClip();
 
+    /** the AudioUnit chain output, ex. for gervill */
+    private final RococoaSourceDataLine line = new RococoaSourceDataLine();
+
+    /** the source data line of this mixer, to set the effect chain up before it is opened */
+    public RococoaSourceDataLine getSourceDataLine() {
+        return line;
+    }
+
     @Override
     public javax.sound.sampled.Line.Info getLineInfo() {
         return clip.getLineInfo();
@@ -86,7 +94,9 @@ public class RococoaMixer implements Mixer {
 
     @Override
     public javax.sound.sampled.Line.Info[] getSourceLineInfo() {
-        return new javax.sound.sampled.Line.Info[0];
+        return new javax.sound.sampled.Line.Info[] {
+                RococoaSourceDataLine.info
+        };
     }
 
     @Override
@@ -98,7 +108,7 @@ public class RococoaMixer implements Mixer {
 
     @Override
     public javax.sound.sampled.Line.Info[] getSourceLineInfo(javax.sound.sampled.Line.Info info) {
-        return getSourceLineInfo();
+        return RococoaSourceDataLine.supports(info) ? getSourceLineInfo() : new javax.sound.sampled.Line.Info[0];
     }
 
     @Override
@@ -112,21 +122,23 @@ public class RococoaMixer implements Mixer {
 
     @Override
     public boolean isLineSupported(javax.sound.sampled.Line.Info info) {
-        return info == clip.getLineInfo();
+        return info == clip.getLineInfo() || RococoaSourceDataLine.supports(info);
     }
 
     @Override
     public Line getLine(javax.sound.sampled.Line.Info info) throws LineUnavailableException {
         if (info == clip.getLineInfo()) {
             return clip;
+        } else if (RococoaSourceDataLine.supports(info)) {
+            return line;
         } else {
-            return null;
+            throw new IllegalArgumentException("line is not supported: " + info);
         }
     }
 
     @Override
     public int getMaxLines(javax.sound.sampled.Line.Info info) {
-        if (info == clip.getLineInfo()) {
+        if (info == clip.getLineInfo() || RococoaSourceDataLine.supports(info)) {
             return 1;
         } else {
             return 0;
@@ -135,8 +147,13 @@ public class RococoaMixer implements Mixer {
 
     @Override
     public Line[] getSourceLines() {
-        // TODO should return default source data line?
-        return new Line[0];
+        if (line.isOpen()) {
+            return new Line[] {
+                    line
+            };
+        } else {
+            return new Line[0];
+        }
     }
 
     @Override

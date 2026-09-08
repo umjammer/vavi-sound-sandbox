@@ -34,6 +34,12 @@ public abstract class AVAudioPCMBuffer extends AVAudioBuffer {
 
     public abstract int frameLength();
 
+    /**
+     * the number of valid frames. it must be set by hand when the buffer is filled
+     * by us, {@link #initWithPCMFormat_frameCapacity(AVAudioFormat, int)} leaves it 0.
+     */
+    public abstract void setFrameLength(/* AVAudioFrameCount */ int frameLength);
+
     public abstract Pointer floatChannelData();
 
     public abstract Pointer int16ChannelData();
