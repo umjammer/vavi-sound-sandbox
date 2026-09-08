@@ -63,7 +63,8 @@ import static org.rococoa.ObjCBlocks.block;
  * system property
  * <li> {@code vavi.sound.sampled.rococoa.RococoaSourceDataLine.effects} ... effect chain, comma
  *      separated {@code "manufacturer:subtype"} (component type defaults to {@code aufx}) or
- *      {@code "type:manufacturer:subtype"}, default none. ex. {@code "appl:mrev,appl:dely"} </li>
+ *      {@code "type:manufacturer:subtype"}, each optionally followed by {@code "?name=value;name=value"},
+ *      default none. ex. {@code "appl:mrev?Dry/Wet Mix=20,appl:dely?Dry/Wet Mix=15;Delay Time=0.25"} </li>
  * <p>
  * usage with gervill:
  * <pre>
@@ -75,8 +76,13 @@ import static org.rococoa.ObjCBlocks.block;
  * <pre>
  *  RococoaSourceDataLine line = new RococoaSourceDataLine();
  *  line.setEffects("appl:mrev");
+ *  line.open(new AudioFormat(44100, 16, 2, true, false));
+ *  // AUMatrixReverb is 100% wet out of the box, which is far too much
+ *  line.getEffects().getFirst().setParameter("Dry/Wet Mix", 20);
  *  new SoftSynthesizer().open(line, null);
  * </pre>
+ * {@link vavix.rococoa.avfoundation.AVAudioUnit#getParameters()} lists what an audio unit takes,
+ * with the id, the range and the default of each parameter.
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2026-09-08 nsano initial version <br>
@@ -246,7 +252,8 @@ public class RococoaSourceDataLine implements SourceDataLine {
      * {@link #open(AudioFormat, int)}.
      *
      * @param spec comma separated {@code "manufacturer:subtype"} or {@code "type:manufacturer:subtype"},
-     *             ex. {@code "appl:mrev,appl:dely"}, {@code null} or empty for a dry chain
+     *             each optionally followed by {@code "?name=value;name=value"},
+     *             ex. {@code "appl:mrev?Dry/Wet Mix=20,appl:dely"}, {@code null} or empty for a dry chain
      */
     public void setEffects(String spec) {
         if (open) {
@@ -260,7 +267,7 @@ public class RococoaSourceDataLine implements SourceDataLine {
         return List.copyOf(effects);
     }
 
-    /** {@code "manufacturer:subtype"} or {@code "type:manufacturer:subtype"} */
+    /** {@code "manufacturer:subtype"} or {@code "type:manufacturer:subtype"}, without the parameters */
     static AudioComponentDescription toDescription(String spec) {
         String[] parts = spec.split(":");
         String type, manufacturer, subType;
@@ -286,6 +293,38 @@ public class RococoaSourceDataLine implements SourceDataLine {
         return bytes;
     }
 
+    /**
+     * Applies the {@code "?name=value;name=value"} tail of an effect spec. A key is a parameter
+     * id when it parses as an integer, otherwise a display name, matched ignoring case.
+     *
+     * @see vavix.rococoa.avfoundation.AVAudioUnit#getParameters()
+     */
+    private static void applyParameters(AVAudioUnitEffect effect, String params) {
+        for (String assignment : params.split(";")) {
+            assignment = assignment.trim();
+            if (assignment.isEmpty()) {
+                continue;
+            }
+            int equals = assignment.indexOf('=');
+            if (equals < 0) {
+                throw new IllegalArgumentException("not a parameter assignment: " + assignment);
+            }
+            String key = assignment.substring(0, equals).trim();
+            float value;
+            try {
+                value = Float.parseFloat(assignment.substring(equals + 1).trim());
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("not a parameter value: " + assignment, e);
+            }
+            try {
+                effect.setParameter(Integer.parseInt(key), value);
+            } catch (NumberFormatException e) {
+                effect.setParameter(key, value);
+            }
+logger.log(Level.DEBUG, "parameter: " + effect.name() + "[" + key + "] = " + value);
+        }
+    }
+
     private void createEffects() {
         String spec = effectsSpec != null ? effectsSpec :
                 System.getProperty(RococoaSourceDataLine.class.getName() + ".effects", "");
@@ -294,17 +333,22 @@ public class RococoaSourceDataLine implements SourceDataLine {
             if (each.isEmpty()) {
                 continue;
             }
-            AudioComponentDescription description = toDescription(each);
+            int question = each.indexOf('?');
+            String component = question < 0 ? each : each.substring(0, question).trim();
+            AudioComponentDescription description = toDescription(component);
             // AVAudioUnitEffect#init aborts the jvm on an unknown description, so look it up first
             List<AVAudioUnitComponent> components = AVAudioUnitComponentManager.shared().components(description);
             if (components.isEmpty()) {
-                throw new IllegalArgumentException("no such AudioUnit: " + each);
+                throw new IllegalArgumentException("no such AudioUnit: " + component);
             }
             AVAudioUnitEffect effect = AVAudioUnitEffect.init(components.getFirst().audioComponentDescription());
             if (effect == null) {
-                throw new IllegalArgumentException("cannot instantiate AudioUnit: " + each);
+                throw new IllegalArgumentException("cannot instantiate AudioUnit: " + component);
             }
-logger.log(Level.DEBUG, "effect: " + each + ", " + effect.name() + ", " + effect.manufacturerName());
+logger.log(Level.DEBUG, "effect: " + component + ", " + effect.name() + ", " + effect.manufacturerName());
+            if (question >= 0) {
+                applyParameters(effect, each.substring(question + 1));
+            }
             effects.add(effect);
         }
     }

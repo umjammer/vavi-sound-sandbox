@@ -10,6 +10,7 @@ import java.io.BufferedInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MidiSystem;
@@ -28,6 +29,7 @@ import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
 import vavix.rococoa.avfoundation.AVAudioUnitEffect;
+import vavix.rococoa.avfoundation.AudioUnitParameterInfo;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +42,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static vavi.sound.midi.MidiUtil.volume;
 
@@ -60,8 +63,12 @@ class RococoaSourceDataLineTest {
 
     static boolean onIde = System.getProperty("vavi.test", "").equals("ide");
 
-    /** AUMatrixReverb, then AUDelay */
-    static final String effects = "appl:mrev,appl:dely";
+    /**
+     * AUMatrixReverb, then AUDelay. both are 100% / 50% wet out of the box, which drowns
+     * the signal, so the mix is dialled back here.
+     */
+    @Property(name = "au.effects")
+    String effects = "appl:mrev?Dry/Wet Mix=20,appl:dely?Dry/Wet Mix=15;Delay Time=0.25;Feedback=20";
 
     @Property(name = "vavi.test.volume")
     float volume = 0.2f;
@@ -218,11 +225,56 @@ Debug.println("synthesizer: " + synthesizer);
         sequencer.close();
     }
 
+    @Test
+    @DisplayName("list the parameters of the effect chain")
+    void test6() throws Exception {
+        RococoaSourceDataLine line = new RococoaSourceDataLine();
+        line.setEffects(effects);
+        line.open(new AudioFormat(44100, 16, 2, true, false));
+        for (AVAudioUnitEffect effect : line.getEffects()) {
+Debug.println(effect.name());
+            List<AudioUnitParameterInfo> parameters = effect.getParameters();
+            assertFalse(parameters.isEmpty());
+            for (AudioUnitParameterInfo parameter : parameters) {
+Debug.println("  " + parameter + " = " + effect.getParameter(parameter.id()));
+            }
+        }
+        line.close();
+    }
+
+    @Test
+    @DisplayName("parameters set by the spec and by hand")
+    void test7() throws Exception {
+        RococoaSourceDataLine line = new RococoaSourceDataLine();
+        line.setEffects(effects);
+        line.open(new AudioFormat(44100, 16, 2, true, false));
+
+        AVAudioUnitEffect reverb = line.getEffects().getFirst();
+        AVAudioUnitEffect delay = line.getEffects().get(1);
+        // the spec tamed the defaults of 100 and 50
+        assertEquals(20f, reverb.getParameter("Dry/Wet Mix"));
+        assertEquals(15f, delay.getParameter("Dry/Wet Mix"));
+        assertEquals(0.25f, delay.getParameter("Delay Time"));
+
+        // by name, by id, and the two ways to get it wrong. these assertions only hold with
+        // rococoa 0.8.16+, before that a concrete method of a proxied class wrapped whatever
+        // it threw in an InvocationTargetException
+        reverb.setParameter("Dry/Wet Mix", 30);
+        assertEquals(30f, reverb.getParameter(0));
+        reverb.setParameter(0, 40);
+        assertEquals(40f, reverb.getParameter("Dry/Wet Mix"));
+        assertThrows(IllegalArgumentException.class, () -> reverb.setParameter("Dry/Wet Mix", 200));
+        assertThrows(IllegalArgumentException.class, () -> reverb.setParameter("No Such Knob", 1));
+
+        line.close();
+    }
+
     /** wav through the chain, so you can hear what the effects do to real material */
     @Test
     @DisplayName("wav -> AudioUnit effects")
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test5() throws Exception {
+Debug.print(wav);
         try (AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(Files.newInputStream(Path.of(wav))))) {
             AudioFormat format = ais.getFormat();
 Debug.println("format: " + format);

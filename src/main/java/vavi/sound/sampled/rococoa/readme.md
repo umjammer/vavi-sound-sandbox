@@ -36,6 +36,27 @@ new SoftSynthesizer().open(line, null);
 `"type:manufacturer:subtype"` for anything else (`aumf` music effects, say). `auval -a` lists
 what is installed.
 
+### effect parameters
+
+The factory defaults are often unusable — AUMatrixReverb comes up at **100% wet**, AUDelay at
+50% wet with a 1 second delay. Append `?name=value;name=value` to an effect in the spec, a key
+being either the display name (case insensitive) or the numeric parameter id:
+
+    appl:mrev?Dry/Wet Mix=20,appl:dely?Dry/Wet Mix=15;Delay Time=0.25;Feedback=20
+
+`,` separates effects, `;` separates parameters, so this works from a system property too.
+
+Or after the line is open, on the `AVAudioUnit` itself:
+
+```java
+AVAudioUnitEffect reverb = line.getEffects().getFirst();
+reverb.getParameters().forEach(System.out::println);
+//   0: Dry/Wet Mix [0.0..100.0] default 100.0 equalPowerCrossfade
+//   4: Pre-Delay [0.001..0.03] default 0.015795 seconds
+//   ...
+reverb.setParameter("Dry/Wet Mix", 20);
+```
+
 ## References
 
 [rococoa](https://github.com/iterate-ch/rococoa)
