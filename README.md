@@ -43,7 +43,7 @@
 | sampled     | speex         |       ✅       |       -        |       ✅        | [jspeex](http://jspeex.sourceforge.net/)                                                   |                                                                                                                              | sample rate is limited to convert                                |
 | sampled     | flac          |       ✅       |       -        |       ✅        | [vavi-sound-flac](https://github.com/umjammer/vavi-sound-flac)                             |                                                                                                                              |                                                                  |
 | sampled     | flac          |       ✅       |       -        |       ✅        | [vavi-sound-flac-nayuki](https://github.com/umjammer/vavi-sound-flac-nayuki)               |                                                                                                                              |                                                                  |
-| sampled     | aac           |       -       |       -        |       ✅        | [JAADec](https://github.com/umjammer/vavi-sound-aac)                                       |                                                                                                                              |                                                                  |
+| sampled     | aac           |       -       |       -        |       ✅        | [vavi-sound-aac](https://github.com/umjammer/vavi-sound-aac)                               |                                                                                                                              |                                                                  |
 | sampled     | vorbis        |       -       |       -        |       ✅        | [tritonus-jorbis](https://github.com/umjammer/tritonus/tree/develop/tritonus-jorbis)       |                                                                                                                              |                                                                  |
 | sampled     | atrac3        |       ✅       |       -        |       ?        | [vavi-sound-atrack](https://github.com/umjammer/vavi-sound-atrack)                         | jpcsp                                                                                                                        | Sony MD                                                          |
 | sampled     | atrac3+       |       ✅       |       -        |       ✅        | [vavi-sound-atrack](https://github.com/umjammer/vavi-sound-atrack)                         | jpcsp                                                                                                                        | Sony MD                                                          |
@@ -57,6 +57,7 @@
 | sampled     | xma           |       ✅       |       -        |       ✅        | this                                                                                       | [Echo](https://github.com/IsaacMarovitz/Echo)                                                                                |                                                                  |
 | sampled     | wma           |       ✅       |       -        |       ✅        | this                                                                                       | ffmpeg                                                                                                                       |                                                                  |
 | sampled     | auto wiring   |       ✅       |       -        |       ✅        | this                                                                                       |                                                                                                                              | chains the registered conversion spi, no format of its own       |
+| sampled     | rococa        |       ✅       |       -        |       ✅        | this                                                                                       |                                                                                                                              | source data line to audiounit mixer, effect cahin available      |
 
 ### Features
 
@@ -79,6 +80,7 @@
  * wma Java sound SPI ... (done)
  * xma Java sound SPI ... (done)
  * auto wiring format conversion Java sound SPI ... (done)
+ * `SourceDataLine` to AudioUnit w/ effect chain SPI ... (done)
 
 ## Install
 
