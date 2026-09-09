@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.URI;
 import java.util.List;
 import javax.sound.sampled.AudioFileFormat.Type;
 import javax.sound.sampled.AudioFormat.Encoding;
@@ -52,7 +53,7 @@ public class IdAdlPlayer extends Opl3Player {
 
         public Adl(InputStream stream) throws IOException {
             LittleEndianDataInputStream dis = new LittleEndianDataInputStream(stream);
-            long length = dis.readInt() & 0xffffffffL;
+            long length = dis.readInt() & 0xffff_ffffL;
             priority = dis.readShort() & 0xffff;
             dis.readFully(instrument);
             octave = dis.readByte() & 0xff;
@@ -123,9 +124,8 @@ public class IdAdlPlayer extends Opl3Player {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
-            java.net.URI uri = vavi.sound.SoundUtil.getSource(bitStream);
             if (uri != null) {
                 String path = uri.getPath();
                 if (path != null && path.toLowerCase().endsWith(".idadl")) {
@@ -137,7 +137,7 @@ public class IdAdlPlayer extends Opl3Player {
         LittleEndianDataInputStream dis = new LittleEndianDataInputStream(bitStream);
         try {
             dis.mark(24);
-            long length = dis.readInt() & 0xffffffffL;
+            long length = dis.readInt() & 0xffff_ffffL;
             int priority = dis.readShort() & 0xffff;
             if (length <= 0 || length > 1024 * 1024) {
                 return false;

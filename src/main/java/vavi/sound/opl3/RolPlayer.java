@@ -141,11 +141,10 @@ public class RolPlayer extends ComposerPlayer {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
             // the ROL "magic" is just version 0.4 - require the extension too
             // when the source URI is known
-            URI uri = SoundUtil.getSource(bitStream);
             if (uri != null) {
                 String path = uri.getPath();
                 if (path != null && !path.toLowerCase().endsWith(".rol")) {

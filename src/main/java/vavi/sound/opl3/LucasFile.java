@@ -8,6 +8,8 @@ package vavi.sound.opl3;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.net.URI;
+
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 
 
@@ -25,7 +27,7 @@ public class LucasFile extends MidiFile {
     }
 
     @Override
-    boolean matchFormatImpl(DataInputStream dis) throws IOException {
+    boolean matchFormatImpl(DataInputStream dis, URI uri) throws IOException {
         return dis.readUnsignedByte() == 'A' &&
             dis.readUnsignedByte() == 'D' &&
             dis.readUnsignedByte() == 'L';

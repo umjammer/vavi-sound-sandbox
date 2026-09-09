@@ -31,6 +31,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
@@ -156,8 +157,8 @@ public class AdplugRefTest {
         try (InputStream is = new BufferedInputStream(Files.newInputStream(path));
              PrintStream ps = new PrintStream(bos, false, StandardCharsets.US_ASCII)) {
 
-            AudioFormat.Encoding encoding = Opl3Player.getEncoding(is);
-            assertTrue(encoding != null, path + ": no player detected");
+            AudioFormat.Encoding encoding = Opl3Player.getEncoding(is, path.toUri());
+            assertNotNull(encoding, path + ": no player detected");
             Opl3Player player = Opl3Player.getPlayer(encoding);
             player.setProperties(Map.of("uri", path.toUri()));
 

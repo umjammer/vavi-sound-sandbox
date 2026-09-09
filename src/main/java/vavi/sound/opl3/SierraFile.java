@@ -43,7 +43,13 @@ public class SierraFile extends MidiTypeFile {
     }
 
     @Override
-    boolean matchFormatImpl(DataInputStream dis) throws IOException {
+    boolean matchFormatImpl(DataInputStream dis, URI uri) throws IOException {
+        if (uri != null) {
+            String path = uri.getPath();
+            if (path != null && !path.toLowerCase().endsWith(".sci")) {
+                return false;
+            }
+        }
         return dis.readUnsignedByte() == 0x84 &&
                 dis.readUnsignedByte() == 0 &&
                 dis.readUnsignedByte() != 0xf0; // not advanced sierra

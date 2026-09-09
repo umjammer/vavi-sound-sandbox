@@ -138,12 +138,11 @@ public class PisPlayer extends Opl3Player {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
             // PIS has no signature; adplug validates by file extension only.
             // When the source URI is known, gate on the extension; the
             // structural check below (exact size equation) does the rest.
-            URI uri = SoundUtil.getSource(bitStream);
             if (uri != null) {
                 String path = uri.getPath();
                 if (path != null && !path.toLowerCase().endsWith(".pis")) {

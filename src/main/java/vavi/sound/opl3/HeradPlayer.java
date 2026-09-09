@@ -21,11 +21,14 @@ package vavi.sound.opl3;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import javax.sound.sampled.AudioFormat.Encoding;
+import java.net.URI;
+import java.util.stream.Stream;
 import javax.sound.sampled.AudioFileFormat.Type;
+import javax.sound.sampled.AudioFormat.Encoding;
+
 import vavi.sound.sampled.opl3.Opl3Encoding;
 import vavi.sound.sampled.opl3.Opl3FileFormatType;
+
 
 /**
  * Herbulot AdLib Player (HERAD).
@@ -158,7 +161,7 @@ public class HeradPlayer extends Opl3Player {
 
     @Override
     public Type getType() {
-        return new Opl3FileFormatType("Herbulot AdLib Player (HERAD)", "hrad");
+        return new Opl3FileFormatType("Herbulot AdLib Player (HERAD)", "sdb,agd,ha2,hsq,sqx");
     }
 
     @Override
@@ -167,8 +170,14 @@ public class HeradPlayer extends Opl3Player {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
+            if (uri != null) {
+                String path = uri.getPath();
+                if (path != null && Stream.of(".sdb", ".agd", ".ha2", ".hsq", ".sqx").allMatch(ext -> path.toLowerCase().endsWith(ext))) {
+                    return false;
+                }
+            }
             bitStream.mark(0x38);
             return matchFormatImpl(bitStream);
         } catch (Exception e) {

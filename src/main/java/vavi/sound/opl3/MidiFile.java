@@ -10,6 +10,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.URI;
 import java.util.Arrays;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
 
@@ -39,7 +40,7 @@ public class MidiFile extends MidiTypeFile {
     }
 
     @Override
-    boolean matchFormatImpl(DataInputStream dis) throws IOException {
+    boolean matchFormatImpl(DataInputStream dis, URI uri) throws IOException {
         if (!Boolean.parseBoolean(System.getProperty("vavi.sound.opl3.MidiFile", "false"))) {
 logger.log(Level.DEBUG, "vavi.sound.opl3.MidiFile: false");
             return false;

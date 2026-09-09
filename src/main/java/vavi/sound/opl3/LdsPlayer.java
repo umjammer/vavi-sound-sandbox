@@ -22,7 +22,7 @@ package vavi.sound.opl3;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
-import java.lang.System.Logger.Level;
+import java.net.URI;
 import javax.sound.sampled.AudioFileFormat.Type;
 import javax.sound.sampled.AudioFormat.Encoding;
 
@@ -143,9 +143,8 @@ public class LdsPlayer extends Opl3Player {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
-            java.net.URI uri = vavi.sound.SoundUtil.getSource(bitStream);
             if (uri != null) {
                 String path = uri.getPath();
                 if (path != null && path.toLowerCase().endsWith(".lds")) {

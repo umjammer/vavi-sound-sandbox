@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.URI;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
@@ -36,19 +37,15 @@ public abstract class MidiTypeFile {
      *
      * @throws NoSuchElementException when not found
      */
-    public static MidiTypeFile getFileType(InputStream is) {
-        return midiTypeFiles.stream().filter(f -> f.matchFormat(is)).findFirst().orElseThrow();
+    public static MidiTypeFile getFileType(InputStream is, URI uri) {
+        return midiTypeFiles.stream().filter(f -> f.matchFormat(is, uri)).findFirst().orElseThrow();
     }
 
-    public static int maxMarkSize(InputStream is) {
-        return midiTypeFiles.stream().mapToInt(MidiTypeFile::markSize).max().getAsInt();
-    }
-
-    boolean matchFormat(InputStream bitStream) {
+    boolean matchFormat(InputStream bitStream, URI uri) {
         DataInputStream dis = new DataInputStream(bitStream);
         try {
             dis.mark(markSize());
-            return matchFormatImpl(dis);
+            return matchFormatImpl(dis, uri);
         } catch (IOException e) {
             logger.log(Level.WARNING, e.getMessage(), e);
             return false;
@@ -64,7 +61,7 @@ public abstract class MidiTypeFile {
     abstract int markSize();
 
     /** no need to mark/reset inside this method */
-    abstract boolean matchFormatImpl(DataInputStream dis) throws IOException;
+    abstract boolean matchFormatImpl(DataInputStream dis, URI uri) throws IOException;
 
     abstract void rewind(int subSong, MidPlayer player) throws IOException;
 
