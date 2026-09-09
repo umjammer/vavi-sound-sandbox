@@ -255,7 +255,7 @@ fail:
     private static void nuttall(double[] buffer, int length) {
 
         if (buffer == null || length <= 0) {
-            throw new IllegalArgumentException(String.format("Illegal buffer %s or length %d to nuttall.", Arrays.toString(buffer), length));
+            throw new IllegalArgumentException("Illegal buffer %s or length %d to nuttall.".formatted(Arrays.toString(buffer), length));
         }
 
         /* Initial variable setups. */
@@ -274,7 +274,7 @@ fail:
     private static void hamming(double[] buffer, int length) {
 
         if (buffer == null || length <= 0) {
-            throw new IllegalArgumentException(String.format("Illegal buffer %s or length %d to hamming.", Arrays.toString(buffer), length));
+            throw new IllegalArgumentException("Illegal buffer %s or length %d to hamming.".formatted(Arrays.toString(buffer), length));
         }
 
         int N1 = length / 2;
@@ -298,7 +298,7 @@ fail:
     private void fir_design(double[] buffer, int length, double cutoff) {
 
         if (buffer == null || length < 0 || cutoff < 0 || cutoff > Math.PI) {
-            throw new IllegalArgumentException(String.format("Illegal buffer %s, length %d, or cutoff %f.", Arrays.toString(buffer), length, cutoff));
+            throw new IllegalArgumentException("Illegal buffer %s, length %d, or cutoff %f.".formatted(Arrays.toString(buffer), length, cutoff));
         }
 
         // Use the user-option of window type

@@ -17,30 +17,37 @@
 package com.jsyn.examples;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
-import javax.swing.JApplet;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import com.jsyn.JSyn;
 import com.jsyn.Synthesizer;
 import com.jsyn.devices.AudioDeviceFactory;
 import com.jsyn.devices.AudioDeviceManager;
 import com.jsyn.scope.AudioScope;
-import com.jsyn.swing.JAppletFrame;
 import com.jsyn.unitgen.ChannelIn;
 import com.jsyn.unitgen.PassThrough;
+
 
 /**
  * Two channel oscilloscope that demonstrates the use of audio input.
  *
  * @author Phil Burk (C) 2012 Mobileer Inc
  */
-public class DualOscilloscope extends JApplet {
+public class DualOscilloscope extends JPanel {
+
     @Serial
     private static final long serialVersionUID = -2704222221111608377L;
+
     private Synthesizer synth;
     private ChannelIn channel1;
     private ChannelIn channel2;
@@ -55,7 +62,6 @@ public class DualOscilloscope extends JApplet {
     private int defaultSelection;
     private JComboBox<?> deviceComboBox;
 
-    @Override
     public void init() {
         audioManager = AudioDeviceFactory.createAudioDeviceManager(true);
         synth = JSyn.createSynthesizer(audioManager);
@@ -132,7 +138,6 @@ public class DualOscilloscope extends JApplet {
         scope.start();
     }
 
-    @Override
     public void start() {
         startAudio(defaultSelection);
     }
@@ -144,18 +149,26 @@ public class DualOscilloscope extends JApplet {
         synth.stop();
     }
 
-    @Override
     public void stop() {
         stopAudio();
     }
 
     /* Can be run as either an application or as an applet. */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         DualOscilloscope applet = new DualOscilloscope();
-        JAppletFrame frame = new JAppletFrame("Dual Oscilloscope", applet);
-        frame.setSize(640, 400);
+        applet.setPreferredSize(new Dimension(640, 400));
+        applet.init();
+        JFrame frame = new JFrame("Dual Oscilloscope");
+        frame.getContentPane().add(applet);
+        CountDownLatch cdl = new CountDownLatch(1);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override public void windowClosed(WindowEvent e) { cdl.countDown(); }
+        });
+        frame.pack();
         frame.setVisible(true);
-        frame.test();
+        applet.start();
+        cdl.await();
+        applet.stop();
+        frame.dispose();
     }
-
 }

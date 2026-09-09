@@ -96,8 +96,7 @@ logger.log(DEBUG, "enter available: " + bitStream.available());
             }
             info = AsfDemuxer.demux(head);
             if (info.formatTag != 0x0160 && info.formatTag != 0x0161) {
-                throw new UnsupportedAudioFileException(
-                        String.format("unsupported WMA format tag: 0x%x", info.formatTag));
+                throw new UnsupportedAudioFileException("unsupported WMA format tag: 0x%x".formatted(info.formatTag));
             }
         } catch (UnsupportedAudioFileException e) {
             throw e;

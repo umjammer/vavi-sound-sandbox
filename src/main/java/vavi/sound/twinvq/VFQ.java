@@ -37,7 +37,6 @@ import vavi.util.ByteUtil;
 import vavi.util.StringUtil;
 
 import static java.lang.System.getLogger;
-import static vavi.sound.twinvq.LibAV.AVERROR_INVALIDDATA;
 import static vavi.sound.twinvq.LibAV.AV_INPUT_BUFFER_PADDING_SIZE;
 import static vavi.sound.twinvq.LibAV.MKTAG;
 
@@ -95,7 +94,7 @@ public class VFQ {
         s.metadata.put(tag, buf);
     }
 
-    static final Map<String, String> vqf_metadata_conv = new HashMap<>();
+    private static final Map<String, String> vqf_metadata_conv = new HashMap<>();
 
     static {
         vqf_metadata_conv.put("(c) ", "copyright");
@@ -118,7 +117,11 @@ public class VFQ {
         vqf_metadata_conv.put("WORD", "words");
     }
 
-    static int vqf_read_header(AVFormatContext s) {
+    /**
+     * @throws IllegalArgumentException invalid header data
+     * @throws UncheckedIOException io error
+     */
+    static void vqf_read_header(AVFormatContext s) {
         try {
             VFQ.VqfContext c = s.priv_data;
             AVStream st = new AVStream(s, null);
@@ -134,8 +137,6 @@ public class VFQ {
 
             header_size = s.pb.readInt(); // BE
 
-//            st.codecpar.codec_type = AVMEDIA_TYPE_AUDIO;
-//            st.codecpar.codec_id = AV_CODEC_ID_TWINVQ;
             st.start_time = 0;
 
             do {
@@ -149,8 +150,7 @@ public class VFQ {
                 len = s.pb.readInt(); // BE
 
                 if (len < 0) {
-                    logger.log(Level.ERROR, "Malformed header\n");
-                    return -1;
+                    throw new IllegalArgumentException("Malformed header\n");
                 }
 
                 header_size -= 8;
@@ -188,8 +188,7 @@ logger.log(Level.TRACE, "chunk: " + chunk_tag + ", " + len);
 
             switch (rate_flag) {
                 case -1:
-                    logger.log(Level.ERROR, "COMM tag not found!\n");
-                    return -1;
+                    throw new IllegalArgumentException("COMM tag not found!\n");
                 case 44:
                     st.codecpar.sample_rate = 44100;
                     break;
@@ -201,16 +200,14 @@ logger.log(Level.TRACE, "chunk: " + chunk_tag + ", " + len);
                     break;
                 default:
                     if (rate_flag < 8 || rate_flag > 44) {
-                        logger.log(Level.ERROR, "Invalid rate flag %d".formatted(rate_flag));
-                        return AVERROR_INVALIDDATA;
+                        throw new IllegalArgumentException("Invalid rate flag %d".formatted(rate_flag));
                     }
                     st.codecpar.sample_rate = rate_flag * 1000;
                     break;
             }
 
             if (read_bitrate / st.codecpar.channels < 8 || read_bitrate / st.codecpar.channels > 48) {
-                logger.log(Level.ERROR, "Invalid bitrate per channel %d".formatted(read_bitrate / st.codecpar.channels));
-                return AVERROR_INVALIDDATA;
+                throw new IllegalArgumentException("Invalid bitrate per channel %d".formatted(read_bitrate / st.codecpar.channels));
             }
 
             switch (((st.codecpar.sample_rate / 1000) << 8) + read_bitrate / st.codecpar.channels) {
@@ -230,25 +227,19 @@ logger.log(Level.TRACE, "chunk: " + chunk_tag + ", " + len);
                     size = 2048;
                     break;
                 default:
-                    logger.log(Level.ERROR, "Mode not supported: %d Hz, %d kb/s.\n".formatted(
+                    throw new IllegalArgumentException( "Mode not supported: %d Hz, %d kb/s.\n".formatted(
                             st.codecpar.sample_rate, st.codecpar.bit_rate));
-                    return -1;
             }
             c.frame_bit_len = st.codecpar.bit_rate * size / st.codecpar.sample_rate;
-//            avpriv_set_pts_info(st, 64, size, st.codecpar.sample_rate);
 
             // put first 12 bytes of COMM chunk in extradata
             st.codecpar.extradata = new byte[12 + AV_INPUT_BUFFER_PADDING_SIZE];
             st.codecpar.extradata_size = 12;
             System.arraycopy(comm_chunk, 0, st.codecpar.extradata, 0, 12);
 logger.log(Level.TRACE, "extradata_size: " + st.codecpar.extradata_size + "\n" + StringUtil.getDump(st.codecpar.extradata));
-
-//            ff_metadata_conv_ctx(s, null, vqf_metadata_conv);
-
-            return 0;
         } catch (IOException e) {
-logger.log(Level.ERROR, e.getMessage(), e);
-            return -1;
+logger.log(Level.TRACE, e.getMessage(), e);
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -286,28 +277,6 @@ logger.log(Level.ERROR, e.getMessage(), e);
         }
     }
 
-    static int vqf_read_seek(AVFormatContext s, int stream_index, long timestamp, int flags) {
-//        VqfContext c = s.priv_data;
-//        AVStream st;
-//        int ret;
-//        long pos;
-//
-//        st = s.streams[stream_index];
-//        pos = av_rescale_rnd(timestamp * st.codecpar.bit_rate,
-//                st.time_base.num,
-//                st.time_base.den * (long) c.frame_bit_len,
-//                (flags & AVSEEK_FLAG_BACKWARD) ? AV_ROUND_DOWN : AV_ROUND_UP);
-//        pos *= c.frame_bit_len;
-//
-//        st.cur_dts = av_rescale(pos, st.time_base.den, st.codecpar.bit_rate * (long) st.time_base.num);
-//
-//        if ((ret = s.pb.position(((pos - 7) >> 3) + s.internal.data_offset)) < 0)
-//            return ret;
-//
-//        c.remaining_bits = (int) (-7 - ((pos - 7) & 7));
-        return 0;
-    }
-
     public static AVInputFormat ff_vqf_demuxer = new AVInputFormat() {{
         name = "vqf";
         long_name = "Nippon Telegraph and Telephone Corporation (NTT) TwinVQ";
@@ -315,7 +284,6 @@ logger.log(Level.ERROR, e.getMessage(), e);
         read_probe = VFQ::vqf_probe;
         read_header = VFQ::vqf_read_header;
         read_packet = VFQ::vqf_read_packet;
-        read_seek = VFQ::vqf_read_seek;
         extensions = "vqf,vql,vqe";
     }};
 }

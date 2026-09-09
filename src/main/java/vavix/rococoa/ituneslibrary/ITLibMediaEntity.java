@@ -50,4 +50,3 @@ public abstract class ITLibMediaEntity extends NSObject {
      */
     public abstract void enumerateValuesExceptForProperties(NSSet properties, com.sun.jna.Pointer handler);
 }
-

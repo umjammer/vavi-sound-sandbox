@@ -137,7 +137,7 @@ public class RingBuffer {
 
         // simply loop through the buffer
         for (int i = 0; i < capacity; i++) {
-            sb.append(String.format("%.2f  ", buffer[i]));
+            sb.append("%.2f  ".formatted(buffer[i]));
         }
 
         // return the string representation

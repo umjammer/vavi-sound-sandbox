@@ -275,6 +275,7 @@ Debug.println("  " + parameter + " = " + effect.getParameter(parameter.id()));
     @EnabledIfSystemProperty(named = "vavi.test", matches = "ide")
     void test5() throws Exception {
 Debug.print(wav);
+Debug.print(effects);
         try (AudioInputStream ais = AudioSystem.getAudioInputStream(new BufferedInputStream(Files.newInputStream(Path.of(wav))))) {
             AudioFormat format = ais.getFormat();
 Debug.println("format: " + format);

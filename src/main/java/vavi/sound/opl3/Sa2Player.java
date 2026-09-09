@@ -214,7 +214,7 @@ public class Sa2Player extends ProtrackPlayer {
             offset += 2;
         }
 
-logger.log(Level.DEBUG, String.format("satType = %x, nop = %d, length = %d, restartpos = %d, activechan = %x, bpm = %d",
+logger.log(Level.DEBUG, "satType = %x, nop = %d, length = %d, restartpos = %d, activechan = %x, bpm = %d".formatted(
         satType, nop, length, restartpos, activechan, bpm));
 
         // track data

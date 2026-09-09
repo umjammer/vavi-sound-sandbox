@@ -65,7 +65,7 @@ class Twinvq2PcmAudioInputStream extends AudioInputStream {
             // header
             this.formatContext = new AVFormatContext();
             formatContext.pb = new DataInputStream(is);
-            inputFormat.read_header.apply(formatContext);
+            inputFormat.read_header.accept(formatContext);
 
             // decoder
             this.codecContext = formatContext.streams[0].codecpar;

@@ -74,12 +74,12 @@ public class CmfFile extends MidiTypeFile {
             }
             player.takeLE(2); // basic tempo
         }
-        logger.log(Level.INFO, String.format("numinstr: 0x%04x", player.tins));
+        logger.log(Level.INFO, "numinstr: 0x%04x".formatted(player.tins));
         this.tins = player.tins;
-        logger.log(Level.INFO, String.format("ioff: 0x%04x, moff: 0x%04x, deltas: %d, msqtr: %d, numi: %d, v: %04x", n, m, player.deltas, player.msqtr, player.tins, v));
+        logger.log(Level.INFO, "ioff: 0x%04x, moff: 0x%04x, deltas: %d, msqtr: %d, numi: %d, v: %04x".formatted(n, m, player.deltas, player.msqtr, player.tins, v));
 
         player.takeBE(n - 40);
-        logger.log(Level.INFO, String.format("pos1: 0x%04x", player.pos));
+        logger.log(Level.INFO, "pos1: 0x%04x".formatted(player.pos));
 
         this.instruments = new Opl3Instrument[this.tins];
         for (int p = 0; p < player.tins; ++p) {

@@ -64,7 +64,7 @@ logger.log(Level.INFO, "next adv sierra section:");
             player.tracks[t].tend = player.flen;
             player.tracks[t].iwait = 0;
             player.tracks[t].pv = 0;
-logger.log(Level.INFO, String.format("track %d starts at %x", t, player.tracks[t].spos));
+logger.log(Level.INFO, "track %d starts at %x".formatted(t, player.tracks[t].spos));
             t++;
             player.takeBE(2);
         }

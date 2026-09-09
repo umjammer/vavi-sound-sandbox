@@ -118,8 +118,7 @@ public final class WmaDecoder {
     public WmaDecoder(int formatTag, int channels, int sampleRate, int bitRate,
                       int blockAlign, byte[] extradata) {
         if (formatTag != 0x0160 && formatTag != 0x0161) {
-            throw new IllegalArgumentException(
-                    String.format("Unsupported WMA format tag: 0x%x (only WMAv1/v2)", formatTag));
+            throw new IllegalArgumentException("Unsupported WMA format tag: 0x%x (only WMAv1/v2)".formatted(formatTag));
         }
         if (blockAlign <= 0) {
             throw new IllegalArgumentException("block_align not set");

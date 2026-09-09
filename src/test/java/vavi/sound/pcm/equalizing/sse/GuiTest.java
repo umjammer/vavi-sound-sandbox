@@ -217,7 +217,7 @@ Debug.println(inFile);
 
         /** */
         static String hz(double freq) {
-            return freq >= 1000 ? String.format("%.1fk", freq / 1000) : String.format("%.0f", freq);
+            return freq >= 1000 ? "%.1fk".formatted(freq / 1000) : "%.0f".formatted(freq);
         }
 
         /** update the equalizer table after a slider drag is finished */

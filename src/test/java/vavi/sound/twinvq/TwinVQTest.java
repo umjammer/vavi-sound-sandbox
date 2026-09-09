@@ -108,7 +108,7 @@ Debug.print("volume: " + volume);
         // header
         AVFormatContext formatContext = new AVFormatContext();
         formatContext.pb = dis;
-        inputFormat.read_header.apply(formatContext);
+        inputFormat.read_header.accept(formatContext);
 
         // decoder
         AVCodecContext codecContext = formatContext.streams[0].codecpar;
@@ -161,7 +161,7 @@ Debug.println("Audio format: " + audioFormat);
                     for (int ch = 0; ch < channels; ch++) {
                         float sample = audioData[ch][i];
                         // Clamp to [-1.0, 1.0] and convert to 16-bit
-                        sample = Math.max(-1.0f, Math.min(1.0f, sample));
+                        sample = Math.clamp(sample, -1.0f, 1.0f);
                         short s = (short) (sample * 32767);
                         int idx = (i * channels + ch) * 2;
                         pcmData[idx] = (byte) (s & 0xff);
@@ -198,7 +198,7 @@ Debug.println("Audio format: " + audioFormat);
 
         AVFormatContext formatContext = new AVFormatContext();
         formatContext.pb = dis;
-        inputFormat.read_header.apply(formatContext);
+        inputFormat.read_header.accept(formatContext);
 
         AVCodecContext codecContext = formatContext.streams[0].codecpar;
         codecContext.priv_data = new TwinVQContext();

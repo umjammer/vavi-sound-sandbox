@@ -235,7 +235,7 @@ logger.log(Level.DEBUG, "version: " + version + ", title: " + mtitle.trim());
                         // Cxy - go to order position
                         // F00 - stop playing and restart
                         if ((fx | val) != 0) {
-logger.log(Level.DEBUG, String.format("Unsupported effect: %02x-%02x", fx, val));
+logger.log(Level.DEBUG, "Unsupported effect: %02x-%02x".formatted(fx, val));
                         }
                     }
                 }

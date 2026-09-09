@@ -54,7 +54,7 @@ public class Equalizer {
 
         @Override
         public String toString() {
-            return String.format("%gHz to %gHz, %gdB %c%c", lower, upper, gain, left ? 'L' : ' ', right ? 'R' : ' ');
+            return "%gHz to %gHz, %gdB %c%c".formatted(lower, upper, gain, left ? 'L' : ' ', right ? 'R' : ' ');
         }
 
         @Override
