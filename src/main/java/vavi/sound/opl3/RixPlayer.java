@@ -102,9 +102,8 @@ public class RixPlayer extends Opl3Player {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
-            URI uri = SoundUtil.getSource(bitStream);
             boolean mkf = false;
             if (uri != null) {
                 String path = uri.getPath();

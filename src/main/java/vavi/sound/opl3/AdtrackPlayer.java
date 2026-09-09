@@ -21,6 +21,9 @@ package vavi.sound.opl3;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
+import java.net.URI;
 import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioFileFormat.Type;
 import vavi.sound.sampled.opl3.Opl3Encoding;
@@ -33,6 +36,8 @@ import vavi.sound.sampled.opl3.Opl3FileFormatType;
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (umjammer)
  */
 public class AdtrackPlayer extends ProtrackPlayer {
+
+    private static final Logger logger = System.getLogger(AdtrackPlayer.class.getName());
 
     private static class AdTrackInst {
         static class Op {
@@ -58,8 +63,16 @@ public class AdtrackPlayer extends ProtrackPlayer {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
+            if (uri != null) {
+                String path = uri.getPath();
+                if (path != null && !path.toLowerCase().endsWith(".sng")) {
+                    return false;
+                }
+            } else {
+                logger.log(Level.WARNING, "accepting by size only, check stream is opl3 (adtrack) data");
+            }
             bitStream.mark(65536);
             return matchFormatImpl(bitStream);
         } catch (Exception e) {

@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
+import java.lang.System.Logger.Level;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -37,6 +38,9 @@ import static vavi.sound.opl3.Opl3Player.opl3;
  * Provider for OPL3 audio file reading services. This implementation can parse
  * the format information from OPL3 audio file, and can produce audio input
  * streams from files of this type.
+ * <p>
+ * system property
+ * <li>{@code vavi.sound.sampled.spi.opl3} ... for this spi, default {@code true}}</li>
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 201022 nsano initial version <br>
@@ -84,10 +88,14 @@ public class Opl3AudioFileReader extends AudioFileReader {
      * @throws IOException                   if an I/O exception occurs.
      */
     protected static AudioFileFormat getAudioFileFormat(InputStream bitStream, int mediaLength, URI uri) throws UnsupportedAudioFileException, IOException {
+        if (!Boolean.parseBoolean(System.getProperty("vavi.sound.sampled.spi.opl3", "true"))) {
+logger.log(Level.DEBUG, "reader spi disabled by system property.");
+            throw new UnsupportedAudioFileException("spi disabled by system property.");
+        }
 logger.log(DEBUG, "enter: available: " + bitStream.available());
         AudioFormat.Encoding encoding;
         try {
-            encoding = Opl3Player.getEncoding(bitStream);
+            encoding = Opl3Player.getEncoding(bitStream, uri);
         } catch (Exception e) {
 logger.log(DEBUG, "error exit: available: " + bitStream.available());
 logger.log(TRACE, e.getMessage(), e);

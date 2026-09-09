@@ -21,6 +21,7 @@ package vavi.sound.opl3;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import javax.sound.sampled.AudioFileFormat.Type;
@@ -75,7 +76,7 @@ public class XadPlayer extends Opl3Player {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
             bitStream.mark(80);
             byte[] header = new byte[80];

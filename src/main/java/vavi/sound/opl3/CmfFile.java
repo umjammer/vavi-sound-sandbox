@@ -10,6 +10,7 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.URI;
 import java.util.Arrays;
 import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
@@ -34,7 +35,7 @@ public class CmfFile extends MidiTypeFile {
     }
 
     @Override
-    boolean matchFormatImpl(DataInputStream dis) throws IOException {
+    boolean matchFormatImpl(DataInputStream dis, URI uri) throws IOException {
         return dis.readUnsignedByte() == 'C' &&
                 dis.readUnsignedByte() == 'T' &&
                 dis.readUnsignedByte() == 'M' &&

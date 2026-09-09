@@ -107,6 +107,7 @@ line.drain();
 ### system properties
 
 * `vavi.sound.sampled.spi.autowired` ... set `false`, only kicks in when no single provider can do the conversion
+* `vavi.sound.sampled.spi.opl3` ... setting `false` kills the spi, default `true`
 
 ## References
 

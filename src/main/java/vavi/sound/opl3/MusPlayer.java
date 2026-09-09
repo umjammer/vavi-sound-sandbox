@@ -134,11 +134,10 @@ public class MusPlayer extends ComposerPlayer {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
             // MUS has no signature; adplug validates by file extension plus
             // header sanity. Gate on the extension when the URI is known.
-            URI uri = SoundUtil.getSource(bitStream);
             if (uri != null) {
                 String path = uri.getPath();
                 if (path != null) {

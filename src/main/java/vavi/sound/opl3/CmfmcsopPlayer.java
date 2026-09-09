@@ -22,6 +22,7 @@ package vavi.sound.opl3;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -142,7 +143,7 @@ public class CmfmcsopPlayer extends Opl3Player {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
             bitStream.mark(1024);
             return matchFormatImpl(bitStream);

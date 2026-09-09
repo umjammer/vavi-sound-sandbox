@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -170,10 +171,10 @@ public class MidPlayer extends Opl3Player implements Sequencer {
     private final Transmitter transmitter = new Opl3Transmitter();
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
 logger.log(Level.TRACE, "\n" + StringUtil.getDump(bitStream, 0, 64));
         try {
-            type = MidiTypeFile.getFileType(bitStream);
+            type = MidiTypeFile.getFileType(bitStream, uri);
             return true;
         } catch (NoSuchElementException e) {
             return false;

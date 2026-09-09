@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.URI;
 import java.util.Arrays;
 
 import javax.sound.sampled.AudioFileFormat.Type;
@@ -206,7 +207,7 @@ public class RadPlayer extends Opl3Player {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
             bitStream.mark(16);
             byte[] id = new byte[16];

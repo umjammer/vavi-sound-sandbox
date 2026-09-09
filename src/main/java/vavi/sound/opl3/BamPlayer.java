@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.URI;
 
 import javax.sound.sampled.AudioFileFormat.Type;
 import javax.sound.sampled.AudioFormat.Encoding;
@@ -91,7 +92,7 @@ public class BamPlayer extends Opl3Player {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         LittleEndianDataInputStream dis = new LittleEndianDataInputStream(bitStream);
         try {
             dis.mark(4);

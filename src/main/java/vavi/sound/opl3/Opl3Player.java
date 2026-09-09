@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,8 +74,8 @@ logger.log(Level.DEBUG, "encoding: " + encoding);
     }
 
     /** mark/reset will be done internally */
-    public static AudioFormat.Encoding getEncoding(InputStream is) {
-        return players.stream().filter(p -> p.matchFormat(is)).findFirst().orElseThrow().getEncoding();
+    public static AudioFormat.Encoding getEncoding(InputStream is, URI uri) {
+        return players.stream().filter(p -> p.matchFormat(is, uri)).findFirst().orElseThrow().getEncoding();
     }
 
     public static List<Encoding> getEncodings() {
@@ -100,7 +101,7 @@ logger.log(Level.DEBUG, "encoding: " + encoding);
     }
 
     /** must implement mark/reset inside this method */
-    public abstract boolean matchFormat(InputStream is);
+    public abstract boolean matchFormat(InputStream is, URI uri);
 
     public abstract void load(InputStream is) throws IOException;
 

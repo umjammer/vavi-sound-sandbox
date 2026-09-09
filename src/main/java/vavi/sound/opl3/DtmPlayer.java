@@ -21,6 +21,7 @@ package vavi.sound.opl3;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Arrays;
 import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioFileFormat.Type;
@@ -54,7 +55,7 @@ public class DtmPlayer extends ProtrackPlayer {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
             bitStream.mark(32);
             return matchFormatImpl(bitStream);

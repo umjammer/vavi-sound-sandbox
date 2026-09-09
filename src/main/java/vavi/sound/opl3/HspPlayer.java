@@ -21,6 +21,7 @@ package vavi.sound.opl3;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Arrays;
 import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioFileFormat.Type;
@@ -53,7 +54,7 @@ public class HspPlayer extends HscPlayer {
     private static final int MAX_COMPRESSED_SIZE = 2 + 2 * 59187;
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
             bitStream.mark(MAX_COMPRESSED_SIZE + 3);
             return matchFormatImpl(bitStream);

@@ -21,6 +21,7 @@ package vavi.sound.opl3;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import javax.sound.sampled.AudioFormat.Encoding;
 import javax.sound.sampled.AudioFileFormat.Type;
 import vavi.sound.sampled.opl3.Opl3Encoding;
@@ -94,8 +95,14 @@ public class JbmPlayer extends Opl3Player {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
+            if (uri != null) {
+                String path = uri.getPath();
+                if (path != null && !path.toLowerCase().endsWith(".jbm")) {
+                    return false;
+                }
+            }
             bitStream.mark(16);
             return matchFormatImpl(bitStream);
         } catch (Exception e) {

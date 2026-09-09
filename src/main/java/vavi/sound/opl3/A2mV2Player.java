@@ -544,9 +544,8 @@ public class A2mV2Player extends Opl3Player {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
-            URI uri = SoundUtil.getSource(bitStream);
             if (uri != null) {
                 String path = uri.getPath();
                 if (path != null) {

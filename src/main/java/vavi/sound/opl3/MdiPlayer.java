@@ -103,11 +103,10 @@ public class MdiPlayer extends ComposerPlayer {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
             // MDI shares the SMF "MThd" magic with plain .mid files
             // (MidPlayer); gate on the extension when the URI is known
-            URI uri = SoundUtil.getSource(bitStream);
             if (uri != null) {
                 String path = uri.getPath();
                 if (path != null && !path.toLowerCase().endsWith(".mdi")) {

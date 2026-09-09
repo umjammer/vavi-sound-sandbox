@@ -10,6 +10,8 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.URI;
+
 import vavi.sound.midi.opl3.Opl3Soundbank;
 import vavi.sound.midi.opl3.Opl3Soundbank.Opl3Instrument;
 import vavi.sound.midi.opl3.Opl3Synthesizer.Context;
@@ -33,7 +35,13 @@ public class OldLucasFile extends MidiTypeFile {
     }
 
     @Override
-    boolean matchFormatImpl(DataInputStream dis) throws IOException {
+    boolean matchFormatImpl(DataInputStream dis, URI uri) throws IOException {
+        if (uri != null) {
+            String path = uri.getPath();
+            if (path != null && !path.toLowerCase().endsWith(".sci")) {
+                return false;
+            }
+        }
         dis.skipBytes(4);
         return dis.readUnsignedByte() == 'A' &&
                 dis.readUnsignedByte() == 'D';

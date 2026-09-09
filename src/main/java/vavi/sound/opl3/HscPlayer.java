@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.net.URI;
 
 import javax.sound.sampled.AudioFileFormat.Type;
 import javax.sound.sampled.AudioFormat.Encoding;
@@ -104,8 +105,17 @@ public class HscPlayer extends Opl3Player {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
+            if (uri != null) {
+                String path = uri.getPath();
+                if (path != null && !path.toLowerCase().endsWith(".hsc")) {
+                    return false;
+                }
+            } else {
+                logger.log(Level.WARNING, "accepting by size only, check stream is opl3 (hsc) data");
+            }
+
             bitStream.mark(MAX_SIZE + 1);
 
             // file validation section: HSC has no signature, so the only

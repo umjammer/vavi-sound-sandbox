@@ -30,6 +30,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import vavi.sound.SoundUtil;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
@@ -76,7 +77,7 @@ Debug.println("volume: " + volume + ", use opl midi?: " + System.getProperty("va
         Path path = Path.of(opl3);
 Debug.print(path);
         InputStream is = new BufferedInputStream(Files.newInputStream(path));
-        AudioFormat.Encoding encoding = Opl3Player.getEncoding(is);
+        AudioFormat.Encoding encoding = Opl3Player.getEncoding(is, path.toUri());
         Opl3Player player = Opl3Player.getPlayer(encoding);
         player.setProperties(Map.of("uri", path.toUri()));
         player.load(is);
@@ -116,10 +117,13 @@ Debug.print(path);
     static Stream<Arguments> opl3Samples() {
         try {
             return Files.list(Path.of("src/test/resources/opl3"))
-                    .filter(p -> !p.toString().toLowerCase().endsWith(".003"))
-                    .filter(p -> !p.toString().toLowerCase().endsWith(".ins"))
-                    .filter(p -> !p.toString().toLowerCase().endsWith(".bnk"))
-                    .filter(p -> !p.toString().toLowerCase().endsWith(".tim")) // idadl?
+                    .filter(p -> !p.toString().toLowerCase().endsWith(".003")) // sierra instr
+                    .filter(p -> !p.toString().toLowerCase().endsWith(".ins")) // adtrack instr
+                    .filter(p -> !p.toString().toLowerCase().endsWith(".bnk")) // rol, mus instr
+                    .filter(p -> !p.toString().toLowerCase().endsWith(".dat")) // ksm instr
+                    .filter(p -> !p.toString().toLowerCase().endsWith(".snd")) // mus instr
+                    .filter(p -> !p.toString().toLowerCase().endsWith(".tim")) // mus instr
+                    .filter(p -> !p.toString().toLowerCase().endsWith(".tbr")) // mus instr
                     .map(Arguments::arguments);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -132,8 +136,8 @@ Debug.print(path);
     void test2(Path path) throws Exception {
 Debug.print(path);
         InputStream is = new BufferedInputStream(Files.newInputStream(path));
-        AudioFormat.Encoding encoding = Opl3Player.getEncoding(is);
-        vavi.util.Debug.println(path.getFileName() + " encoding: " + encoding);
+        AudioFormat.Encoding encoding = Opl3Player.getEncoding(is, SoundUtil.getSource(is));
+Debug.println(path.getFileName() + " encoding: " + encoding);
         Opl3Player player = Opl3Player.getPlayer(encoding);
         player.setProperties(Map.of("uri", path.toUri()));
         player.load(is);

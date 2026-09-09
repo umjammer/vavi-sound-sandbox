@@ -67,11 +67,10 @@ public class GotPlayer extends Opl3Player {
     }
 
     @Override
-    public boolean matchFormat(InputStream bitStream) {
+    public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
             // GOT has no signature; adplug validates by file extension plus
             // structural checks. Gate on the extension when the URI is known.
-            URI uri = SoundUtil.getSource(bitStream);
             if (uri != null) {
                 String path = uri.getPath();
                 if (path != null && !path.toLowerCase().endsWith(".got")) {

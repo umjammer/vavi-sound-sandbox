@@ -33,7 +33,7 @@ public class Opl3MidiFileReader extends BasicMidiFileReader {
                IOException {
 
         try {
-            MidiTypeFile type = MidiFile.getFileType(is);
+            MidiTypeFile type = MidiFile.getFileType(is, null);
             return null;
         } catch (NoSuchElementException e) {
             throw (InvalidMidiDataException) new InvalidMidiDataException().initCause(e);
