@@ -6,8 +6,13 @@
 
 package vavix.rococoa.avfoundation;
 
+import com.sun.jna.Memory;
+import com.sun.jna.ptr.IntByReference;
 import org.rococoa.ObjCClass;
 import org.rococoa.cocoa.foundation.NSData;
+
+import static vavix.rococoa.avfoundation.AudioToolbox.AudioUnitPropertyID;
+import static vavix.rococoa.avfoundation.AudioToolbox.AudioUnitScope;
 
 
 /**
@@ -100,4 +105,57 @@ public abstract class AVAudioUnitMIDIInstrument extends AVAudioUnit {
     }
 
     public abstract void sendPressureForKey_withValue_onChannel(byte key, byte value, byte channel);
+
+//#region MIDI 2.0
+
+    /**
+     * Sends one complete Universal MIDI Packet message to the instrument. CoreMIDI translates it to
+     * whatever {@link #MIDIProtocol()} reports, so MIDI 2.0 messages reach a MIDI 1.0 only
+     * instrument as well, though of course with their resolution cut down.
+     *
+     * @param eventList a scratch buffer owned by the caller, reusable across calls
+     * @param words one complete UMP message, native endian
+     * @return OSStatus, 0 on success
+     */
+    public int sendMIDIEventList(MIDIEventList eventList, int... words) {
+        return AudioToolbox.instance.MusicDeviceMIDIEventList(audioUnit(), 0, eventList.packet(0, words));
+    }
+
+    /**
+     * The MIDI protocol the instrument wants to be talked in.
+     *
+     * @return MIDIProtocolID, {@link MIDIEventList#kMIDIProtocol_1_0} unless the instrument says otherwise
+     */
+    public int MIDIProtocol() {
+        Memory value = new Memory(Integer.BYTES);
+        IntByReference size = new IntByReference(Integer.BYTES);
+        int status = AudioToolbox.instance.AudioUnitGetProperty(audioUnit(),
+                AudioUnitPropertyID.kAudioUnitProperty_AudioUnitMIDIProtocol.id,
+                AudioUnitScope.kAudioUnitScope_Global.ordinal(),
+                0,
+                value,
+                size);
+        return status == 0 ? value.getInt(0) : MIDIEventList.kMIDIProtocol_1_0;
+    }
+
+    /**
+     * Tells the instrument which protocol the host would like to send in. It is free to ignore the
+     * wish, ask {@link #MIDIProtocol()} for what it settled on. Has to be set before the audio unit
+     * is initialized, which for an {@link AVAudioUnit} means before it is attached to an engine.
+     *
+     * @param protocol MIDIProtocolID
+     * @return OSStatus, 0 on success
+     */
+    public int setHostMIDIProtocol(int protocol) {
+        Memory value = new Memory(Integer.BYTES);
+        value.setInt(0, protocol);
+        return AudioToolbox.instance.AudioUnitSetProperty(audioUnit(),
+                AudioUnitPropertyID.kAudioUnitProperty_HostMIDIProtocol.id,
+                AudioUnitScope.kAudioUnitScope_Global.ordinal(),
+                0,
+                value,
+                Integer.BYTES);
+    }
+
+//#endregion
 }

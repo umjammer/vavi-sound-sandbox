@@ -35,6 +35,7 @@
 | sampled     | opus          |       ✅       |       🚫       |       ✅        | this                                                                                       | [concentus](https://github.com/lostromb/concentus)                                                                           |                                                                  |
 | midi        | AudioUnit     |       ✅       |       -        |       ✅        | this                                                                                       | [rococoa](https://github.com/umjammer/rococoa)                                                                               | use `AVAudioUnitMIDIInstrument/kAudioUnitSubType_DLSSynth`       |
 | midi        | AudioUnit     |       ✅       |       -        |       🚫       | this                                                                                       | [rococoa](https://github.com/umjammer/rococoa)                                                                               | use `AVAudioUnitSampler`, how to adjust sf2 patch?               |
+| midi        | midi2         |       ✅       |       -        |       -        | this                                                                                       | [rococoa](https://github.com/umjammer/rococoa)                                                                               | `SMF2CLIP` on `MusicDeviceMIDIEventList`, no javax.sound.midi spi |
 | midi        | JSyn          |       ✅       |       -        |       ✅        | this                                                                                       | [JSyn](https://github.com/philburk/jsyn)                                                                                     | looking for good drums                                           |
 | midi        | OPL3          |       ✅       |       -        |       ✅        | this                                                                                       | [adplug](https://github.com/adplug/adplug)                                                                                   | [opl3-player](http://opl3.cozendey.com/), YmF262(cozendey)       |
 | midi        | ?             |       -       |       -        |       -        | this                                                                                       |                                                                                                                              | opl, ma                                                          |
@@ -217,19 +218,20 @@ line.drain();
    * ~~synthesizer~~
  * ~~exs24 soundfont~~
    * ~~https://github.com/git-moss/ConvertWithMoss~~
-   * [`AVAudioUnitSampler` can read exs24 soundfont???](https://github.com/AudioKit/AudioKit/blob/main/Tests/AudioKitTests/Node%20Tests/Playback%20Tests/AppleSamplerTests.swift#L68)
+   * [`AVAudioUnitSampler`](https://github.com/AudioKit/AudioKit/blob/main/Tests/AudioKitTests/Node%20Tests/Playback%20Tests/AppleSamplerTests.swift#L68) ~~can read exs24 soundfont???~~ ... [by java](src/main/java/vavi/sound/exs)
  * ~~Muse-Sounds~~
    * https://github.com/CarlGao4/Muse-Sounds
    * `~/Library/Containers/com.muse.hub/Data/InstallData/Instruments/`
  * spi
    * https://github.com/hendriks73/pcmsampledsp
-   * https://github.com/hendriks73/casampledsp
+   * https://github.com/hendriks73/casampledsp (coreaudio is base of avfoundation? ... yes)
  * ~~sf3~~
    * https://github.com/cognitone/sf2convert
  * ~~sfz~~
    * ~~https://github.com/git-moss/ConvertWithMoss~~
  * ~~sse (equalizer)~~
  * ~~TargetDataLine wav out, data transfer~~ → `vavi-sound:HijackSourceDataLine`
+ * ~~midi2~~ ... [by java](src/main/java/vavi/sound/midi/ump), played on AVFoundation by [`RococoaUmpReceiver`](src/main/java/vavi/sound/midi/rococoa/RococoaUmpReceiver.java)
 
 ### ebml (Extensible Binary Meta Language: Matroska)
 
