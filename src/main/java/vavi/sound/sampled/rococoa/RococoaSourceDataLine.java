@@ -440,9 +440,6 @@ logger.log(Level.DEBUG, "effect: " + component + ", " + effect.name() + ", " + e
 
     @Override
     public void open() throws LineUnavailableException {
-        if (format == null) {
-            throw new IllegalArgumentException("format is not set, use open(AudioFormat)");
-        }
         open(format, 0);
     }
 
@@ -664,6 +661,10 @@ logger.log(Level.DEBUG, "effect: " + component + ", " + effect.name() + ", " + e
     @Override
     public AudioFormat getFormat() {
         return format;
+    }
+
+    void setFormat(AudioFormat format) {
+        this.format = format;
     }
 
     @Override
