@@ -49,7 +49,7 @@ class KarplusStrongSynthesizerTest {
     }
 
     static boolean onIde = System.getProperty("vavi.test", "").equals("ide");
-    static long time = onIde ? 1000 * 1000 : 10 * 1000;
+    static long time = onIde ? 1000 * 1000 : 5 * 1000;
 
     @Property(name = "vavi.test.volume.midi")
     float volume = 0.2f;

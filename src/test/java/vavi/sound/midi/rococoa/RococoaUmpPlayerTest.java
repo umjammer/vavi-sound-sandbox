@@ -21,6 +21,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -80,29 +82,16 @@ Debug.println("audio unit talks MIDI " + (receiver.isMidi2() ? "2.0" : "1.0"));
         }
     }
 
-    @Test
-    @DisplayName("a C major scale of MIDI 1.0 messages in universal packets")
-    void midi1() throws Exception {
-        // 8 quarter notes at 120 bpm
-        assertTimely(4000, play("test-c-major-scale-m1-g0"));
-    }
+    @ParameterizedTest
+    @CsvSource(value = {
+            "4000,test-c-major-scale-m1-g0,a C major scale of MIDI 1.0 messages in universal packets", // 8 quarter notes at 120 bpm
+            "4000,test-c-major-scale-m2-g0,the same scale as MIDI 2.0 channel voice messages",
+            "1500,test-gm2-doggy-78-00-38-4c,metadata, a GM2 System On SysEx and a bank select, then a dog barks three times",
+            "0,test-minimal,a clip of nothing but its markers is over at once"
+    })
+    void midis(int expected, String name, String comment) throws Exception {
 
-    @Test
-    @DisplayName("the same scale as MIDI 2.0 channel voice messages")
-    void midi2() throws Exception {
-        assertTimely(4000, play("test-c-major-scale-m2-g0"));
-    }
-
-    @Test
-    @DisplayName("metadata, a GM2 System On SysEx and a bank select, then a dog barks three times")
-    void doggy() throws Exception {
-        assertTimely(1500, play("test-gm2-doggy-78-00-38-4c"));
-    }
-
-    @Test
-    @DisplayName("a clip of nothing but its markers is over at once")
-    void minimal() throws Exception {
-        assertTimely(0, play("test-minimal"));
+        assertTimely(expected, play(name));
     }
 
     @Test

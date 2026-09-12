@@ -569,7 +569,7 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
                     logger.log(Level.TRACE, "sysex: %02X\n%s".formatted(sysexMessage.getStatus(), StringUtil.getDump(data, 32)));
                     synchronized (lock) {
                         if (sampler != null) {
-                            sampler.sysEx(data);
+                            sampler.sysEx(data); // TODO need some conversion
                         }
                     }
                 }
