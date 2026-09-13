@@ -29,7 +29,6 @@
 | sampled     | monauralize   |       ✅       |       -        |       ✅        | [tritonus-remaining](https://github.com/umjammer/tritonus/tree/develop/tritonus-remaining) | `PCM2PCMConversionProvider`                                                                                                  | works but not suitable for resampling                            |
 | sampled     | alac          |       ✅       |       -        |       ✅        | [vavi-sound-alac](https://github.com/umjammer/vavi-sound-alac)                             |                                                                                                                              | 🎓 graduated to vavi-sound-alac                                  |
 | ~~sampled~~ | ~~QTKit~~     |     ~~✅~~     |       -        |       ?        | ~~this~~                                                                                   | ~~[rococoa](https://github.com/umjammer/rococoa)~~                                                                           | deprecated                                                       |
-| sampled     | AVFoundation  |      🚧       |       -        |       🚧       | this                                                                                       | [rococoa](https://github.com/umjammer/rococoa)                                                                               | ~~use `AVAudioConverter` how to return objc value in callback?~~ |
 | sampled     | twinvq        |       ✅       |       -        |       ✅        | this                                                                                       |                                                                                                                              | ffmpeg                                                           |
 | midi        | vsq           |      🚧       |       -        |       🚧       | this                                                                                       |                                                                                                                              | YAMAHA Vocaloid                                                  |
 | sampled     | opus          |       ✅       |       🚫       |       ✅        | this                                                                                       | [concentus](https://github.com/lostromb/concentus)                                                                           |                                                                  |
@@ -126,7 +125,7 @@ line.drain();
 ### Lesson
 
  * [javaassist doesn't support *enhanced for*](https://github.com/jboss-javassist/javassist/issues/403#issuecomment-989827788)
- * `com.sun.media.sound.SoftMidiAudioFileReader` has a bug that consumes 4 bytes and not releases (resets) those after examination
+ * ~~`com.sun.media.sound.SoftMidiAudioFileReader` has a bug that consumes 4 bytes and not releases (resets) those after examination~~ ... tritonus bug
 
 ### Tech Know
 
@@ -143,6 +142,9 @@ line.drain();
    * 🎯 [playn](https://github.com/playn/playn/blob/3ad0d6bf22c3f7c0eb6d3497523d197f4c50a46b/java-base/src/playn/java/BigClip.java#L46)
  * caf
    * https://github.com/ruda/caf
+ * midi2
+   * https://gist.github.com/sonsongithub/6520ac3f537e3e9b7d3f74e576ae70c5
+   * good samples
 
 ### Library
 
@@ -164,8 +166,7 @@ line.drain();
    * https://github.com/hendriks73/ffsampledsp
    * https://github.com/Icenowy/jcadencii (?)
    * http://k-takata.o.oo7.jp/mysoft/tvqdec.html
-   * clean up twinvq
- * https://github.com/hendriks73/casampledsp/tree/master (coreaudio is base of avfoundation?)
+   * ~~clean up twinvq~~
  * ~~https://github.com/drogatkin/JustFLAC~~ → [vavi-sound-flac](https://github.com/umjammer/vavi-sound-flac)
  * ~~lc3~~ → [vavi-sound-lc3](https://github.com/umjammer/vavi-sound-lc3)
    * https://github.com/ninjasource/lc3-codec
@@ -232,6 +233,9 @@ line.drain();
  * ~~sse (equalizer)~~
  * ~~TargetDataLine wav out, data transfer~~ → `vavi-sound:HijackSourceDataLine`
  * ~~midi2~~ ... [by java](src/main/java/vavi/sound/midi/ump), played on AVFoundation by [`RococoaUmpReceiver`](src/main/java/vavi/sound/midi/rococoa/RococoaUmpReceiver.java)
+   * https://github.com/atsushieno/ktmidi
+   * https://github.com/jazz-soft/test-midi-files/tree/main/midi2
+   * the DLS synthesizer of macOS still answers MIDI 1.0, so MIDI 2.0 channel voice messages are down converted
 
 ### ebml (Extensible Binary Meta Language: Matroska)
 

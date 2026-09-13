@@ -350,12 +350,12 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-commons</artifactId>
-      <version>1.1.21</version>
+      <version>1.1.22</version>
     </dependency>
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.31</version>
+      <version>1.0.34</version>
       <exclusions>
         <exclusion>
           <groupId>vavi</groupId>
@@ -497,7 +497,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- net.javazoom / com.github.umjammer -->
       <artifactId>mp3spi</artifactId>
-      <version>1.9.19</version>
+      <version>1.9.20</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -531,7 +531,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- com.locurasoft / com.github.umjammer -->
       <artifactId>osxmidi4j</artifactId>
-      <version>1.0.7</version>
+      <version>1.0.8</version>
       <scope>test</scope>
     </dependency>
 
@@ -567,7 +567,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- com.github.umjammer / vavi -->
       <artifactId>vavi-util-screenscraping</artifactId>
-      <version>1.0.18</version>
+      <version>1.0.19</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -588,7 +588,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId>
       <artifactId>vavi-sound-alac</artifactId>
-      <version>0.3.5</version>
+      <version>0.3.7</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -616,7 +616,7 @@
           <artifactId>uitools</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>maven:com.fasterxml.jackson.core</groupId>
+          <groupId>com.fasterxml.jackson.core</groupId>
           <artifactId>jackson-core</artifactId>
         </exclusion>
       </exclusions>
@@ -637,7 +637,7 @@
     <dependency>
       <groupId>com.github.umjammer.vavi-commons</groupId>
       <artifactId>vavi-instrumentation</artifactId>
-      <version>1.1.21</version>
+      <version>1.1.22</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
