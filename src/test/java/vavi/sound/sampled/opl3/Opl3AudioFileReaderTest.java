@@ -58,7 +58,7 @@ class Opl3AudioFileReaderTest {
     double volume = 0.2;
 
     static boolean onIde = System.getProperty("vavi.test", "").equals("ide");
-    static long time = onIde ? 1000 * 1000 : 10 * 1000;
+    static long time = onIde ? 1000 * 1000 : 5 * 1000;
 
     @BeforeAll
     static void setup() {

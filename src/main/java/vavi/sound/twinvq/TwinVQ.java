@@ -35,7 +35,6 @@ import vavi.sound.twinvq.TwinVQDec.TwinVQFrameType;
 import vavi.sound.twinvq.TwinVQDec.TwinVQModeTab;
 
 import static java.lang.System.getLogger;
-import static vavi.sound.twinvq.LibAV.AVERROR_INVALIDDATA;
 import static vavi.sound.twinvq.LibAV.AV_CODEC_FLAG_BITEXACT;
 import static vavi.sound.twinvq.LibAV.AV_SAMPLE_FMT_FLTP;
 import static vavi.sound.twinvq.LibAV.AV_TX_FLOAT_MDCT;
@@ -75,11 +74,6 @@ public class TwinVQ {
 
     private static final Logger logger = getLogger(TwinVQ.class.getName());
 
-    enum TwinVQCodec {
-        TWINVQ_CODEC_VQF,
-        TWINVQ_CODEC_METASOUND,
-    }
-
     /** @note not speed critical, hence not optimized */
     static void twinvq_memset_float(float[] buf, int bufP, float val, int size) {
         while (size-- != 0)
@@ -98,7 +92,7 @@ public class TwinVQ {
      * <p>
      * TODO reuse code from Vorbis decoder: vorbis_floor0_decode
      */
-    static float eval_lpc_spectrum(float[] lsp, int lspP, float cos_val, int order) {
+    private static float eval_lpc_spectrum(float[] lsp, int lspP, float cos_val, int order) {
         int j;
         float p = 0.5f;
         float q = 0.5f;
@@ -122,7 +116,7 @@ public class TwinVQ {
     /**
      * Evaluate the LPC amplitude spectrum envelope from the line spectrum pairs.
      */
-    static void eval_lpcenv(TwinVQContext tctx, float[] cos_vals, float[] lpc) {
+    private static void eval_lpcenv(TwinVQContext tctx, float[] cos_vals, float[] lpc) {
         int i;
         TwinVQModeTab mtab = tctx.mtab;
         int size_s = mtab.size / mtab.fmode[TWINVQ_FT_SHORT.ordinal()].sub;
@@ -135,7 +129,7 @@ public class TwinVQ {
     }
 
     /** */
-    static void interpolate(float[] out, int outP, float v1, float v2, int size) {
+    private static void interpolate(float[] out, int outP, float v1, float v2, int size) {
         float step = (v1 - v2) / (size + 1);
 
         for (int i = 0; i < size; i++) {
@@ -145,7 +139,7 @@ public class TwinVQ {
     }
 
     /** */
-    static float get_cos(int idx, int part, float[] cos_tab, int size) {
+    private static float get_cos(int idx, int part, float[] cos_tab, int size) {
         return part != 0 ? -cos_tab[size - idx - 1]
                 : cos_tab[idx];
     }
@@ -166,7 +160,7 @@ public class TwinVQ {
      *             (negative cosine values)
      * @param size the size of the whole output
      */
-    static void eval_lpcenv_or_interp(TwinVQContext tctx, TwinVQFrameType ftype,
+    private static void eval_lpcenv_or_interp(TwinVQContext tctx, TwinVQFrameType ftype,
                                       float[] out, int outP, float[] in, int inP,
                                       int size, int step, int part) {
         TwinVQModeTab mtab = tctx.mtab;
@@ -192,7 +186,7 @@ public class TwinVQ {
     }
 
     /** */
-    static void eval_lpcenv_2parts(TwinVQContext tctx, TwinVQFrameType ftype,
+    private static void eval_lpcenv_2parts(TwinVQContext tctx, TwinVQFrameType ftype,
                                    float[] buf, float[] lpc, int size, int step) {
         eval_lpcenv_or_interp(tctx, ftype, lpc, 0, buf, 0, size / 2, step, 0);
         eval_lpcenv_or_interp(tctx, ftype, lpc, size / 2, buf, 0, size / 2, 2 * step, 1);
@@ -207,7 +201,7 @@ public class TwinVQ {
      * bitstream, sum the corresponding vectors and write the result to *out
      * after permutation.
      */
-    static void dequant(TwinVQContext tctx, byte[] cb_bits, float[] out,
+    private static void dequant(TwinVQContext tctx, byte[] cb_bits, float[] out,
                         TwinVQFrameType ftype, short[] cb0, short[] cb1, int cb1P, int cb_len) {
         int pos = 0;
         int cb_bitsP = 0;
@@ -248,7 +242,7 @@ public class TwinVQ {
     }
 
     /** */
-    static void dec_gain(TwinVQContext tctx, TwinVQFrameType ftype, float[] out) {
+    private static void dec_gain(TwinVQContext tctx, TwinVQFrameType ftype, float[] out) {
         TwinVQModeTab mtab = tctx.mtab;
         TwinVQFrameData bits = tctx.bits[tctx.cur_frame];
         int channels = tctx.avctx.ch_layout.nb_channels;
@@ -279,7 +273,7 @@ public class TwinVQ {
      * of the G.729 specification (but interestingly is different from what the
      * reference decoder actually does).
      */
-    static void rearrange_lsp(int order, float[] lsp, float min_dist) {
+    private static void rearrange_lsp(int order, float[] lsp, float min_dist) {
         float min_dist2 = min_dist * 0.5f;
         for (int i = 1; i < order; i++)
             if (lsp[i] - lsp[i - 1] < min_dist) {
@@ -290,7 +284,7 @@ public class TwinVQ {
             }
     }
 
-    static void decode_lsp(TwinVQContext tctx, int lpc_idx1, byte[] lpc_idx2,
+    private static void decode_lsp(TwinVQContext tctx, int lpc_idx1, byte[] lpc_idx2,
                            int lpc_hist_idx, float[] lsp, float[] hist) {
         TwinVQModeTab mtab = tctx.mtab;
 
@@ -327,7 +321,7 @@ public class TwinVQ {
         ff_sort_nearly_sorted_floats(lsp, mtab.n_lsp & 0xff);
     }
 
-    static void ff_sort_nearly_sorted_floats(float[] vals, int len) {
+    private static void ff_sort_nearly_sorted_floats(float[] vals, int len) {
         for (int i = 0; i < len - 1; i++)
             for (int j = i; j >= 0 && vals[j] > vals[j + 1]; j--) {
                 float tmp = vals[j];
@@ -337,7 +331,7 @@ public class TwinVQ {
     }
 
     /** */
-    static void dec_lpc_spectrum_inv(TwinVQContext tctx, float[] lsp, TwinVQFrameType ftype, float[] lpc) {
+    private static void dec_lpc_spectrum_inv(TwinVQContext tctx, float[] lsp, TwinVQFrameType ftype, float[] lpc) {
         int size = tctx.mtab.size / tctx.mtab.fmode[ftype.ordinal()].sub;
 
         for (int i = 0; i < tctx.mtab.n_lsp; i++)
@@ -357,7 +351,7 @@ public class TwinVQ {
     }
 
     /** Integer log base 2 (floor). */
-    static int ff_log2(int v) {
+    private static int ff_log2(int v) {
         int n = 0;
         if ((v & 0xffff_0000) != 0) {
             v >>>= 16;
@@ -381,10 +375,10 @@ public class TwinVQ {
         return n;
     }
 
-    static final byte[] wtype_to_wsize = new byte[] {0, 0, 2, 2, 2, 1, 0, 1, 1};
+    private static final byte[] wtype_to_wsize = new byte[] {0, 0, 2, 2, 2, 1, 0, 1, 1};
 
     /** */
-    static void imdct_and_window(TwinVQContext tctx, TwinVQFrameType ftype,
+    private static void imdct_and_window(TwinVQContext tctx, TwinVQFrameType ftype,
                                  int wtype, float[] in, int inP, float[] prev, int prev_bufP, int ch) {
         AVTXContext tx = tctx.tx[ftype.ordinal()];
         AVTXContext.TXFunction tx_fn = tctx.tx_fn[ftype.ordinal()];
@@ -457,7 +451,7 @@ public class TwinVQ {
         tctx.last_block_pos[ch] = (size + first_wsize) / 2;
     }
 
-    static void imdct_output(TwinVQContext tctx, TwinVQFrameType ftype, int wtype, float[][] out, int offset) {
+    private static void imdct_output(TwinVQContext tctx, TwinVQFrameType ftype, int wtype, float[][] out, int offset) {
         TwinVQModeTab mtab = tctx.mtab;
         int prev_bufP = tctx.last_block_pos[0]; // offset into tctx.prev_frame
         int channels = tctx.avctx.ch_layout.nb_channels;
@@ -542,7 +536,7 @@ public class TwinVQ {
         }
     }
 
-    static void read_and_decode_spectrum(TwinVQContext tctx, float[] out, TwinVQFrameType ftype) {
+    private static void read_and_decode_spectrum(TwinVQContext tctx, float[] out, TwinVQFrameType ftype) {
         TwinVQModeTab mtab = tctx.mtab;
         TwinVQFrameData bits = tctx.bits[tctx.cur_frame];
         int channels = tctx.avctx.ch_layout.nb_channels;
@@ -701,7 +695,7 @@ public class TwinVQ {
     /**
      * Init IMDCT and windowing tables
      */
-    static int init_mdct_win(TwinVQContext tctx) {
+    private static int init_mdct_win(TwinVQContext tctx) {
         int ret;
         TwinVQModeTab mtab = tctx.mtab;
         int size_s = mtab.size / mtab.fmode[TWINVQ_FT_SHORT.ordinal()].sub;
@@ -750,7 +744,7 @@ public class TwinVQ {
      *
      * @param tab output
      */
-    static void permutate_in_line(short[] tab, int num_vect, int num_blocks,
+    private static void permutate_in_line(short[] tab, int num_vect, int num_blocks,
                                   int block_size,
                                   byte[] line_len,
                                   int length_div,
@@ -788,7 +782,7 @@ public class TwinVQ {
      * aiqxbjr1cks2dlt3emu4fvn5gow6hp
      * </pre>
      */
-    static void transpose_perm(short[] out, short[] in, int num_vect, byte[] line_len, int length_div) {
+    private static void transpose_perm(short[] out, short[] in, int num_vect, byte[] line_len, int length_div) {
         int cont = 0;
 
         for (int i = 0; i < num_vect; i++)
@@ -797,7 +791,7 @@ public class TwinVQ {
     }
 
     /** */
-    static void linear_perm(short[] out, short[] in, int n_blocks, int size) {
+    private static void linear_perm(short[] out, short[] in, int n_blocks, int size) {
         int block_size = size / n_blocks;
 
         for (int i = 0; i < size; i++)
@@ -805,7 +799,7 @@ public class TwinVQ {
     }
 
     /** */
-    static void construct_perm_table(TwinVQContext tctx, TwinVQFrameType ftype) {
+    private static void construct_perm_table(TwinVQContext tctx, TwinVQFrameType ftype) {
         int block_size, size;
         TwinVQModeTab mtab = tctx.mtab;
 
@@ -868,7 +862,7 @@ public class TwinVQ {
     }
 
     /** */
-    static void init_bitstream_params(TwinVQContext tctx) {
+    private static void init_bitstream_params(TwinVQContext tctx) {
         TwinVQModeTab mtab = tctx.mtab;
         int n_ch = tctx.avctx.ch_layout.nb_channels;
         int total_fr_bits = tctx.avctx.bit_rate * mtab.size / tctx.avctx.sample_rate;
@@ -940,8 +934,8 @@ logger.log(Level.TRACE, "rounded_up: " + rounded_up + ", rounded_down: " + round
         return 0;
     }
 
-    /** */
-    static int ff_twinvq_decode_init(AVCodecContext avctx) {
+    /** @throws IllegalArgumentException invalid argument */
+    static void ff_twinvq_decode_init(AVCodecContext avctx) {
         int ret;
         TwinVQContext tctx = avctx.priv_data;
         long frames_per_packet;
@@ -954,24 +948,19 @@ logger.log(Level.TRACE, "rounded_up: " + rounded_up + ", rounded_down: " + round
         }
         frames_per_packet = avctx.block_align * 8L / tctx.frame_size;
         if (frames_per_packet <= 0) {
-            logger.log(Level.ERROR, "Block align is %d bits, expected %d".formatted(avctx.block_align * 8L, tctx.frame_size));
-            return AVERROR_INVALIDDATA;
+            throw new IllegalArgumentException("Block align is %d bits, expected %d".formatted(avctx.block_align * 8L, tctx.frame_size));
         }
         if (frames_per_packet > TWINVQ_MAX_FRAMES_PER_PACKET) {
-            logger.log(Level.ERROR, "Too many frames per packet (%d)".formatted(frames_per_packet));
-            return AVERROR_INVALIDDATA;
+            throw new IllegalArgumentException("Too many frames per packet (%d)".formatted(frames_per_packet));
         }
         tctx.frames_per_packet = (int) frames_per_packet;
 
         tctx.fdsp = new AVFloatDSPContext(avctx.flags & AV_CODEC_FLAG_BITEXACT);
         if ((ret = init_mdct_win(tctx)) != 0) {
-            logger.log(Level.ERROR, "Error initializing MDCT");
-            return ret;
+            throw new IllegalArgumentException("Error initializing MDCT: %d".formatted(ret));
         }
         init_bitstream_params(tctx);
 
         twinvq_memset_float(tctx.bark_hist[0][0], 0, 0.1f, FF_ARRAY_ELEMS(tctx.bark_hist));
-
-        return 0;
     }
 }

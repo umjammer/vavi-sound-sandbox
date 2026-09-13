@@ -72,5 +72,10 @@ public abstract class AVAudioEngine extends NSObject {
 
     public abstract void reset();
 
-    public abstract boolean running();
+    /** the objective-c property is {@code running}, but its getter, and so the selector, is this */
+    public abstract boolean isRunning();
+
+    public boolean running() {
+        return isRunning();
+    }
 }

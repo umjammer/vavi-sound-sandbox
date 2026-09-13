@@ -17,9 +17,12 @@
 package com.jsyn.examples;
 
 import java.awt.BorderLayout;
-
-import javax.swing.JApplet;
+import java.awt.Dimension;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.concurrent.CountDownLatch;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.jsyn.JSyn;
@@ -27,7 +30,6 @@ import com.jsyn.Synthesizer;
 import com.jsyn.data.SegmentedEnvelope;
 import com.jsyn.swing.EnvelopeEditorPanel;
 import com.jsyn.swing.EnvelopePoints;
-import com.jsyn.swing.JAppletFrame;
 import com.jsyn.unitgen.LineOut;
 import com.jsyn.unitgen.SawtoothOscillatorBL;
 import com.jsyn.unitgen.UnitOscillator;
@@ -41,7 +43,8 @@ import com.jsyn.unitgen.VariableRateMonoReader;
  *
  * @author (C) 1997 Phil Burk
  */
-public class EditEnvelope1 extends JApplet {
+public class EditEnvelope1 extends JPanel {
+
     private Synthesizer synth;
     private UnitOscillator osc;
     private LineOut lineOut;
@@ -56,19 +59,9 @@ public class EditEnvelope1 extends JApplet {
     private EnvelopeEditorPanel envEditor;
     private EnvelopePoints points;
 
-    /* Can be run as either an application or as an applet. */
-    public static void main(String[] args) {
-        EditEnvelope1 applet = new EditEnvelope1();
-        JAppletFrame frame = new JAppletFrame("Test SynthEnvelope", applet);
-        frame.setSize(440, 200);
-        frame.setVisible(true);
-        frame.test();
-    }
-
     /*
      * Setup synthesis.
      */
-    @Override
     public void start() {
         setLayout(new BorderLayout());
 
@@ -132,8 +125,25 @@ public class EditEnvelope1 extends JApplet {
         getToolkit().sync();
     }
 
-    @Override
     public void stop() {
         synth.stop();
+    }
+
+    /* Can be run as either an application or as an applet. */
+    public static void main(String[] args) throws Exception {
+        EditEnvelope1 applet = new EditEnvelope1();
+        applet.setPreferredSize(new Dimension(640, 400));
+        JFrame frame = new JFrame("Test SynthEnvelope");
+        frame.getContentPane().add(applet);
+        CountDownLatch cdl = new CountDownLatch(1);
+        frame.addWindowListener(new WindowAdapter() {
+            @Override public void windowClosed(WindowEvent e) { cdl.countDown(); }
+        });
+        frame.pack();
+        frame.setVisible(true);
+        applet.start();
+        cdl.await();
+        applet.stop();
+        frame.dispose();
     }
 }

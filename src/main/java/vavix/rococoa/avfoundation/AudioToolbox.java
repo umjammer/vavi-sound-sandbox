@@ -33,9 +33,26 @@ public interface AudioToolbox extends com.sun.jna.Library {
      */
     int MusicDeviceMIDIEvent(Pointer inUnit, int inStatus, int inData1, int inData2, int inOffsetSampleFrame);
 
+    /**
+     * Sends Universal MIDI Packets to an audio unit. The events are delivered to the audio unit in
+     * the protocol it reports as {@link AudioUnitPropertyID#kAudioUnitProperty_AudioUnitMIDIProtocol},
+     * no matter which protocol {@code evtList} declares.
+     *
+     * @param inUnit AudioUnit
+     * @param inOffsetSampleFrame 0 unless you are scheduling from the render thread
+     * @param evtList MIDIEventList
+     * @return OSStatus
+     * @see MIDIEventList
+     */
+    int MusicDeviceMIDIEventList(Pointer inUnit, int inOffsetSampleFrame, Pointer evtList);
+
     enum AudioUnitPropertyID {
         kAudioUnitProperty_ParameterList(3),
         kAudioUnitProperty_ParameterInfo(4),
+        /** MIDIProtocolID, read only, the protocol the audio unit wants to be talked in */
+        kAudioUnitProperty_AudioUnitMIDIProtocol(64),
+        /** MIDIProtocolID, write only, and only while the audio unit is not initialized */
+        kAudioUnitProperty_HostMIDIProtocol(65),
         kMusicDeviceProperty_SoundBankURL(1100);
         public final int id;
         AudioUnitPropertyID(int id) {

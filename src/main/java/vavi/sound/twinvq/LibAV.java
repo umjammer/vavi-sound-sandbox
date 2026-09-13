@@ -11,6 +11,7 @@ import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import vavi.sound.twinvq.TwinVQDec.TwinVQContext;
@@ -61,7 +62,7 @@ public class LibAV {
         String long_name;
         int priv_data_size;
         public Function<byte[], Integer> read_probe;
-        public Function<AVFormatContext, Integer> read_header;
+        public Consumer<AVFormatContext> read_header;
         public Function<AVFormatContext, AVPacket> read_packet;
         TetraFunction<AVFormatContext, Integer, Long, Integer, Integer> read_seek;
         String extensions;
@@ -260,7 +261,7 @@ logger.log(Level.TRACE, "index: " + index + ", windows: " + windows.length);
     }
 
     // Generate a sine window.
-    static void ff_sine_window_init(float[] window, int n) {
+    private static void ff_sine_window_init(float[] window, int n) {
         for (int i = 0; i < n; i++)
             window[i] = (float) Math.sin((i + 0.5) * (Math.PI / (2.0 * n)));
     }

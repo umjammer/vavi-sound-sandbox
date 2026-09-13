@@ -14,11 +14,11 @@ package vavi.sound.twinvq;
  */
 public class GetBits {
 
-    final int size_in_bits;
+    private final int size_in_bits;
 
-    int pos;
+    private int pos;
 
-    public final char[] buffer;
+    private final char[] buffer;
     final int buffer_len;
     int buffer_pos;
 

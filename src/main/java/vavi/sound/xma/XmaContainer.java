@@ -167,9 +167,8 @@ public final class XmaContainer {
                 int sampleRate = (int) readU32LE(buf, 4);
                 yield parseXma2Fmt(buf, channels, sampleRate);
             }
-            default -> throw new IOException(String.format(
-                    "Unsupported wFormatTag 0x%04X; expected XMA1 (0x0165) or XMA2 (0x0166).",
-                    formatTag));
+            default -> throw new IOException(
+                    "Unsupported wFormatTag 0x%04X; expected XMA1 (0x0165) or XMA2 (0x0166).".formatted(formatTag));
         };
     }
 
@@ -209,9 +208,8 @@ public final class XmaContainer {
         final int minSize = streamArrayBase + streamDescSize;
 
         if (buf.length < minSize) {
-            throw new IOException(String.format(
-                    "XMA1 fmt chunk too small (%d bytes); expected at least %d.",
-                    buf.length, minSize));
+            throw new IOException(
+                    "XMA1 fmt chunk too small (%d bytes); expected at least %d.".formatted(buf.length, minSize));
         }
 
         int streamCount = readU16LE(buf, 0x08);
@@ -221,8 +219,7 @@ public final class XmaContainer {
 
         int needed = streamArrayBase + streamCount * streamDescSize;
         if (buf.length < needed) {
-            throw new IOException(String.format(
-                    "XMA1 fmt chunk truncated: need %d bytes for %d stream(s), have %d.",
+            throw new IOException("XMA1 fmt chunk truncated: need %d bytes for %d stream(s), have %d.".formatted(
                     needed, streamCount, buf.length));
         }
 

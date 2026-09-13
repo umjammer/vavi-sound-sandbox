@@ -414,7 +414,7 @@ logger.log(Level.INFO, "endmark: %d -- %x".formatted(pos, pos));
 logger.log(Level.DEBUG, "meta: %02x, %s, %d\n%s".formatted(v, MidiConstants.MetaEvent.valueOf(v), l, StringUtil.getDump(data, 0, l)));
                                 switch (v) {
                                 case 0x2f:
-                                    logger.log(Level.INFO, String.format("meta: %02x", v));
+                                    logger.log(Level.INFO, "meta: %02x".formatted(v));
                                     if (data.available() > 0) {
                                         logger.log(Level.DEBUG, "out of spec data for meta:0x2f: " + data.available());
                                         l += data.available();
@@ -426,7 +426,7 @@ logger.log(Level.DEBUG, "meta: %02x, %s, %d\n%s".formatted(v, MidiConstants.Meta
                                     logger.log(Level.DEBUG, "(qtr=%d)".formatted(msqtr));
                                     break;
                                 default:
-                                    logger.log(Level.TRACE, String.format("meta unhandled: %02x, %02x", v, l));
+                                    logger.log(Level.TRACE, "meta unhandled: %02x, %02x".formatted(v, l));
                                     for (int i = 0; i < l; ++i) {
                                         takeBE(1);
                                     }
@@ -494,7 +494,7 @@ logger.log(Level.TRACE, "pos: %d, end: %d".formatted(pos, tracks[t].tend));
             }
         }
 
-//logger.log(Level.INFO, String.format("iwait: %d, deltas: %d, msqtr: %d", iwait, deltas, msqtr));
+//logger.log(Level.INFO, "iwait: %d, deltas: %d, msqtr: %d".formatted(iwait, deltas, msqtr));
         if (iwait != 0 && eos) {
             for (int t = 0; t < MAX_CHANNELS; ++t) {
                 if (tracks[t].on) {
@@ -510,7 +510,7 @@ logger.log(Level.TRACE, "pos: %d, end: %d".formatted(pos, tracks[t].tend));
         for (int t = 0; t < MAX_CHANNELS; ++t) {
             if (tracks[t].on) {
                 if (tracks[t].pos < tracks[t].tend) {
-                    logger.log(Level.TRACE, String.format("iwait: %d", tracks[t].iwait));
+                    logger.log(Level.TRACE, "iwait: %d".formatted(tracks[t].iwait));
                 } else {
                     logger.log(Level.TRACE, "stop");
                 }

@@ -601,11 +601,11 @@ public final class OPL3 {
         @Override
         public String toString() {
             int fNumber = (fNumH << 8) + fNumL;
-            return String.format("channelBaseAddress: %d\n", channelBaseAddress) +
-                    String.format("fNumber: %d, block: %d\n", fNumber, block) +
-                    String.format("cnt: %d, feedback: %d\n", cnt, fb) +
-                    String.format("op1:\n%s", op1.toString()) +
-                    String.format("op2:\n%s", op2.toString());
+            return "channelBaseAddress: %d\n".formatted(channelBaseAddress) +
+                    "fNumber: %d, block: %d\n".formatted(fNumber, block) +
+                    "cnt: %d, feedback: %d\n".formatted(cnt, fb) +
+                    "op1:\n%s".formatted(op1.toString()) +
+                    "op2:\n%s".formatted(op2.toString());
         }
     }
 
@@ -727,13 +727,13 @@ public final class OPL3 {
         @Override
         public String toString() {
             int fNumber = (fNumH <<8)+ fNumL;
-            return String.format("channelBaseAddress: %d\n", channelBaseAddress) +
-                    String.format("fNumber: %d, block: %d\n", fNumber, block) +
-                    String.format("cnt: %d, feedback: %d\n", cnt, fb) +
-                    String.format("op1:\n%s", op1.toString()) +
-                    String.format("op2:\n%s", op2.toString()) +
-                    String.format("op3:\n%s", op3.toString()) +
-                    String.format("op4:\n%s", op4.toString());
+            return "channelBaseAddress: %d\n".formatted(channelBaseAddress) +
+                    "fNumber: %d, block: %d\n".formatted(fNumber, block) +
+                    "cnt: %d, feedback: %d\n".formatted(cnt, fb) +
+                    "op1:\n%s".formatted(op1.toString()) +
+                    "op2:\n%s".formatted(op2.toString()) +
+                    "op3:\n%s".formatted(op3.toString()) +
+                    "op4:\n%s".formatted(op4.toString());
         }
     }
 
@@ -900,10 +900,10 @@ public final class OPL3 {
             double operatorFrequency = f_number * Math.pow(2, block - 1) * OPL3Data.sampleRate / Math.pow(2, 19) *
                                        OperatorData.multTable[mult];
 
-            str.append(String.format("operatorBaseAddress: %d\n", operatorBaseAddress));
-            str.append(String.format("operatorFrequency: %f\n", operatorFrequency));
-            str.append(String.format("mult: %d, ar: %d, dr: %d, sl: %d, rr: %d, ws: %d\n", mult, ar, dr, sl, rr, ws));
-            str.append(String.format("am: %d, vib: %d, ksr: %d, egt: %d, ksl: %d, tl: %d\n", am, vib, ksr, egt, ksl, tl));
+            str.append("operatorBaseAddress: %d%n".formatted(operatorBaseAddress));
+            str.append("operatorFrequency: %f%n".formatted(operatorFrequency));
+            str.append("mult: %d, ar: %d, dr: %d, sl: %d, rr: %d, ws: %d%n".formatted(mult, ar, dr, sl, rr, ws));
+            str.append("am: %d, vib: %d, ksr: %d, egt: %d, ksl: %d, tl: %d%n".formatted(am, vib, ksr, egt, ksl, tl));
 
             return str.toString();
         }
@@ -1128,12 +1128,12 @@ public final class OPL3 {
             double attackPeriodInSeconds = EnvelopeGeneratorData.attackTimeValuesTable[actualAttackRate][0] / 1000d;
             double decayPeriodInSeconds = EnvelopeGeneratorData.decayAndReleaseTimeValuesTable[actualDecayRate][0] / 1000d;
             double releasePeriodInSeconds = EnvelopeGeneratorData.decayAndReleaseTimeValuesTable[actualReleaseRate][0] / 1000d;
-            return "Envelope Generator: \n" +
-                    String.format("\tATTACK  %f s, rate %d. \n", attackPeriodInSeconds, actualAttackRate) +
-                    String.format("\tDECAY   %f s, rate %d. \n", decayPeriodInSeconds, actualDecayRate) +
-                    String.format("\tSL      %f dB. \n", sustainLevel) +
-                    String.format("\tRELEASE %f s, rate %d. \n", releasePeriodInSeconds, actualReleaseRate) +
-                    "\n";
+            return "Envelope Generator: %n" +
+                    "\tATTACK  %f s, rate %d. %n".formatted(attackPeriodInSeconds, actualAttackRate) +
+                    "\tDECAY   %f s, rate %d. %n".formatted(decayPeriodInSeconds, actualDecayRate) +
+                    "\tSL      %f dB. %n".formatted(sustainLevel) +
+                    "\tRELEASE %f s, rate %d. %n".formatted(releasePeriodInSeconds, actualReleaseRate) +
+                    "%n";
         }
     }
 
@@ -1192,7 +1192,7 @@ public final class OPL3 {
 
         @Override
         public String toString() {
-            return String.format("Operator frequency: %f Hz.\n", OPL3Data.sampleRate * phaseIncrement);
+            return "Operator frequency: %f Hz.%n".formatted(OPL3Data.sampleRate * phaseIncrement);
         }
     }
 

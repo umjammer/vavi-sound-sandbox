@@ -61,7 +61,7 @@ public class TwinVQDec {
         return (a > 0 ? a + (b >> 1) : a - (b >> 1)) / b;
     }
 
-    static int FFSIGN(float a) { return a > 0 ? 1 : -1; }
+    private static int FFSIGN(float a) { return a > 0 ? 1 : -1; }
 
     enum TwinVQCodec {
         TWINVQ_CODEC_VQF,
@@ -81,10 +81,10 @@ public class TwinVQDec {
 
     static final int TWINVQ_PPC_SHAPE_CB_SIZE = 64;
     static final int TWINVQ_PPC_SHAPE_LEN_MAX = 60;
-    static final float TWINVQ_SUB_AMP_MAX       = 4500.0f;
-    static final float TWINVQ_MULAW_MU          = 100.0f;
+    static final float TWINVQ_SUB_AMP_MAX     = 4500.0f;
+    static final float TWINVQ_MULAW_MU        = 100.0f;
     static final int TWINVQ_GAIN_BITS         = 8;
-    static final float TWINVQ_AMP_MAX           = 13000.0f;
+    static final float TWINVQ_AMP_MAX         = 13000.0f;
     static final int TWINVQ_SUB_GAIN_BITS     = 5;
     static final int TWINVQ_WINDOW_TYPE_BITS  = 4;
     static final int TWINVQ_PGAIN_MU          = 200;
@@ -115,11 +115,9 @@ public class TwinVQDec {
         /** number of bits of the BSE coefs */
         final byte bark_n_bit;
 
-        //@{
         /** main codebooks for spectrum data */
         final short[] cb0;
         final short[] cb1;
-        //@}
 
         /** number of spectrum coefficients to read */
         final byte cb_len_read;
@@ -267,33 +265,7 @@ public class TwinVQDec {
         HeptaConsumer<TwinVQContext, Integer, Integer, float[], Integer, float[], Integer> decode_ppc = TwinVQDec::decode_ppc;
     }
 
-    /**
-     * Clip a signed integer value into the amin-amax range.
-     * @param a value to clip
-     * @param amin minimum value of the clip range
-     * @param amax maximum value of the clip range
-     * @return clipped value
-     */
-    static int av_clip_c(int a, int amin, int amax) {
-        if      (a < amin) return amin;
-        else if (a > amax) return amax;
-        else               return a;
-    }
-
-    /**
-     * Clip a float value into the amin-amax range.
-     * @param a value to clip
-     * @param amin minimum value of the clip range
-     * @param amax maximum value of the clip range
-     * @return clipped value
-     */
-    static float av_clipf_c(float a, float amin, float amax) {
-        if      (a < amin) return amin;
-        else if (a > amax) return amax;
-        else               return a;
-    }
-
-    static final byte[] ff_log2_tab= {
+    private static final byte[] ff_log2_tab= {
             0, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3,
             4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
             5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
@@ -312,7 +284,7 @@ public class TwinVQDec {
             7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7
     };
 
-    static int ff_log2_c(int v) {
+    private static int ff_log2_c(int v) {
         int n = 0;
         if ((v & 0xffff_0000) != 0) {
             v >>>= 16;
@@ -328,7 +300,7 @@ public class TwinVQDec {
     }
 
     static float twinvq_mulawinv(float y, float clip, float mu) {
-        y = av_clipf_c(y / clip, -1.0f, 1.0f);
+        y = Math.clamp(y / clip, -1.0f, 1.0f);
         return (float) (clip * FFSIGN(y) * (Math.exp(Math.log(1 + mu) * Math.abs(y)) - 1) / mu);
     }
 
@@ -435,7 +407,7 @@ public class TwinVQDec {
         int x = a * b + 200;
 
         if (x % 400 != 0 || b % 5 != 0) {
-//System.err.printf("center0: a: %d, b: %d, r: %d%n", a, b, x / 400);
+//logger.log(Level.TRACE, "center0: a: %d, b: %d, r: %d".formatted(a, b, x / 400);
             return x / 400;
         }
 
@@ -443,7 +415,7 @@ public class TwinVQDec {
 
         int size = tabs[b / 5].size();
         byte[] rtab = tabs[b / 5].tab();
-//System.err.printf("index: %d%n", size * ff_log2_c(2 * (x - 1) / size) + (x - 1) % size);
+//logger.log(Level.TRACE, "index: %d".formatted(size * ff_log2_c(2 * (x - 1) / size) + (x - 1) % size));
         return x - rtab[size * ff_log2_c(2 * (x - 1) / size) + (x - 1) % size];
     }
 
@@ -481,7 +453,7 @@ public class TwinVQDec {
         int min_period = ROUNDED_DIV(40 * 2 * mtab.size, isampf);
         int max_period = ROUNDED_DIV(40 * 2 * mtab.size * 6, isampf);
         int period_range = max_period - min_period;
-//System.err.printf("isampf: %d, ibps: %d, min_period: %d, max_period: %d, period_range: %d, mtab.size: %d%n", isampf, ibps, min_period, max_period, period_range, mtab.size);
+//logger.log(Level.TRACE, "isampf: %d, ibps: %d, min_period: %d, max_period: %d, period_range: %d, mtab.size: %d".formatted(isampf, ibps, min_period, max_period, period_range, mtab.size));
         float pgain_step = 25000.0f / ((1 << mtab.pgain_bit) - 1);
         float ppc_gain = 1.0f / 8192 *
                 twinvq_mulawinv(pgain_step * g_coef + pgain_step / 2, 25000.0f, TWINVQ_PGAIN_MU);
@@ -489,7 +461,7 @@ public class TwinVQDec {
         // This is actually the period multiplied by 400. It is just linearly coded
         // between its maximum and minimum value.
         int period = min_period + ROUNDED_DIV(period_coef * period_range, (1 << mtab.ppc_period_bit) - 1);
-//System.err.printf("period: %d, min_period: %d, period_coef: %d, period_range: %d, mtab.ppc_period_bit: %d%n", period, min_period, period_coef, period_range, mtab.ppc_period_bit);
+//logger.log(Level.TRACE, "period: %d, min_period: %d, period_coef: %d, period_range: %d, mtab.ppc_period_bit: %d".formatted(period, min_period, period_coef, period_range, mtab.ppc_period_bit));
         int width;
 
         if (isampf == 22 && ibps == 32) {
@@ -501,7 +473,7 @@ public class TwinVQDec {
         add_peak(period, width, shape, shapeP, ppc_gain, speech, speechP, mtab.ppc_shape_len);
     }
 
-    static void dec_bark_env(TwinVQContext tctx, byte[] in, int use_hist,
+    private static void dec_bark_env(TwinVQContext tctx, byte[] in, int use_hist,
                               int ch, float[] out, float gain, TwinVQDec.TwinVQFrameType ftype) {
         TwinVQModeTab mtab = tctx.mtab;
         float[] hist = tctx.bark_hist[ftype.ordinal()][ch];
@@ -555,7 +527,7 @@ public class TwinVQDec {
     }
 
     /** */
-    static int twinvq_read_bitstream(AVCodecContext avctx, TwinVQContext tctx, byte[] buf, int buf_size) {
+    private static int twinvq_read_bitstream(AVCodecContext avctx, TwinVQContext tctx, byte[] buf, int buf_size) {
         TwinVQDec.TwinVQFrameData bits = tctx.bits[0];
         TwinVQModeTab mtab = tctx.mtab;
         int channels = tctx.avctx.ch_layout.nb_channels;
@@ -565,7 +537,7 @@ public class TwinVQDec {
         // Show first 20 bytes of buffer for debugging
         StringBuilder bufHex = new StringBuilder("buf hex: ");
         for (int i = 0; i < Math.min(20, buf_size); i++) {
-            bufHex.append(String.format("%02x ", buf[i] & 0xff));
+            bufHex.append("%02x ".formatted(buf[i] & 0xff));
         }
         logger.log(Level.TRACE, "Frame start: buf_size=" + buf_size + ", skip=" + skip + ", bitPosAfterSkipByte=" + gb.get_bits_count());
         logger.log(Level.TRACE, bufHex.toString());
@@ -624,14 +596,16 @@ public class TwinVQDec {
         return (gb.get_bits_count() + 7) / 8;
     }
 
-    /** @override init */
-    public static int twinvq_decode_init(AVCodecContext avctx) {
+    /**
+     * @override init
+     * @throws IllegalArgumentException invalid argument
+     */
+    public static void twinvq_decode_init(AVCodecContext avctx) {
         int isampf, ibps, channels;
         TwinVQContext tctx = avctx.priv_data;
 
         if (avctx.extradata == null || avctx.extradata_size < 12) {
-            logger.log(Level.ERROR, "Missing or incomplete extradata");
-            return AVERROR_INVALIDDATA;
+            throw new IllegalArgumentException("Missing or incomplete extradata");
         }
         channels = ByteUtil.readBeInt(avctx.extradata) + 1;
 logger.log(Level.TRACE, "channels: " + channels);
@@ -640,8 +614,7 @@ logger.log(Level.TRACE, "bit_rate: " + avctx.bit_rate);
         isampf = ByteUtil.readBeInt(avctx.extradata, 8);
 
         if (isampf < 8 || isampf > 44) {
-            logger.log(Level.ERROR, "Unsupported sample rate");
-            return AVERROR_INVALIDDATA;
+            throw new IllegalArgumentException("Unsupported sample rate");
         }
 logger.log(Level.TRACE, "isampf: " + isampf);
         switch (isampf) {
@@ -660,18 +633,14 @@ logger.log(Level.TRACE, "isampf: " + isampf);
         }
 
         if (channels <= 0 || channels > TWINVQ_CHANNELS_MAX) {
-            logger.log(Level.ERROR, "Unsupported number of channels: %d".formatted(channels));
-            return -1;
+            throw new IllegalArgumentException("Unsupported number of channels: %d".formatted(channels));
         }
-//        av_channel_layout_uninit(avctx.ch_layout);
-//        av_channel_layout_default(avctx.ch_layout, channels);
         avctx.ch_layout.nb_channels = channels;
 
         ibps = avctx.bit_rate / (1000 * channels);
 logger.log(Level.TRACE, "ibps: " + ibps);
         if (ibps < 8 || ibps > 48) {
-            logger.log(Level.ERROR, "Bad bitrate per channel value %d".formatted(ibps));
-            return AVERROR_INVALIDDATA;
+            throw new IllegalArgumentException("Bad bitrate per channel value %d".formatted(ibps));
         }
 
 logger.log(Level.TRACE, "mtab: " + (isampf << 8) + ibps);
@@ -704,9 +673,8 @@ logger.log(Level.TRACE, "mtab: " + (isampf << 8) + ibps);
                 tctx.mtab = mode_44_48;
                 break;
             default:
-                logger.log(Level.ERROR, "This version does not support %d kHz - %d kbit/s/ch mode.".formatted(
+                throw new IllegalArgumentException("This version does not support %d kHz - %d kbit/s/ch mode.".formatted(
                         isampf, isampf));
-                return -1;
         }
 
         tctx.codec = TWINVQ_CODEC_VQF;
@@ -716,10 +684,9 @@ logger.log(Level.TRACE, "mtab: " + (isampf << 8) + ibps);
         tctx.frame_size = avctx.bit_rate * tctx.mtab.size / avctx.sample_rate + 8;
         tctx.is_6kbps = 0;
         if (avctx.block_align != 0 && avctx.block_align * 8L / tctx.frame_size > 1) {
-            logger.log(Level.ERROR, "VQF TwinVQ should have only one frame per packet");
-            return AVERROR_INVALIDDATA;
+            throw new IllegalArgumentException("VQF TwinVQ should have only one frame per packet");
         }
 
-        return ff_twinvq_decode_init(avctx);
+        ff_twinvq_decode_init(avctx);
     }
 }

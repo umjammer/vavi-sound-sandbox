@@ -20,6 +20,7 @@ import opendoja.audio.mld.MLD;
 import opendoja.audio.mld.MLDPlayer;
 import opendoja.audio.mld.MLDPlayerEvent;
 import opendoja.audio.mld.SamplerProvider;
+import opendoja.audio.mld.fuetrek.FueTrekSamplerProvider;
 import opendoja.audio.mld.ma3.MA3SamplerProvider;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
@@ -51,6 +52,9 @@ class TestCase {
     @Property
     String mfi = "src/test/resources/test.mld";
 
+    @Property(name = "openDoja.provider")
+    String provider = "ma3";
+
     @BeforeEach
     void setup() throws Exception {
         if (localPropertiesExists()) {
@@ -79,7 +83,11 @@ Debug.print(mfi);
 
         try (InputStream is = new BufferedInputStream(Files.newInputStream(path))) {
             MLD mld = new MLD(is);
-            SamplerProvider provider = new MA3SamplerProvider();
+            SamplerProvider provider = switch (this.provider) {
+                case "fuetrek" -> new FueTrekSamplerProvider();
+                default -> new MA3SamplerProvider();
+            };
+Debug.print(provider.getClass().getName());
             MLDPlayer mldPlayer = new MLDPlayer(mld, provider, sampleRate);
             mldPlayer.setLoopEnabled(false);
             mldPlayer.setPlaybackEventsEnabled(true);
