@@ -69,6 +69,8 @@ Debug.println("volume: " + volume);
     void test1() throws Exception {
         Path path = Path.of(mfi);
 Debug.print(mfi);
+//        System.setProperty("javax.sound.sampled.SourceDataLine", "#WaveOut Mixer");
+//        System.setProperty("vavi.sound.sampled.misc.waveout", Path.of("tmp", "waveout.wav").toString());
 
         float sampleRate = 48000F;
         AudioFormat audioFormat = new AudioFormat(
@@ -126,6 +128,12 @@ Debug.print(provider.getClass().getName());
                 line.close();
             }
         }
+
+//        if ("#WaveOut Mixer".equals(System.getProperty("javax.sound.sampled.SourceDataLine"))) {
+//Debug.println("vavi.sound.sampled.misc.waveout: " + System.getProperty("vavi.sound.sampled.misc.waveout"));
+//            assertTrue(Files.exists(Path.of(System.getProperty("vavi.sound.sampled.misc.waveout"))));
+//        }
+//        System.clearProperty("javax.sound.sampled.SourceDataLine");
     }
 
     private static int toPcm16le(float[] samples, int frames, byte[] buffer) {

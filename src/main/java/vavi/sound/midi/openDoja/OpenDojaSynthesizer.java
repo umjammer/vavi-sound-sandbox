@@ -39,6 +39,7 @@ import opendoja.audio.mld.SamplerProvider;
 import vavi.util.StringUtil;
 
 import static java.lang.System.getLogger;
+import static vavi.sound.SoundUtil.volume;
 
 
 /**
@@ -567,6 +568,15 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
                 case SysexMessage sysexMessage -> {
                     byte[] data = sysexMessage.getData();
                     logger.log(Level.TRACE, "sysex: %02X\n%s".formatted(sysexMessage.getStatus(), StringUtil.getDump(data, 32)));
+                    if  ((data[0] & 0xff) == 0x7f) { // Universal Realtime
+                        int c = data[1]; // 0x7f: Disregards channel
+                        // Sub-ID, Sub-ID2
+                        if (data[2] == 0x04 && data[3] == 0x01) { // Device Control / Master Volume
+                            float gain = ((data[4] & 0x7f) | ((data[5] & 0x7f) << 7)) / 16383f;
+                            logger.log(Level.DEBUG, "sysex volume: gain: %4.2f".formatted(gain));
+                            volume(line, gain);
+                        }
+                    }
                     synchronized (lock) {
                         if (sampler != null) {
                             sampler.sysEx(data); // TODO need some conversion
