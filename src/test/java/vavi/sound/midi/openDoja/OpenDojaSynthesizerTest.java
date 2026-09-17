@@ -20,7 +20,7 @@ import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Synthesizer;
 
 import vavi.sound.midi.MidiConstants;
-import vavi.sound.smaf.vavi.VaviSmafSynthesizer.SmafReceiver;
+import vavi.sound.smaf.vavi.VaviSmafSynthesizer.VaviSmafReceiver;
 import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
@@ -144,7 +144,7 @@ Debug.println("sequencer: " + sequencer);
 Debug.println("synthesizer: " + synthesizer);
         assertInstanceOf(OpenDojaSynthesizer.class, synthesizer);
         synthesizer.open();
-        sequencer.getTransmitter().setReceiver(new SmafReceiver(synthesizer)); // TODO better converter needed
+        sequencer.getTransmitter().setReceiver(new VaviSmafReceiver(synthesizer)); // TODO better converter needed
         sequencer.setSequence(sequence);
         volume(synthesizer.getReceiver(), volume);
 
