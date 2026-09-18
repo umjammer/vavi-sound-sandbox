@@ -8,7 +8,7 @@
 
   <groupId>vavi</groupId>
   <artifactId>vavi-sound-sandbox</artifactId>
-  <version>1.0.20</version>
+  <version>1.0.21</version>
 
   <name>Vavi Sound API (Sandbox)</name>
   <url>https://github.com/umjammer/vavi-sound-sandbox</url>
@@ -332,6 +332,10 @@
       <id>jitpack.io</id>
       <url>https://jitpack.io</url>
     </repository>
+<repository>
+  <id>gitlab-maven-packages</id> <!-- vavi-sound-nda -->
+  <url>https://gitlab.com/api/v4/projects/30804899/packages/maven</url>
+</repository>
   </repositories>
 
   <dependencyManagement>
@@ -355,13 +359,7 @@
     <dependency>
       <groupId>com.github.umjammer</groupId> <!-- vavi / com.github.umjammer -->
       <artifactId>vavi-sound</artifactId>
-      <version>1.0.35</version>
-      <exclusions>
-        <exclusion>
-          <groupId>vavi</groupId>
-          <artifactId>vavi-sound-nda</artifactId>
-        </exclusion>
-      </exclusions>
+      <version>1.1.1</version>
     </dependency>
 
     <dependency>

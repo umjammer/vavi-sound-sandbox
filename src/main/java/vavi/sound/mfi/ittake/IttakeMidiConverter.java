@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.List;
-
 import javax.sound.midi.InvalidMidiDataException;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiEvent;
@@ -20,19 +19,18 @@ import vavi.sound.mfi.InvalidMfiDataException;
 import vavi.sound.mfi.MfiDevice;
 import vavi.sound.mfi.MfiEvent;
 import vavi.sound.mfi.MfiMessage;
-import vavi.sound.mfi.MidiConverter;
 import vavi.sound.mfi.NoteMessage;
 import vavi.sound.mfi.Track;
-import vavi.sound.mfi.vavi.header.CopyMessage;
-import vavi.sound.mfi.vavi.header.ProtMessage;
-import vavi.sound.mfi.vavi.header.TitlMessage;
+import vavi.sound.mfi.spi.MfiMidiConverter;
+import vavi.sound.mfi.vavi.sub.CopyChunk;
+import vavi.sound.mfi.vavi.sub.ProtChunk;
+import vavi.sound.mfi.vavi.sub.TitlChunk;
 import vavi.sound.mfi.vavi.track.ChangeBankMessage;
 import vavi.sound.mfi.vavi.track.ChangeVoiceMessage;
 import vavi.sound.mfi.vavi.track.CuePointMessage;
 import vavi.sound.mfi.vavi.track.EndOfTrackMessage;
 import vavi.sound.mfi.vavi.track.TempoMessage;
 import vavi.sound.mfi.vavi.track.VolumeMessage;
-import vavi.util.Debug;
 
 import static java.lang.System.getLogger;
 
@@ -46,36 +44,9 @@ import static java.lang.System.getLogger;
  *          1.00 030913 nsano port to my system <br>
  *          1.01 030914 nsano extends VaviMidiConverter <br>
  */
-public class IttakeMidiConverter implements MidiConverter {
+public class IttakeMidiConverter implements MfiMidiConverter {
 
     private static final Logger logger = getLogger(IttakeMidiConverter.class.getName());
-
-    /** the device information */
-    private static final MfiDevice.Info info =
-        new MfiDevice.Info("MIDItoMLD",
-                           "Ittake",
-                           "MIDItoMLD",
-                           "Version 1.01") {};
-
-    @Override
-    public MfiDevice.Info getDeviceInfo() {
-        return info;
-    }
-
-    @Override
-    public void close() {
-    }
-
-    @Override
-    public boolean isOpen() {
-        return true;
-    }
-
-    @Override
-    public void open() {
-    }
-
-    //----
 
     /**
      * Converts midi sequence to mfi sequence.
@@ -241,15 +212,15 @@ logger.log(Level.DEBUG, "here: " + j + ", " + timeOver);
                 case 47: // End of Track
                     break;
                 case 3:
-                    TitlMessage titl = new TitlMessage().init(TitlMessage.TYPE, metaMessage.getData());
+                    TitlChunk titl = new TitlChunk().init(TitlChunk.TYPE, metaMessage.getData());
                     mfiTrack.add(new MfiEvent(titl, presentTime));
                     break;
                 case 1: // Text
-                    ProtMessage prot = new ProtMessage().init(ProtMessage.TYPE, metaMessage.getData());
+                    ProtChunk prot = new ProtChunk().init(ProtChunk.TYPE, metaMessage.getData());
                     mfiTrack.add(new MfiEvent(prot, presentTime));
                     break;
                 case 2: // Copyright
-                    CopyMessage copy = new CopyMessage().init(CopyMessage.TYPE, metaMessage.getData());
+                    CopyChunk copy = new CopyChunk().init(CopyChunk.TYPE, metaMessage.getData());
                     mfiTrack.add(new MfiEvent(copy, presentTime));
                     break;
                 default:
@@ -296,6 +267,16 @@ logger.log(Level.DEBUG, "here: " + j + ", " + timeOver);
 logger.log(Level.TRACE, e.getMessage(), e);
             throw new InvalidMfiDataException(e);
         }
+    }
+
+    @Override
+    public boolean isFileTypeSupported(vavi.sound.mfi.Sequence sequence) {
+        return false;
+    }
+
+    @Override
+    public boolean isFileTypeSupported(Sequence sequence) {
+        return false;
     }
 
     /** Converts mfi sequence to midi sequence */
