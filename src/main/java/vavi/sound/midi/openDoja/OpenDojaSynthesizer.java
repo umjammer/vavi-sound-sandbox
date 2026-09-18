@@ -8,12 +8,18 @@ package vavi.sound.midi.openDoja;
 
 import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 import javax.sound.midi.Instrument;
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
@@ -30,6 +36,7 @@ import javax.sound.midi.SysexMessage;
 import javax.sound.midi.Transmitter;
 import javax.sound.midi.VoiceStatus;
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
@@ -78,10 +85,20 @@ import static vavi.sound.midi.VaviMidiDeviceProvider.MANUFACTURER_ID;
  * The universal master volume is the listener's and scales the rendering, unless it is the one
  * {@code MasterVolumeMessage} sends right behind its own exclusive, which is the song's.
  * </p>
+ * <p>
+ * The player takes every event on its very frame, so does this: a message is put off to a
+ * frame and the rendering stops there to take it. Real time, the frame is when the message
+ * came in plus {@link #LATENCY}, which the renderer never runs ahead of the clock by, so the
+ * sequencer thread waking up late or early does not move the notes around; with
+ * {@link #openStream()} it is the time stamp. Messages due on a frame are taken in the order
+ * the player calls the sampler in, see {@link #due}. Given the frames the player is on at the
+ * ticks, this renders what the player does sample for sample, see the test.
+ * </p>
  *
  * @author <a href="mailto:umjammer@gmail.com">Naohide Sano</a> (nsano)
  * @version 0.00 2026/07/09 nsano initial version <br>
  *          0.01 2026-09-18 nsano drive the sampler with mfi values <br>
+ *          0.02 2026-09-18 nsano take messages on their frames <br>
  */
 public abstract class OpenDojaSynthesizer implements Synthesizer {
 
@@ -109,9 +126,86 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
     private static final int EVENT_MODULATION = 0xea;
 
     private static final float SAMPLE_RATE = 48000.0f;
-    private static final int BLOCK_SIZE = 1024;
+
+    /** the most frames rendered at once by the real time renderer */
+    private static final int BLOCK_SIZE = 256;
+
+    /** the least frames rendered at once by the real time renderer, about 1 ms */
+    private static final int MIN_BLOCK_SIZE = 48;
+
+    /**
+     * How far behind the messages the real time renderer plays them, in microseconds.
+     * The sequencer sends them on its own thread whenever it wakes up, so they are put off by
+     * this much from when they came in and taken at that very frame, which keeps their
+     * spacing and so the tempo of every track.
+     */
+    private static final long LATENCY = Long.getLong("vavi.sound.midi.openDoja.latency", 100_000);
 
     private final AudioFormat audioFormat = new AudioFormat(SAMPLE_RATE, 16, 2, true, false);
+
+    /**
+     * The messages the real time sequencer sends for a tick come one right after another,
+     * so ones coming within this many frames of the first of them are taken as the same tick
+     * and share its frame, see {@link #due}.
+     */
+    private static final int BURST_FRAMES = (int) (SAMPLE_RATE / 2000); // 0.5 ms
+
+    /**
+     * Messages the receiver took, waiting for their frame.
+     *
+     * @param messages the message and the {@link MfiValueExclusive#CHANNEL} and
+     *        {@link MfiValueExclusive#PROGRAM} exclusives before it, which go with it
+     * @see #due
+     */
+    private record Event(long frame, long sequence, OpenDojaReceiver receiver, MidiMessage[] messages) {
+
+        /** the sampler channel of the note on or off this is, -1 if it is not one */
+        int channel() {
+            if (!(messages[messages.length - 1] instanceof ShortMessage note) || note.getCommand() >= 0xf0) {
+                return -1;
+            }
+            for (MidiMessage message : messages) {
+                byte[] whole = message.getMessage();
+                if (MfiValueExclusive.sub(whole) == MfiValueExclusive.CHANNEL && whole.length >= 7) {
+                    return whole[5] & 0x0f;
+                }
+            }
+            return note.getChannel();
+        }
+
+        /** the note of this, -1 if this is not a note on */
+        int noteOn() {
+            return messages[messages.length - 1] instanceof ShortMessage note &&
+                    note.getCommand() == ShortMessage.NOTE_ON && note.getData2() != 0 ? note.getData1() : -1;
+        }
+
+        /** the note of this, -1 if this is not a note off */
+        int noteOff() {
+            return messages[messages.length - 1] instanceof ShortMessage note &&
+                    (note.getCommand() == ShortMessage.NOTE_OFF ||
+                     (note.getCommand() == ShortMessage.NOTE_ON && note.getData2() == 0)) ? note.getData1() : -1;
+        }
+    }
+
+    /** the messages to come, in order of frame then of arrival */
+    private final PriorityQueue<Event> events = new PriorityQueue<>(
+            Comparator.comparingLong(Event::frame).thenComparingLong(Event::sequence));
+
+    /** the clock frame the current burst of real time messages came in at, see {@link #BURST_FRAMES} */
+    private long burstClock = Long.MIN_VALUE;
+
+    private long sequence;
+
+    /** frames rendered so far */
+    private volatile long position;
+
+    /** whether the frames are rendered against the clock onto a line, or read by the user */
+    private boolean realtime;
+
+    /** {@link System#nanoTime()} at open */
+    private long startNanos;
+
+    private final int latencyFrames = (int) (LATENCY * SAMPLE_RATE / 1_000_000);
 
     /**
      * How often each key of each sampler channel is on. An mfi note longer than its gate time
@@ -129,7 +223,6 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
 
     private final Object lock = new Object();
 
-    private long timestamp;
     private volatile boolean isOpen;
     private SourceDataLine line;
     private Sampler sampler;
@@ -137,12 +230,7 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
     /** the listener's volume, the amplitude the sampler renders with */
     private volatile float masterGain = 1.0f;
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
-        Thread thread = new Thread(r, "OpenDoja Renderer");
-        thread.setPriority(Thread.MAX_PRIORITY);
-        thread.setDaemon(true);
-        return thread;
-    });
+    private ExecutorService executor;
 
     protected OpenDojaSynthesizer() {
         for (int i = 0; i < channels.length; i++) {
@@ -162,13 +250,8 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
         return param == 0.0f ? 0.0f : (float) Math.pow(2, (1 - param) * -96 / 20);
     }
 
-    @Override
-    public void open() throws MidiUnavailableException {
-        if (isOpen()) {
-            logger.log(Level.WARNING, "already open: " + hashCode());
-            return;
-        }
-
+    /** the sampler and the channels afresh, nothing rendered yet */
+    private void init(boolean realtime) {
         synchronized (lock) {
             SamplerProvider provider = createSamplerProvider();
             sampler = provider.instance(SAMPLE_RATE);
@@ -176,48 +259,218 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
             for (OpenDojaMidiChannel channel : channels) {
                 channel.reset();
             }
+            events.clear();
+            position = 0;
+            masterGain = 1.0f;
+            this.realtime = realtime;
+            startNanos = System.nanoTime();
+        }
+    }
+
+    @Override
+    public void open() throws MidiUnavailableException {
+        if (isOpen()) {
+            logger.log(Level.WARNING, "already open: " + hashCode());
+            return;
         }
 
         try {
             DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, audioFormat, AudioSystem.NOT_SPECIFIED);
             line = (SourceDataLine) AudioSystem.getLine(lineInfo);
             line.addLineListener(event -> logger.log(Level.DEBUG, "Line: " + event.getType()));
-            line.open(audioFormat);
+            // room for more than the latency, the renderer keeps it filled only that far
+            line.open(audioFormat, Math.max(latencyFrames, BLOCK_SIZE) * 4 * audioFormat.getFrameSize());
             line.start();
         } catch (LineUnavailableException e) {
             throw (MidiUnavailableException) new MidiUnavailableException().initCause(e);
         }
 
-        timestamp = 0;
+        init(true);
         isOpen = true;
 
+        executor = Executors.newSingleThreadExecutor(r -> {
+            Thread thread = new Thread(r, "OpenDoja Renderer");
+            thread.setPriority(Thread.MAX_PRIORITY);
+            thread.setDaemon(true);
+            return thread;
+        });
         executor.submit(this::play);
     }
 
+    /**
+     * Opens this without a line: the sound is what is read from the stream returned, and a
+     * message is taken at the frame of its time stamp (microseconds from the first frame),
+     * or at the next frame read if it has none.
+     *
+     * @return 48 kHz, 16 bit, stereo, little endian pcm of this, without an end
+     */
+    public AudioInputStream openStream() throws MidiUnavailableException {
+        if (isOpen()) {
+            throw new MidiUnavailableException("already open");
+        }
+        init(false);
+        isOpen = true;
+
+        InputStream is = new InputStream() {
+            float[] samples = new float[0];
+
+            @Override
+            public int read() throws IOException {
+                throw new UnsupportedOperationException("read by frames");
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                if (!isOpen) {
+                    return -1;
+                }
+                int frames = len / 4;
+                if (frames == 0) {
+                    return 0;
+                }
+                if (samples.length < frames * 2) {
+                    samples = new float[frames * 2];
+                }
+                render(samples, 0, frames);
+                return toPcm16le(samples, frames, b, off);
+            }
+        };
+        return new AudioInputStream(is, audioFormat, AudioSystem.NOT_SPECIFIED);
+    }
+
+    /**
+     * Renders the frames, taking every message which is due on its very frame.
+     *
+     * @param samples stereo interleaved
+     */
+    void render(float[] samples, int offset, int frames) {
+        synchronized (lock) {
+            while (frames > 0) {
+                Event event = events.peek();
+                if (event != null && event.frame <= position) {
+                    for (Event due : due()) {
+                        for (MidiMessage message : due.messages) {
+                            try {
+                                due.receiver.process(message);
+                            } catch (RuntimeException e) {
+                                logger.log(Level.WARNING, e.getMessage(), e);
+                            }
+                        }
+                    }
+                    continue;
+                }
+                int f = event == null ? frames : (int) Math.min(frames, event.frame - position);
+                float gain = masterGain;
+                if (sampler != null) {
+                    sampler.render(samples, offset, f, gain, gain, true, true);
+                } else {
+                    Arrays.fill(samples, offset, offset + f * 2, 0.0f);
+                }
+                offset += f * 2;
+                frames -= f;
+                position += f;
+            }
+        }
+    }
+
+    /**
+     * The messages due, in the order {@code MLDPlayer} would call the sampler for them.
+     * <p>
+     * The player lets go of the notes whose gate time is up, channel by channel, before it
+     * processes the events of a tick; the midi has those note offs wherever their tracks put
+     * them. The order matters: a note off after a note on of the same key keeps it from being
+     * struck again, as a sampler not retriggering an active key does, and which voice a note
+     * gets depends on which ones have been let go. So a note off goes first, unless a note on
+     * of its key comes before it: that is the converter cutting a note short where the next
+     * one of the key begins, which the player does not let go but carries on.
+     * </p>
+     * <p>
+     * Must be called with {@link #lock} held.
+     * </p>
+     */
+    private List<Event> due() {
+        List<Event> due = new ArrayList<>();
+        while (!events.isEmpty() && events.peek().frame <= position) {
+            due.add(events.poll());
+        }
+        List<Event> offs = new ArrayList<>();
+        List<Event> rest = new ArrayList<>();
+        for (Event event : due) {
+            int note = event.noteOff();
+            int channel = event.channel();
+            boolean struck = note >= 0 && rest.stream().anyMatch(e -> e.noteOn() == note && e.channel() == channel);
+            (note >= 0 && !struck ? offs : rest).add(event);
+        }
+        offs.sort(Comparator.comparingInt(Event::channel)); // stable
+        offs.addAll(rest);
+        return offs;
+    }
+
+    private static int toPcm16le(float[] samples, int frames, byte[] buf, int offset) {
+        int output = offset;
+        for (int i = 0; i < frames * 2; i++) {
+            float sample = Math.clamp(samples[i], -1.0f, 1.0f);
+            int value = Math.round(sample * Short.MAX_VALUE);
+            buf[output++] = (byte) (value & 0xFF);
+            buf[output++] = (byte) ((value >>> 8) & 0xFF);
+        }
+        return output - offset;
+    }
+
+    /** the frame of the clock, which the line plays {@link #latencyFrames} behind */
+    private long clockFrame() {
+        return clockFrame(System.nanoTime());
+    }
+
+    private long clockFrame(long nanos) {
+        return (long) ((nanos - startNanos) * (double) SAMPLE_RATE / 1_000_000_000L);
+    }
+
+    /**
+     * The frame a message sent at the time stamp is to be taken at.
+     * <p>
+     * Must be called with {@link #lock} held.
+     * </p>
+     * @param nanos when the message came in, before waiting for the lock the renderer holds
+     */
+    private long frameOf(long timeStamp, long nanos) {
+        if (realtime) {
+            long frame;
+            if (timeStamp < 0) {
+                frame = clockFrame(nanos);
+                if (frame - burstClock <= BURST_FRAMES) {
+                    frame = burstClock;
+                } else {
+                    burstClock = frame;
+                }
+            } else {
+                frame = Math.round(timeStamp * (double) SAMPLE_RATE / 1_000_000);
+            }
+            return frame + latencyFrames;
+        } else {
+            return timeStamp < 0 ? position : Math.round(timeStamp * (double) SAMPLE_RATE / 1_000_000);
+        }
+    }
+
+    /**
+     * Renders against the clock, never more than the latency ahead of it: a message coming in
+     * now is due at the clock + the latency, which must not have been rendered yet.
+     */
     private void play() {
         float[] samples = new float[BLOCK_SIZE * 2];
         byte[] buf = new byte[BLOCK_SIZE * 4];
 
         while (isOpen) {
             try {
-                float gain = masterGain;
-                synchronized (lock) {
-                    if (sampler != null) {
-                        sampler.render(samples, 0, BLOCK_SIZE, gain, gain, true, true);
-                    } else {
-                        Arrays.fill(samples, 0.0f);
-                    }
+                long ahead = clockFrame() + latencyFrames - position;
+                if (ahead < MIN_BLOCK_SIZE) {
+                    LockSupport.parkNanos(500_000);
+                    continue;
                 }
-
-                int output = 0;
-                for (int i = 0; i < BLOCK_SIZE * 2; i++) {
-                    float sample = Math.clamp(samples[i], -1.0f, 1.0f);
-                    int value = Math.round(sample * Short.MAX_VALUE);
-                    buf[output++] = (byte) (value & 0xFF);
-                    buf[output++] = (byte) ((value >>> 8) & 0xFF);
-                }
-
-                line.write(buf, 0, buf.length);
+                int frames = (int) Math.min(ahead, BLOCK_SIZE);
+                render(samples, 0, frames);
+                int length = toPcm16le(samples, frames, buf, 0);
+                line.write(buf, 0, length);
             } catch (Exception e) {
                 logger.log(Level.INFO, e.getMessage(), e);
             }
@@ -230,18 +483,28 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
         for (Receiver receiver : new ArrayList<>(receivers)) {
             receiver.close();
         }
-        executor.shutdown();
+        if (executor != null) {
+            executor.shutdown();
+            try {
+                executor.awaitTermination(1, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            executor = null;
+        }
         if (line != null) {
             line.drain();
             line.close();
+            line = null;
         }
         synchronized (lock) {
+            events.clear();
             if (sampler != null) {
                 sampler.stopAll();
                 sampler = null;
             }
+            voiceStatuses.clear();
         }
-        voiceStatuses.clear();
     }
 
     @Override
@@ -251,7 +514,11 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
 
     @Override
     public long getMicrosecondPosition() {
-        return timestamp;
+        if (realtime) {
+            return (System.nanoTime() - startNanos) / 1000;
+        } else {
+            return (long) (position * 1_000_000d / SAMPLE_RATE);
+        }
     }
 
     @Override
@@ -291,7 +558,7 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
 
     @Override
     public long getLatency() {
-        return (long) (BLOCK_SIZE / SAMPLE_RATE * 1_000_000);
+        return LATENCY;
     }
 
     @Override
@@ -432,6 +699,14 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
         /** the mfi program the next program change is, -1 for its own */
         private int mfiProgram = -1;
 
+        /**
+         * Whether the next program change is the one the converter sends along with a bank
+         * change, which is the program the channel has already. The player changes the bank
+         * only, and the fuetrek sound source would take a program change as selecting the
+         * voice of the new bank right away.
+         */
+        private boolean bankProgram;
+
         public OpenDojaMidiChannel(int channel) {
             this.channel = channel;
             this.keysOn = OpenDojaSynthesizer.this.keysOn[channel];
@@ -443,6 +718,7 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
             Arrays.fill(keysOn, 0);
             origin = -1;
             mfiProgram = -1;
+            bankProgram = false;
         }
 
         /**
@@ -638,6 +914,10 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
                 // the midi program keeps the mfi program in its low 6 bits and only bit 0 of
                 // the mfi bank above them, the bank itself comes as an exclusive
                 int target = target();
+                if (bankProgram) {
+                    bankProgram = false;
+                    return;
+                }
                 if (mfiProgram >= 0) {
                     program = mfiProgram;
                     mfiProgram = -1;
@@ -904,15 +1184,57 @@ public abstract class OpenDojaSynthesizer implements Synthesizer {
         /** the next universal master volume is the song's, already taken */
         private boolean songVolume;
 
+        /** the exclusives waiting for the next message to each channel, see {@link Event#messages} */
+        @SuppressWarnings("unchecked")
+        private final List<MidiMessage>[] prefixes = new List[MAX_CHANNEL];
+
         public OpenDojaReceiver() {
+            for (int i = 0; i < prefixes.length; i++) {
+                prefixes[i] = new ArrayList<>();
+            }
             receivers.add(this);
         }
 
+        /** puts the message off to its frame, see {@link #render} */
         @Override
         public void send(MidiMessage message, long timeStamp) {
+            long nanos = System.nanoTime();
             if (!receiverOpen) throw new IllegalStateException("receiver is not open");
-            timestamp = timeStamp;
+            if (!isOpen) {
+                return;
+            }
+            message = (MidiMessage) message.clone();
+            synchronized (lock) {
+                long frame = frameOf(timeStamp, nanos);
+                int channel = -1;
+                if (message instanceof ShortMessage shortMessage && shortMessage.getCommand() < 0xf0) {
+                    channel = shortMessage.getChannel();
+                } else if (message instanceof SysexMessage sysexMessage) {
+                    byte[] whole = sysexMessage.getMessage();
+                    int sub = MfiValueExclusive.sub(whole);
+                    if (sub != -1 && whole.length >= 6) {
+                        channel = whole[4] & 0x0f;
+                    }
+                    if (sub == MfiValueExclusive.CHANNEL || sub == MfiValueExclusive.PROGRAM) {
+                        // goes with the next message to the channel
+                        prefixes[channel].add(message);
+                        return;
+                    }
+                }
+                MidiMessage[] messages;
+                if (channel >= 0 && !prefixes[channel].isEmpty()) {
+                    prefixes[channel].add(message);
+                    messages = prefixes[channel].toArray(MidiMessage[]::new);
+                    prefixes[channel].clear();
+                } else {
+                    messages = new MidiMessage[] {message};
+                }
+                events.add(new Event(frame, sequence++, this, messages));
+            }
+        }
 
+        /** Called by the renderer at the frame of the message, with {@link #lock} held. */
+        void process(MidiMessage message) {
             switch (message) {
                 case ShortMessage shortMessage -> {
                     int channel = shortMessage.getChannel();
@@ -973,7 +1295,11 @@ logger.log(Level.TRACE, "sysex: %02X\n%s".formatted(sysexMessage.getStatus(), St
                 synchronized (lock) {
                     switch (sub) {
                         case MfiValueExclusive.BANK -> {
-                            if (whole.length >= 7) channels[whole[4] & 0x0f].bank(whole[5] & 0x3f);
+                            if (whole.length >= 7) {
+                                OpenDojaMidiChannel channel = channels[whole[4] & 0x0f];
+                                channel.bank(whole[5] & 0x3f);
+                                channel.bankProgram = true;
+                            }
                         }
                         case MfiValueExclusive.MASTER_VOLUME -> {
                             // the universal master volume following is the same one
