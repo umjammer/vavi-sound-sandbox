@@ -57,6 +57,15 @@ public final class MusicScore {
      * @param event an event
      */
     public void add(MusicEvent event) {
+        if (event instanceof ChangeTempo) {
+            for (int i = 0; i < eventList.size(); i++) {
+                MusicEvent e = eventList.get(i);
+                if (e.getTick() == event.getTick() && e.getChannel() == event.getChannel() && e instanceof ChangeTempo) {
+                    eventList.remove(i);
+                    break;
+                }
+            }
+        }
         for (int i = eventList.size() - 1; i >= 0; i--) {
             MusicEvent e = eventList.get(i);
 

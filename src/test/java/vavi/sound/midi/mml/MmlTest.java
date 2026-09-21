@@ -14,15 +14,24 @@ import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Stream;
 import javax.sound.midi.MetaEventListener;
+import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
+import javax.sound.midi.MidiEvent;
+import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
+import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Synthesizer;
+import javax.sound.midi.Track;
 import javax.sound.sampled.LineEvent;
 
 import jp.or.rim.kt.kemusiro.sound.FMGeneralInstrument;
+import jp.or.rim.kt.kemusiro.sound.MMLCompiler;
 import jp.or.rim.kt.kemusiro.sound.MMLPlayer;
+import jp.or.rim.kt.kemusiro.sound.MusicEvent;
+import jp.or.rim.kt.kemusiro.sound.MusicScore;
+import jp.or.rim.kt.kemusiro.sound.WaveInputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -221,5 +230,85 @@ Debug.println("synthesizer: " + synthesizer);
         Thread.sleep(1000);
 
         synthesizer.close();
+    }
+
+    @Test
+    @DisabledIfEnvironmentVariable(named = "vavi.test", matches = "ai")
+    void test5_investigate() throws Exception {
+        // 1. Analyze WaveInputStream (used by test1)
+        int tickPerBeat = 240;
+        String mmlContent = String.join("", Files.readAllLines(Paths.get(mml)));
+        MusicScore score = new MusicScore(tickPerBeat, 1);
+        MMLCompiler compiler = new MMLCompiler(tickPerBeat, 1);
+        compiler.compile(score, new String[] {mmlContent});
+
+        System.err.println("--- Test1 (WaveInputStream / API) ---");
+        System.err.println("MusicScore events:");
+        for (MusicEvent e : score.getEventList()) {
+            if (e.getTick() < 500) {
+                System.err.printf("  tick: %d, event: %s%n", e.getTick(), e);
+            }
+        }
+
+        WaveInputStream in = new WaveInputStream(score, 22100, 8);
+        byte[] buf = new byte[22100];
+        int read = in.read(buf);
+        System.err.printf("WaveInputStream read %d bytes%n", read);
+
+        // Find length of first non-zero section in buf
+        int firstNonZero = -1;
+        int firstZeroAfterNonZero = -1;
+        for (int i = 0; i < read; i++) {
+            if (buf[i] != 0 && firstNonZero == -1) {
+                firstNonZero = i;
+            } else if (buf[i] == 0 && firstNonZero != -1 && firstZeroAfterNonZero == -1) {
+                firstZeroAfterNonZero = i;
+            }
+        }
+        System.err.printf("Test1 first note start sample: %d, end sample: %d, count: %d samples (%.2f ms)%n",
+                firstNonZero, firstZeroAfterNonZero, (firstZeroAfterNonZero - firstNonZero),
+                (firstZeroAfterNonZero - firstNonZero) * 1000.0 / 22100);
+        System.err.print("Test1 first 10 samples: ");
+        for (int i = 0; i < 10 && i < read; i++) {
+            System.err.printf("%d ", buf[i]);
+        }
+        System.err.println();
+
+        // 2. Analyze MmlSequence (used by test3)
+        System.err.println("--- Test3 (MmlSequence / SPI) ---");
+        MmlSequence mmlSeq = new MmlSequence();
+        mmlSeq.setScore(new BufferedInputStream(Files.newInputStream(Paths.get(mml))));
+        Sequence sequence = mmlSeq.toMidiSequence();
+        System.err.printf("Sequence resolution (PPQ): %d, divisionType: %f%n", sequence.getResolution(), sequence.getDivisionType());
+
+        Track track = sequence.getTracks()[0];
+        System.err.println("Sequence Track 0 events:");
+        long noteOnTick = -1;
+        long noteOffTick = -1;
+        for (int i = 0; i < track.size(); i++) {
+            MidiEvent ev = track.get(i);
+            if (ev.getTick() < 500) {
+                MidiMessage msg = ev.getMessage();
+                if (msg instanceof ShortMessage sm) {
+                    System.err.printf("  tick: %d, short: cmd=%02x ch=%d data1=%02x data2=%02x%n",
+                            ev.getTick(), sm.getCommand(), sm.getChannel(), sm.getData1(), sm.getData2());
+                    if (sm.getCommand() == ShortMessage.NOTE_ON && noteOnTick == -1) {
+                        noteOnTick = ev.getTick();
+                    } else if (sm.getCommand() == ShortMessage.NOTE_OFF && noteOffTick == -1) {
+                        noteOffTick = ev.getTick();
+                    }
+                } else if (msg instanceof MetaMessage mm) {
+                    byte[] data = mm.getData();
+                    int tempo = 0;
+                    if (mm.getType() == 0x51 && data.length == 3) {
+                        tempo = ((data[0] & 0xff) << 16) | ((data[1] & 0xff) << 8) | (data[2] & 0xff);
+                    }
+                    System.err.printf("  tick: %d, meta: type=%02x len=%d tempoMPQ=%d (BPM=%.1f)%n",
+                            ev.getTick(), mm.getType(), mm.getLength(), tempo, tempo > 0 ? 60000000.0 / tempo : 0);
+                }
+            }
+        }
+        System.err.printf("Test3 NoteOn tick: %d, NoteOff tick: %d, tick diff: %d%n",
+                noteOnTick, noteOffTick, (noteOffTick - noteOnTick));
     }
 }

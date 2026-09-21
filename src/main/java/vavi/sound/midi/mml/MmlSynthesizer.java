@@ -258,6 +258,15 @@ logger.log(Level.DEBUG, "meta: %02x".formatted(type));
  logger.log(Level.DEBUG, t.getMessage(), t);
 }
             this.receiver.send(message, timeStamp);
+            if (message instanceof SysexMessage sysexMessage) {
+                byte[] data = sysexMessage.getData();
+                if (data.length >= 4 && (data[0] & 0xff) == 0x7f && (data[1] & 0xff) == 0x7f && data[2] == 0x04 && data[3] == 0x01) {
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+            }
         }
 
         @Override
