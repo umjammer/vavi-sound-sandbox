@@ -19,6 +19,7 @@ import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
+import javax.sound.midi.Receiver;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.ShortMessage;
@@ -182,8 +183,9 @@ Debug.println("sequencer: " + sequencer);
         sequencer.open();
         Synthesizer synthesizer = new MmlSynthesizer();
         synthesizer.open();
-        sequencer.getTransmitter().setReceiver(synthesizer.getReceiver());
-        volume(synthesizer.getReceiver(), midiVolume);
+        Receiver receiver = synthesizer.getReceiver();
+        sequencer.getTransmitter().setReceiver(receiver);
+        volume(receiver, midiVolume);
         sequencer.setSequence(sequence);
 
         sequencer.start();
@@ -217,7 +219,8 @@ Debug.println("synthesizer: " + synthesizer);
                 .forEach(i ->
                         System.err.printf("patch: %d.%d%n".formatted(i.getPatch().getBank(), i.getPatch().getProgram())));
 
-        volume(synthesizer.getReceiver(), midiVolume);
+        Receiver receiver = synthesizer.getReceiver();
+        volume(receiver, midiVolume);
 
         MidiChannel channel = synthesizer.getChannels()[0];
         channel.programChange(data1, data2);
