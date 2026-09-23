@@ -10,7 +10,9 @@ import java.io.BufferedInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import javax.sound.midi.MetaEventListener;
 import javax.sound.midi.MidiSystem;
@@ -19,9 +21,13 @@ import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.Synthesizer;
 import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.SourceDataLine;
+import com.sun.jna.Callback;
+import com.sun.jna.Memory;
+import com.sun.jna.Native;
 import com.sun.media.sound.SoftSynthesizer;
 
 import vavi.sound.SoundUtil;
@@ -267,6 +273,99 @@ Debug.println("  " + parameter + " = " + effect.getParameter(parameter.id()));
         assertThrows(IllegalArgumentException.class, () -> reverb.setParameter("No Such Knob", 1));
 
         line.close();
+    }
+
+    @Test
+    @DisplayName("close while a writer is still writing, song after song")
+    void test8() throws Exception {
+        // like mdplayer does at a song change: the render thread may still be in write() when
+        // the line is closed. a buffer scheduled with the completion block after close() used to
+        // outlive the block, AVFAudio called it back when the player node was released and the
+        // jvm died in _dispatch_client_callout
+        // a call into a block whose java side is gone fails to convert its argument before it
+        // gets to crash, that is what we count
+        List<Throwable> callbackErrors = new CopyOnWriteArrayList<>();
+        Callback.UncaughtExceptionHandler handler = Native.getCallbackExceptionHandler();
+        Native.setCallbackExceptionHandler((c, e) -> callbackErrors.add(e));
+        AudioFormat format = new AudioFormat(44100, 16, 2, true, false);
+        byte[] pcm = tone(format, 0.05);
+        try {
+            for (int i = 0; i < 30; i++) {
+                RococoaSourceDataLine line = new RococoaSourceDataLine();
+                line.setEffects(effects);
+                line.open(format, 44100 / 5 * format.getFrameSize());
+                ((FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN)).setValue(20f * (float) Math.log10(volume));
+                line.start();
+                Thread writer = new Thread(() -> {
+                    while (line.isOpen()) {
+                        line.write(pcm, 0, pcm.length);
+                    }
+                });
+                writer.start();
+                Thread.sleep(100 + i * 7 % 50);
+                line.close();
+                writer.join();
+
+                System.gc();
+                Thread.sleep(10);
+                // recycle what gc freed with junk, a dangling block then has a garbage invoke pointer
+                List<Memory> junk = new ArrayList<>();
+                for (int j = 0; j < 10000; j++) {
+                    Memory m = new Memory(32 + (j % 4) * 8);
+                    m.setMemory(0, m.size(), (byte) 0xa5);
+                    junk.add(m);
+                }
+                System.gc();
+                Thread.sleep(50);
+                junk.clear();
+            }
+        } finally {
+            Native.setCallbackExceptionHandler(handler);
+        }
+        assertTrue(callbackErrors.isEmpty(), () -> callbackErrors.size() + " callbacks into dead blocks: " + callbackErrors.getFirst());
+    }
+
+    @Test
+    @DisplayName("a line dropped without close(), song after song")
+    void test9() throws Exception {
+        // mdplayer opens a new line for every song and just drops the old one. the old engine keeps
+        // running (rococoa never releases it) and calls the completion block of the buffers it had
+        // later on, the block used to be gc'ed along with the line by then
+        List<Throwable> callbackErrors = new CopyOnWriteArrayList<>();
+        Callback.UncaughtExceptionHandler handler = Native.getCallbackExceptionHandler();
+        Native.setCallbackExceptionHandler((c, e) -> callbackErrors.add(e));
+        AudioFormat format = new AudioFormat(44100, 16, 2, true, false);
+        byte[] pcm = tone(format, 0.3);
+        try {
+            for (int i = 0; i < 20; i++) {
+                RococoaSourceDataLine line = new RococoaSourceDataLine();
+                line.setEffects(effects);
+                line.open(format, 44100 / 5 * format.getFrameSize());
+                ((FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN)).setValue(20f * (float) Math.log10(volume));
+                line.start();
+                line.write(pcm, 0, pcm.length); // the ring is full, nothing drained
+                if (i % 2 == 0) {
+                    line.stop(); // paused with buffers pending
+                }
+                line = null; // dropped, not closed
+
+                System.gc();
+                Thread.sleep(10);
+                // recycle what gc freed with junk, a dangling block then has a garbage invoke pointer
+                List<Memory> junk = new ArrayList<>();
+                for (int j = 0; j < 10000; j++) {
+                    Memory m = new Memory(32 + (j % 4) * 8);
+                    m.setMemory(0, m.size(), (byte) 0xa5);
+                    junk.add(m);
+                }
+                System.gc();
+                Thread.sleep(300);
+                junk.clear();
+            }
+        } finally {
+            Native.setCallbackExceptionHandler(handler);
+        }
+        assertTrue(callbackErrors.isEmpty(), () -> callbackErrors.size() + " callbacks into dead blocks: " + callbackErrors.getFirst());
     }
 
     /** wav through the chain, so you can hear what the effects do to real material */

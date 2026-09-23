@@ -10,9 +10,12 @@ import java.lang.System.Logger;
 import java.lang.System.Logger.Level;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
@@ -29,7 +32,6 @@ import javax.sound.sampled.SourceDataLine;
 
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
-import org.rococoa.Foundation;
 import org.rococoa.ObjCBlocks.BlockLiteral;
 import vavi.util.ByteUtil;
 import vavix.rococoa.avfoundation.AVAudioEngine;
@@ -144,8 +146,67 @@ public class RococoaSourceDataLine implements SourceDataLine {
 
     private AVAudioPCMBuffer[] buffers;
 
-    /** kept alive as long as the line is open, it is a global block so reusing it is fine */
-    private BlockLiteral completionHandler;
+    /** it is a global block so reusing it is fine, see {@link CompletionBlock} for its lifetime */
+    private CompletionBlock completionHandler;
+
+    /**
+     * The completion handler block and the book keeping of its lifetime.
+     * <p>
+     * The block is a global block living in jna memory, so {@code Block_copy}/{@code Block_release}
+     * are no-ops and only java reachability keeps it alive. AVFAudio calls the handler of every
+     * buffer it ever got, and it may do so late, on its own dispatch queue ({@code ~BufferCommand}
+     * &rarr; {@code CallCompletionHandler}). When the block has been gc'ed by then the jvm dies in
+     * {@code _dispatch_client_callout} with a zero or garbage pc.
+     * <p>
+     * So every block is held by {@link #alive} from its creation, not by the line: a line that is
+     * dropped without {@link #close()} (mdplayer does that at every song change) leaves its engine
+     * running, and rococoa never releases that engine, so its block has to stay for good. A block
+     * is let go only once its line is closed and every buffer scheduled with it has been called
+     * back for.
+     */
+    private static final class CompletionBlock {
+        /** every block AVFAudio may still call */
+        static final Set<CompletionBlock> alive = ConcurrentHashMap.newKeySet();
+
+        /** how long a drained block is kept, for AVFAudio's reads of it after the callback returned */
+        static final long GRACE_NANOS = TimeUnit.SECONDS.toNanos(1);
+
+        final BlockLiteral block;
+        /** buffers scheduled with this block and not yet called back for */
+        final AtomicInteger pending = new AtomicInteger();
+        volatile long lastCalled = System.nanoTime();
+        /** the line is closed, no more buffers are scheduled with this block */
+        volatile boolean retired;
+
+        CompletionBlock(Runnable body) {
+            block = block((AVAudioPlayerNode.CompletionHandler) literal -> {
+                try {
+                    body.run();
+                } finally {
+                    lastCalled = System.nanoTime();
+                    pending.decrementAndGet();
+                }
+            });
+            // AVFAudio reads the block from its own threads, never let jna rewrite it around calls
+            block.setAutoSynch(false);
+            alive.add(this);
+        }
+
+        void scheduled() {
+            pending.incrementAndGet();
+        }
+
+        void retire() {
+            retired = true;
+            sweep();
+        }
+
+        /** forgets blocks nobody can call anymore */
+        static void sweep() {
+            long now = System.nanoTime();
+            alive.removeIf(b -> b.retired && b.pending.get() <= 0 && now - b.lastCalled > GRACE_NANOS);
+        }
+    }
 
     /** effect chain spec, {@code null} means "ask the system property" */
     private String effectsSpec;
@@ -175,6 +236,9 @@ public class RococoaSourceDataLine implements SourceDataLine {
     private final AtomicLong framesPlayed = new AtomicLong();
 
     private volatile boolean open;
+
+    /** keeps a writer from scheduling a buffer on the engine {@link #close()} is disposing */
+    private final Object scheduleLock = new Object();
 
     private volatile boolean running;
 
@@ -395,7 +459,10 @@ logger.log(Level.DEBUG, "effect: " + component + ", " + effect.name() + ", " + e
             scratch = new float[GRAPH_CHANNELS][framesPerBuffer];
             free = new Semaphore(RING);
             inFlight = new ArrayBlockingQueue<>(RING);
-            completionHandler = block((AVAudioPlayerNode.CompletionHandler) literal -> {
+            CompletionBlock.sweep();
+            Semaphore free = this.free;
+            ArrayBlockingQueue<Integer> inFlight = this.inFlight;
+            completionHandler = new CompletionBlock(() -> {
                 Integer frames = inFlight.poll();
                 if (frames != null) {
                     framesPlayed.addAndGet(frames);
@@ -445,21 +512,25 @@ logger.log(Level.DEBUG, "effect: " + component + ", " + effect.name() + ", " + e
 
     @Override
     public void start() {
-        if (!open || running) {
-            return;
+        synchronized (scheduleLock) {
+            if (!open || running) {
+                return;
+            }
+            running = true;
+            player.play();
         }
-        running = true;
-        player.play();
         fireUpdate(new LineEvent(this, LineEvent.Type.START, getLongFramePosition()));
     }
 
     @Override
     public void stop() {
-        if (!open || !running) {
-            return;
+        synchronized (scheduleLock) {
+            if (!open || !running) {
+                return;
+            }
+            running = false;
+            player.pause();
         }
-        running = false;
-        player.pause();
         fireUpdate(new LineEvent(this, LineEvent.Type.STOP, getLongFramePosition()));
     }
 
@@ -505,6 +576,17 @@ logger.log(Level.DEBUG, "effect: " + component + ", " + effect.name() + ", " + e
 
     /** hands the slot being filled over to the player node. */
     private void schedule() {
+        synchronized (scheduleLock) {
+            if (!open) {
+                current = null;
+                fillPosition = 0;
+                return;
+            }
+            scheduleLocked();
+        }
+    }
+
+    private void scheduleLocked() {
         if (current == null || fillPosition == 0) {
             return;
         }
@@ -514,7 +596,8 @@ logger.log(Level.DEBUG, "effect: " + component + ", " + effect.name() + ", " + e
         }
         current.setFrameLength(fillPosition);
         inFlight.add(fillPosition);
-        player.scheduleBuffer(current, completionHandler);
+        completionHandler.scheduled();
+        player.scheduleBuffer(current, completionHandler.block);
         current = null;
         fillPosition = 0;
     }
@@ -570,7 +653,8 @@ logger.log(Level.DEBUG, "effect: " + component + ", " + effect.name() + ", " + e
         if (!running) {
             return;
         }
-        if (!awaitIdle()) {
+        AVAudioFormat graphFormat = this.graphFormat;
+        if (!awaitIdle() || graphFormat == null) {
             return;
         }
         try {
@@ -583,17 +667,22 @@ logger.log(Level.DEBUG, "effect: " + component + ", " + effect.name() + ", " + e
 
     @Override
     public void flush() {
-        if (!open) {
-            return;
-        }
-        current = null;
-        fillPosition = 0;
-        // stop() unschedules the pending buffers, their completion handlers still run
-        player.stop();
-        awaitIdle();
-        inFlight.clear();
-        if (running) {
-            player.play();
+        synchronized (scheduleLock) {
+            if (!open) {
+                return;
+            }
+            if (current != null) {
+                // the slot being filled goes back unplayed
+                current = null;
+                free.release();
+            }
+            fillPosition = 0;
+            // stop() unschedules the pending buffers, their completion handlers give the slots
+            // back and drain inFlight. no waiting for that here, a writer may be holding a slot
+            player.stop();
+            if (running) {
+                player.play();
+            }
         }
     }
 
@@ -617,9 +706,11 @@ logger.log(Level.DEBUG, "effect: " + component + ", " + effect.name() + ", " + e
         if (!open) {
             return;
         }
-        open = false;
-        running = false;
-        disposeEngine();
+        synchronized (scheduleLock) {
+            open = false;
+            running = false;
+            disposeEngine();
+        }
         fireUpdate(new LineEvent(this, LineEvent.Type.CLOSE, getLongFramePosition()));
     }
 
@@ -631,12 +722,12 @@ logger.log(Level.DEBUG, "effect: " + component + ", " + effect.name() + ", " + e
             engine.stop();
         }
         if (completionHandler != null) {
-            Foundation.getRococoaLibrary().releaseObjCBlock(completionHandler.getPointer());
+            // not released, AVFAudio calls it back for the buffers stop() unscheduled later on
+            completionHandler.retire();
             completionHandler = null;
         }
         effects.clear();
-        buffers = null;
-        scratch = null;
+        // buffers and scratch are left alone, a writer racing close() may still touch them
         current = null;
         player = null;
         engine = null;
