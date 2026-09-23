@@ -58,6 +58,7 @@
 | sampled     | wma           |       ✅       |       -        |       ✅        | this                                                                                       | ffmpeg                                                                                                                       |                                                                   |
 | sampled     | auto wiring   |       ✅       |       -        |       ✅        | this                                                                                       |                                                                                                                              | chains the registered conversion spi, no format of its own        |
 | sampled     | rococa        |       ✅       |       -        |       ✅        | this                                                                                       |                                                                                                                              | source data line to audiounit mixer, effect cahin available       |
+| midi        | openDoja      |       ✅       |       -        |       ✅        | this                                                                                       | [openDoja]()                                                                                                                 | includes MA3, Fuetrek synthesizer                                 |
 
 ### Features
 
