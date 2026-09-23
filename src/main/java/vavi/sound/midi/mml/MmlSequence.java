@@ -59,7 +59,7 @@ public class MmlSequence {
 
     /** */
     public Sequence toMidiSequence() throws InvalidMidiDataException {
-        Sequence sequence = new Sequence(Sequence.PPQ, 48, channels);
+        Sequence sequence = new Sequence(Sequence.PPQ, tickPerBeat, channels);
 
         MidiContext context = new MidiContext();
 

@@ -26,7 +26,7 @@ public interface MidiConvertible {
 
         /** */
         public int getMidiTempo(int tempo) {
-            return tempo * 200;
+            return tempo > 0 ? 60_000_000 / tempo : 500_000;
         }
 
         /** */
