@@ -7,12 +7,15 @@
 package vavi.sound.sampled.opl3;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.CountDownLatch;
+import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -20,6 +23,7 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -34,6 +38,7 @@ import vavi.util.Debug;
 import vavi.util.properties.annotation.Property;
 import vavi.util.properties.annotation.PropsEntity;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static vavi.sound.SoundUtil.volume;
 import static vavix.util.DelayedWorker.later;
 
@@ -285,5 +290,17 @@ Debug.println(targetAudioFormat);
         line.drain();
         line.stop();
         line.close();
+    }
+
+    @Test
+    @DisplayName("signature-less formats (hsc, adl, sng) must not grab other files w/o file name")
+    void testRefuseWave() throws Exception {
+        // 1 sec, 24kHz, mono, 16bit: 48044 bytes, within the hsc size range
+        AudioFormat format = new AudioFormat(24000, 16, 1, true, false);
+        byte[] pcm = new byte[24000 * 2];
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        AudioSystem.write(new AudioInputStream(new ByteArrayInputStream(pcm), format, pcm.length / 2), AudioFileFormat.Type.WAVE, baos);
+        InputStream is = new BufferedInputStream(new ByteArrayInputStream(baos.toByteArray()));
+        assertThrows(UnsupportedAudioFileException.class, () -> new Opl3AudioFileReader().getAudioInputStream(is));
     }
 }

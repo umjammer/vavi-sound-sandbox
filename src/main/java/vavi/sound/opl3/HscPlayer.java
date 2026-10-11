@@ -107,13 +107,12 @@ public class HscPlayer extends Opl3Player {
     @Override
     public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
-            if (uri != null) {
-                String path = uri.getPath();
-                if (path != null && !path.toLowerCase().endsWith(".hsc")) {
-                    return false;
-                }
-            } else {
-                logger.log(Level.WARNING, "accepting by size only, check stream is opl3 (hsc) data");
+            // hsc has no signature, without the file name any file (e.g. wave) in the size range
+            // would be accepted, and other readers would never get the chance.
+            String path = uri != null ? uri.getPath() : null;
+            if (path == null || !path.toLowerCase().endsWith(".hsc")) {
+                logger.log(Level.DEBUG, "no .hsc file name, refused: " + uri);
+                return false;
             }
 
             bitStream.mark(MAX_SIZE + 1);
