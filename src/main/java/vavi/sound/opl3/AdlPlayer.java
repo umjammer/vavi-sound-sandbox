@@ -244,13 +244,11 @@ public class AdlPlayer extends Opl3Player {
     @Override
     public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
-            if (uri != null) {
-                String path = uri.getPath();
-                if (path != null && !path.toLowerCase().endsWith(".adl")) {
-                    return false;
-                }
-            } else {
-                logger.log(Level.WARNING, "accepting by size only, check stream is opl3 (adl) data");
+            // adl has no signature, without the file name other formats might be accepted
+            String path = uri != null ? uri.getPath() : null;
+            if (path == null || !path.toLowerCase().endsWith(".adl")) {
+                logger.log(Level.DEBUG, "no .adl file name, refused: " + uri);
+                return false;
             }
             bitStream.mark(1 << 22);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();

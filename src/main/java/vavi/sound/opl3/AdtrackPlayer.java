@@ -65,13 +65,11 @@ public class AdtrackPlayer extends ProtrackPlayer {
     @Override
     public boolean matchFormat(InputStream bitStream, URI uri) {
         try {
-            if (uri != null) {
-                String path = uri.getPath();
-                if (path != null && !path.toLowerCase().endsWith(".sng")) {
-                    return false;
-                }
-            } else {
-                logger.log(Level.WARNING, "accepting by size only, check stream is opl3 (adtrack) data");
+            // adtrack has no signature, without the file name other formats might be accepted
+            String path = uri != null ? uri.getPath() : null;
+            if (path == null || !path.toLowerCase().endsWith(".sng")) {
+                logger.log(Level.DEBUG, "no .sng file name, refused: " + uri);
+                return false;
             }
             bitStream.mark(65536);
             return matchFormatImpl(bitStream);
